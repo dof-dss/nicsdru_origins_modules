@@ -1,0 +1,14 @@
+{
+  "name": "dof-dss/nicsdru_origins_modules",
+  "description": "Generic modules for DOF-DSS Drupal sites",
+  "type": "drupal-module",
+  "authors": [
+    {
+      "name": "Stephen Cousins",
+      "email": "hello@onemanandhismouse.com"
+    }
+  ],
+  "require": {
+    "composer/installers": "^1.6"
+  }
+}
