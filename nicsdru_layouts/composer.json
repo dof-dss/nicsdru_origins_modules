@@ -1,0 +1,14 @@
+{
+  "name": "drupal/nicsdru_layouts",
+  "type": "drupal-module",
+  "description": "Generic Layout Builder layouts",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/nicsdru_layouts",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/nicsdru_layouts",
+    "source": "http://cgit.drupalcode.org/nicsdru_layouts"
+  },
+  "require": { }
+}
