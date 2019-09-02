@@ -5,6 +5,7 @@ namespace Drupal\nicsdru_layouts\Plugin\Layout;
 use Drupal\nicsdru_layouts\NicsDruLayout;
 
 /**
+ * Hadid layout class.
  *
  * @Layout(
  *   id = "nicsdru_layouts_hadid",

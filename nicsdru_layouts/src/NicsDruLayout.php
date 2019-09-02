@@ -11,8 +11,7 @@ use Drupal\Core\Plugin\PluginFormInterface;
  *
  * @package Drupal\nicsdru_layouts
  */
-class NicsDruLayout extends LayoutDefault implements PluginFormInterface
-{
+class NicsDruLayout extends LayoutDefault implements PluginFormInterface {
 
   /**
    * {@inheritdoc}
@@ -79,7 +78,8 @@ class NicsDruLayout extends LayoutDefault implements PluginFormInterface
     $regex = '/(^|\s)(\d|--|-\d)/m';
     preg_match_all($regex, $values['extra_classes'], $matches, PREG_SET_ORDER, 0);
     if (count($matches) > 0) {
-      // Form state messages are currently broken and do not display to the end user.
+      // Form state messages are currently broken and do not display
+      // to the end user.
       // It will however prevent the form from being submitted.
       $form_state->setErrorByName('extra_classes', $this->t('Invalid CSS name'));
     }

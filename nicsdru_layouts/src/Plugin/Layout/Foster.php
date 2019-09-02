@@ -5,12 +5,13 @@ namespace Drupal\nicsdru_layouts\Plugin\Layout;
 use Drupal\nicsdru_layouts\NicsDruLayout;
 
 /**
-*
-* @Layout(
-*   id = "nicsdru_layouts_foster",
-*   label = @Translation("Foster"),
-*   category = @Translation("NICS Origins"),
-*   template = "templates/nicsdru-layouts--foster",
+ * Foster layout class.
+ *
+ * @Layout(
+ *   id = "nicsdru_layouts_foster",
+ *   label = @Translation("Foster"),
+ *   category = @Translation("NICS Origins"),
+ *   template = "templates/nicsdru-layouts--foster",
  *   icon_map = {
  *     { "sidebar_one", "main", "sidebar_two" }
  *   },
@@ -25,8 +26,12 @@ use Drupal\nicsdru_layouts\NicsDruLayout;
  *       "label" = @Translation("Sidebar two content"),
  *     }
  *   }
-* )
-*/
+ * )
+ */
+
+/**
+ * {@inheritdoc}
+ */
 class Foster extends NicsDruLayout {
 
 }
