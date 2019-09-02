@@ -27,6 +27,28 @@ class NicsDruLayout extends LayoutDefault implements PluginFormInterface
   /**
    * {@inheritdoc}
    */
+  public function build(array $regions) {
+    $build = parent::build($regions);
+    $extra_classes = explode(' ', $build['#settings']['extra_classes']);
+
+    // Add the template ID as a class name.
+    $template_id = $build['#layout']->getTemplate();
+    $extra_classes[] = $template_id;
+
+    // Add 'reverse' class if requested and check for existing occurrences.
+    if ($build['#settings']['reverse_layout']) {
+      if (!in_array('reverse', $extra_classes)) {
+        $extra_classes[] = 'reverse';
+      }
+    }
+    $build['#settings']['extra_classes'] = ltrim(implode(' ', $extra_classes));
+
+    return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $configuration = $this->getConfiguration();
 
