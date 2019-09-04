@@ -1,5 +1,5 @@
 
-## NICSDru Layouts
+## Origins Layouts
 
 A collection of Drupal Layout Build layouts for use across multiple sites.
 Although this module provides custom layouts it does not provide the CSS 
@@ -17,7 +17,7 @@ to your layout wrapper and can be used to flip the display order of sections
 via CSS. 
 
 #### Adding additional layouts ####
-1. Create a new plugin that extends NicsDruLayout within /src/Plugin/Layout.
+1. Create a new plugin that extends OriginsLayout within /src/Plugin/Layout.
 2. Annotate the class with the required Layout annotations. 
    The current naming policy is to use the surnames of famous architects.
 3. Create a template for your layout under /templates.

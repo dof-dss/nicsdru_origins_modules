@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\nicsdru_layouts\Plugin\Layout;
+namespace Drupal\origins_layouts\Plugin\Layout;
 
-use Drupal\nicsdru_layouts\NicsDruLayout;
+use Drupal\nicsdru_layouts\OriginsLayout;
 
 /**
  * Hadid layout class.
  *
  * @Layout(
- *   id = "nicsdru_layouts_hadid",
+ *   id = "origins_layouts_hadid",
  *   label = @Translation("Hadid"),
  *   category = @Translation("NICS Origins"),
- *   template = "templates/nicsdru-layouts--hadid",
+ *   template = "templates/origins-layouts--hadid",
  *   icon_map = {
  *     {"main", "sidebar_top"},
  *     {"main", "sidebar_bottom"}
@@ -29,6 +29,6 @@ use Drupal\nicsdru_layouts\NicsDruLayout;
  *   }
  * )
  */
-class Hadid extends NicsDruLayout {
+class Hadid extends OriginsLayout {
 
 }
