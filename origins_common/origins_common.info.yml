@@ -1,0 +1,8 @@
+name: 'Origins: Common'
+type: module
+description: 'A common set of Drupal components'
+core: 8.x
+package: 'NICS: Origins'
+dependencies:
+  - drupal:help
+  - drupal:block
