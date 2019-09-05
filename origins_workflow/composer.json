@@ -4,8 +4,7 @@
   "type": "drupal-module",
   "authors": [
     {
-      "name": "Martin Dutton",
-      "email": "mail@martinduttonconsulting.co.uk"
+      "name": "Martin Dutton"
     }
   ],
   "require": {
