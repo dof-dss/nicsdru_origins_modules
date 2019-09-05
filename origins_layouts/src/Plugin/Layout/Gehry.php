@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\nicsdru_layouts\Plugin\Layout;
+namespace Drupal\origins_layouts\Plugin\Layout;
 
-use Drupal\nicsdru_layouts\NicsDruLayout;
+use Drupal\origins_layouts\OriginsLayout;
 
 /**
  * Gehry layout class.
  *
  * @Layout(
- *   id = "nicsdru_layouts_gehry",
+ *   id = "origins_layouts_gehry",
  *   label = @Translation("Gehry"),
  *   category = @Translation("NICS Origins"),
- *   template = "templates/nicsdru-layouts--gehry",
+ *   template = "templates/origins-layouts--gehry",
  *   icon_map = {
  *     { "main", "sidebar" }
  *   },
@@ -25,6 +25,6 @@ use Drupal\nicsdru_layouts\NicsDruLayout;
  *   }
  * )
  */
-class Gehry extends NicsDruLayout {
+class Gehry extends OriginsLayout {
 
 }

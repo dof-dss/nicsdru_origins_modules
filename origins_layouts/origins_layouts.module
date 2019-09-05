@@ -10,10 +10,10 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function nicsdru_layouts_help($route_name, RouteMatchInterface $route_match) {
+function origins_layouts_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     // Main module help for the nicsdru_layouts module.
-    case 'help.page.nicsdru_layouts':
+    case 'help.page.origins_layouts':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('Generic Layout Builder layouts') . '</p>';

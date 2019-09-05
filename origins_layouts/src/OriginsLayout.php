@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\nicsdru_layouts;
+namespace Drupal\origins_layouts;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
- * Class NicsDruLayouts.
+ * Class OriginsLayouts.
  *
- * @package Drupal\nicsdru_layouts
+ * @package Drupal\origins_layouts
  */
-class NicsDruLayout extends LayoutDefault implements PluginFormInterface {
+class OriginsLayout extends LayoutDefault implements PluginFormInterface {
 
   /**
    * {@inheritdoc}

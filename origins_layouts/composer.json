@@ -1,0 +1,9 @@
+{
+  "name": "drupal/origins_layouts",
+  "type": "drupal-module",
+  "description": "Generic Layout Builder layouts",
+  "keywords": ["Drupal"],
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "require": { }
+}

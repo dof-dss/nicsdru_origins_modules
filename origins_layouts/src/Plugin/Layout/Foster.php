@@ -1,17 +1,17 @@
 <?php
 
-namespace Drupal\nicsdru_layouts\Plugin\Layout;
+namespace Drupal\origins_layouts\Plugin\Layout;
 
-use Drupal\nicsdru_layouts\NicsDruLayout;
+use Drupal\origins_layouts\OriginsLayout;
 
 /**
  * Foster layout class.
  *
  * @Layout(
- *   id = "nicsdru_layouts_foster",
+ *   id = "origins_layouts_foster",
  *   label = @Translation("Foster"),
  *   category = @Translation("NICS Origins"),
- *   template = "templates/nicsdru-layouts--foster",
+ *   template = "templates/origins-layouts--foster",
  *   icon_map = {
  *     { "sidebar_one", "main", "sidebar_two" }
  *   },
@@ -32,6 +32,6 @@ use Drupal\nicsdru_layouts\NicsDruLayout;
 /**
  * {@inheritdoc}
  */
-class Foster extends NicsDruLayout {
+class Foster extends OriginsLayout {
 
 }
