@@ -1,0 +1,14 @@
+{
+  "name": "dof-dss/origins_workflow",
+  "description": "Drupal module to provide workflow functionality for NICS websites",
+  "type": "drupal-module",
+  "authors": [
+    {
+      "name": "Martin Dutton",
+      "email": "mail@martinduttonconsulting.co.uk"
+    }
+  ],
+  "require": {
+    "composer/installers": "^1.6"
+  }
+}

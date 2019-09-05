@@ -1,0 +1,48 @@
+origins_workflow.my_workbench:
+  title: 'My Dashboard'
+  route_name: view.workflow_moderation.page_2
+  description: 'My Dashboard'
+  parent: system.admin
+  weight: -50
+origins_workflow.create_content:
+  title: 'Create Content'
+  route_name: node.add_page
+  description: 'Create Content'
+  parent: origins_workflow.my_workbench
+  weight: 0
+origins_workflow.my_drafts:
+  title: 'My Drafts'
+  route_name: view.workflow_moderation.page_2
+  description: 'My Drafts'
+  parent: origins_workflow.my_workbench
+  weight: 1
+origins_workflow.all_drafts:
+  title: 'All Drafts'
+  route_name: view.workflow_moderation.page_3
+  description: 'All Drafts'
+  parent: origins_workflow.my_workbench
+  weight: 2
+origins_workflow.needs_review:
+  title: 'Needs Review'
+  route_name: view.workflow_moderation.page_1
+  description: 'Needs Review'
+  parent: origins_workflow.my_workbench
+  weight: 3
+origins_workflow.needs_audit:
+  title: 'Needs Audit'
+  route_name: view.workflow_moderation.page_4
+  description: 'Needs Audit'
+  parent: origins_workflow.my_workbench
+  weight: 4
+nicsdru.admin_config:
+  title: 'NICS'
+  description: 'Manage NICS settings'
+  parent: system.admin_config
+  route_name: nicsdru.admin_config
+origins_workflow.audit_settings_form:
+  title: 'NICS Audit Settings Form'
+  route_name: origins_workflow.audit_settings_form
+  description: 'Configure audit settings and messages'
+  parent: nicsdru.admin_config
+  weight: 99
+

@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Contains code that provides user dashboard.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function origins_workflow_page_attachments(array &$attachments) {
+  // Attach extra custom css for admin menu.
+  $attachments['#attached']['library'][] = 'origins_workflow/admin.css';
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_workflow_entity_presave(EntityInterface $entity) {
+  // Get a list of audited content types.
+  $config = \Drupal::config('origins_workflow.auditsettings');
+  $audit_types = $config->get('audit_content_types');
+
+  // This will fire when nodes are created or edited.
+  if ($entity->getEntityTypeId() == 'node') {
+    if ($audit_types[$entity->bundle()]) {
+      // We have just published a node type that is subject to auditing.
+      if ($entity->isPublished()) {
+        $next_audit_date = $entity->get('field_next_audit_due')->value;
+        if (empty($next_audit_date)) {
+          // No audit date set, set it for six months time.
+          $entity->set('field_next_audit_due', date('Y-m-d', strtotime("+6 months")));
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Manage access to 'next audit date' field.
+
+  // Get a list of audited content types.
+  $config = \Drupal::config('origins_workflow.auditsettings');
+  $audit_types = $config->get('audit_content_types');
+  $view_form_list = [];
+  $edit_form_list = [];
+  foreach($audit_types as $this_type) {
+    if ($this_type) {
+      $view_form_list[] = 'node_' . $this_type . '_form';
+      $edit_form_list[] = 'node_' . $this_type . '_edit_form';
+    }
+  }
+
+  // Node add forms.
+  if (in_array($form_id, $view_form_list)) {
+    // Hide the audit date for everyone.
+    $form['field_next_audit_due']['#access'] = FALSE;
+    return;
+  }
+
+  // Node edit forms.
+  if (in_array($form_id, $edit_form_list)) {
+    $account = \Drupal::entityTypeManager()->getStorage('user')->load(\Drupal::currentUser()->id());
+    // Check user access level.
+    if ($account->hasRole('administrator')) {
+      // Admin can see audit date and change it.
+      $form['field_next_audit_due']['#access'] = TRUE;
+      $form['field_next_audit_due']['#disabled'] = FALSE;
+    }
+    elseif ($account->hasPermission('audit content')) {
+      // If user has permission to audit content but is not an admin
+      // then they can see the audit date but not change it.
+      $form['field_next_audit_due']['#access'] = TRUE;
+      $form['field_next_audit_due']['#disabled'] = TRUE;
+    }
+    else {
+      // Hide the audit date for anyone else.
+      $form['field_next_audit_due']['#access'] = FALSE;
+    }
+  }
+}
