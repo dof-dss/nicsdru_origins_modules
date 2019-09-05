@@ -1,0 +1,14 @@
+{
+  "name": "drupal/origins_common",
+  "type": "drupal-module",
+  "description": "A common set of Drupal components",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/origins_common",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/origins_common",
+    "source": "http://cgit.drupalcode.org/origins_common"
+  },
+  "require": { }
+}
