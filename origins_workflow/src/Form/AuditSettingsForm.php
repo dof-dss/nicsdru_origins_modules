@@ -3,6 +3,7 @@
 namespace Drupal\origins_workflow\Form;
 
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -16,6 +17,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Implements admin form to allow setting of audit text.
  */
 class AuditSettingsForm extends ConfigFormBase {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
 
   /**
    * A logger instance.
@@ -34,12 +42,15 @@ class AuditSettingsForm extends ConfigFormBase {
   /**
    * Creates a new AuditSettingsForm instance.
    *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
    */
-  public function __construct(LoggerInterface $logger, MessengerInterface $messenger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, MessengerInterface $messenger) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
     $this->messenger = $messenger;
   }
@@ -49,6 +60,7 @@ class AuditSettingsForm extends ConfigFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('entity_type.manager'),
       $container->get('logger.factory')->get('nics_audit_settings_form'),
       $container->get('messenger')
     );
@@ -160,12 +172,12 @@ class AuditSettingsForm extends ConfigFormBase {
   /**
    * Remove audit field from the content type.
    */
-  private function removeAuditField($type) {
+  public function removeAuditField($type) {
     // Remove audit field from this content type.
     $field = FieldConfig::loadByName('node', $type, 'field_next_audit_due');
     if (!empty($field)) {
       // See if there is any data in this field.
-      $ids = \Drupal::entityQuery('node')
+      $ids = $this->entityTypeManager->getStorage('node')->getQuery()
         ->condition('type', $type)
         ->exists('field_next_audit_due')
         ->execute();
