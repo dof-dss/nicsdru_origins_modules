@@ -205,7 +205,8 @@ class AuditSettingsForm extends ConfigFormBase {
    */
   private function addAuditField($type) {
     // Add an audit field to the content type.
-    $field_storage = FieldStorageConfig::loadByName('node', 'field_next_audit_due');
+    //$field_storage = FieldStorageConfig::loadByName('node', 'field_next_audit_due');
+    $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_audit_due");
     $field = FieldConfig::loadByName('node', $type, 'field_next_audit_due');
     if (empty($field)) {
       $field = FieldConfig::create([
