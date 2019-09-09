@@ -113,7 +113,7 @@ class AuditSettingsForm extends ConfigFormBase {
 
     // Get a list of all content types.
     $options = [];
-    $all_content_types = NodeType::loadMultiple();
+    $all_content_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     foreach ($all_content_types as $machine_name => $content_type) {
       if (!in_array($machine_name, ['mas_rss', 'webform'])) {
         $options[$machine_name] = $content_type->label();
