@@ -39,8 +39,6 @@ class AuditSettingsForm extends ConfigFormBase {
    */
   protected $messenger;
 
-  protected $fieldStorageConfig;
-
   /**
    * Creates a new AuditSettingsForm instance.
    *
@@ -55,7 +53,6 @@ class AuditSettingsForm extends ConfigFormBase {
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
     $this->messenger = $messenger;
-    $this->fieldStorageConfig = $entity_type_manager->getStorage('field_storage_config');
   }
 
   /**
@@ -177,7 +174,7 @@ class AuditSettingsForm extends ConfigFormBase {
    */
   public function removeAuditField($type) {
     // Remove audit field from this content type.
-    $field = FieldConfig::loadByName('node', $type, 'field_next_audit_due');
+    $field = $this->entityTypeManager->getStorage('field_config')->load('node.' . $type . '.field_next_audit_due');
     if (!empty($field)) {
       // See if there is any data in this field.
       $ids = $this->entityTypeManager->getStorage('node')->getQuery()
@@ -208,8 +205,8 @@ class AuditSettingsForm extends ConfigFormBase {
    */
   private function addAuditField($type) {
     // Add an audit field to the content type.
-    $field_storage = $this->fieldStorageConfig->load("node.field_next_audit_due");
-    $field = FieldConfig::loadByName('node', $type, 'field_next_audit_due');
+    $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_audit_due");
+    $field = $this->entityTypeManager->getStorage('field_config')->load('node.' . $type . '.field_next_audit_due');
     if (empty($field)) {
       $field = FieldConfig::create([
         'field_storage' => $field_storage,
