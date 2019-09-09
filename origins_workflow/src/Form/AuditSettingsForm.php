@@ -208,7 +208,7 @@ class AuditSettingsForm extends ConfigFormBase {
     $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_audit_due");
     $field = $this->entityTypeManager->getStorage('field_config')->load('node.' . $type . '.field_next_audit_due');
     if (empty($field)) {
-      $field = FieldConfig::create([
+      $field = $this->entityTypeManager->getStorage('field_config')->create([
         'field_storage' => $field_storage,
         'bundle' => $type,
         'label' => 'Next audit due',
@@ -218,7 +218,7 @@ class AuditSettingsForm extends ConfigFormBase {
       $field->save();
 
       // Assign widget settings for the default form mode.
-      $entity_form_display = EntityFormDisplay::load('node.' . $type . '.default');
+      $entity_form_display = $this->entityTypeManager->getStorage('entity_form_display')->load('node.' . $type . '.default');
       if (isset($entity_form_display)) {
         $entity_form_display->setComponent('field_next_audit_due', [
           'type' => 'datetime_default',
