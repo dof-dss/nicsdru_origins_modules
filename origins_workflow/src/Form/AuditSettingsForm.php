@@ -218,7 +218,7 @@ class AuditSettingsForm extends ConfigFormBase {
       if (isset($entity_form_display)) {
         $entity_form_display->setComponent('field_next_audit_due', [
           'type' => 'datetime_default',
-          'weight' => 100,
+          'weight' => 1000,
         ])->save();
       }
 
