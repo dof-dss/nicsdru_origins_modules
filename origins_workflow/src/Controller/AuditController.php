@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -86,29 +87,25 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
           '#weight' => 0,
         ];
         // Build a confirm link.
-        $link_object = Link::createFromRoute($this->t($audit_button_text),
-          'origins_workflow.audit_controller_confirm_audit',
-          ['nid' => $nid],
-          ['attributes' => ['rel' => 'nofollow', 'class' => 'audit_link']]);
-        // Add confirm link to render array.
-        $render_array['link1'] = array_merge($link_object->toRenderable(),
-          [
-            '#prefix' => "<span class='confirm_audit'>",
-            '#suffix' => "</span>",
-            '#weight' => 1,
-          ]);
+        $render_array['link1'] = [
+          '#title' => $this->t($audit_button_text),
+          '#type' => 'link',
+          '#url' => Url::fromRoute('origins_workflow.audit_controller_confirm_audit', ['nid' => $nid]),
+          '#attributes' => ['rel' => 'nofollow', 'class' => 'audit_link'],
+          '#prefix' => "<span class='confirm_audit'>",
+          '#suffix' => "</span>",
+          '#weight' => 1
+        ];
         // Build a cancel link.
-        $link_object_cancel = Link::createFromRoute($this->t("Cancel"),
-          'entity.node.canonical',
-          ['node' => $nid],
-          ['attributes' => ['rel' => 'nofollow', 'class' => 'cancel_link']]);
-        // Add cancel link to render array.
-        $render_array['link2'] = array_merge($link_object_cancel->toRenderable(),
-          [
-            '#prefix' => "<span class='cancel'>",
-            '#suffix' => "</span>",
-            '#weight' => 2,
-          ]);
+        $render_array['link2'] = [
+          '#title' => $this->t('Cancel'),
+          '#type' => 'link',
+          '#url' => Url::fromRoute('entity.node.canonical', ['nid' => $nid]),
+          '#attributes' => ['rel' => 'nofollow', 'class' => 'cancel_link'],
+          '#prefix' => "<span class='cancel'>",
+          '#suffix' => "</span>",
+          '#weight' => 2
+        ];
       }
     }
     return $render_array;
@@ -124,6 +121,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
     // Bump up the 'next audit due' date and log it.
     $node = $this->entityTypeManager()->getStorage('node')->load($nid);
     if ($node) {
+      // TODO Make the time period an amendable field on the audit settings form.
       $node->set('field_next_audit_due', date('Y-m-d', strtotime("+6 months")));
       $node->save();
       $message = "nid " . $nid . " " . $this->t("has been audited by") . " ";
