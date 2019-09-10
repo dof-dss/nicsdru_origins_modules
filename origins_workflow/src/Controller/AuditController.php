@@ -4,7 +4,6 @@ namespace Drupal\origins_workflow\Controller;
 
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Link;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
@@ -94,7 +93,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
           '#attributes' => ['rel' => 'nofollow', 'class' => 'audit_link'],
           '#prefix' => "<span class='confirm_audit'>",
           '#suffix' => "</span>",
-          '#weight' => 1
+          '#weight' => 1,
         ];
         // Build a cancel link.
         $render_array['link2'] = [
@@ -104,7 +103,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
           '#attributes' => ['rel' => 'nofollow', 'class' => 'cancel_link'],
           '#prefix' => "<span class='cancel'>",
           '#suffix' => "</span>",
-          '#weight' => 2
+          '#weight' => 2,
         ];
       }
     }
