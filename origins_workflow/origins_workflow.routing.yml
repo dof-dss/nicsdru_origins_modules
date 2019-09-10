@@ -23,8 +23,8 @@ origins_workflow.audit_controller_confirm_audit:
   requirements:
     _permission: 'audit content'
 
-nicsdru.admin_config:
-  path: '/admin/config/nicsdru'
+origins_workflow.admin_config:
+  path: '/admin/config/origins'
   defaults:
     _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
     _title: 'NICS'

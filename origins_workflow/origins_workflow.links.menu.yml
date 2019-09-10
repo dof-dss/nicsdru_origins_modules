@@ -34,15 +34,15 @@ origins_workflow.needs_audit:
   description: 'Needs Audit'
   parent: origins_workflow.my_workbench
   weight: 4
-nicsdru.admin_config:
+origins_workflow.admin_config:
   title: 'NICS'
   description: 'Manage NICS settings'
   parent: system.admin_config
-  route_name: nicsdru.admin_config
+  route_name: origins_workflow.admin_config
 origins_workflow.audit_settings_form:
   title: 'NICS Audit Settings Form'
   route_name: origins_workflow.audit_settings_form
   description: 'Configure audit settings and messages'
-  parent: nicsdru.admin_config
+  parent: origins_workflow.admin_config
   weight: 99
 
