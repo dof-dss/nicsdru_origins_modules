@@ -168,7 +168,7 @@ class AuditSettingsForm extends ConfigFormBase {
   /**
    * Remove audit field from the content type.
    */
-  public function removeAuditField($type) {
+  private function removeAuditField($type) {
     // Remove audit field from this content type.
     $field = $this->entityTypeManager->getStorage('field_config')->load('node.' . $type . '.field_next_audit_due');
     if (!empty($field)) {
