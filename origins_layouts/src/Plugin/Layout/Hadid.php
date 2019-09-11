@@ -2,7 +2,7 @@
 
 namespace Drupal\origins_layouts\Plugin\Layout;
 
-use Drupal\nicsdru_layouts\OriginsLayout;
+use Drupal\origins_layouts\OriginsLayout;
 
 /**
  * Hadid layout class.
