@@ -50,7 +50,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   $audit_types = $config->get('audit_content_types');
   $view_form_list = [];
   $edit_form_list = [];
-  foreach($audit_types as $this_type) {
+  foreach ($audit_types as $this_type) {
     if ($this_type) {
       $view_form_list[] = 'node_' . $this_type . '_form';
       $edit_form_list[] = 'node_' . $this_type . '_edit_form';

@@ -21,7 +21,14 @@ use Psr\Log\LoggerInterface;
  */
 class InPageNavigationBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
+  /**
+   * @var string
+   */
   protected $themeName;
+
+  /**
+   * @var \Psr\Log\LoggerInterface
+   */
   protected $logger;
 
   /**

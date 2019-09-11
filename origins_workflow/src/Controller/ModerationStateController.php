@@ -60,11 +60,12 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       $entity->set('moderation_state', $new_state);
       $entity->save();
       // Log it.
-      $message = t('State of @title (nid @nid) changed to @new_state by @user',
-        ['@title' => $entity->getTitle(),
-          '@nid' => $nid,
-          '@new_state' => $new_state,
-          '@user' => $this->currentUser()->getAccountName()]);
+      $message = t('State of @title (nid @nid) changed to @new_state by @user', [
+        '@title' => $entity->getTitle(),
+        '@nid' => $nid,
+        '@new_state' => $new_state,
+        '@user' => $this->currentUser()->getAccountName(),
+      ]);
       $this->logger->notice($message);
     }
     // Redirect user to current page (although the 'destination'
