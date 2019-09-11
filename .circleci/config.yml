@@ -1,0 +1,66 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+version: 2
+
+jobs:
+  # Test that coding standards fit drupal.org definitions.
+  coding_standards:
+    docker:
+      - image: circleci/php:7.2.20-apache-browsers
+    steps:
+      - checkout
+      - run:
+          name: Fetch phpcs and dependencies
+          command: |
+            composer require drupal/coder --no-interaction --optimize-autoloader
+            # Move vendor directory up a level as we don't want to code-check all of that.
+            mv vendor ../
+      - run:
+          name: Fetch phpcs convenience script
+          command: |
+            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/development/phpcs.sh -o /home/circleci/project/phpcs.sh
+            chmod +x /home/circleci/project/phpcs.sh
+      - run:
+          name: PHPCS static analysis
+          command: /home/circleci/project/phpcs.sh /home/circleci "/home/circleci/project"
+
+  deprecated_code:
+    docker:
+      - image: circleci/php:7.2.20-apache-browsers
+    steps:
+      - run:
+            name: Add OS and PHP extensions
+            command: |
+              sudo apt-get update
+              sudo apt-get install -y libpng-dev
+              sudo docker-php-ext-install gd
+              composer global require hirak/prestissimo
+      # RESTORE CACHE?
+      - checkout:
+          path: /home/circleci/nidirect-site-modules
+      - run:
+          name: Fetch latest Drupal version
+          command: |
+            composer create-project drupal-composer/drupal-project:8.x-dev ${CIRCLE_WORKING_DIRECTORY} --no-interaction
+            mkdir -p ${CIRCLE_WORKING_DIRECTORY}/web/modules/origins
+      # SAVE CACHE?
+      - run:
+          name: Move custom code into position
+          command: mv /home/circleci/origins ${CIRCLE_WORKING_DIRECTORY}/web/modules/origins
+      - run:
+          name: Fetch drupal-check and any dependencies
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            composer require --dev mglaman/drupal-check --no-interaction --optimize-autoloader
+      - run:
+         name: Deprecated code check
+         command: |
+            ${CIRCLE_WORKING_DIRECTORY}/vendor/bin/drupal-check ${CIRCLE_WORKING_DIRECTORY}/web/modules/origins
+
+workflows:
+  version: 2
+  static_analysis:
+    jobs:
+      - coding_standards
+      - deprecated_code
