@@ -36,7 +36,6 @@ jobs:
               sudo apt-get install -y libpng-dev
               sudo docker-php-ext-install gd
               composer global require hirak/prestissimo
-      # RESTORE CACHE?
       - checkout:
           path: /home/circleci/nidirect-site-modules
       - run:
@@ -44,7 +43,6 @@ jobs:
           command: |
             composer create-project drupal-composer/drupal-project:8.x-dev ${CIRCLE_WORKING_DIRECTORY} --no-interaction
             mkdir -p ${CIRCLE_WORKING_DIRECTORY}/web/modules/origins
-      # SAVE CACHE?
       - run:
           name: Move custom code into position
           command: mv /home/circleci/origins ${CIRCLE_WORKING_DIRECTORY}/web/modules/origins
