@@ -25,26 +25,27 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
-
-
+/**
+ * Implements hook_entity_presave().
+ */
 function origins_common_entity_presave(EntityInterface $entity) {
-  // Ensure we're on the node edit presave.
+  // Ensure we're on the node edit page.
   if (!$entity instanceof ContentEntityInterface) {
     return;
   }
 
   $layout_field = NULL;
   $field_definitions = $entity->getFieldDefinitions();
+  $search_index_content_field = 'body';
 
   // Detect the presence of a Layout Builder field.
-  foreach($field_definitions as $definition) {
+  foreach ($field_definitions as $definition) {
     if ($definition->getType() == 'layout_section') {
       $layout_field = $definition;
     }
   }
 
-
-  if ($layout_field && $entity->hasField('body')) {
+  if ($layout_field && $entity->hasField($search_index_content_field)) {
     $content = '';
     $layout = $entity->get($layout_field->getName());
     $sections = $layout->getSections();
@@ -58,7 +59,7 @@ function origins_common_entity_presave(EntityInterface $entity) {
         $content .= \Drupal::service('renderer')->render($build);
       }
     }
-    // Save page contents to the body field.
-    $entity->set('body', $content);
+    // Save page contents to the search index field.
+    $entity->set($search_index_content_field, $content);
   }
 }
