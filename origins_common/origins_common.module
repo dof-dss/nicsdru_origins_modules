@@ -6,6 +6,8 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_help().
@@ -20,5 +22,44 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
       return $output;
 
     default:
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_common_entity_presave(EntityInterface $entity) {
+  // Ensure we're on the node edit page.
+  if (!$entity instanceof ContentEntityInterface) {
+    return;
+  }
+
+  $layout_field = NULL;
+  $field_definitions = $entity->getFieldDefinitions();
+  $search_index_content_field = 'body';
+
+  // Detect the presence of a Layout Builder field.
+  foreach ($field_definitions as $definition) {
+    if ($definition->getType() == 'layout_section') {
+      $layout_field = $definition;
+    }
+  }
+
+  if ($layout_field && $entity->hasField($search_index_content_field)) {
+    $content = '';
+    $layout = $entity->get($layout_field->getName());
+    $sections = $layout->getSections();
+
+    // Loop through the Layout Builder sections and concat contents.
+    foreach ($sections as $section) {
+      $components = $section->getComponents();
+
+      foreach ($components as $component) {
+        $build = $component->toRenderArray();
+        $content .= \Drupal::service('renderer')->render($build);
+      }
+    }
+    // Save page contents to the search index field.
+    $entity->set($search_index_content_field, $content);
   }
 }
