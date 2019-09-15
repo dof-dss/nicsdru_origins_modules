@@ -19,7 +19,7 @@ use Drupal\origins_layouts\OriginsLayout;
  *     "left" = {
  *       "label" = @Translation("Left content"),
  *     },
- *     "center" = {
+ *    "center" = {
  *       "label" = @Translation("Center content"),
  *     },
  *     "right" = {
@@ -27,10 +27,6 @@ use Drupal\origins_layouts\OriginsLayout;
  *     }
  *   }
  * )
- */
-
-/**
- * {@inheritdoc}
  */
 class Foster extends OriginsLayout {
 

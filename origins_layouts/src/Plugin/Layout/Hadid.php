@@ -23,7 +23,7 @@ use Drupal\origins_layouts\OriginsLayout;
  *     "right_top" = {
  *       "label" = @Translation("Right top content"),
  *     },
- *      "right_bottom" = {
+ *     "right_bottom" = {
  *       "label" = @Translation("Right bottom content"),
  *     }
  *   }
