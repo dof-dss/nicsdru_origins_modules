@@ -13,18 +13,18 @@ use Drupal\origins_layouts\OriginsLayout;
  *   category = @Translation("NICS Origins"),
  *   template = "templates/origins-layouts--hadid",
  *   icon_map = {
- *     {"main", "sidebar_top"},
- *     {"main", "sidebar_bottom"}
+ *     {"left", "right_top"},
+ *     {"left", "right_bottom"}
  *   },
  *   regions = {
- *     "main" = {
- *       "label" = @Translation("Main content"),
+ *     "left" = {
+ *       "label" = @Translation("Left content"),
  *     },
- *     "sidebar_top" = {
- *       "label" = @Translation("Sidebar top content"),
+ *     "right_top" = {
+ *       "label" = @Translation("Right top content"),
  *     },
- *      "sidebar_bottom" = {
- *       "label" = @Translation("Sidebar bottom content"),
+ *      "right_bottom" = {
+ *       "label" = @Translation("Right bottom content"),
  *     }
  *   }
  * )

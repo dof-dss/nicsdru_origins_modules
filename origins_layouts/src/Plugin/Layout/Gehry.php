@@ -13,15 +13,15 @@ use Drupal\origins_layouts\OriginsLayout;
  *   category = @Translation("NICS Origins"),
  *   template = "templates/origins-layouts--gehry",
  *   icon_map = {
- *     { "main", "sidebar" }
+ *     { "left", "right" }
  *   },
  *   regions = {
- *     "main" = {
- *       "label" = @Translation("Main content"),
+ *     "left" = {
+ *       "label" = @Translation("Left content"),
  *     },
- *      "sidebar" = {
- *       "label" = @Translation("Sidebar content"),
- *      }
+ *     "right" = {
+ *       "label" = @Translation("Right content"),
+ *     }
  *   }
  * )
  */
