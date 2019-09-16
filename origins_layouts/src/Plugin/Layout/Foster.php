@@ -13,13 +13,13 @@ use Drupal\origins_layouts\OriginsLayout;
  *   category = @Translation("NICS Origins"),
  *   template = "templates/origins-layouts--foster",
  *   icon_map = {
- *     { "left", "center", "right" }
+ *     {"left", "center", "right"}
  *   },
  *   regions = {
  *     "left" = {
  *       "label" = @Translation("Left content"),
  *     },
- *    "center" = {
+ *     "center" = {
  *       "label" = @Translation("Center content"),
  *     },
  *     "right" = {

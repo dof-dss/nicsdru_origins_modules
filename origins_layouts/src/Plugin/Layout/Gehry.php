@@ -13,7 +13,7 @@ use Drupal\origins_layouts\OriginsLayout;
  *   category = @Translation("NICS Origins"),
  *   template = "templates/origins-layouts--gehry",
  *   icon_map = {
- *     { "left", "right" }
+ *     {"left", "right"}
  *   },
  *   regions = {
  *     "left" = {

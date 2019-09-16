@@ -13,19 +13,19 @@ use Drupal\origins_layouts\OriginsLayout;
  *   category = @Translation("NICS Origins"),
  *   template = "templates/origins-layouts--calatrava",
  *   icon_map = {
- *     { "left_outer", "left_inner, "right_inner", "right_outer" }
+ *     {"left_outer", "left_inner", "right_inner", "right_outer"}
  *   },
  *   regions = {
  *     "left_outer" = {
  *       "label" = @Translation("Left outer content"),
  *     },
- *    "left_inner" = {
+ *     "left_inner" = {
  *       "label" = @Translation("Left inner content"),
  *     },
- *     "center" = {
+ *     "right_inner" = {
  *       "label" = @Translation("Right inner content"),
  *     },
- *     "right" = {
+ *     "right_outer" = {
  *       "label" = @Translation("Right outer content"),
  *     }
  *   }
