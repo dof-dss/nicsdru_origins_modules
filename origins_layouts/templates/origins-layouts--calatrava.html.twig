@@ -1,3 +1,4 @@
+{% if content %}
 <div {{ attributes.addClass(settings.extra_classes) }}>
   <div class="layout-region layout-region-left-outer">
     {{ content.left_outer }}
@@ -12,3 +13,4 @@
     {{ content.right_outer }}
   </div>
 </div>
+{% endif %}
