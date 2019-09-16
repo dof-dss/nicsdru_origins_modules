@@ -1,15 +1,15 @@
 {% if content %}
 <div {{ attributes.addClass(settings.extra_classes) }}>
-  <div class="layout-region layout-region-left-outer">
+  <div class="layout__region--left-outer">
     {{ content.left_outer }}
   </div>
-  <div class="layout-region layout-region-left-inner-">
+  <div class="layout__region--left-inner-">
     {{ content.left_inner }}
   </div>
-  <div class="layout-region layout-region-right-inner">
+  <div class="layout__region--right-inner">
     {{ content.right_inner }}
   </div>
-  <div class="layout-region layout-region-right-outer">
+  <div class="layout__region--right-outer">
     {{ content.right_outer }}
   </div>
 </div>
