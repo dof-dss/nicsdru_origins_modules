@@ -11,13 +11,13 @@ module.exports = {
   'Test login': browser => {
     browser
       .drupalCreateUser({
-        name: 'user',
-        password: '123',
-        permissions: ['access site reports'],
+        name: 'night_supervisor',
+        password: 'password',
+        permissions: ['view the administration theme', 'access administration pages'],
       })
-      .drupalLogin({ name: 'user', password: '123' })
-      .drupalRelativeURL('/admin/reports')
+      .drupalLogin({ name: 'night_supervisor', password: 'password' })
+      .drupalRelativeURL('/admin/content')
       .expect.element('h1.page-title')
-      .text.to.contain('Reports');
+      .text.to.contain('Content');
   },
 };
