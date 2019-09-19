@@ -30,6 +30,9 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
     $build = parent::build($regions);
     $extra_classes = explode(' ', $build['#settings']['extra_classes']);
 
+    // Add default core class.
+    $extra_classes[] = 'layout';
+
     // Add the template ID as a class name.
     $template_id = $build['#layout']->getTemplate();
     $extra_classes[] = $template_id;

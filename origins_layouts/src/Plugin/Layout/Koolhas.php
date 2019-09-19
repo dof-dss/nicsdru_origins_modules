@@ -5,15 +5,16 @@ namespace Drupal\origins_layouts\Plugin\Layout;
 use Drupal\origins_layouts\OriginsLayout;
 
 /**
- * Hadid layout class.
+ * Koolhas layout class.
  *
  * @Layout(
- *   id = "origins_layouts_hadid",
- *   label = @Translation("Hadid"),
+ *   id = "origins_layouts_koolhas",
+ *   label = @Translation("Koolhas"),
  *   category = @Translation("NICS Origins"),
- *   template = "templates/origins-layouts--hadid",
+ *   template = "templates/origins-layouts--koolhas",
  *   icon_map = {
  *     {"left", "right_top"},
+ *     {"left", "right_middle"},
  *     {"left", "right_bottom"}
  *   },
  *   regions = {
@@ -23,12 +24,15 @@ use Drupal\origins_layouts\OriginsLayout;
  *     "right_top" = {
  *       "label" = @Translation("Right top content"),
  *     },
+ *     "right_middle" = {
+ *       "label" = @Translation("Right middle content"),
+ *     },
  *     "right_bottom" = {
  *       "label" = @Translation("Right bottom content"),
  *     }
  *   }
  * )
  */
-class Hadid extends OriginsLayout {
+class Koolhas extends OriginsLayout {
 
 }

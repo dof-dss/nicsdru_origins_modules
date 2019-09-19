@@ -8,6 +8,7 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Plugin\Context\EntityContext;
 
 /**
  * Implements hook_help().
@@ -49,13 +50,13 @@ function origins_common_entity_presave(EntityInterface $entity) {
     $content = '';
     $layout = $entity->get($layout_field->getName());
     $sections = $layout->getSections();
+    $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
 
     // Loop through the Layout Builder sections and concat contents.
     foreach ($sections as $section) {
       $components = $section->getComponents();
-
       foreach ($components as $component) {
-        $build = $component->toRenderArray();
+        $build = $component->toRenderArray($contexts);
         $content .= \Drupal::service('renderer')->render($build);
       }
     }

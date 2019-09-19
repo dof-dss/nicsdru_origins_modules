@@ -26,7 +26,7 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
 
   // This will fire when nodes are created or edited.
   if ($entity->getEntityTypeId() == 'node') {
-    if ($audit_types[$entity->bundle()]) {
+    if (isset($audit_types[$entity->bundle()]) && ($audit_types[$entity->bundle()] == $entity->bundle())) {
       // We have just published a node type that is subject to auditing.
       if ($entity->isPublished()) {
         $next_audit_date = $entity->get('field_next_audit_due')->value;
