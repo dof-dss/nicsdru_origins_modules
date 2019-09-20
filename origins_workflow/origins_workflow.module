@@ -28,7 +28,7 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   if ($entity->getEntityTypeId() == 'node') {
     if (isset($audit_types[$entity->bundle()]) && ($audit_types[$entity->bundle()] == $entity->bundle())) {
       // We have just published a node type that is subject to auditing.
-      if ($entity->isPublished()) {
+      if ($entity->isPublished() && $entity->hasField('field_next_audit_due')) {
         $next_audit_date = $entity->get('field_next_audit_due')->value;
         if (empty($next_audit_date)) {
           // No audit date set, set it for six months time.
