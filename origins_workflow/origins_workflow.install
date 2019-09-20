@@ -16,4 +16,14 @@ function origins_workflow_install() {
   $user = User::load(1);
   $user->roles[] = 'administrator';
   $user->save();
+
+  // Create some test users for the Nightwatch tests that will come along later.
+  $user = User::create([
+   'name' => 'nw_test_supervisor',
+   'mail' => 'user@localhost',
+   'status' => 1,
+   'pass' => getenv('TEST_PASS'),
+   'roles' => ['supervisor_user', 'authenticated'],
+  ]);
+  $user->save();
 }
