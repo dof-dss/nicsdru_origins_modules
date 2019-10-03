@@ -1,14 +1,7 @@
-{% if content %}
-<div {{ attributes.addClass(settings.extra_classes) }}>
-  {% if settings.title %}
-    <div>
-      <h2>{{ settings.title }}</h2>
-    </div>
-  {% endif %}
+{% extends "@origins_layouts/origins-layouts-base.html.twig" %}
+
+{% block regions %}
   <div class="layout__region--center">
     {{ content.center }}
   </div>
-</div>
-{%  endif %}
-
-{{ kint() }}
+{% endblock %}
