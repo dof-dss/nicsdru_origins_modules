@@ -46,7 +46,16 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
     }
     $build['#settings']['extra_classes'] = ltrim(implode(' ', $extra_classes));
 
-    return $build;
+    // Build the title if set.
+    if (array_key_exists('title', $build['#settings']) && !empty($build['#settings']['title']['value'])) {
+      $build['title'] = [
+        '#type' => 'html_tag',
+        '#tag' => $build['#settings']['title']['element'],
+        '#value' => $build['#settings']['title']['value'],
+      ];
+    }
+
+qq    return $build;
   }
 
   /**
@@ -55,16 +64,9 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $configuration = $this->getConfiguration();
 
-    $form['title'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Title'),
-      '#description' => $this->t('Displays a title above the layout region.'),
-      '#default_value' => $configuration['title'],
-    ];
-
     $form['extra_classes'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Extra classes'),
+      '#title' => $this->t('Extra classes for layout'),
       '#description' => $this->t('Valid CSS class names separated by spaces.'),
       '#default_value' => $configuration['extra_classes'],
     ];
@@ -73,6 +75,30 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
       '#type' => 'checkbox',
       '#title' => $this->t('Reverse the layout'),
       '#default_value' => $configuration['reverse_layout'],
+    ];
+
+    $form['title'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Title settings'),
+    ];
+
+    $form['title']['value'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Title'),
+      '#description' => $this->t('Displays a title above the layout region.'),
+      '#default_value' => $configuration['title']['value'],
+    ];
+
+    $form['title']['element'] = [
+      '#type' => 'select',
+      '#title' => $this->t('HTML element for title'),
+      '#options' => [
+        'h1' => 'Heading 1',
+        'h2' => 'Heading 2',
+        'h3' => 'Heading 3',
+        'h4' => 'Heading 4',
+      ],
+      '#default_value' => $configuration['title']['element'],
     ];
 
     return $form;
