@@ -55,7 +55,7 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
       ];
     }
 
-qq    return $build;
+    return $build;
   }
 
   /**
