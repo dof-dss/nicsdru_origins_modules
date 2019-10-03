@@ -1,0 +1,10 @@
+{% if content %}
+<div {{ attributes.addClass(settings.extra_classes) }}>
+  {% if content.title %}
+    {{ content.title }}
+  {% endif %}
+  {% block regions %}
+  {% endblock %}
+</div>
+{%  endif %}
+
