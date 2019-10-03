@@ -18,6 +18,7 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
    */
   public function defaultConfiguration() {
     return parent::defaultConfiguration() + [
+      'title' => '',
       'extra_classes' => '',
       'reverse_layout' => FALSE,
     ];
@@ -53,6 +54,13 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     $configuration = $this->getConfiguration();
+
+    $form['title'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Title'),
+      '#description' => $this->t('Displays a title above the layout region.'),
+      '#default_value' => $configuration['title'],
+    ];
 
     $form['extra_classes'] = [
       '#type' => 'textfield',
@@ -93,6 +101,7 @@ class OriginsLayout extends LayoutDefault implements PluginFormInterface {
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    $this->configuration['title'] = $form_state->getValue('title');
     $this->configuration['extra_classes'] = $form_state->getValue('extra_classes');
     $this->configuration['reverse_layout'] = $form_state->getValue('reverse_layout');
   }
