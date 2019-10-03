@@ -1,5 +1,6 @@
-{% if content %}
-<div {{ attributes.addClass(settings.extra_classes) }}>
+{% extends "@origins_layouts/origins-layouts-base.html.twig" %}
+
+{% block regions %}
   <div class="layout__region--left">
     {{ content.left }}
   </div>
@@ -15,4 +16,4 @@
     </div>
   </div>
 </div>
-{% endif %}
+{% endblock %}
