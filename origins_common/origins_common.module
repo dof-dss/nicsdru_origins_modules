@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 
 /**
  * Implements hook_help().
@@ -71,37 +72,45 @@ function origins_common_entity_presave(EntityInterface $entity) {
  * Implements hook_form_FORM_ID_alter().
  */
 function origins_common_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $node_type = $form_state->getFormObject()->getEntity();
-  $node_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type->id());
-  // Field types suitable for storage of content for search indexing.
-  $search_field_types = ['string_long', 'text', 'text_with_summary'];
-  $search_field_options = ['' => '- Please select -'];
+  $node = $form_state->getFormObject()->getEntity();
+  $node_type = $node->id();
+  $entity_displays = \Drupal::service('entity_display.repository');
+  $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
   $layout_builder_enabled = FALSE;
-  // TODO: Generate field if layout builder is enabled on a display mode.
-  $search_field_enabled_exists = FALSE;
 
-  foreach ($node_fields as $field) {
-    if ($field instanceof FieldConfig) {
+  $display_modes = $entity_displays->getViewModeOptionsByBundle('node', $node_type);
 
-      // TODO: Only for LB customizable per node, detect when LB is enabled
-      // without customizable option.
-      if ($field->getType() == 'layout_section') {
+  foreach ($display_modes as $id => $mode) {
+    $display = $entity_view_displays->load('node.' . $node_type . '.' . $id);
+    if ($display instanceof LayoutBuilderEntityViewDisplay) {
+      $settings = $display->getThirdPartySettings('layout_builder');
+      if (array_key_exists('enabled', $settings) && $settings['enabled'] == TRUE) {
         $layout_builder_enabled = TRUE;
-        continue;
-      }
-
-      if ($field->getType() == 'boolean' && $field->getName() == 'field_lb_enable_search_index') {
-        $search_field_enabled_exists = TRUE;
-        continue;
-      }
-
-      if (in_array($field->getType(), $search_field_types)) {
-        $search_field_options[$field->id()] = $field->label();
       }
     }
   }
 
   if ($layout_builder_enabled) {
+
+    $node_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
+    // Field types suitable for storage of content for search indexing.
+    $search_field_types = ['string_long', 'text', 'text_with_summary'];
+    $search_field_options = ['' => '- Please select -'];
+    $search_field_enabled_exists = FALSE;
+
+    foreach ($node_fields as $field) {
+      if ($field instanceof FieldConfig) {
+        if ($field->getType() == 'boolean' && $field->getName() == 'field_lb_enable_search_index') {
+          $search_field_enabled_exists = TRUE;
+          continue;
+        }
+
+        if (in_array($field->getType(), $search_field_types)) {
+          $search_field_options[$field->id()] = $field->label();
+        }
+      }
+    }
+
     $form['lb_search_settings'] = [
       '#type' => 'details',
       '#title' => t('Layout Builder search indexing'),
@@ -118,8 +127,10 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
         <br><b>IMPORTANT:</b> This field should not be displayed to users of the site and should be included in your 
         search index configuration.',
         '#options' => $search_field_options,
-        '#default_value' => $node_type->getThirdPartySetting('origins_common', 'lb_search_index_field'),
+        '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_index_field', NULL),
       ];
+
+      $form['#entity_builders'][] = 'origins_common_form_node_type_form_builder';
     }
     else {
       $form['lb_search_settings']['lb_search_index_help'] = [
@@ -129,4 +140,11 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
       ];
     }
   }
+}
+
+/**
+ * Entity builder for the origins_common_form_node_type_form_alter().
+ */
+function origins_common_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_common', 'lb_search_index_field', $form_state->getValue('lb_search_index_field'));
 }
