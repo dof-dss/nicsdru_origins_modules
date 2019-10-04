@@ -77,11 +77,21 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
   $search_field_types = ['string_long', 'text', 'text_with_summary'];
   $search_field_options = ['' => '- Please select -'];
   $layout_builder_enabled = FALSE;
+  // TODO: Generate field if layout builder is enabled on a display mode.
+  $search_field_enabled_exists = FALSE;
 
   foreach ($node_fields as $field) {
     if ($field instanceof FieldConfig) {
+
+      // TODO: Only for LB customizable per node, detect when LB is enabled
+      // without customizable option.
       if ($field->getType() == 'layout_section') {
         $layout_builder_enabled = TRUE;
+        continue;
+      }
+
+      if ($field->getType() == 'boolean' && $field->getName() == 'field_lb_enable_search_index') {
+        $search_field_enabled_exists = TRUE;
         continue;
       }
 
@@ -98,17 +108,25 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
       '#group' => 'additional_settings',
     ];
 
-    $form['lb_search_settings']['lb_search_index_field'] = [
-      '#type' => 'select',
-      '#title' => t('Search index field'),
-      '#description' => 'Select the field to store rendered content of Layout builder page for 
+    if ($search_field_enabled_exists) {
+      $form['lb_search_settings']['lb_search_index_field'] = [
+        '#type' => 'select',
+        '#title' => t('Search index field'),
+        '#description' => 'Select the field to store rendered content of Layout builder page for 
         search indexing.
         <br><b>NOTE:</b> It is recommended that you use fields of type <i>plain, long</i>.
         <br><b>IMPORTANT:</b> This field should not be displayed to users of the site and should be included in your 
         search index configuration.',
-      '#options' => $search_field_options,
-      '#default_value' => $node_type->getThirdPartySetting('origins_common', 'lb_search_index_field'),
-    ];
-
+        '#options' => $search_field_options,
+        '#default_value' => $node_type->getThirdPartySetting('origins_common', 'lb_search_index_field'),
+      ];
+    }
+    else {
+      $form['lb_search_settings']['lb_search_index_help'] = [
+        '#type' => 'markup',
+        '#markup' => 'Search indexing requires a field of type <i>boolean</i> with the machine name 
+        <i>field_lb_enable_search_index.</i>',
+      ];
+    }
   }
 }
