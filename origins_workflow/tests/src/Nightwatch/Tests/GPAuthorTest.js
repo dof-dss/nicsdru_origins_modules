@@ -3,7 +3,7 @@ module.exports = {
 
   'Test login': browser => {
     browser
-      .drupalLogin({ name: 'nw_test_super', password: process.env.TEST_PASS });
+      .drupalLogin({ name: 'nw_test_gp_author', password: process.env.TEST_PASS });
 
     browser
       .drupalRelativeURL('/admin/workflow/drafts')
