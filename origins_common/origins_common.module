@@ -5,10 +5,12 @@
  * Contains origins_common.module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\Context\EntityContext;
+use Drupal\field\Entity\FieldConfig;
 
 /**
  * Implements hook_help().
@@ -62,5 +64,51 @@ function origins_common_entity_presave(EntityInterface $entity) {
     }
     // Save page contents to the search index field.
     $entity->set($search_index_content_field, $content);
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_common_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node_type = $form_state->getFormObject()->getEntity();
+  $node_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type->id());
+  // Field types suitable for storage of content for search indexing.
+  $search_field_types = ['string_long', 'text', 'text_with_summary'];
+  $search_field_options = ['' => '- Please select -'];
+  $layout_builder_enabled = FALSE;
+
+  foreach ($node_fields as $field) {
+    if ($field instanceof FieldConfig) {
+      if ($field->getType() == 'layout_section') {
+        $layout_builder_enabled = TRUE;
+        continue;
+      }
+
+      if (in_array($field->getType(), $search_field_types)) {
+        $search_field_options[$field->id()] = $field->label();
+      }
+    }
+  }
+
+  if ($layout_builder_enabled) {
+    $form['lb_search_settings'] = [
+      '#type' => 'details',
+      '#title' => t('Layout Builder search indexing'),
+      '#group' => 'additional_settings',
+    ];
+
+    $form['lb_search_settings']['lb_search_index_field'] = [
+      '#type' => 'select',
+      '#title' => t('Search index field'),
+      '#description' => 'Select the field to store rendered content of Layout builder page for 
+        search indexing.
+        <br><b>NOTE:</b> It is recommended that you use fields of type <i>plain, long</i>.
+        <br><b>IMPORTANT:</b> This field should not be displayed to users of the site and should be included in your 
+        search index configuration.',
+      '#options' => $search_field_options,
+      '#default_value' => $node_type->getThirdPartySetting('origins_common', 'lb_search_index_field'),
+    ];
+
   }
 }
