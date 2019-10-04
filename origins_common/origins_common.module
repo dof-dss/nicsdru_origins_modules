@@ -148,3 +148,41 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
 function origins_common_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_common', 'lb_search_index_field', $form_state->getValue('lb_search_index_field'));
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
+  $entity = \Drupal::routeMatch()->getParameter('node');
+  $enable_search_index_present = FALSE;
+  $search_field_present = FALSE;
+  $field_definitions = $entity->getFieldDefinitions();
+
+  // Detect the presence of a Layout Builder enabled field.
+  foreach ($field_definitions as $definition) {
+    if ($definition->getName() == 'field_lb_enable_search_index') {
+      $enable_search_index_present = TRUE;
+    }
+  }
+
+  // Get the search index content storage field.
+  $entity_storage = \Drupal::entityTypeManager()->getStorage('node_type');
+  $entity_type = $entity_storage->load($entity->getType());
+  $settings = $entity_type->getThirdPartySettings('origins_common');
+
+  if (array_key_exists('lb_search_index_field', $settings)) {
+    $search_field_present = !empty($settings['lb_search_index_field']);
+  }
+
+  if ($enable_search_index_present && $search_field_present) {
+    $form['layout_builder_search_indexing'] = [
+      '#type' => 'details',
+      '#title' => t('Layout builder search indexing'),
+      '#group' => 'advanced',
+      '#open' => FALSE,
+    ];
+
+    $form['layout_builder_search_indexing'][] = $form['field_lb_enable_search_index'];
+    unset($form['field_lb_enable_search_index']);
+  }
+}
