@@ -158,6 +158,7 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
  */
 function origins_common_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_common', 'lb_search_index_field', $form_state->getValue('lb_search_index_field'));
+  $type->setThirdPartySetting('origins_common', 'lb_search_index_display', $form_state->getValue('lb_search_index_display'));
 }
 
 /**
