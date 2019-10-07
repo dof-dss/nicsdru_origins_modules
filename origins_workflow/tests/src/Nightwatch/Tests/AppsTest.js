@@ -8,12 +8,12 @@ module.exports = {
     browser
       .drupalRelativeURL('/admin/workflow/drafts')
       .expect.element('h1.page-title')
-      .text.to.contain('My Drafts');
+      .text.to.contain('Access denied');
 
     browser
       .drupalRelativeURL('/admin/workflow/needs-review')
       .expect.element('h1.page-title')
-      .text.to.contain('Needs Review');
+      .text.to.contain('Access denied');
   }
 
 };
