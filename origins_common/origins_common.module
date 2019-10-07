@@ -164,28 +164,25 @@ function origins_common_form_node_type_form_builder($entity_type, $type, &$form,
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
-  $entity = \Drupal::routeMatch()->getParameter('node');
-  $enable_search_index_present = FALSE;
-  $search_field_present = FALSE;
-  $field_definitions = $entity->getFieldDefinitions();
-
-  // Detect the presence of a Layout Builder enabled field.
-  foreach ($field_definitions as $definition) {
-    if ($definition->getName() == 'field_lb_enable_search_index') {
-      $enable_search_index_present = TRUE;
-    }
+  // Determine node type from node/add or node/edit forms.
+  $node_type = \Drupal::routeMatch()->getParameter('node_type');
+  if (!empty($node_type)) {
+    $node_type = $node_type->id();
+  }
+  else {
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $node_type = $node->getType();
   }
 
   // Get the search index content storage field.
-  $entity_storage = \Drupal::entityTypeManager()->getStorage('node_type');
-  $entity_type = $entity_storage->load($entity->getType());
+  $entity_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($node_type);
   $settings = $entity_type->getThirdPartySettings('origins_common');
 
-  if (array_key_exists('lb_search_index_field', $settings)) {
-    $search_field_present = !empty($settings['lb_search_index_field']);
-  }
+  // Ensure we have settings configured from the entity type form.
+  $search_field_present = !empty($settings['lb_search_index_field']);
+  $search_display_present = !empty($settings['lb_search_index_display']);
 
-  if ($enable_search_index_present && $search_field_present) {
+  if ($search_field_present && $search_display_present) {
     $form['layout_builder_search_indexing'] = [
       '#type' => 'details',
       '#title' => t('Layout builder search indexing'),
