@@ -109,7 +109,7 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
         }
 
         if (in_array($field->getType(), $search_field_types)) {
-          $search_field_options[$field->id()] = $field->label();
+          $search_field_options[$field->getName()] = $field->label();
         }
       }
     }
@@ -156,14 +156,11 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
 /**
  * @param $node_type
  * @return array
- * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
- * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
  */
 function entity_layout_builder_displays($node_type){
   $entity_displays = \Drupal::service('entity_display.repository');
   $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
   $layout_builder_displays = [];
-
   $display_modes = $entity_displays->getViewModeOptionsByBundle('node', $node_type);
 
   foreach ($display_modes as $id => $mode) {
@@ -172,7 +169,7 @@ function entity_layout_builder_displays($node_type){
     if ($display instanceof LayoutBuilderEntityViewDisplay) {
       $settings = $display->getThirdPartySettings('layout_builder');
       if (array_key_exists('enabled', $settings) && $settings['enabled'] == TRUE) {
-        $layout_builder_displays[$display->id()] = $display->getMode();
+        $layout_builder_displays[$display->getMode()] = $display->getMode();
       }
     }
   }
