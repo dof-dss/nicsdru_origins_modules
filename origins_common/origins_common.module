@@ -11,6 +11,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\node\Entity\Node;
 use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 
 /**
@@ -34,37 +35,32 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
  */
 function origins_common_entity_presave(EntityInterface $entity) {
   // Ensure we're on the node edit page.
-  if (!$entity instanceof ContentEntityInterface) {
+  if (!$entity instanceof ContentEntityInterface || !$entity instanceof Node) {
     return;
   }
 
-  $layout_field = NULL;
-  $field_definitions = $entity->getFieldDefinitions();
-  $search_index_content_field = 'body';
+  if ($entity->hasField('field_lb_enable_search_index')) {
+    $enable_search = (bool) $entity->get('field_lb_enable_search_index')->getValue();
 
-  // Detect the presence of a Layout Builder field.
-  foreach ($field_definitions as $definition) {
-    if ($definition->getType() == 'layout_section') {
-      $layout_field = $definition;
-    }
-  }
+    if ($enable_search) {
+      $entity_storage = \Drupal::entityTypeManager()->getStorage('node_type');
+      $entity_type = $entity_storage->load($entity->getType());
+      $settings = $entity_type->getThirdPartySettings('origins_common');
 
-  if ($layout_field && $entity->hasField($search_index_content_field)) {
-    $content = '';
-    $layout = $entity->get($layout_field->getName());
-    $sections = $layout->getSections();
-    $contexts['layout_builder.entity'] = EntityContext::fromEntity($entity);
+      $search_index_field = $settings['lb_search_index_field'] ?? NULL;
+      $search_index_display = $settings['lb_search_index_display'] ?? NULL;
 
-    // Loop through the Layout Builder sections and concat contents.
-    foreach ($sections as $section) {
-      $components = $section->getComponents();
-      foreach ($components as $component) {
-        $build = $component->toRenderArray($contexts);
-        $content .= \Drupal::service('renderer')->render($build);
+      if ($search_index_field && $search_index_display) {
+        // Check the requested search index storage field exists.
+        if ($entity->hasField($search_index_field)) {
+          $view_builder =  \Drupal::entityTypeManager()->getViewBuilder('node');
+          $build = $view_builder->view($entity, 'default');
+          // Ideally we would use use a defined text format to filter the content.
+          $content = strip_tags(\Drupal::service('renderer')->render($build));
+          $entity->set($search_index_field, $content);
+        }
       }
     }
-    // Save page contents to the search index field.
-    $entity->set($search_index_content_field, $content);
   }
 }
 
