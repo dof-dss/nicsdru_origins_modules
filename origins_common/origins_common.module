@@ -77,14 +77,17 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
   $entity_displays = \Drupal::service('entity_display.repository');
   $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
   $layout_builder_enabled = FALSE;
+  $layout_builder_displays = [];
 
   $display_modes = $entity_displays->getViewModeOptionsByBundle('node', $node_type);
 
   foreach ($display_modes as $id => $mode) {
-    $display = $entity_view_displays->load('node.' . $node_type . '.' . $id);
+    $display_id = 'node.' . $node_type . '.' . $id;
+    $display = $entity_view_displays->load($display_id);
     if ($display instanceof LayoutBuilderEntityViewDisplay) {
       $settings = $display->getThirdPartySettings('layout_builder');
       if (array_key_exists('enabled', $settings) && $settings['enabled'] == TRUE) {
+        $layout_builder_displays[$display->id()] = $display->getMode();
         $layout_builder_enabled = TRUE;
       }
     }
@@ -128,6 +131,14 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
         search index configuration.',
         '#options' => $search_field_options,
         '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_index_field', NULL),
+      ];
+
+      $form['lb_search_settings']['lb_search_index_display'] = [
+        '#type' => 'select',
+        '#title' => t('Select display mode'),
+        '#description' => t('Layout Builder enabled display mode to render for search index.'),
+        '#options' => $layout_builder_displays,
+        '#default_value' => $node->getThirdPartySettings('origins_common', 'lb_search_index_display', NULL),
       ];
 
       $form['#entity_builders'][] = 'origins_common_form_node_type_form_builder';
