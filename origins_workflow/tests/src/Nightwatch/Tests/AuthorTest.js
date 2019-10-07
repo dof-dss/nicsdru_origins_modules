@@ -6,9 +6,19 @@ module.exports = {
       .drupalLogin({ name: 'nw_test_author', password: process.env.TEST_PASS });
 
     browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('h1.page-title')
+      .text.to.contain('Add content');
+
+    browser
       .drupalRelativeURL('/admin/workflow/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
+
+    browser
+      .drupalRelativeURL('/admin/workflow/all-drafts')
+      .expect.element('h1.page-title')
+      .text.to.contain('All drafts');
 
     browser
       .drupalRelativeURL('/admin/workflow/needs-review')
