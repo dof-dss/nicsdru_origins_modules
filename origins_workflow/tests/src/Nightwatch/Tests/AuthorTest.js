@@ -24,6 +24,11 @@ module.exports = {
       .drupalRelativeURL('/admin/workflow/needs-review')
       .expect.element('h1.page-title')
       .text.to.contain('Needs Review');
+
+    browser
+      .drupalRelativeURL('/admin/workflow/needs-audit')
+      .expect.element('h1.page-title')
+      .text.to.contain('Access denied');
   }
 
 };
