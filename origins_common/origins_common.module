@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Plugin\Context\EntityContext;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\node\Entity\Node;
 use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
@@ -53,9 +52,10 @@ function origins_common_entity_presave(EntityInterface $entity) {
       if ($search_index_field && $search_index_display) {
         // Check the requested search index storage field exists.
         if ($entity->hasField($search_index_field)) {
-          $view_builder =  \Drupal::entityTypeManager()->getViewBuilder('node');
+          $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
           $build = $view_builder->view($entity, 'default');
-          // Ideally we would use use a defined text format to filter the content.
+          // Ideally we would use use a defined text format to filter
+          // the content, this will suffice for the time being.
           $content = strip_tags(\Drupal::service('renderer')->render($build));
           $entity->set($search_index_field, $content);
         }
@@ -132,10 +132,15 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
 }
 
 /**
- * @param $node_type
+ * Layout Builder enabled displays.
+ *
+ * @param string $node_type
+ *   Content type to return display modes for.
+ *
  * @return array
+ *   Array of Layout Builder enabled display modes.
  */
-function entity_layout_builder_displays($node_type){
+function entity_layout_builder_displays($node_type) {
   $entity_displays = \Drupal::service('entity_display.repository');
   $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
   $layout_builder_displays = [];
