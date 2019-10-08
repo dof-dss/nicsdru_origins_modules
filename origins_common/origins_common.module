@@ -10,7 +10,9 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\layout_builder\Entity\LayoutBuilderEntityViewDisplay;
 
 /**
@@ -33,7 +35,47 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_entity_presave().
  */
 function origins_common_entity_presave(EntityInterface $entity) {
-  // Ensure we're on the node edit page.
+
+  // Content Type edit form submit
+  if ($entity instanceof NodeType) {
+
+    $lb_search_enabled = $entity->getThirdPartySetting('origins_common', 'lb_search_enable', FALSE);
+    if ($lb_search_enabled) {
+      // Check if the 'enable search index' field exists and create it if it doesn't.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
+      if (!$field) {
+        $field_storage = FieldStorageConfig::loadByName($entity->id(), 'field_lb_enable_search_index');
+
+        if (!$field_storage) {
+          $field_storage = FieldStorageConfig::create([
+            'entity_type' => 'node',
+            'field_name' => 'field_lb_enable_search_index',
+            'type' => 'boolean',
+            'locked' => TRUE,
+          ]);
+          $field_storage->setTranslatable(FALSE);
+          $field_storage->save();
+        }
+
+        $field = FieldConfig::create([
+          'field_storage' => $field_storage,
+          'bundle' => $entity->id(),
+          'label' => t('LB Search enabled'),
+        ]);
+        $field->setTranslatable(FALSE);
+        $field->save();
+      }
+    }
+    else {
+      // Delete the 'enable search index' field from this entity if it exists.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
+      if ($field) {
+        $field->delete();
+      }
+    }
+  }
+
+  // Ensure we're on a Layout or Node edit form submit.
   if (!$entity instanceof ContentEntityInterface || !$entity instanceof Node) {
     return;
   }
