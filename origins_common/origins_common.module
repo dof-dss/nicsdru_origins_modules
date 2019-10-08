@@ -98,71 +98,51 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
       '#group' => 'additional_settings',
     ];
 
-    if ($search_field_enabled_exists) {
-      $form['lb_search_settings']['lb_search_index_field'] = [
-        '#type' => 'select',
-        '#title' => t('Search index field'),
-        '#description' => 'Select the field to store rendered content of Layout builder page for 
+    $form['lb_search_settings']['lb_search_enable'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enable search indexing'),
+      '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_enable', NULL),
+    ];
+
+    $form['lb_search_settings']['lb_search_index_field'] = [
+      '#type' => 'select',
+      '#title' => t('Search index field'),
+      '#description' => 'Select the field to store rendered content of Layout builder page for 
         search indexing.
         <br><b>NOTE:</b> It is recommended that you use fields of type <i>plain, long</i>.
         <br><b>IMPORTANT:</b> This field should not be displayed to users of the site and should be included in your 
         search index configuration.',
-        '#options' => $search_field_options,
-        '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_index_field', NULL),
-      ];
+      '#options' => $search_field_options,
+      '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_index_field', NULL),
+      '#states' => [
+        'invisible' => [
+          ':input[name="lb_search_enable"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
 
-      $form['lb_search_settings']['lb_search_index_display'] = [
-        '#type' => 'select',
-        '#title' => t('Select display mode'),
-        '#description' => t('Layout Builder enabled display mode to render for search index.'),
-        '#options' => $layout_builder_displays,
-        '#default_value' => $node->getThirdPartySettings('origins_common', 'lb_search_index_display', NULL),
-      ];
+    $form['lb_search_settings']['lb_search_index_display'] = [
+      '#type' => 'select',
+      '#title' => t('Select display mode'),
+      '#description' => t('Layout Builder enabled display mode to render for search index.'),
+      '#options' => $layout_builder_displays,
+      '#default_value' => $node->getThirdPartySettings('origins_common', 'lb_search_index_display', NULL),
+      '#states' => [
+        'invisible' => [
+          ':input[name="lb_search_enable"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
 
-      $form['#entity_builders'][] = 'origins_common_form_node_type_form_builder';
-    }
-    else {
-      $form['lb_search_settings']['lb_search_index_help'] = [
-        '#type' => 'markup',
-        '#markup' => 'Search indexing requires a field of type <i>boolean</i> with the machine name 
-        <i>field_lb_enable_search_index.</i>',
-      ];
-    }
+    $form['#entity_builders'][] = 'origins_common_form_node_type_form_builder';
   }
-}
-
-/**
- * Layout Builder enabled displays.
- *
- * @param string $node_type
- *   Content type to return display modes for.
- *
- * @return array
- *   Array of Layout Builder enabled display modes.
- */
-function entity_layout_builder_displays($node_type) {
-  $entity_displays = \Drupal::service('entity_display.repository');
-  $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
-  $layout_builder_displays = [];
-  $display_modes = $entity_displays->getViewModeOptionsByBundle('node', $node_type);
-
-  foreach ($display_modes as $id => $mode) {
-    $display_id = 'node.' . $node_type . '.' . $id;
-    $display = $entity_view_displays->load($display_id);
-    if ($display instanceof LayoutBuilderEntityViewDisplay) {
-      $settings = $display->getThirdPartySettings('layout_builder');
-      if (array_key_exists('enabled', $settings) && $settings['enabled'] == TRUE) {
-        $layout_builder_displays[$display->getMode()] = $display->getMode();
-      }
-    }
-  }
-  return $layout_builder_displays;
 }
 
 /**
  * Entity builder for the origins_common_form_node_type_form_alter().
  */
 function origins_common_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_common', 'lb_search_enable', $form_state->getValue('lb_search_enable'));
   $type->setThirdPartySetting('origins_common', 'lb_search_index_field', $form_state->getValue('lb_search_index_field'));
   $type->setThirdPartySetting('origins_common', 'lb_search_index_display', $form_state->getValue('lb_search_index_display'));
 }
