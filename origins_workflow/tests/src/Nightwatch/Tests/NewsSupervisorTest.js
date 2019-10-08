@@ -6,6 +6,11 @@ module.exports = {
       .drupalLogin({ name: 'nw_test_news_super', password: process.env.TEST_PASS });
 
     browser
+      .drupalRelativeURL('/admin/structure/taxonomy_manager/voc')
+      .expect.element('h1.page-title')
+      .text.to.contain('Taxonomy Manager');
+
+    browser
       .drupalRelativeURL('/node/add')
       .expect.element('h1.page-title')
       .text.to.contain('Create News');
