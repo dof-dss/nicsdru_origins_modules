@@ -181,3 +181,32 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
     unset($form['field_lb_enable_search_index']);
   }
 }
+
+/**
+ * Layout Builder enabled displays.
+ *
+ * @param string $node_type
+ *   Content type to return display modes for.
+ *
+ * @return array
+ *   Array of Layout Builder enabled display modes.
+ */
+function entity_layout_builder_displays($node_type) {
+  $entity_displays = \Drupal::service('entity_display.repository');
+  $entity_view_displays = \Drupal::entityTypeManager()->getStorage('entity_view_display');
+  $layout_builder_displays = [];
+  $display_modes = $entity_displays->getViewModeOptionsByBundle('node', $node_type);
+
+  foreach ($display_modes as $id => $mode) {
+    $display_id = 'node.' . $node_type . '.' . $id;
+    $display = $entity_view_displays->load($display_id);
+    if ($display instanceof LayoutBuilderEntityViewDisplay) {
+      $settings = $display->getThirdPartySettings('layout_builder');
+      if (array_key_exists('enabled', $settings) && $settings['enabled'] == TRUE) {
+        $layout_builder_displays[$display->getMode()] = $display->getMode();
+      }
+    }
+  }
+  return $layout_builder_displays;
+}
+
