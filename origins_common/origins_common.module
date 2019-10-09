@@ -44,6 +44,8 @@ function origins_common_entity_presave(EntityInterface $entity) {
       // Check if the 'enable search index' field exists and create it if it doesn't.
       $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
       if (!$field) {
+
+        // Create the field for this entity.
         $field_storage = FieldStorageConfig::loadByName('node', 'field_lb_enable_search_index');
         $field = FieldConfig::create([
           'field_storage' => $field_storage,
@@ -52,6 +54,14 @@ function origins_common_entity_presave(EntityInterface $entity) {
         ]);
         $field->setTranslatable(FALSE);
         $field->save();
+
+        // Enable the field in the form display.
+        $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.layout_page.default');
+        $form_display->setComponent('field_lb_enable_search_index', [
+          'type' => 'boolean_checkbox',
+          'label' => 'above',
+          'settings' => ['link_to_entity' => 'false'],
+        ])->save();
       }
     }
     else {
@@ -214,6 +224,7 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
         '#markup' => t('This content was created after search indexing was enabled and does not have the required fields.')
       ];
     } else {
+      $form['field_lb_enable_search_index']['widget']['value']['#title'] = t('Enable search indexing for this node.');
       $form['layout_builder_search_indexing'][] = $form['field_lb_enable_search_index'];
       unset($form['field_lb_enable_search_index']);
     }
