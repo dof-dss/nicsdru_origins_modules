@@ -112,24 +112,6 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
   $layout_builder_displays = entity_layout_builder_displays($node_type);
 
   if ($layout_builder_displays) {
-    $node_fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
-    // Field types suitable for storage of content for search indexing.
-    $search_field_types = ['string_long', 'text', 'text_with_summary'];
-    $search_field_options = ['' => '- Please select -'];
-    $search_field_enabled_exists = FALSE;
-
-    foreach ($node_fields as $field) {
-      if ($field instanceof FieldConfig) {
-        if ($field->getType() == 'boolean' && $field->getName() == 'field_lb_enable_search_index') {
-          $search_field_enabled_exists = TRUE;
-          continue;
-        }
-
-        if (in_array($field->getType(), $search_field_types)) {
-          $search_field_options[$field->getName()] = $field->label();
-        }
-      }
-    }
 
     $form['lb_search_settings'] = [
       '#type' => 'details',
