@@ -32,16 +32,20 @@ function origins_workflow_install() {
     'nw_test_hc_super' => 'health_condition_supervisor_user',
     'nw_test_driving_super' => 'driving_instructor_supervisor_user'];
   foreach($name_list as $name => $role) {
-    \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
-    $user = User::create([
-     'name' => $name,
-     'mail' => $name . '@localhost',
-     'status' => 1,
-     'pass' => getenv('TEST_PASS'),
-     'roles' => [$role, 'authenticated'],
-    ]);
-    $user->save();
+    $user = user_load_by_name($name);
+    if (empty($user)) {
+      \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
+      $user = User::create([
+        'name' => $name,
+        'mail' => $name . '@localhost',
+        'status' => 1,
+        'pass' => getenv('TEST_PASS'),
+        'roles' => [$role, 'authenticated'],
+      ]);
+      $user->save();
+    } else {
+      \Drupal::logger('origins_workflow')->notice(
+        t('Did not create user @name as already exists.', ['@name' => $name]));
+    }
   }
-
-
 }
