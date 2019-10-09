@@ -9,6 +9,10 @@ function origins_common_uninstall() {
   if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_enable')) {
     $field_storage->delete();
   }
-  
+
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_content')) {
+    $field_storage->delete();
+  }
+
   field_purge_batch(10);
 }

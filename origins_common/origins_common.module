@@ -63,10 +63,34 @@ function origins_common_entity_presave(EntityInterface $entity) {
           'settings' => ['link_to_entity' => 'false'],
         ])->save();
       }
+
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_search_content');
+      if (!$field) {
+
+        // Create the field for this entity.
+        $field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_content');
+        $field = FieldConfig::create([
+          'field_storage' => $field_storage,
+          'bundle' => $entity->id(),
+          'label' => t('LB Search content'),
+          'description' => t('Populated on node save.')
+        ]);
+        $field->setTranslatable(FALSE);
+        $field->save();
+
+        // Enable the field in the form display.
+        $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.layout_page.default');
+        $form_display->setComponent('field_lb_search_content', [
+          'type' => 'string_textarea',
+          'label' => 'above',
+          'settings' => ['link_to_entity' => 'false'],
+        ])->save();
+      }
+
     }
     else {
       // Delete the 'enable search index' field from this entity if it exists.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_search_content');
       if ($field) {
         $field->delete();
       }
@@ -84,19 +108,17 @@ function origins_common_entity_presave(EntityInterface $entity) {
       $entity_storage = \Drupal::entityTypeManager()->getStorage('node_type');
       $entity_type = $entity_storage->load($entity->getType());
       $settings = $entity_type->getThirdPartySettings('origins_common');
-
-      $search_index_field = $settings['lb_search_index_field'] ?? NULL;
       $search_index_display = $settings['lb_search_index_display'] ?? NULL;
 
-      if ($search_index_field && $search_index_display) {
+      if ($search_index_display) {
         // Check the requested search index storage field exists.
-        if ($entity->hasField($search_index_field)) {
+        if ($entity->hasField('field_lb_search_content')) {
           $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
           $build = $view_builder->view($entity, 'default');
           // Ideally we would use use a defined text format to filter
           // the content, this will suffice for the time being.
           $content = strip_tags(\Drupal::service('renderer')->render($build));
-          $entity->set($search_index_field, $content);
+          $entity->set('field_lb_search_content', $content);
         }
       }
     }
@@ -125,23 +147,6 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
       '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_enable', NULL),
     ];
 
-    $form['lb_search_settings']['lb_search_index_field'] = [
-      '#type' => 'select',
-      '#title' => t('Search index field'),
-      '#description' => 'Select the field to store rendered content of Layout builder page for 
-        search indexing.
-        <br><b>NOTE:</b> It is recommended that you use fields of type <i>plain, long</i>.
-        <br><b>IMPORTANT:</b> This field should not be displayed to users of the site and should be included in your 
-        search index configuration.',
-      '#options' => $search_field_options,
-      '#default_value' => $node->getThirdPartySetting('origins_common', 'lb_search_index_field', NULL),
-      '#states' => [
-        'invisible' => [
-          ':input[name="lb_search_enable"]' => ['checked' => FALSE],
-        ],
-      ],
-    ];
-
     $form['lb_search_settings']['lb_search_index_display'] = [
       '#type' => 'select',
       '#title' => t('Select display mode'),
@@ -164,7 +169,6 @@ function origins_common_form_node_type_form_alter(&$form, FormStateInterface $fo
  */
 function origins_common_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_common', 'lb_search_enable', $form_state->getValue('lb_search_enable'));
-  $type->setThirdPartySetting('origins_common', 'lb_search_index_field', $form_state->getValue('lb_search_index_field'));
   $type->setThirdPartySetting('origins_common', 'lb_search_index_display', $form_state->getValue('lb_search_index_display'));
 }
 
@@ -172,6 +176,7 @@ function origins_common_form_node_type_form_builder($entity_type, $type, &$form,
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
+  $form['field_lb_search_content']['#disabled'] = TRUE;
   // Determine node type from node/add or node/edit forms.
   $node_type = \Drupal::routeMatch()->getParameter('node_type');
   if (!empty($node_type)) {
@@ -187,12 +192,9 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
   $settings = $entity_type->getThirdPartySettings('origins_common');
 
   // Ensure we have settings configured from the entity type form.
-  $search_field_present = !empty($settings['lb_search_index_field']);
   $search_display_present = !empty($settings['lb_search_index_display']);
 
-
-
-  if ($search_field_present && $search_display_present) {
+  if (!empty($form['field_lb_search_enable']) && !empty($form['field_lb_search_content']) && $search_display_present) {
     $form['layout_builder_search_indexing'] = [
       '#type' => 'details',
       '#title' => t('Layout builder search indexing'),
@@ -200,15 +202,14 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
       '#open' => FALSE,
     ];
 
-    if (empty($form['field_lb_enable_search_index'])) {
-      $form['layout_builder_search_indexing'][] = [
-        '#markup' => t('This content was created after search indexing was enabled and does not have the required fields.')
-      ];
-    } else {
-      $form['field_lb_enable_search_index']['widget']['value']['#title'] = t('Enable search indexing for this node.');
-      $form['layout_builder_search_indexing'][] = $form['field_lb_enable_search_index'];
-      unset($form['field_lb_enable_search_index']);
-    }
+    // Alter the field titles for displaying on the node edit form.
+    $form['field_lb_search_enable']['widget']['value']['#title'] = t('Enable search indexing for this node.');
+    $form['layout_builder_search_indexing'][] = $form['field_lb_search_enable'];
+    unset($form['field_lb_search_enable']);
+
+    $form['field_lb_search_content']['widget'][0]['value']['#title'] = t('Search index contents.');
+    $form['layout_builder_search_indexing'][] = $form['field_lb_search_content'];
+    unset($form['field_lb_search_content']);
   }
 }
 
