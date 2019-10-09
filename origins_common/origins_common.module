@@ -44,19 +44,7 @@ function origins_common_entity_presave(EntityInterface $entity) {
       // Check if the 'enable search index' field exists and create it if it doesn't.
       $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
       if (!$field) {
-        $field_storage = FieldStorageConfig::loadByName($entity->id(), 'field_lb_enable_search_index');
-
-        if (!$field_storage) {
-          $field_storage = FieldStorageConfig::create([
-            'entity_type' => 'node',
-            'field_name' => 'field_lb_enable_search_index',
-            'type' => 'boolean',
-            'locked' => TRUE,
-          ]);
-          $field_storage->setTranslatable(FALSE);
-          $field_storage->save();
-        }
-
+        $field_storage = FieldStorageConfig::loadByName('node', 'field_lb_enable_search_index');
         $field = FieldConfig::create([
           'field_storage' => $field_storage,
           'bundle' => $entity->id(),
@@ -211,6 +199,8 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
   $search_field_present = !empty($settings['lb_search_index_field']);
   $search_display_present = !empty($settings['lb_search_index_display']);
 
+
+
   if ($search_field_present && $search_display_present) {
     $form['layout_builder_search_indexing'] = [
       '#type' => 'details',
@@ -219,8 +209,14 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
       '#open' => FALSE,
     ];
 
-    $form['layout_builder_search_indexing'][] = $form['field_lb_enable_search_index'];
-    unset($form['field_lb_enable_search_index']);
+    if (empty($form['field_lb_enable_search_index'])) {
+      $form['layout_builder_search_indexing'][] = [
+        '#markup' => t('This content was created after search indexing was enabled and does not have the required fields.')
+      ];
+    } else {
+      $form['layout_builder_search_indexing'][] = $form['field_lb_enable_search_index'];
+      unset($form['field_lb_enable_search_index']);
+    }
   }
 }
 
