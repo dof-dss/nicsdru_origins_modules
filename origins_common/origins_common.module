@@ -42,11 +42,11 @@ function origins_common_entity_presave(EntityInterface $entity) {
     $lb_search_enabled = $entity->getThirdPartySetting('origins_common', 'lb_search_enable', FALSE);
     if ($lb_search_enabled) {
       // Check if the 'enable search index' field exists and create it if it doesn't.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_enable_search_index');
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_lb_search_enable');
       if (!$field) {
 
         // Create the field for this entity.
-        $field_storage = FieldStorageConfig::loadByName('node', 'field_lb_enable_search_index');
+        $field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_enable');
         $field = FieldConfig::create([
           'field_storage' => $field_storage,
           'bundle' => $entity->id(),
@@ -57,7 +57,7 @@ function origins_common_entity_presave(EntityInterface $entity) {
 
         // Enable the field in the form display.
         $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.layout_page.default');
-        $form_display->setComponent('field_lb_enable_search_index', [
+        $form_display->setComponent('field_lb_search_enable', [
           'type' => 'boolean_checkbox',
           'label' => 'above',
           'settings' => ['link_to_entity' => 'false'],
@@ -78,10 +78,9 @@ function origins_common_entity_presave(EntityInterface $entity) {
     return;
   }
 
-  if ($entity->hasField('field_lb_enable_search_index')) {
-    $enable_search = (bool) $entity->get('field_lb_enable_search_index')->getValue();
-
-    if ($enable_search) {
+  if ($entity->hasField('field_lb_search_enable')) {
+    $search_enable = (bool) $entity->get('field_lb_search_enable')->getValue();
+    if ($search_enable) {
       $entity_storage = \Drupal::entityTypeManager()->getStorage('node_type');
       $entity_type = $entity_storage->load($entity->getType());
       $settings = $entity_type->getThirdPartySettings('origins_common');

@@ -6,9 +6,9 @@ use Drupal\field\Entity\FieldStorageConfig;
  * Implements hook_uninstall().
  */
 function origins_common_uninstall() {
-  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_enable_search_index')) {
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_enable')) {
     $field_storage->delete();
   }
-
+  
   field_purge_batch(10);
 }
