@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Module install, uninstall and update functions.
+ */
+
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
