@@ -23,15 +23,15 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
     // Main module help for the origins_common module.
     case 'help.page.origins_common':
       $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('A common set of Drupal components.') . '</p>';
-      $output .= '<h4>' . t('Layout Builder Search Indexing') . '</h4>';
-      $output .= '<p>' . t('To enable Layout Builder search indexing:');
-      $output .= '<ul><li>' . t('Ensure the Node Type has at least one Layout Builder enabled display.') . '</li>';
-      $output .= '<li>' . t('Edit the Node Type and click \'Enable search indexing\' under the \'Layout Builder search indexing\' option') . '</li>';
-      $output .= '<li>' . t('Choose the display mode that will be used to generate the search index content and save the form.') . '</li>';
-      $output .= '<li>' . t('Within a Node edit form click \'Enable search indexing for this node\' under the \'Layout Builder Search Indexing \' option.') . '</li>';
-      $output .= '<li>' . t('Within a Node edit form click \'Enable search indexing for this node\' under the \'Layout Builder Search Indexing \' option.') . '</li>';
+      $output .= '<h3>' . t("About") . '</h3>';
+      $output .= '<p>' . t("A common set of Drupal components.") . '</p>';
+      $output .= '<h4>' . t("Layout Builder Search Indexing") . '</h4>';
+      $output .= '<p>' . t("To enable Layout Builder search indexing:");
+      $output .= '<ul><li>' . t("Ensure the Node Type has at least one Layout Builder enabled display.") . '</li>';
+      $output .= '<li>' . t("Edit the Node Type and click 'Enable search indexing' under the 'Layout Builder search indexing' option") . '</li>';
+      $output .= '<li>' . t("Choose the display mode that will be used to generate the search index content and save the form.") . '</li>';
+      $output .= '<li>' . t("Within a Node edit form click 'Enable search indexing for this node' under the 'Layout Builder Search Indexing ' option.") . '</li>';
+      $output .= '<li>' . t("Within a Node edit form click 'Enable search indexing for this node' under the 'Layout Builder Search Indexing ' option.") . '</li>';
       // Display Search API instructions.
       if (\Drupal::moduleHandler()->moduleExists('search_api')) {
         $output .= '<li>' . t('Under your <a href=":searchapi">Search API</a> server index, include the \'field_lb_search_content\' field for indexing.', [':searchapi' => Url::fromRoute('search_api.overview')->toString()]) . '</li>';
