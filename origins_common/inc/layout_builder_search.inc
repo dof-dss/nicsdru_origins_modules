@@ -90,8 +90,6 @@ function layout_builder_search_node_edit_form_alter(&$form, FormStateInterface $
   // Ensure we have settings configured from the entity type form.
   $search_display_present = !empty($settings['lb_search_index_display']);
 
-  ksm($search_display_present, $form);
-
   if (!empty($form['field_lb_search_enable']) && !empty($form['field_lb_search_content']) && $search_display_present) {
     $form['layout_builder_search_indexing'] = [
       '#type' => 'details',
