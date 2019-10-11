@@ -16,6 +16,31 @@ module.exports = {
       .text.to.contain('Add content');
 
     browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Article');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Driving instructor');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Landing page');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Recipe');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Webform');
+
+    browser
       .drupalRelativeURL('/admin/workflow/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
