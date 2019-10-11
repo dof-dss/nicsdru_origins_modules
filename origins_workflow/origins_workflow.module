@@ -99,6 +99,7 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
     $account = User::load($account_uid);
     if (($view->element['#display_id'] == 'page_2')
       || ($view->element['#display_id'] == 'page_3')) {
+      // 'My Drafts' or 'All Drafts' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
         $view->field['nothing_1']->options['exclude'] = TRUE;
@@ -107,6 +108,7 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
         $view->field['nothing']->options['exclude'] = TRUE;
       }
     } elseif ($view->element['#display_id'] == 'page_1') {
+      // 'Needs review' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
         $view->field['nothing_3']->options['exclude'] = TRUE;
