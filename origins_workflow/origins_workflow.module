@@ -94,15 +94,26 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 function origins_workflow_views_pre_render(ViewExecutable $view) {
   // Hide one of the fields to set moderation state depending
   // on whether the user has 'publish' permission or not.
-  if (($view->element['#name'] == 'workflow_moderation') && ($view->element['#display_id'] == 'page_2')) {
+  if ($view->element['#name'] == 'workflow_moderation') {
     $account_uid = \Drupal::currentUser()->id();
     $account = User::load($account_uid);
-    if ($account->hasPermission('use editorial transition publish')) {
-      // Show the field that has the 'Change to Publish' link.
-      $view->field['nothing_1']->options['exclude'] = TRUE;
-    } else {
-      // Hide the field that has the 'Change to Publish' link.
-      $view->field['nothing']->options['exclude'] = TRUE;
+    if (($view->element['#display_id'] == 'page_2')
+      || ($view->element['#display_id'] == 'page_3')) {
+      if ($account->hasPermission('use editorial transition publish')) {
+        // Show the field that has the 'Change to Publish' link.
+        $view->field['nothing_1']->options['exclude'] = TRUE;
+      } else {
+        // Hide the field that has the 'Change to Publish' link.
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
+    } elseif ($view->element['#display_id'] == 'page_1') {
+      if ($account->hasPermission('use editorial transition publish')) {
+        // Show the field that has the 'Change to Publish' link.
+        $view->field['nothing_3']->options['exclude'] = TRUE;
+      } else {
+        // Hide the field that has the 'Change to Publish' link.
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
     }
   }
 }
