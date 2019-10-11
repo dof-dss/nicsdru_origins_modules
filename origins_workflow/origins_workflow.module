@@ -46,7 +46,6 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Manage access to 'next audit date' field.
-
   // Get a list of audited content types.
   $config = \Drupal::config('origins_workflow.auditsettings');
   $audit_types = $config->get('audit_content_types');
@@ -103,20 +102,22 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
         $view->field['nothing_1']->options['exclude'] = TRUE;
-      } else {
+      }
+      else {
         // Hide the field that has the 'Change to Publish' link.
         $view->field['nothing']->options['exclude'] = TRUE;
       }
-    } elseif ($view->element['#display_id'] == 'page_1') {
+    }
+    elseif ($view->element['#display_id'] == 'page_1') {
       // 'Needs review' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
         $view->field['nothing_3']->options['exclude'] = TRUE;
-      } else {
+      }
+      else {
         // Hide the field that has the 'Change to Publish' link.
         $view->field['nothing']->options['exclude'] = TRUE;
       }
     }
   }
 }
-
