@@ -5,10 +5,10 @@ module.exports = {
     browser
       .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_admin', password: process.env.TEST_PASS });
 
-    browser
+    /*browser
       .drupalRelativeURL('/admin/structure/taxonomy_manager/voc')
       .expect.element('h1.page-title')
-      .text.to.contain('Taxonomy Manager');
+      .text.to.contain('Taxonomy Manager');*/
 
     browser
       .drupalRelativeURL('/node/add')

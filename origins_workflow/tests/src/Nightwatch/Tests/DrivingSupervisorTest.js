@@ -13,7 +13,7 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('h1.page-title')
-      .text.to.contain('Create Nidirect driving instructor');
+      .text.to.contain('Create Driving instructor');
 
     browser
       .drupalRelativeURL('/admin/workflow/drafts')
