@@ -3,7 +3,7 @@ module.exports = {
 
   'Test login': browser => {
     browser
-      .drupalLogin({ name: 'nw_test_driving_super', password: process.env.TEST_PASS });
+      .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_driving_super', password: process.env.TEST_PASS });
 
     browser
       .drupalRelativeURL('/admin/structure/taxonomy_manager/voc')
@@ -13,7 +13,7 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .text.to.contain('Create Nidirect driving instructor');
 
     browser
       .drupalRelativeURL('/admin/workflow/drafts')

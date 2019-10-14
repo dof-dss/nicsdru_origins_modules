@@ -3,7 +3,7 @@ module.exports = {
 
   'Test login': browser => {
     browser
-      .drupalLogin({ name: 'nw_test_hc_author', password: process.env.TEST_PASS });
+      .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_hc_author', password: process.env.TEST_PASS });
 
     browser
       .drupalRelativeURL('/admin/structure/taxonomy_manager/voc')
