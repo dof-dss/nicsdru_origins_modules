@@ -96,8 +96,8 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
   if ($view->element['#name'] == 'workflow_moderation') {
     $account_uid = \Drupal::currentUser()->id();
     $account = User::load($account_uid);
-    if (($view->element['#display_id'] == 'page_2')
-      || ($view->element['#display_id'] == 'page_3')) {
+    if (($view->element['#display_id'] == 'my_drafts')
+      || ($view->element['#display_id'] == 'all_drafts')) {
       // 'My Drafts' or 'All Drafts' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
@@ -108,7 +108,7 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
         $view->field['nothing']->options['exclude'] = TRUE;
       }
     }
-    elseif ($view->element['#display_id'] == 'page_1') {
+    elseif ($view->element['#display_id'] == 'needs_review') {
       // 'Needs review' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
