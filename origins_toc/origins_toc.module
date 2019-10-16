@@ -5,7 +5,10 @@
  * Contains origins_toc.module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\field\Entity\FieldConfig;
+
 
 /**
  * Implements hook_help().
@@ -21,4 +24,43 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
 
     default:
   }
+}
+
+function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  $form['toc_settings'] = [
+    '#type' => 'details',
+    '#title' => t('Table of contents'),
+    '#group' => 'additional_settings',
+  ];
+
+  $form['toc_settings']['toc_enable'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable table of contents option.'),
+  ];
+
+  $form['toc_settings']['toc_config'] = [
+    '#type' => 'container',
+    '#states' => [
+      'invisible' => [
+        ':input[name="toc_enable"]' => ['checked' => FALSE],
+      ],
+    ],
+  ];
+
+  $entity_type = $form['type']['#default_value'];
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $entity_type);
+
+  foreach($fields as $field) {
+    if ($field instanceof FieldConfig) {
+      $field_options[$field->getName()] = $field->label();
+    }
+  }
+
+  $form['toc_settings']['toc_config']['toc_source_field'] = [
+    '#type' => 'select',
+    '#options' => $field_options,
+    '#description' => t('Select the field to build the table of contents for.')
+  ];
+
 }
