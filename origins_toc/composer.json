@@ -1,0 +1,8 @@
+{
+    "name": "drupal/origins_toc",
+    "type": "drupal-module",
+    "description": "Provides Table of Contents display options",
+    "minimum-stability": "dev",
+    "require": { }
+}
+

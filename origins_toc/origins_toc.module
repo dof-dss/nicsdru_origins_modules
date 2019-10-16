@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_toc.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_toc_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_toc module.
+    case 'help.page.origins_toc':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides Table of Contents display options') . '</p>';
+      return $output;
+
+    default:
+  }
+}
