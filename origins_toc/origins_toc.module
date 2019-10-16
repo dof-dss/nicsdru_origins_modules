@@ -27,6 +27,8 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
 }
 
 function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+  $node_type = $node->id();
 
   $form['toc_settings'] = [
     '#type' => 'details',
@@ -37,6 +39,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
   $form['toc_settings']['toc_enable'] = [
     '#type' => 'checkbox',
     '#title' => t('Enable table of contents option.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable', NULL),
   ];
 
   $form['toc_settings']['toc_config'] = [
@@ -48,10 +51,9 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     ],
   ];
 
-  $entity_type = $form['type']['#default_value'];
-  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $entity_type);
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
 
-  foreach($fields as $field) {
+  foreach ($fields as $field) {
     if ($field instanceof FieldConfig) {
       $field_options[$field->getName()] = $field->label();
     }
@@ -60,7 +62,17 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
   $form['toc_settings']['toc_config']['toc_source_field'] = [
     '#type' => 'select',
     '#options' => $field_options,
-    '#description' => t('Select the field to build the table of contents for.')
+    '#description' => t('Select the field to build the table of contents for.'),
+    '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_enable', NULL),
   ];
 
+  $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
+}
+
+/**
+ * Entity builder for the origins_toc_form_node_type_form_alter().
+ */
+function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
+  $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
 }
