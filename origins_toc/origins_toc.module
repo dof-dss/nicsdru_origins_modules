@@ -90,6 +90,14 @@ function origins_toc_entity_presave(EntityInterface $entity) {
         // Create the enabled field for this entity.
         $field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable');
 
+        // If the field storage config doesn't exists, warn and abort.
+        if (empty($field_storage)) {
+          \Drupal::logger('origins_toc')->critical(t('Attempting to create ToC for @node_type failed. No field storage for field_toc_enable was found.', ['@node_type' => $entity->id()]));
+          $messenger = \Drupal::messenger();
+          $messenger->addWarning(t('Missing field storage for field_toc_enable. Table of content option will not be available for entity of type: @node_type.', ['@node_type' => $entity->id()]));
+          return;
+        }
+
         $field = FieldConfig::create([
           'field_storage' => $field_storage,
           'bundle' => $entity->id(),
@@ -105,7 +113,7 @@ function origins_toc_entity_presave(EntityInterface $entity) {
         'type' => 'boolean_checkbox',
         'label' => 'above',
         'settings' => ['link_to_entity' => 'false'],
-      ]);
+      ])->save();
 
     }
     else {
