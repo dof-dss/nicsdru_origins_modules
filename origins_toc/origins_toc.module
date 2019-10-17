@@ -6,7 +6,6 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -123,5 +122,23 @@ function origins_toc_entity_presave(EntityInterface $entity) {
         $field->delete();
       }
     }
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_toc_form_node_form_alter(&$form, $form_state, $form_id) {
+
+  // If 'toc enable' field exists move to the advanced area of the form.
+  if (array_key_exists('field_toc_enable', $form)) {
+    $form['toc'] = [
+      '#type' => 'details',
+      '#group' => 'advanced',
+      '#title' => t('Table of contents'),
+    ];
+    $form['toc']['toc_settings'] = $form['field_toc_enable'];
+
+    unset($form['field_toc_enable']);
   }
 }
