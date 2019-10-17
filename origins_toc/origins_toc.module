@@ -6,9 +6,11 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Messenger\Messenger;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
-
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_help().
@@ -75,4 +77,43 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
+}
+
+
+function origins_toc_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof Drupal\node\Entity\NodeType) {
+    $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
+    if ($toc_enabled) {
+      // If 'toc enable' doesn't exist for this node, create it.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
+      if (!$field) {
+        // Create the enabled field for this entity.
+        $field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable');
+
+        $field = FieldConfig::create([
+          'field_storage' => $field_storage,
+          'bundle' => $entity->id(),
+          'label' => t('Display Table of Contents'),
+        ]);
+        $field->setTranslatable(FALSE);
+        $field->save();
+      }
+
+      // Enable the fields in the form display.
+      $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
+      $form_display->setComponent('field_toc_enable', [
+        'type' => 'boolean_checkbox',
+        'label' => 'above',
+        'settings' => ['link_to_entity' => 'false'],
+      ]);
+
+    }
+    else {
+      // Delete the 'toc enable' field from this entity if it exists.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
+      if ($field) {
+        $field->delete();
+      }
+    }
+  }
 }
