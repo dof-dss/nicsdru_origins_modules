@@ -67,6 +67,17 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_enable', NULL),
   ];
 
+  $form['toc_settings']['toc_config']['toc_element'] = [
+    '#type' => 'select',
+    '#options' => [
+      'h2' => 'H2 - Heading 2',
+      'h3' => 'H3 - Heading 3',
+      'h4' => 'H4 - Heading 4',
+    ],
+    '#description' => t('Select the HTML element to generate the table of contents against.'),
+    '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_element', NULL),
+  ];
+
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
 }
 
@@ -76,6 +87,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
+  $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
 }
 
 
