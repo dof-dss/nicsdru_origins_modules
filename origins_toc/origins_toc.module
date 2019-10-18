@@ -5,11 +5,14 @@
  * Contains origins_toc.module.
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Implements hook_help().
@@ -27,6 +30,9 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
 function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $node = $form_state->getFormObject()->getEntity();
   $node_type = $node->id();
@@ -90,9 +96,11 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
 }
 
-
+/**
+ * Implements hook_entity_presave().
+ */
 function origins_toc_entity_presave(EntityInterface $entity) {
-  if ($entity instanceof Drupal\node\Entity\NodeType) {
+  if ($entity instanceof NodeType) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
     if ($toc_enabled) {
       // If 'toc enable' doesn't exist for this node, create it.
@@ -153,4 +161,45 @@ function origins_toc_form_node_form_alter(&$form, $form_state, $form_id) {
 
     unset($form['field_toc_enable']);
   }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+
+  if ($entity->hasField('field_toc_enable')) {
+    $toc_enabled = (bool) $entity->get('field_toc_enable')->getString();
+
+    if ($toc_enabled) {
+      $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
+      $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+      if (!empty($toc_settings) && array_key_exists($toc_settings['toc_source_field'], $build)) {
+
+        // Check if ToC's have been disabled at the node type level.
+        if (!$toc_settings['toc_enable']) {
+          return;
+        }
+
+        // Load the content as a dom object and fetch the specified elements.
+        $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
+        $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
+
+        $count = 0;
+        // Insert an incremented toc ID attribute.
+        foreach ($toc_elements as $element) {
+          $element->setAttribute('id', 'toc-' . $count);
+          $count++;
+        }
+
+        $content = $dom->saveHTML();
+        // Strip the HTML document structure before saving as the body.
+        $content = substr($content, strpos($content, '<body>') + 6);
+        $content = str_replace('</body></html>', '', $content);
+
+        $build[$toc_settings['toc_source_field']]['0']['#text'] = $content;
+      }
+    }
+  }
+
 }
