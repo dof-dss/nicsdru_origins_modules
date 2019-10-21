@@ -41,3 +41,11 @@ origins_workflow.audit_settings_form:
   options:
     _admin_route: TRUE
 
+
+origins_workflow.site_theme_controller_display:
+  path: '/admin/site_themes'
+  defaults:
+    _controller: '\Drupal\origins_workflow\Controller\SiteThemeController::display'
+    _title: 'Site Themes'
+  requirements:
+    _permission: 'access content'
