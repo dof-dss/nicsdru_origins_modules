@@ -7,6 +7,10 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Menu\MenuLinkTree;
+use Drupal\Core\Menu\MenuTreeParameters;
+use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 
@@ -41,10 +45,34 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   }
 }
 
+function origins_workflow_link_alter(&$variables) {
+  //if ($variables['menu_name'] == 'site-themes') {
+    $x = 1;
+  //}
+}
+
 /**
  * Implements hook_form_alter().
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  // Add menu if not there already.
+  if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
+    $links = \Drupal::entityTypeManager()->getStorage('menu_link_content')->loadByProperties(['title' => 'Site Themes']);
+    if (count($links) == 0) {
+      $menu_link = MenuLinkContent::create([
+        'title' => 'Site Themes',
+        'link' => ['uri' => 'internal:/admin/site_themes'],
+        'menu_name' => 'site-themes',
+        'parent' => 'origins_workflow.my_workbench',
+        'expanded' => TRUE,
+        'weight' => 0,
+        'id' => 'site_themes'
+      ]);
+      $menu_link->save();
+    }
+  }
+
   // Manage access to 'next audit date' field.
   // Get a list of audited content types.
   $config = \Drupal::config('origins_workflow.auditsettings');
