@@ -6,7 +6,7 @@ origins_workflow.my_workbench:
   weight: -50
 origins_workflow.site_themes:
   title: 'Site Themes'
-  route_name: origins_workflow.site_theme_controller_display
+  route_name: nidirect_site_themes.site_theme_controller_disp
   description: 'Site Themes'
   parent: origins_workflow.my_workbench
   weight: 0
