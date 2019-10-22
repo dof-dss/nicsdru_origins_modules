@@ -7,11 +7,7 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Menu\MenuLinkTree;
-use Drupal\Core\Menu\MenuTreeParameters;
-use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 
@@ -45,8 +41,6 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
     }
   }
 }
-
-
 
 /**
  * Implements hook_form_alter().
@@ -100,7 +94,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 function origins_workflow_menu_links_discovered_alter(&$links) {
   // Add a 'Site Themes' option in the dashboard menu
   // if the nidirect_site_themes module is installed.
-  if (!in_array('origins_workflow.site_themes',$links)) {
+  if (!in_array('origins_workflow.site_themes', $links)) {
     if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
       $links['origins_workflow.site_themes'] = [
         'title' => new TranslatableMarkup('Site Themes'),
