@@ -198,6 +198,25 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
         $content = str_replace('</body></html>', '', $content);
 
         $build[$toc_settings['toc_source_field']]['0']['#text'] = $content;
+
+        // Display the toc field if present.
+        if ($display->getComponent('toc_display')) {
+
+          foreach ($toc_elements as $element) {
+            $items[] = [
+              '#title' => $element->nodeValue,
+              '#type' => 'link',
+              '#url' => $entity->toUrl('canonical')->setOption('fragment',$element->getAttribute('id')),
+            ];
+          }
+
+          $build['items'] = [
+            '#theme' => 'item_list',
+            '#title' => t('Table of contents'),
+            '#items' => $items,
+          ];
+
+        }
       }
     }
   }
