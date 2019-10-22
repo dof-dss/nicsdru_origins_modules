@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Menu\MenuLinkTree;
 use Drupal\Core\Menu\MenuTreeParameters;
 use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
@@ -45,34 +46,12 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   }
 }
 
-function origins_workflow_link_alter(&$variables) {
-  //if ($variables['menu_name'] == 'site-themes') {
-    $x = 1;
-  //}
-}
+
 
 /**
  * Implements hook_form_alter().
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-
-  // Add menu if not there already.
-  if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
-    $links = \Drupal::entityTypeManager()->getStorage('menu_link_content')->loadByProperties(['title' => 'Site Themes']);
-    if (count($links) == 0) {
-      $menu_link = MenuLinkContent::create([
-        'title' => 'Site Themes',
-        'link' => ['uri' => 'internal:/admin/site_themes'],
-        'menu_name' => 'site-themes',
-        'parent' => 'origins_workflow.my_workbench',
-        'expanded' => TRUE,
-        'weight' => 0,
-        'id' => 'site_themes'
-      ]);
-      $menu_link->save();
-    }
-  }
-
   // Manage access to 'next audit date' field.
   // Get a list of audited content types.
   $config = \Drupal::config('origins_workflow.auditsettings');
@@ -113,6 +92,24 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
       $form['field_next_audit_due']['#access'] = FALSE;
     }
   }
+}
+
+/**
+ * Implements hook_menu_links_discovered_alter().
+ */
+function origins_workflow_menu_links_discovered_alter(&$links) {
+  // Add a 'Site Themes' option in the dashboard menu
+  // if the nidirect_site_themes module is installed.
+  if (!in_array('origins_workflow.site_themes',$links)) {
+    if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
+      $links['origins_workflow.site_themes'] = [
+        'title' => new TranslatableMarkup('Site Themes'),
+        'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
+        'parent' => 'origins_workflow.my_workbench',
+      ];
+    }
+  }
+  return $links;
 }
 
 /**
