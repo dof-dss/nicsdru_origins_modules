@@ -203,3 +203,28 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
   }
 
 }
+
+/**
+ * Implements entity_extra_field_info().
+ */
+function origins_toc_entity_extra_field_info() {
+  $extra = [];
+
+  foreach (NodeType::loadMultiple() as $node_type) {
+    $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+    if (empty($toc_settings)) {
+      continue;
+    }
+
+    if ($toc_settings['toc_enable']) {
+      $extra['node'][$node_type->Id()]['display']['toc_display'] = array(
+      'label' => t('Table of contents'),
+      'description' => t('Displays a table of contents with links for this node.'),
+      'weight' => -10,
+      'visible' => TRUE,
+    );
+    }
+  }
+
+  return $extra;
+}
