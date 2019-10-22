@@ -4,6 +4,7 @@ namespace Drupal\origins_toc\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
@@ -63,9 +64,45 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
    */
   public function build() {
     $build = [];
-    $build['#theme'] = 'table_of_contents_block';
-    $build['table_of_contents_block']['#markup'] = 'Implement TableOfContentsBlock.';
+    $node = \Drupal::routeMatch()->getParameter('node');
 
+    if ($node instanceof NodeInterface) {
+      if ($node->hasField('field_toc_enable')) {
+        $toc_enabled = (bool) $node->get('field_toc_enable')->getString();
+
+        if ($toc_enabled) {
+          $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($node->getType());
+          $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+
+          if (!empty($toc_settings) && $node->hasField($toc_settings['toc_source_field'])) {
+            $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
+            $view = $view_builder->view($node, 'full');
+
+            if (empty($view)) {
+              return;
+            }
+            $content = \Drupal::service('renderer')->render($view);
+            $regex = '/<' . $toc_settings['toc_element'] . '.*(toc-\d+).*>(.*)<\/' . $toc_settings['toc_element'] . '>/m';
+
+            preg_match_all($regex, $content, $matches, PREG_SET_ORDER, 0);
+
+            $items = [];
+            foreach ($matches as $match) {
+              $items[] = [
+                '#title' => $match[2],
+                '#type' => 'link',
+                '#url' => $node->toUrl('canonical')->setOption('fragment', $match[1]),
+              ];
+            }
+
+            $build['items'] = [
+              '#theme' => 'item_list',
+              '#items' => $items,
+            ];
+          }
+        }
+      }
+    }
     return $build;
   }
 
