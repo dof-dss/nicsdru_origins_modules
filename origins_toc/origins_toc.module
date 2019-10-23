@@ -193,24 +193,29 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
         // Load the content as a dom object and fetch the specified elements.
         $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
         $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
-        $toc_exclusions = explode(',', $toc_settings['toc_exclusions']);
-        $count = 0;
+        $toc_class_exclusions = [];
         $toc_element_exclusions = [];
+        $toc_item_index = 0;
+
+        if (!empty($toc_settings['toc_exclusions'])) {
+          $toc_class_exclusions = explode(',', $toc_settings['toc_exclusions']);
+        }
 
         // Insert an incremented toc ID attribute.
         foreach ($toc_elements as $id => $element) {
-          if ($toc_exclusions) {
+          // Exclude any elements that have a class in the exclusions array.
+          if ($toc_class_exclusions) {
             $class = $element->getAttribute('class');
-            foreach ($toc_exclusions as $exclusion) {
-              if (strpos($class, $exclusion) !== false) {
+            foreach ($toc_class_exclusions as $exclusion) {
+              if (strpos($class, $exclusion) !== FALSE) {
                 $toc_element_exclusions[] = $id;
                 continue(2);
               }
             }
           }
 
-          $element->setAttribute('id', 'toc-' . $count);
-          $count++;
+          $element->setAttribute('id', 'toc-' . $toc_item_index);
+          $toc_item_index++;
         }
 
         $content = $dom->saveHTML();
@@ -232,7 +237,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
             $items[] = [
               '#title' => $element->nodeValue,
               '#type' => 'link',
-              '#url' => $entity->toUrl('canonical')->setOption('fragment',$element->getAttribute('id')),
+              '#url' => $entity->toUrl('canonical')->setOption('fragment', $element->getAttribute('id')),
             ];
           }
 
@@ -264,12 +269,12 @@ function origins_toc_entity_extra_field_info() {
     }
 
     if ($toc_settings['toc_enable']) {
-      $extra['node'][$node_type->Id()]['display']['toc_display'] = array(
-      'label' => t('Table of contents'),
-      'description' => t('Displays a table of contents with links for this node.'),
-      'weight' => -10,
-      'visible' => TRUE,
-    );
+      $extra['node'][$node_type->Id()]['display']['toc_display'] = [
+        'label' => t('Table of contents'),
+        'description' => t('Displays a table of contents with links for this node.'),
+        'weight' => -10,
+        'visible' => TRUE,
+      ];
     }
   }
 
