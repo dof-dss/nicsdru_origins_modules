@@ -37,19 +37,19 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
   $node = $form_state->getFormObject()->getEntity();
   $node_type = $node->id();
 
-  $form['toc_settings'] = [
+  $form['toc'] = [
     '#type' => 'details',
     '#title' => t('Table of contents'),
     '#group' => 'additional_settings',
   ];
 
-  $form['toc_settings']['toc_enable'] = [
+  $form['toc']['toc_enable'] = [
     '#type' => 'checkbox',
     '#title' => t('Enable table of contents option.'),
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable', NULL),
   ];
 
-  $form['toc_settings']['toc_config'] = [
+  $form['toc']['toc_config'] = [
     '#type' => 'container',
     '#states' => [
       'invisible' => [
@@ -66,21 +66,23 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     }
   }
 
-  $form['toc_settings']['toc_config']['toc_source_field'] = [
+  $form['toc']['toc_config']['toc_source_field'] = [
     '#type' => 'select',
+    '#title' => t('Source field'),
     '#options' => $field_options,
     '#description' => t('Select the field to build the table of contents for.'),
     '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_enable', NULL),
   ];
 
-  $form['toc_settings']['toc_config']['toc_element'] = [
+  $form['toc']['toc_config']['toc_element'] = [
     '#type' => 'select',
+    '#title' => t('Source element'),
     '#options' => [
       'h2' => 'H2 - Heading 2',
       'h3' => 'H3 - Heading 3',
       'h4' => 'H4 - Heading 4',
     ],
-    '#description' => t('Select the HTML element to generate the table of contents against.'),
+    '#description' => t('HTML element to generate the table of contents against.'),
     '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_element', NULL),
   ];
 
