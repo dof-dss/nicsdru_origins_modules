@@ -86,6 +86,12 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('toc_source_field', 'toc_element', NULL),
   ];
 
+  $form['toc']['toc_config']['toc_exclusions'] = [
+    '#type' => 'textfield',
+    '#title' => t('Exclusions'),
+    '#description' => t('Comma separated list of class names to exclude from the toc.'),
+  ];
+
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
 }
 
@@ -96,6 +102,7 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
+  $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
 }
 
 /**
