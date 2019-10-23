@@ -95,10 +95,13 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
               ];
             }
 
-            $build['items'] = [
-              '#theme' => 'item_list',
-              '#items' => $items,
-            ];
+            if ($items) {
+              $build['items'] = [
+                '#theme' => 'item_list',
+                '#items' => $items,
+              ];
+            }
+
           }
         }
       }

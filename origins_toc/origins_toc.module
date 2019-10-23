@@ -222,6 +222,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
 
         // Display the toc field if present.
         if ($display->getComponent('toc_display')) {
+          $items = [];
 
           foreach ($toc_elements as $id => $element) {
             // Skip excluded toc elements.
@@ -235,11 +236,13 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
             ];
           }
 
-          $build['items'] = [
-            '#theme' => 'item_list',
-            '#title' => t('Table of contents'),
-            '#items' => $items,
-          ];
+          if ($items) {
+            $build['items'] = [
+              '#theme' => 'item_list',
+              '#title' => t('Table of contents'),
+              '#items' => $items,
+            ];
+          }
 
         }
       }
