@@ -22,8 +22,24 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
     // Main module help for the origins_toc module.
     case 'help.page.origins_toc':
       $output = '';
-      $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Provides Table of Contents display options') . '</p>';
+      $output .= '<h3>' . t("About") . '</h3>';
+      $output .= '<p>' . t("Provides a list of links to headings within a field in a content type.") . '</p>';
+      $output .= '<h4>' . t("Configuration") . '</h4>';
+      $output .= '<p>' . t("To enable the Table of content for a node type:") . '</p>';
+      $output .= '<ul><li>' . t("Edit the node type.") . '</li>';
+      $output .= '<li>' . t("Click 'enable' from the 'Table of contents' section under advanced settings.") . '</li>';
+      $output .= '<li>' . t("Select a source field in the current content type from which generate your table of contents, typically the body field.") . '</li>';
+      $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
+      $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
+      $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
+      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will 
+      have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
+      $output .= '<h4>' . t("Display") . '</h4>';
+      $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
+      $output .= '<ol><li>' . t("By default a 'Table of contents' field will be added to the content type Display Mode when the Table of contents option is enabled.");
+      $output .= t("This can be repositioned or disabled from the Display Mode configuration page.") . '</li>';
+      $output .= '<li>' . t("A 'Table of contents' block is also provided under the 'Origins: Table of Contents' category.") . '</li></ol>';
+      $output .= '<p>' . t("NOTE: For performance reasons it is recommended that you use the field instead of the block to display the Table of contents.") . '';
       return $output;
 
     default:
