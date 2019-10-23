@@ -180,7 +180,6 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
 
   if ($entity->hasField('field_toc_enable')) {
     $toc_enabled = (bool) $entity->get('field_toc_enable')->getString();
-
     if ($toc_enabled) {
       $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
       $toc_settings = $node_type->getThirdPartySettings('origins_toc');
@@ -194,10 +193,22 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
         // Load the content as a dom object and fetch the specified elements.
         $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
         $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
-
+        $toc_exclusions = explode(',', $toc_settings['toc_exclusions']);
         $count = 0;
+        $toc_element_exclusions = [];
+
         // Insert an incremented toc ID attribute.
-        foreach ($toc_elements as $element) {
+        foreach ($toc_elements as $id => $element) {
+          if ($toc_exclusions) {
+            $class = $element->getAttribute('class');
+            foreach ($toc_exclusions as $exclusion) {
+              if (strpos($class, $exclusion) !== false) {
+                $toc_element_exclusions[] = $id;
+                continue(2);
+              }
+            }
+          }
+
           $element->setAttribute('id', 'toc-' . $count);
           $count++;
         }
@@ -212,7 +223,11 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
         // Display the toc field if present.
         if ($display->getComponent('toc_display')) {
 
-          foreach ($toc_elements as $element) {
+          foreach ($toc_elements as $id => $element) {
+            // Skip excluded toc elements.
+            if (in_array($id, $toc_element_exclusions)) {
+              continue;
+            }
             $items[] = [
               '#title' => $element->nodeValue,
               '#type' => 'link',
