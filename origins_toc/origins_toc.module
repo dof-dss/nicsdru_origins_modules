@@ -252,7 +252,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
           if ($items) {
             $build['items'] = [
               '#theme' => 'item_list',
-              '#title' => t('Table of contents'),
+              '#title' => $toc_settings['toc_title'],
               '#attributes' => ['class' => 'list-origins-toc'],
               '#items' => $items,
             ];
