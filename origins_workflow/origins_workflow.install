@@ -40,7 +40,7 @@ function origins_workflow_install() {
     // If prefix not set, do not create users.
     if (empty($prefix) || empty($password)) {
       \Drupal::logger('origins_workflow')->notice(
-        t('No test users created, prefix and password environment vars must be set.'));
+        'No test users created, prefix and password environment vars must be set.');
       return;
     }
     $name = $prefix . $name;
@@ -58,7 +58,7 @@ function origins_workflow_install() {
     }
     else {
       \Drupal::logger('origins_workflow')->notice(
-        t('Did not create user @name as already exists.', ['@name' => $name]));
+        'Did not create user @name as already exists.', ['@name' => $name]);
     }
   }
 }
