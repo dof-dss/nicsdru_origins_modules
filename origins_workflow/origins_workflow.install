@@ -35,7 +35,15 @@ function origins_workflow_install() {
   ];
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.
-    $name = getenv('NW_TEST_USER_PREFIX') . $name;
+    $prefix = getenv('NW_TEST_USER_PREFIX');
+    $password = getenv('TEST_PASS');
+    // If prefix not set, do not create users.
+    if (empty($prefix) || empty($password)) {
+      \Drupal::logger('origins_workflow')->notice(
+        'No test users created, prefix and password environment vars must be set.');
+      return;
+    }
+    $name = $prefix . $name;
     $user = user_load_by_name($name);
     if (empty($user)) {
       \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
@@ -43,14 +51,14 @@ function origins_workflow_install() {
         'name' => $name,
         'mail' => $name . '@localhost',
         'status' => 1,
-        'pass' => getenv('TEST_PASS'),
+        'pass' => $password,
         'roles' => [$role, 'authenticated'],
       ]);
       $user->save();
     }
     else {
       \Drupal::logger('origins_workflow')->notice(
-        t('Did not create user @name as already exists.', ['@name' => $name]));
+        'Did not create user @name as already exists.', ['@name' => $name]);
     }
   }
 }

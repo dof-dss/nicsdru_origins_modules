@@ -7,6 +7,7 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 
@@ -85,6 +86,24 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
       $form['field_next_audit_due']['#access'] = FALSE;
     }
   }
+}
+
+/**
+ * Implements hook_menu_links_discovered_alter().
+ */
+function origins_workflow_menu_links_discovered_alter(&$links) {
+  // Add a 'Site Themes' option in the dashboard menu
+  // if the nidirect_site_themes module is installed.
+  if (!in_array('origins_workflow.site_themes', $links)) {
+    if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
+      $links['origins_workflow.site_themes'] = [
+        'title' => new TranslatableMarkup('Site Themes'),
+        'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
+        'parent' => 'origins_workflow.my_workbench',
+      ];
+    }
+  }
+  return $links;
 }
 
 /**
