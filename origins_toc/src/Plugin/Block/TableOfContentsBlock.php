@@ -4,9 +4,11 @@ namespace Drupal\origins_toc\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\Renderer;
 use Drupal\node\NodeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Routing\CurrentRouteMatch;
 
 /**
  * Provides a 'TableOfContentsBlock' block.
@@ -26,6 +28,20 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
   protected $entityTypeManager;
 
   /**
+   * Drupal\Core\Routing\CurrentRouteMatch definition.
+   *
+   * @var \Drupal\Core\Routing\CurrentRouteMatch
+   */
+  protected $currentRoute;
+
+  /**
+   * Drupal\Core\Render\Renderer definition.
+   *
+   * @var \Drupal\Core\Render\Renderer
+   */
+  protected $renderer;
+
+  /**
    * Constructs a new TableOfContentsBlock object.
    *
    * @param array $configuration
@@ -36,15 +52,23 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The EntityTypeManagerInterface definition.
+   * @param \Drupal\Core\Routing\CurrentRouteMatch $current_route
+   *   Request Stack definition.
+   * @param \Drupal\Core\Render\Renderer $renderer
+   *   Drupal Core Renderer definition.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    EntityTypeManagerInterface $entity_type_manager
+    EntityTypeManagerInterface $entity_type_manager,
+    CurrentRouteMatch $current_route,
+    Renderer $renderer
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
+    $this->currentRoute = $current_route;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -55,7 +79,9 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('current_route_match'),
+      $container->get('renderer')
     );
   }
 
@@ -64,26 +90,28 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
    */
   public function build() {
     $build = [];
-    $node = \Drupal::routeMatch()->getParameter('node');
+    $node = $this->currentRoute->getParameter('node');
 
+    // Ensure we're only dealing with node entities.
     if ($node instanceof NodeInterface) {
       if ($node->hasField('field_toc_enable')) {
         $toc_enabled = (bool) $node->get('field_toc_enable')->getString();
 
         if ($toc_enabled) {
-          $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($node->getType());
+          $node_type = $this->entityTypeManager->getStorage('node_type')->load($node->getType());
           $toc_settings = $node_type->getThirdPartySettings('origins_toc');
 
           if (!empty($toc_settings) && $node->hasField($toc_settings['toc_source_field'])) {
-            $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
+            $view_builder = $this->entityTypeManager->getViewBuilder('node');
             $view = $view_builder->view($node, 'full');
 
             if (empty($view)) {
-              return;
+              return $build;
             }
-            $content = \Drupal::service('renderer')->render($view);
-            $regex = '/<' . $toc_settings['toc_element'] . '.*(toc-\d+).*>(.*)<\/' . $toc_settings['toc_element'] . '>/m';
+            $content = $this->renderer->render($view);
 
+            // Match specified elements with a 'toc-' id attribute.
+            $regex = '/<' . $toc_settings['toc_element'] . '.*(toc-\d+).*>(.*)<\/' . $toc_settings['toc_element'] . '>/m';
             preg_match_all($regex, $content, $matches, PREG_SET_ORDER, 0);
 
             $items = [];
