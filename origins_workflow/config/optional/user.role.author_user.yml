@@ -99,6 +99,7 @@ permissions:
   - 'use workbench_moderation my drafts tab'
   - 'use workbench_moderation needs review tab'
   - 'view all unpublished content'
+  - 'view any unpublished content'
   - 'view application revisions'
   - 'view article revisions'
   - 'view cold_weather_payment revisions'
