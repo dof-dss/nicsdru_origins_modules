@@ -113,6 +113,7 @@ permissions:
   - 'view link revisions'
   - 'view news revisions'
   - 'view own files'
+  - 'view own unpublished content'
   - 'view page revisions'
   - 'view publication revisions'
   - 'view recipe revisions'
