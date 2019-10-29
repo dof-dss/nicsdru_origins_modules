@@ -112,30 +112,32 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
 function origins_workflow_views_pre_render(ViewExecutable $view) {
   // Hide one of the fields to set moderation state depending
   // on whether the user has 'publish' permission or not.
-  if ($view->element['#name'] == 'workflow_moderation') {
-    $account_uid = \Drupal::currentUser()->id();
-    $account = User::load($account_uid);
-    if (($view->element['#display_id'] == 'my_drafts')
-      || ($view->element['#display_id'] == 'all_drafts')) {
-      // 'My Drafts' or 'All Drafts' display.
-      if ($account->hasPermission('use editorial transition publish')) {
-        // Show the field that has the 'Change to Publish' link.
-        $view->field['nothing_1']->options['exclude'] = TRUE;
+  if (isset($view->element['#name'])) {
+    if ($view->element['#name'] == 'workflow_moderation') {
+      $account_uid = \Drupal::currentUser()->id();
+      $account = User::load($account_uid);
+      if (($view->element['#display_id'] == 'my_drafts')
+        || ($view->element['#display_id'] == 'all_drafts')) {
+        // 'My Drafts' or 'All Drafts' display.
+        if ($account->hasPermission('use editorial transition publish')) {
+          // Show the field that has the 'Change to Publish' link.
+          $view->field['nothing_1']->options['exclude'] = TRUE;
+        }
+        else {
+          // Hide the field that has the 'Change to Publish' link.
+          $view->field['nothing']->options['exclude'] = TRUE;
+        }
       }
-      else {
-        // Hide the field that has the 'Change to Publish' link.
-        $view->field['nothing']->options['exclude'] = TRUE;
-      }
-    }
-    elseif ($view->element['#display_id'] == 'needs_review') {
-      // 'Needs review' display.
-      if ($account->hasPermission('use editorial transition publish')) {
-        // Show the field that has the 'Change to Publish' link.
-        $view->field['nothing_3']->options['exclude'] = TRUE;
-      }
-      else {
-        // Hide the field that has the 'Change to Publish' link.
-        $view->field['nothing']->options['exclude'] = TRUE;
+      elseif ($view->element['#display_id'] == 'needs_review') {
+        // 'Needs review' display.
+        if ($account->hasPermission('use editorial transition publish')) {
+          // Show the field that has the 'Change to Publish' link.
+          $view->field['nothing_3']->options['exclude'] = TRUE;
+        }
+        else {
+          // Hide the field that has the 'Change to Publish' link.
+          $view->field['nothing']->options['exclude'] = TRUE;
+        }
       }
     }
   }
