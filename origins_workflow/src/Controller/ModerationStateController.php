@@ -70,7 +70,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     }
     // Redirect user to current page (although the 'destination'
     // url argument will override this).
-    return $this->redirect('view.workflow_moderation.page_1');
+    return $this->redirect('view.workflow_moderation.needs_review');
   }
 
 }

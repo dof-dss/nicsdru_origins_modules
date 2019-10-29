@@ -1,0 +1,312 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_toc.module.
+ */
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Component\Utility\Html;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_help().
+ */
+function origins_toc_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_toc module.
+    case 'help.page.origins_toc':
+      $output = '';
+      $output .= '<h3>' . t("About") . '</h3>';
+      $output .= '<p>' . t("Provides a list of links to headings within a field in a content type.") . '</p>';
+      $output .= '<h4>' . t("Configuration") . '</h4>';
+      $output .= '<p>' . t("To enable the Table of content for a node type:") . '</p>';
+      $output .= '<ul><li>' . t("Edit the node type.") . '</li>';
+      $output .= '<li>' . t("Click 'enable' from the 'Table of contents' section under advanced settings.") . '</li>';
+      $output .= '<li>' . t("Select a source field in the current content type from which generate your table of contents, typically the body field.") . '</li>';
+      $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
+      $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
+      $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
+      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will 
+      have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
+      $output .= '<h4>' . t("Display") . '</h4>';
+      $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
+      $output .= '<ol><li>' . t("By default a 'Table of contents' field will be added to the content type Display Mode when the Table of contents option is enabled.");
+      $output .= t("This can be repositioned or disabled from the Display Mode configuration page.") . '</li>';
+      $output .= '<li>' . t("A 'Table of contents' block is also provided under the 'Origins: Table of Contents' category.") . '</li></ol>';
+      $output .= '<p>' . t("NOTE: For performance reasons it is recommended that you use the field instead of the block to display the Table of contents.") . '';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+  $node_type = $node->id();
+
+  $form['toc'] = [
+    '#type' => 'details',
+    '#title' => t('Table of contents'),
+    '#group' => 'additional_settings',
+  ];
+
+  $form['toc']['toc_enable'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable table of contents option.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable', NULL),
+  ];
+
+  $form['toc']['toc_config'] = [
+    '#type' => 'container',
+    '#states' => [
+      'invisible' => [
+        ':input[name="toc_enable"]' => ['checked' => FALSE],
+      ],
+    ],
+  ];
+
+  $form['toc']['toc_config']['toc_title'] = [
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#description' => t('Displayed before the table of contents or blank for no title.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_title', 'Table of contents'),
+  ];
+
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
+
+  foreach ($fields as $field) {
+    if ($field instanceof FieldConfig) {
+      $field_options[$field->getName()] = $field->label();
+    }
+  }
+
+  $form['toc']['toc_config']['toc_source_field'] = [
+    '#type' => 'select',
+    '#title' => t('Source field'),
+    '#options' => $field_options,
+    '#description' => t('Select the field to build the table of contents for.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_field', NULL),
+  ];
+
+  $form['toc']['toc_config']['toc_element'] = [
+    '#type' => 'select',
+    '#title' => t('Source element'),
+    '#options' => [
+      'h2' => 'H2 - Heading 2',
+      'h3' => 'H3 - Heading 3',
+      'h4' => 'H4 - Heading 4',
+    ],
+    '#description' => t('HTML element to generate the table of contents against.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_element', NULL),
+  ];
+
+  $form['toc']['toc_config']['toc_exclusions'] = [
+    '#type' => 'textfield',
+    '#title' => t('Exclusions'),
+    '#description' => t('Comma separated list of class names to exclude from the table of contents.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_exclusions', NULL),
+  ];
+
+  $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
+}
+
+/**
+ * Entity builder for the origins_toc_form_node_type_form_alter().
+ */
+function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
+  $type->setThirdPartySetting('origins_toc', 'toc_title', $form_state->getValue('toc_title'));
+  $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
+  $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
+  $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_toc_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof NodeType) {
+    $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
+    if ($toc_enabled) {
+      // If 'toc enable' doesn't exist for this node, create it.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
+      if (!$field) {
+        // Create the enabled field for this entity.
+        $field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable');
+
+        // If the field storage config doesn't exist, create it.
+        if (empty($field_storage)) {
+          $field_storage = \Drupal::entityTypeManager()
+            ->getStorage('field_storage_config')
+            ->create([
+              'type' => 'boolean',
+              'field_name' => 'field_toc_enable',
+              'entity_type' => 'node',
+              'locked' => TRUE,
+            ]);
+          $field_storage->save();
+        }
+
+        $field = FieldConfig::create([
+          'field_storage' => $field_storage,
+          'bundle' => $entity->id(),
+          'label' => t('Display Table of Contents'),
+        ]);
+        $field->setTranslatable(FALSE);
+        $field->save();
+      }
+
+      // Enable the fields in the form display.
+      $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
+      $form_display->setComponent('field_toc_enable', [
+        'type' => 'boolean_checkbox',
+        'label' => 'above',
+        'settings' => ['link_to_entity' => 'false'],
+      ])->save();
+
+    }
+    else {
+      // Delete the 'toc enable' field from this entity if it exists.
+      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
+      if ($field) {
+        $field->delete();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_toc_form_node_form_alter(&$form, $form_state, $form_id) {
+
+  // If 'toc enable' field exists move to the advanced area of the form.
+  if (array_key_exists('field_toc_enable', $form)) {
+    $form['toc'] = [
+      '#type' => 'details',
+      '#group' => 'advanced',
+      '#title' => t('Table of contents'),
+    ];
+    $form['toc']['toc_settings'] = $form['field_toc_enable'];
+
+    unset($form['field_toc_enable']);
+  }
+}
+
+/**
+ * Implements hook_node_view().
+ */
+function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+
+  if ($entity->hasField('field_toc_enable')) {
+    $toc_enabled = (bool) $entity->get('field_toc_enable')->getString();
+    if ($toc_enabled) {
+      $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
+      $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+      if (!empty($toc_settings) && array_key_exists($toc_settings['toc_source_field'], $build)) {
+
+        // Check if ToC's have been disabled at the node type level.
+        if (!$toc_settings['toc_enable']) {
+          return;
+        }
+
+        // Load the content as a dom object and fetch the specified elements.
+        $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
+        $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
+        $toc_class_exclusions = [];
+        $toc_element_exclusions = [];
+        $toc_item_index = 0;
+
+        if (!empty($toc_settings['toc_exclusions'])) {
+          $toc_class_exclusions = explode(',', $toc_settings['toc_exclusions']);
+        }
+
+        // Insert an incremented toc ID attribute.
+        foreach ($toc_elements as $id => $element) {
+          // Exclude any elements that have a class in the exclusions array.
+          if ($toc_class_exclusions) {
+            $class = $element->getAttribute('class');
+            foreach ($toc_class_exclusions as $exclusion) {
+              if (strpos($class, $exclusion) !== FALSE) {
+                $toc_element_exclusions[] = $id;
+                continue(2);
+              }
+            }
+          }
+
+          $element->setAttribute('id', 'toc-' . $toc_item_index);
+          $toc_item_index++;
+        }
+
+        $content = $dom->saveHTML();
+        // Strip the HTML document structure before saving as the body.
+        $content = substr($content, strpos($content, '<body>') + 6);
+        $content = str_replace('</body></html>', '', $content);
+
+        $build[$toc_settings['toc_source_field']]['0']['#text'] = $content;
+
+        // Display the toc field if present.
+        if ($display->getComponent('toc_display')) {
+          $items = [];
+
+          foreach ($toc_elements as $id => $element) {
+            // Skip excluded toc elements.
+            if (in_array($id, $toc_element_exclusions)) {
+              continue;
+            }
+            $items[] = [
+              '#title' => $element->nodeValue,
+              '#type' => 'link',
+              '#url' => $entity->toUrl('canonical')->setOption('fragment', $element->getAttribute('id')),
+            ];
+          }
+
+          if ($items) {
+            $build['items'] = [
+              '#theme' => 'item_list',
+              '#title' => $toc_settings['toc_title'],
+              '#attributes' => ['class' => 'list-origins-toc'],
+              '#items' => $items,
+            ];
+          }
+
+        }
+      }
+    }
+  }
+
+}
+
+/**
+ * Implements entity_extra_field_info().
+ */
+function origins_toc_entity_extra_field_info() {
+  $extra = [];
+
+  foreach (NodeType::loadMultiple() as $node_type) {
+    $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+    if (empty($toc_settings)) {
+      continue;
+    }
+
+    if ($toc_settings['toc_enable']) {
+      $extra['node'][$node_type->Id()]['display']['toc_display'] = [
+        'label' => t('Table of contents'),
+        'description' => t('Displays a table of contents with links for this node.'),
+        'weight' => -10,
+        'visible' => TRUE,
+      ];
+    }
+  }
+
+  return $extra;
+}

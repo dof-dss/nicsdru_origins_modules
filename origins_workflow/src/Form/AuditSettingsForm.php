@@ -202,6 +202,18 @@ class AuditSettingsForm extends ConfigFormBase {
   private function addAuditField($type) {
     // Add an audit field to the content type.
     $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_audit_due");
+    if (!$field_storage) {
+      // Field storage has been deleted, need to re-create.
+      $field_storage = $this->entityTypeManager
+        ->getStorage('field_storage_config')
+        ->create([
+          'type' => 'datetime',
+          'field_name' => 'field_next_audit_due',
+          'entity_type' => 'node',
+          'settings' => ['datetime_type' => 'date'],
+        ]);
+      $field_storage->save();
+    }
     $field = $this->entityTypeManager->getStorage('field_config')->load('node.' . $type . '.field_next_audit_due');
     if (empty($field)) {
       $field = $this->entityTypeManager->getStorage('field_config')->create([

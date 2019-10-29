@@ -10,8 +10,8 @@ To install, enable the core _Layout Builder_ and _Layout Discovery_ modules
 before installing this module.
 
 ### Configuration ###
-Each layout configuration form provides options for extra classes and a 
-'reverse layout' option.
+Each layout configuration form provides options for adding a title, extra 
+classes and a 'reverse layout' option.
 The 'reverse layout' checkbox will simply add an additional 'reverse' class 
 to your layout wrapper and can be used to flip the display order of sections 
 via CSS. 
@@ -21,4 +21,5 @@ via CSS.
 2. Annotate the class with the required Layout annotations. 
    The current naming policy is to use the surnames of famous architects.
 3. Create a template for your layout under /templates.
-4. Create CSS for the markup in your template within your theme.
+4. Extend the origins-layouts-base.html.twig in your new template.
+5. Create CSS for the markup in your template within your theme.

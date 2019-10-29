@@ -51,6 +51,7 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}
             composer require --dev mglaman/drupal-check --no-interaction --optimize-autoloader
+            composer require --dev phpstan/phpstan:0.11.17
       - run:
          name: Deprecated code check
          command: |

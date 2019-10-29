@@ -7,6 +7,9 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\views\ViewExecutable;
+use Drupal\user\Entity\User;
 
 /**
  * Implements hook_page_attachments().
@@ -44,7 +47,6 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Manage access to 'next audit date' field.
-
   // Get a list of audited content types.
   $config = \Drupal::config('origins_workflow.auditsettings');
   $audit_types = $config->get('audit_content_types');
@@ -82,6 +84,59 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     else {
       // Hide the audit date for anyone else.
       $form['field_next_audit_due']['#access'] = FALSE;
+    }
+  }
+}
+
+/**
+ * Implements hook_menu_links_discovered_alter().
+ */
+function origins_workflow_menu_links_discovered_alter(&$links) {
+  // Add a 'Site Themes' option in the dashboard menu
+  // if the nidirect_site_themes module is installed.
+  if (!in_array('origins_workflow.site_themes', $links)) {
+    if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
+      $links['origins_workflow.site_themes'] = [
+        'title' => new TranslatableMarkup('Site Themes'),
+        'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
+        'parent' => 'origins_workflow.my_workbench',
+      ];
+    }
+  }
+  return $links;
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function origins_workflow_views_pre_render(ViewExecutable $view) {
+  // Hide one of the fields to set moderation state depending
+  // on whether the user has 'publish' permission or not.
+  if ($view->element['#name'] == 'workflow_moderation') {
+    $account_uid = \Drupal::currentUser()->id();
+    $account = User::load($account_uid);
+    if (($view->element['#display_id'] == 'my_drafts')
+      || ($view->element['#display_id'] == 'all_drafts')) {
+      // 'My Drafts' or 'All Drafts' display.
+      if ($account->hasPermission('use editorial transition publish')) {
+        // Show the field that has the 'Change to Publish' link.
+        $view->field['nothing_1']->options['exclude'] = TRUE;
+      }
+      else {
+        // Hide the field that has the 'Change to Publish' link.
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
+    }
+    elseif ($view->element['#display_id'] == 'needs_review') {
+      // 'Needs review' display.
+      if ($account->hasPermission('use editorial transition publish')) {
+        // Show the field that has the 'Change to Publish' link.
+        $view->field['nothing_3']->options['exclude'] = TRUE;
+      }
+      else {
+        // Hide the field that has the 'Change to Publish' link.
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
     }
   }
 }
