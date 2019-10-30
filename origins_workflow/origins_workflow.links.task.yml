@@ -23,3 +23,8 @@ origins_workflow.scheduled_tab:
   route_name: view.scheduler_scheduled_content.overview
   parent_id: system.admin_content
   weight: 5
+origins_workflow.gps:
+  title: 'GPs'
+  route_name: entity.gp.collection
+  parent_id: system.admin_content
+  weight: 6
