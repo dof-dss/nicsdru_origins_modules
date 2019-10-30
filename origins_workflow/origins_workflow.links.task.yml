@@ -18,3 +18,8 @@ origins_workflow.needs_audit_tab:
   route_name: view.workflow_moderation.needs_audit
   parent_id: system.admin_content
   weight: 4
+origins_workflow.scheduled_tab:
+  title: 'Scheduled'
+  route_name: view.scheduler_scheduled_content.overview
+  parent_id: system.admin_content
+  weight: 5
