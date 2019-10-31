@@ -168,7 +168,7 @@ function origins_workflow_hide_moderation_field(&$view) {
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  if ($route_name == 'system.admin_content') {
+  if (isset($data['tabs'][1]) && in_array('content_moderation.moderated_content',$data['tabs'][1])) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
   }
 }
