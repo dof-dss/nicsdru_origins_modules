@@ -99,7 +99,8 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
       $links['origins_workflow.site_themes'] = [
         'title' => new TranslatableMarkup('Site Themes'),
         'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
-        'parent' => 'origins_workflow.my_workbench',
+        'parent' => 'system.admin_content',
+        'weight' => -99
       ];
     }
   }
