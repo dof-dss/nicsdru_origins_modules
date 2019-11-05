@@ -1,4 +1,4 @@
-name: Origins Editor Responsive Images
+name: 'Origins: Responsive Images'
 type: module
 description: 'Allows you to use responsive images in the media entity browser.'
 package: Editor
@@ -8,4 +8,4 @@ dependencies:
   - image
 version: '8.x-1.0'
 core: '8.x'
-project: 'origins_editor_responsive_images'
+project: 'origins_responsive_images'

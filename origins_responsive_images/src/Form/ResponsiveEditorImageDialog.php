@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_editor_responsive_images\Form;
+namespace Drupal\origins_responsive_images\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Ajax\AjaxResponse;

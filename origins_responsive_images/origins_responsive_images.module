@@ -14,7 +14,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @see \Drupal\editor\Form\EditorImageDialog::buildForm()
  */
-function origins_editor_responsive_images_form_entity_embed_dialog_alter(&$form, FormStateInterface $form_state) {
+function origins_responsive_images_form_entity_embed_dialog_alter(&$form, FormStateInterface $form_state) {
 
   if ($form['#title']->jsonSerialize() != 'Embed media') {
     return;
@@ -34,7 +34,7 @@ function origins_editor_responsive_images_form_entity_embed_dialog_alter(&$form,
     // Hide the default width/height form items.
     $form['dimensions']['#access'] = FALSE;
 
-    $form['#attached']['library'][] = 'origins_editor_responsive_images/responsive.css';
+    $form['#attached']['library'][] = 'origins_responsive_images/responsive.css';
 
     $form['responsive_image_style'] = [
       '#type' => 'item',
@@ -51,17 +51,6 @@ function origins_editor_responsive_images_form_entity_embed_dialog_alter(&$form,
         }
       }
     }
-
-    $form['responsive_image_style']['selection'] = [
-      '#title' => t('Responsive image style'),
-      '#type' => 'select',
-      '#default_value' => isset($image_element['data-responsive-image-style']) ? $image_element['data-responsive-image-style'] : key($responsive_image_options),
-      '#options' => $responsive_image_options,
-      '#required' => TRUE,
-      '#wrapper_attributes' => ['class' => ['container-inline']],
-      '#attributes' => ['class' => ['container-inline']],
-      '#parents' => ['attributes', 'data-responsive-image-style'],
-    ];
 
     $form['responsive_image_style']['selection'] = [
       '#title' => t('Responsive image style'),

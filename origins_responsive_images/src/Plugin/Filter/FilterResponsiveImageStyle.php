@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_editor_responsive_images\Plugin\Filter;
+namespace Drupal\origins_responsive_images\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\filter\FilterProcessResult;
@@ -12,7 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @Filter(
  *   id = "filter_responsive_image_style",
- *   module = "origins_editor_responsive_images",
+ *   module = "origins_responsive_images",
  *   title = @Translation("Display responsive images"),
  *   description = @Translation("Uses the data-responsive-image-style attribute on &lt;img&gt; tags to display responsive images."),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE
@@ -92,6 +92,7 @@ class FilterResponsiveImageStyle extends FilterBase {
         }
 
         // Set up image render array.
+        // (all embedded images are floated right in Origins sites).
         $image = [
           '#theme' => 'responsive_image',
           '#uri' => $thisfile->getFileUri(),
@@ -99,6 +100,8 @@ class FilterResponsiveImageStyle extends FilterBase {
           '#height' => $height,
           '#attributes' => $attributes,
           '#responsive_image_style_id' => $image_style_id,
+          '#prefix' => "<div class='align-right'>",
+          '#suffix' => "</div>",
         ];
 
         $altered_html = \Drupal::service('renderer')->render($image);

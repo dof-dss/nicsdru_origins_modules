@@ -1,5 +1,0 @@
-services:
-  origins_editor_responsive_images.route_subscriber:
-    class: Drupal\origins_editor_responsive_images\Routing\RouteSubscriber
-    tags:
-      - { name: event_subscriber }

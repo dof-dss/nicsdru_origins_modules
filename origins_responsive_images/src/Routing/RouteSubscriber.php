@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_editor_responsive_images\Routing;
+namespace Drupal\origins_responsive_images\Routing;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;
@@ -16,7 +16,7 @@ class RouteSubscriber extends RouteSubscriberBase {
   public function alterRoutes(RouteCollection $collection) {
 
     if ($route = $collection->get('editor.image_dialog')) {
-      $route->setDefaults(['_form' => '\Drupal\origins_editor_responsive_images\Form\ResponsiveEditorImageDialog']);
+      $route->setDefaults(['_form' => '\Drupal\origins_responsive_images\Form\ResponsiveEditorImageDialog']);
     }
   }
 
