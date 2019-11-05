@@ -66,5 +66,20 @@ function origins_responsive_images_form_entity_embed_dialog_alter(&$form, FormSt
       '#parents' => ['attributes', 'data-responsive-image-style'],
     ];
 
+    // Allow alignment.
+    $form['attributes']['data-align'] = [
+      '#title' => t('Align'),
+      '#type' => 'radios',
+      '#options' => [
+        '' => t('None'),
+        'left' => t('Left'),
+        'center' => t('Center'),
+        'right' => t('Right'),
+      ],
+      '#default_value' => 'right',
+      '#wrapper_attributes' => ['class' => ['container-inline']],
+      '#attributes' => ['class' => ['container-inline']],
+    ];
+
   }
 }
