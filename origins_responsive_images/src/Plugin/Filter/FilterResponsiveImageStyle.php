@@ -4,7 +4,9 @@ namespace Drupal\origins_responsive_images\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Image\ImageFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -41,10 +43,16 @@ class FilterResponsiveImageStyle extends FilterBase implements ContainerFactoryP
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Image\ImageFactory $image_factory
+   *   The image factory.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, ImageFactory $image_factory, RendererInterface $renderer) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
+    $this->imageFactory = $image_factory;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -55,7 +63,9 @@ class FilterResponsiveImageStyle extends FilterBase implements ContainerFactoryP
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('image.factory'),
+      $container->get('renderer')
     );
   }
 
@@ -109,7 +119,7 @@ class FilterResponsiveImageStyle extends FilterBase implements ContainerFactoryP
         $thisfile = $this->entityTypeManager->getStorage('file')->loadByProperties(['fid' => $fid]);
         $thisfile = reset($thisfile);
 
-        $image = \Drupal::service('image.factory')->get($thisfile->getFileUri());
+        $image = $this->imageFactory->get($thisfile->getFileUri());
 
         // Stop further element processing, if it's not a valid image.
         if (!$image->isValid()) {
@@ -143,7 +153,7 @@ class FilterResponsiveImageStyle extends FilterBase implements ContainerFactoryP
           '#suffix' => "</div>",
         ];
 
-        $altered_html = \Drupal::service('renderer')->render($image);
+        $altered_html = $this->renderer->render($image);
 
         // Load the altered HTML into a new DOMDocument and
         // retrieve the elements.
