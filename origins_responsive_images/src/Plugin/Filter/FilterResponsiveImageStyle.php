@@ -3,9 +3,12 @@
 namespace Drupal\origins_responsive_images\Plugin\Filter;
 
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a filter to render inline images as responsive images.
@@ -18,13 +21,49 @@ use Drupal\Core\Form\FormStateInterface;
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_REVERSIBLE
  * )
  */
-class FilterResponsiveImageStyle extends FilterBase {
+class FilterResponsiveImageStyle extends FilterBase implements ContainerFactoryPluginInterface {
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Constructs a token filter plugin.
+   *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
+      $configuration,
+      $plugin_id,
+      $plugin_definition,
+      $container->get('entity_type.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
    */
   public function settingsForm(array $form, FormStateInterface $form_state) {
-    $image_styles = \Drupal::entityTypeManager()->getStorage('responsive_image_style')->loadMultiple();
+    $image_styles = $this->entityTypeManager->getStorage('responsive_image_style')->loadMultiple();
     $form['responsive_styles'] = [
       '#type' => 'markup',
       '#markup' => 'Select the responsive styles that are available in the editor',
@@ -44,7 +83,7 @@ class FilterResponsiveImageStyle extends FilterBase {
    */
   public function process($text, $langcode) {
     if (stristr($text, 'data-responsive-image-style') !== FALSE && stristr($text, 'data-image-style') == FALSE) {
-      $image_styles = \Drupal::entityTypeManager()->getStorage('responsive_image_style')->loadMultiple();
+      $image_styles = $this->entityTypeManager->getStorage('responsive_image_style')->loadMultiple();
 
       $dom = Html::load($text);
       $xpath = new \DOMXPath($dom);
@@ -58,7 +97,7 @@ class FilterResponsiveImageStyle extends FilterBase {
         }
 
         // Retrieved matching file in array for the specified uuid.
-        $matching_files = \Drupal::entityTypeManager()->getStorage('media')->loadByProperties(['uuid' => $file_uuid]);
+        $matching_files = $this->entityTypeManager->getStorage('media')->loadByProperties(['uuid' => $file_uuid]);
         $file = reset($matching_files);
 
         // Stop further element processing, if it's not a valid file.
@@ -67,7 +106,7 @@ class FilterResponsiveImageStyle extends FilterBase {
         }
 
         $fid = $file->field_media_image->target_id;
-        $thisfile = \Drupal::entityTypeManager()->getStorage('file')->loadByProperties(['fid' => $fid]);
+        $thisfile = $this->entityTypeManager->getStorage('file')->loadByProperties(['fid' => $fid]);
         $thisfile = reset($thisfile);
 
         $image = \Drupal::service('image.factory')->get($thisfile->getFileUri());
@@ -136,7 +175,7 @@ class FilterResponsiveImageStyle extends FilterBase {
    */
   public function tips($long = FALSE) {
     if ($long) {
-      $image_styles = \Drupal::entityTypeManager()->getStorage('responsive_image_style')->loadMultiple();
+      $image_styles = $this->entityTypeManager->getStorage('responsive_image_style')->loadMultiple();
       $list = '<code>' . implode('</code>, <code>', array_keys($image_styles)) . '</code>';
       return t('
         <p>You can make images responsive by adding a <code>data-responsive-image-style</code> attribute, whose value is one of the responsive image style machine names: !responsive-image-style-machine-name-list.</p>', ['!responsive-image-style-machine-name-list' => $list]);
