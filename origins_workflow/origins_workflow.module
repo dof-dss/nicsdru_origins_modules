@@ -100,7 +100,7 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
         'title' => new TranslatableMarkup('Site Themes'),
         'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
         'parent' => 'system.admin_content',
-        'weight' => -99
+        'weight' => -99,
       ];
     }
   }
@@ -172,4 +172,3 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
   }
 }
-
