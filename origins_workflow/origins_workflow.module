@@ -99,7 +99,8 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
       $links['origins_workflow.site_themes'] = [
         'title' => new TranslatableMarkup('Site Themes'),
         'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
-        'parent' => 'origins_workflow.my_workbench',
+        'parent' => 'system.admin_content',
+        'weight' => -99,
       ];
     }
   }
@@ -110,35 +111,64 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
  * Implements hook_views_pre_render().
  */
 function origins_workflow_views_pre_render(ViewExecutable $view) {
-  // Hide one of the fields to set moderation state depending
-  // on whether the user has 'publish' permission or not.
   if (isset($view->element['#name'])) {
     if ($view->element['#name'] == 'workflow_moderation') {
+      // Hide one of the fields to set moderation state depending
+      // on whether the user has 'publish' permission or not.
+      origins_workflow_hide_moderation_field($view);
+    }
+    elseif ($view->element['#name'] == 'content') {
+      // Remove the bulk operations from the admin/content
+      // page for un-privileged users.
       $account_uid = \Drupal::currentUser()->id();
       $account = User::load($account_uid);
-      if (($view->element['#display_id'] == 'my_drafts')
-        || ($view->element['#display_id'] == 'all_drafts')) {
-        // 'My Drafts' or 'All Drafts' display.
-        if ($account->hasPermission('use editorial transition publish')) {
-          // Show the field that has the 'Change to Publish' link.
-          $view->field['nothing_1']->options['exclude'] = TRUE;
-        }
-        else {
-          // Hide the field that has the 'Change to Publish' link.
-          $view->field['nothing']->options['exclude'] = TRUE;
-        }
-      }
-      elseif ($view->element['#display_id'] == 'needs_review') {
-        // 'Needs review' display.
-        if ($account->hasPermission('use editorial transition publish')) {
-          // Show the field that has the 'Change to Publish' link.
-          $view->field['nothing_3']->options['exclude'] = TRUE;
-        }
-        else {
-          // Hide the field that has the 'Change to Publish' link.
-          $view->field['nothing']->options['exclude'] = TRUE;
-        }
+      if (!$account->hasPermission('use editorial transition publish')) {
+        unset($view->field['node_bulk_form']);
       }
     }
+  }
+}
+
+/**
+ * Utility function for workflow views.
+ */
+function origins_workflow_hide_moderation_field(&$view) {
+  // Hide one of the fields to set moderation state depending
+  // on whether the user has 'publish' permission or not.
+  $account_uid = \Drupal::currentUser()->id();
+  $account = User::load($account_uid);
+  if (($view->element['#display_id'] == 'my_drafts')
+    || ($view->element['#display_id'] == 'all_drafts')) {
+    // 'My Drafts' or 'All Drafts' display.
+    if ($account->hasPermission('use editorial transition publish')) {
+      // Show the field that has the 'Change to Publish' link.
+      $view->field['nothing_1']->options['exclude'] = TRUE;
+    }
+    else {
+      // Hide the field that has the 'Change to Publish' link.
+      $view->field['nothing']->options['exclude'] = TRUE;
+    }
+  }
+  elseif ($view->element['#display_id'] == 'needs_review') {
+    // 'Needs review' display.
+    if ($account->hasPermission('use editorial transition publish')) {
+      // Show the field that has the 'Change to Publish' link.
+      $view->field['nothing_3']->options['exclude'] = TRUE;
+    }
+    else {
+      // Hide the field that has the 'Change to Publish' link.
+      $view->field['nothing']->options['exclude'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Implements hook_menu_local_tasks_alter().
+ *
+ * Hides the 'Moderated Content' tab on the admin/content page.
+ */
+function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
+  if (isset($data['tabs'][1]) && isset($data['tabs'][1]['content_moderation.moderated_content'])) {
+    unset($data['tabs'][1]['content_moderation.moderated_content']);
   }
 }

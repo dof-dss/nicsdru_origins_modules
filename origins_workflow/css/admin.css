@@ -1,3 +1,7 @@
-.toolbar-icon-origins-workflow-my-workbench::before {
-    background-image: url(/core/themes/stable/images/core/icons/787878/wrench.svg);
+/*
+  Hide the 'Editorial' sectional heading in the 'moderation state' exposed filter
+  that appears in the admin content and workflow views
+ */
+body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.group-result {
+  display: none;
 }
