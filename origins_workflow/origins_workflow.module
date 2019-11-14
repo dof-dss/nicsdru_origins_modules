@@ -93,7 +93,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 function origins_workflow_views_pre_render(ViewExecutable $view) {
   // Hide one of the fields to set moderation state depending
   // on whether the user has 'publish' permission or not.
-  if ($view->element['#name'] == 'workflow_moderation') {
+  if (!empty($view->element['#name']) && $view->element['#name'] == 'workflow_moderation') {
     $account_uid = \Drupal::currentUser()->id();
     $account = User::load($account_uid);
     if (($view->element['#display_id'] == 'my_drafts')
