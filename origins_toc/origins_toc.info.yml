@@ -1,0 +1,5 @@
+name: 'Origins: Table of Contents'
+type: module
+description: 'Provides Table of Contents display options'
+core: 8.x
+package: 'NICS: Origins'
