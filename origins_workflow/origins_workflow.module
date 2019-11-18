@@ -190,15 +190,21 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
  */
 function origins_workflow_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
   if ($view->id() == 'content') {
-    // In the case where 'Moderation State' has been set to 'Published',
-    // change the query to make it act as if 'Any' had been selected.,
-    // (as the hidden 'Status' filter will do the work)
-    if (isset($view->exposed_raw_input['status']) && ($view->exposed_raw_input['status'] == 1)) {
-      if (isset($view->exposed_raw_input['moderation_state']) && ($view->exposed_raw_input['moderation_state'] == 'editorial-published')) {
-        unset($query->relationships['content_moderation_state']);
-        unset($query->relationships['node']);
-        unset($query->where[1]['conditions'][2]);
-        unset($query->where[1]['conditions'][3]);
+    // In the case where 'Moderation State' has been set to
+    // 'Published' or 'Unpublished' change the query to make
+    // it act as if 'Any' had been selected (as the hidden
+    // 'Status' filter will do the work).
+    if (isset($view->exposed_raw_input['status'])) {
+      if ($view->exposed_raw_input['status'] != 'All') {
+        if (isset($view->exposed_raw_input['moderation_state'])) {
+          if (in_array($view->exposed_raw_input['moderation_state'],
+            ['editorial-published', 'editorial-unpublished'])) {
+            unset($query->relationships['content_moderation_state']);
+            unset($query->relationships['node']);
+            unset($query->where[1]['conditions'][2]);
+            unset($query->where[1]['conditions'][3]);
+          }
+        }
       }
     }
   }
