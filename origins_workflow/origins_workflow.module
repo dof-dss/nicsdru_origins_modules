@@ -92,7 +92,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
  * Implements hook_menu_links_discovered_alter().
  */
 function origins_workflow_menu_links_discovered_alter(&$links) {
-  // Add  'Site Themes', 'Scheduled' and 'GPs' options to the
+  // Add 'Site Themes', 'Scheduled' and 'GPs' options to the
   // dashboard menu if the nidirect_site_themes module is installed.
   if (!in_array('origins_workflow.site_themes', $links)) {
     if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
