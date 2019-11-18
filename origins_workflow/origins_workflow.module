@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains code that provides user dashboard.
+ * Contains code that amends the admin/content view.
  */
 
 use Drupal\Core\Entity\EntityInterface;
@@ -100,12 +100,16 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   }
 }
 
+/**
+ * Custom validation for admin/content form.
+ */
 function _origins_workflow_admin_content_validate(&$form, FormStateInterface $form_state) {
   // Set the hidden 'Status' filter if moderation state was set to
   // 'published' or 'unpublished'.
   if ($form_state->getValue('moderation_state') == 'editorial-unpublished') {
     $form_state->setValue('status', '0');
-  } elseif ($form_state->getValue('moderation_state') == 'editorial-published') {
+  }
+  elseif ($form_state->getValue('moderation_state') == 'editorial-published') {
     $form_state->setValue('status', '1');
   }
 }
