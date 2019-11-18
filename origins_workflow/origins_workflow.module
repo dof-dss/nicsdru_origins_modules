@@ -107,9 +107,11 @@ function _origins_workflow_admin_content_validate(&$form, FormStateInterface $fo
   // Set the hidden 'Status' filter if moderation state was set to
   // 'published' or 'unpublished'.
   if ($form_state->getValue('moderation_state') == 'editorial-unpublished') {
+    // Set 'status' filter to 'Unpublished'.
     $form_state->setValue('status', '0');
   }
   elseif ($form_state->getValue('moderation_state') == 'editorial-published') {
+    // Set 'status' filter to 'Published'.
     $form_state->setValue('status', '1');
   }
 }
