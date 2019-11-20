@@ -110,7 +110,7 @@ function _origins_workflow_admin_content_validate(&$form, FormStateInterface $fo
     // Set 'status' filter to 'Unpublished'.
     $form_state->setValue('status', '0');
   }
-  elseif ($form_state->getValue('moderation_state') == 'editorial-published') {
+  elseif ($form_state->getValue('moderation_state') == 'nics_editorial_workflow-published') {
     // Set 'status' filter to 'Published'.
     $form_state->setValue('status', '1');
   }
@@ -232,11 +232,15 @@ function origins_workflow_views_query_alter(ViewExecutable $view, QueryPluginBas
       if ($view->exposed_raw_input['status'] != 'All') {
         if (isset($view->exposed_raw_input['moderation_state'])) {
           if (in_array($view->exposed_raw_input['moderation_state'],
-            ['editorial-published', 'editorial-unpublished'])) {
+            ['nics_editorial_workflow-published', 'editorial-unpublished'])) {
             unset($query->relationships['content_moderation_state']);
-            /*unset($query->relationships['node']);*/
+            if (isset($query->relationships['node'])) {
+              unset($query->relationships['node']);
+            }
             unset($query->where[1]['conditions'][2]);
-            /*unset($query->where[1]['conditions'][3]);*/
+            if (isset($query->where[1]['conditions'][3])) {
+              unset($query->where[1]['conditions'][3]);
+            }
           }
         }
       }
