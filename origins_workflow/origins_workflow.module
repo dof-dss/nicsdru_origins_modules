@@ -121,15 +121,9 @@ function _origins_workflow_admin_content_validate(&$form, FormStateInterface $fo
  */
 function origins_workflow_menu_links_discovered_alter(&$links) {
   // Add 'Site Themes', 'Scheduled' and 'GPs' options to the
-  // dashboard menu if the nidirect_site_themes module is installed.
+  // dashboard menu if the nidirect_common module is installed.
   if (!in_array('origins_workflow.site_themes', $links)) {
-    if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
-      $links['origins_workflow.site_themes'] = [
-        'title' => new TranslatableMarkup('Site Themes'),
-        'route_name' => 'nidirect_site_themes.site_theme_controller_disp',
-        'parent' => 'system.admin_content',
-        'weight' => -99,
-      ];
+    if (\Drupal::service('module_handler')->moduleExists('nidirect_common')) {
       $links['origins_workflow.scheduled_tab'] = [
         'title' => new TranslatableMarkup('Scheduled'),
         'route_name' => 'view.scheduler_scheduled_content.overview',
