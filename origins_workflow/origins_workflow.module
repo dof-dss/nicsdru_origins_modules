@@ -90,7 +90,11 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 
   // Add an extra option to 'moderation state' on the admin/content form.
   if (($form_id == 'views_exposed_form') && ($form['#action'] == '/admin/content')) {
-    $form['moderation_state']['#options']['Editorial']['nics_editorial_workflow-unpublished'] = t('Unpublished');
+    unset($form['moderation_state']['#options']['NICS Editorial Workflow']);
+    $form['moderation_state']['#options']['nics_editorial_workflow-unpublished'] = t('Unpublished');
+    $form['moderation_state']['#options']['nics_editorial_workflow-draft'] = t('Draft');
+    $form['moderation_state']['#options']['nics_editorial_workflow-needs_review'] = t('Needs Review');
+    $form['moderation_state']['#options']['nics_editorial_workflow-published'] = t('Published');
     // Hide the 'status' filter.
     if (isset($form['status'])) {
       $form['status']['#access'] = FALSE;
