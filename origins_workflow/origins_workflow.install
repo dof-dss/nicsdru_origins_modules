@@ -26,7 +26,7 @@ function origins_workflow_install() {
     '_editor' => 'editor_user',
     '_admin' => 'admin_user'
   ];
-  if (\Drupal::service('module_handler')->moduleExists('nidirect_site_themes')) {
+  if (\Drupal::service('module_handler')->moduleExists('nidirect_common')) {
     // Additional roles/users for NIDirect.
     $name_list += ['_news_super' => 'news_supervisor',
       '_gp_author' => 'gp_author_user',
