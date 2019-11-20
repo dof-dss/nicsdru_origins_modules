@@ -7,6 +7,11 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\taxonomy\VocabularyInterface;
 use Symfony\Component\Routing\Route;
 
+/**
+ * Validates permissions for users against taxonomy vocabularies and operations on them.
+ *
+ * @package Drupal\origins_taxonomy_access
+ */
 class TaxonomyVocabAccess {
 
   /**
