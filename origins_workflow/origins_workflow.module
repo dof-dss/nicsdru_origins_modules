@@ -93,7 +93,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     $form['moderation_state']['#options']['Editorial']['editorial-unpublished'] = t('Unpublished');
     // Hide the 'status' filter.
     if (isset($form['status'])) {
-      $form['status']['#access'] = FALSE;
+      //$form['status']['#access'] = FALSE;
     }
     // Add custom validation function.
     array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
@@ -234,9 +234,9 @@ function origins_workflow_views_query_alter(ViewExecutable $view, QueryPluginBas
           if (in_array($view->exposed_raw_input['moderation_state'],
             ['editorial-published', 'editorial-unpublished'])) {
             unset($query->relationships['content_moderation_state']);
-            unset($query->relationships['node']);
+            /*unset($query->relationships['node']);*/
             unset($query->where[1]['conditions'][2]);
-            unset($query->where[1]['conditions'][3]);
+            /*unset($query->where[1]['conditions'][3]);*/
           }
         }
       }
