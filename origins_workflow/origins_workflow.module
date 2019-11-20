@@ -98,6 +98,25 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     // Add custom validation function.
     array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
   }
+
+//  echo '<pre>';
+//  print_r(array_keys($form));
+//  print_r($form['moderation_state']);
+//  exit('object check');
+
+  // Check current form has moderation state associated
+  // @TODO: After running through edge cases and tracking this object - This won't be ideal for this issue.
+  // ^ Basically, on new nodes this is set and if i use this value it will wrongly set the next stage on initial save
+  if (isset($form['moderation_state'])) {
+
+    // Node check workflow status is set
+    if ( isset($form['moderation_state']['widget'][0]['state']['#default_value']) ) {
+
+      // Get next stage and have that as default
+
+    }
+
+  }
 }
 
 /**
