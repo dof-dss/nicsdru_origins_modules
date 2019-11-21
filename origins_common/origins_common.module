@@ -77,7 +77,7 @@ function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function origins_common_form_entity_embed_dialog_alter(&$form, FormStateInterface $form_state) {
-  // Hide alignment options that are displayd by default in media_browser_responsive_images
+  // Hide alignment options that are displayed by default in media_browser_responsive_images
   // module as we don't need that option in NICS.
   $form['attributes']['data-align']['#default_value'] = 'right';
   $form['attributes']['data-align']['#access'] = FALSE;
