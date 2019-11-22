@@ -99,24 +99,34 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
   }
 
-//  echo '<pre>';
-//  print_r(array_keys($form));
-//  print_r($form['moderation_state']);
-//  exit('object check');
+  // Node Moderation Form
+  if($form_id == "content_moderation_entity_moderation_form") {
 
-  // Check current form has moderation state associated
-  // @TODO: After running through edge cases and tracking this object - This won't be ideal for this issue.
-  // ^ Basically, on new nodes this is set and if i use this value it will wrongly set the next stage on initial save
-  if (isset($form['moderation_state'])) {
+    // Get Options for the dropdown
+    $options = $form['new_state']['options']; // @TODO: Edge case causing empty dropdown, will utilise this to help prevent
 
-    // Node check workflow status is set
-    if ( isset($form['moderation_state']['widget'][0]['state']['#default_value']) ) {
+    // Get Current set value (if set)
+    $current_state = $form['current']['#markup'];
 
-      // Get next stage and have that as default
+    // Convert current markup state to value friendly format and find what stage is required for prompt
+    switch ( strtolower( str_replace( ' ', '_', $current_state ) ) ) {
 
+      // Draft stage is set - Prompt for needs review stage
+      case 'draft' :
+        $form['new_state']['#default_value'] = 'needs_review';
+        break;
+
+      // Needs Review stage is set prompt for published stage
+      case 'needs_review' :
+        $form['new_state']['#default_value'] = 'published';
+        break;
+
+      // Default handles published stage as well as unset - published has no natural progression for now so do nothing
+      default:
+        break;
     }
-
   }
+
 }
 
 /**
