@@ -99,29 +99,26 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
   }
 
-  // Node Moderation Form
-  if($form_id == "content_moderation_entity_moderation_form") {
+  // Node Moderation Form.
+  if ($form_id == "content_moderation_entity_moderation_form") {
 
-    // Get Options for the dropdown
-    $options = $form['new_state']['options']; // @TODO: Edge case causing empty dropdown, will utilise this to help prevent
-
-    // Get Current set value (if set)
+    // Get Current set value (if set).
     $current_state = $form['current']['#markup'];
 
-    // Convert current markup state to value friendly format and find what stage is required for prompt
-    switch ( strtolower( str_replace( ' ', '_', $current_state ) ) ) {
+    // Convert current markup state to value friendly format and find what stage is required for prompt.
+    switch (strtolower(str_replace(' ', '_', $current_state))) {
 
-      // Draft stage is set - Prompt for needs review stage
-      case 'draft' :
+      // Draft stage is set - Prompt for needs review stage.
+      case 'draft':
         $form['new_state']['#default_value'] = 'needs_review';
         break;
 
-      // Needs Review stage is set prompt for published stage
-      case 'needs_review' :
+      // Needs Review stage is set prompt for published stage.
+      case 'needs_review':
         $form['new_state']['#default_value'] = 'published';
         break;
 
-      // Default handles published stage as well as unset - published has no natural progression for now so do nothing
+      // Default handles published stage as well as unset - published has no natural progression for now so do nothing.
       default:
         break;
     }
