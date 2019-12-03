@@ -1,14 +1,9 @@
 module.exports = {
-  '@tags': ['nidirect-migrations', 'nidirect-files'],
+  '@tags': ['origins', 'origins_workflow'],
 
   'Test login': browser => {
     browser
       .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_hc_super', password: process.env.TEST_PASS });
-
-    browser
-      .drupalRelativeURL('/admin/site_themes')
-      .expect.element('h1.page-title')
-      .text.to.contain('Site Themes');
 
     browser
       .drupalRelativeURL('/node/add')
