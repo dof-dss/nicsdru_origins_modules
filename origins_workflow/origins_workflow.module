@@ -181,27 +181,37 @@ function origins_workflow_hide_moderation_field(&$view) {
       // 'My Drafts' or 'All Drafts' display.
       if ($account->hasPermission('use editorial transition publish')) {
         // Show the field that has the 'Change to Publish' link.
-        $view->field['nothing_1']->options['exclude'] = TRUE;
+        if (isset($view->field['nothing_1'])) {
+          $view->field['nothing_1']->options['exclude'] = TRUE;
+        }
       }
       else {
         // Hide the field that has the 'Change to Publish' link.
-        $view->field['nothing']->options['exclude'] = TRUE;
+        if (isset($view->field['nothing'])) {
+          $view->field['nothing']->options['exclude'] = TRUE;
+        }
       }
     }
     else {
       // Hide the field that has the 'Change to Publish' link.
-      $view->field['nothing']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing'])) {
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
     }
   }
   elseif ($view->element['#display_id'] == 'needs_review') {
     // 'Needs review' display.
     if ($account->hasPermission('use editorial transition publish')) {
       // Show the field that has the 'Change to Publish' link.
-      $view->field['nothing_3']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing_3'])) {
+        $view->field['nothing_3']->options['exclude'] = TRUE;
+      }
     }
     else {
       // Hide the field that has the 'Change to Publish' link.
-      $view->field['nothing']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing'])) {
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
     }
   }
 }
