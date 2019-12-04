@@ -160,7 +160,11 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
       // page for un-privileged users.
       $account_uid = \Drupal::currentUser()->id();
       $account = User::load($account_uid);
-      if (!$account->hasPermission('use editorial transition publish')) {
+      // May reinstate this line to check 'use editorial transition publish'
+      // permission once bulk operation bug fixed - see D8NID-371 Jira ticket.
+      //
+      // if (!$account->hasPermission('use editorial transition publish')) {
+      if (!$account->hasRole('administrator')) {
         unset($view->field['node_bulk_form']);
       }
     }
