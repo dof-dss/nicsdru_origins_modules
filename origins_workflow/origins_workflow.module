@@ -158,11 +158,9 @@ function origins_workflow_views_pre_render(ViewExecutable $view) {
     elseif ($view->element['#name'] == 'content') {
       // Remove the bulk operations from the admin/content
       // page for un-privileged users.
-      //
-      // May reinstate this line to check 'use editorial transition publish'
-      // permission once bulk operation bug fixed - see D8NID-371 Jira ticket.
-      //
-      // if (!\Drupal::currentUser()->hasPermission('use editorial transition publish')) {
+      // (May want to change this back to checking the permission
+      // 'use editorial transition publish' once bulk operation bug
+      // fixed - see D8NID-371 Jira ticket.)
       if (!in_array('administrator', \Drupal::currentUser()->getRoles())) {
         unset($view->field['node_bulk_form']);
       }
