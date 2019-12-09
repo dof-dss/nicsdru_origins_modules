@@ -87,37 +87,6 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
       $form['field_next_audit_due']['#access'] = FALSE;
     }
   }
-
-  // Add an extra option to 'moderation state' on the admin/content form.
-  if (($form_id == 'views_exposed_form') && ($form['#action'] == '/admin/content')) {
-    unset($form['moderation_state']['#options']['NICS Editorial Workflow']);
-    $form['moderation_state']['#options']['nics_editorial_workflow-unpublished'] = t('Unpublished');
-    $form['moderation_state']['#options']['nics_editorial_workflow-draft'] = t('Draft');
-    $form['moderation_state']['#options']['nics_editorial_workflow-needs_review'] = t('Needs Review');
-    $form['moderation_state']['#options']['nics_editorial_workflow-published'] = t('Published');
-    // Hide the 'status' filter.
-    if (isset($form['status'])) {
-      $form['status']['#access'] = FALSE;
-    }
-    // Add custom validation function.
-    array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
-  }
-}
-
-/**
- * Custom validation for admin/content form.
- */
-function _origins_workflow_admin_content_validate(&$form, FormStateInterface $form_state) {
-  // Set the hidden 'Status' filter if moderation state was set to
-  // 'published' or 'unpublished'.
-  if ($form_state->getValue('moderation_state') == 'nics_editorial_workflow-unpublished') {
-    // Set 'status' filter to 'Unpublished'.
-    $form_state->setValue('status', '0');
-  }
-  elseif ($form_state->getValue('moderation_state') == 'nics_editorial_workflow-published') {
-    // Set 'status' filter to 'Published'.
-    $form_state->setValue('status', '1');
-  }
 }
 
 /**
