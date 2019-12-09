@@ -87,6 +87,12 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
       $form['field_next_audit_due']['#access'] = FALSE;
     }
   }
+
+  // Tweak the published filter on the admin/content form.
+  if (($form_id == 'views_exposed_form') && ($form['#action'] == '/admin/content')) {
+    $form['status']['#options'][0] = t('Unpublished');
+    $form['status']['#options'][1] = t('Published');
+  }
 }
 
 /**
