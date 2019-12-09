@@ -99,7 +99,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
         $render_array['link2'] = [
           '#title' => $this->t('Cancel'),
           '#type' => 'link',
-          '#url' => Url::fromRoute('entity.node.canonical', ['nid' => $nid]),
+          '#url' => Url::fromRoute('entity.node.canonical', ['node' => $nid]),
           '#attributes' => ['rel' => 'nofollow', 'class' => 'cancel_link'],
           '#prefix' => "<span class='cancel'>",
           '#suffix' => "</span>",
