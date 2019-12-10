@@ -88,35 +88,10 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     }
   }
 
-  // Add an extra option to 'moderation state' on the admin/content form.
+  // Tweak the published filter on the admin/content form.
   if (($form_id == 'views_exposed_form') && ($form['#action'] == '/admin/content')) {
-    unset($form['moderation_state']['#options']['NICS Editorial Workflow']);
-    $form['moderation_state']['#options']['nics_editorial_workflow-unpublished'] = t('Unpublished');
-    $form['moderation_state']['#options']['nics_editorial_workflow-draft'] = t('Draft');
-    $form['moderation_state']['#options']['nics_editorial_workflow-needs_review'] = t('Needs Review');
-    $form['moderation_state']['#options']['nics_editorial_workflow-published'] = t('Published');
-    // Hide the 'status' filter.
-    if (isset($form['status'])) {
-      $form['status']['#access'] = FALSE;
-    }
-    // Add custom validation function.
-    array_unshift($form['#validate'], '_origins_workflow_admin_content_validate');
-  }
-}
-
-/**
- * Custom validation for admin/content form.
- */
-function _origins_workflow_admin_content_validate(&$form, FormStateInterface $form_state) {
-  // Set the hidden 'Status' filter if moderation state was set to
-  // 'published' or 'unpublished'.
-  if ($form_state->getValue('moderation_state') == 'nics_editorial_workflow-unpublished') {
-    // Set 'status' filter to 'Unpublished'.
-    $form_state->setValue('status', '0');
-  }
-  elseif ($form_state->getValue('moderation_state') == 'nics_editorial_workflow-published') {
-    // Set 'status' filter to 'Published'.
-    $form_state->setValue('status', '1');
+    $form['status']['#options'][0] = t('Unpublished');
+    $form['status']['#options'][1] = t('Published');
   }
 }
 
@@ -225,34 +200,5 @@ function origins_workflow_hide_moderation_field(&$view) {
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
   if (isset($data['tabs'][1]) && isset($data['tabs'][1]['content_moderation.moderated_content'])) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
-  }
-}
-
-/**
- * Implements hook_views_query_alter().
- */
-function origins_workflow_views_query_alter(ViewExecutable $view, QueryPluginBase $query) {
-  if ($view->id() == 'content') {
-    // In the case where 'Moderation State' has been set to
-    // 'Published' or 'Unpublished' change the query to make
-    // it act as if 'Any' had been selected (as the hidden
-    // 'Status' filter will do the work).
-    if (isset($view->exposed_raw_input['status'])) {
-      if ($view->exposed_raw_input['status'] != 'All') {
-        if (isset($view->exposed_raw_input['moderation_state'])) {
-          if (in_array($view->exposed_raw_input['moderation_state'],
-            ['nics_editorial_workflow-published', 'nics_editorial_workflow-unpublished'])) {
-            unset($query->relationships['content_moderation_state']);
-            if (isset($query->relationships['node'])) {
-              unset($query->relationships['node']);
-            }
-            unset($query->where[1]['conditions'][2]);
-            if (isset($query->where[1]['conditions'][3])) {
-              unset($query->where[1]['conditions'][3]);
-            }
-          }
-        }
-      }
-    }
   }
 }
