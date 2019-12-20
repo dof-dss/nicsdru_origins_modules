@@ -1,0 +1,7 @@
+name: 'Origins CKEditor Enhancements'
+type: module
+description: 'Extends CKEditor toolbar'
+core: 8.x
+package: 'NICS: Origins'
+dependencies:
+  - ckeditor

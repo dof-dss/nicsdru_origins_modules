@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_ckeditor_enhancements.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_element_info_alter().
+ *
+ * Adds process handler for text format
+ *
+ * @param array $types
+ *   Text format process.
+ */
+function remove_format_help_element_info_alter(array &$types) {
+  $types['text_format']['#process'][] = 'remove_format_help_process_text_format_element';
+}
+
+/**
+ * Text input element process handler that will remove filter-help, 'About text formats'.
+ */
+function remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
+  $element['format']['guidelines']['#access'] = FALSE;
+  $element['format']['help']['#access'] = FALSE;
+  return $element;
+}
