@@ -51,6 +51,8 @@ class RouteSubscriber extends RouteSubscriberBase {
       $route->setRequirements([
         '_custom_access' => '\Drupal\origins_taxonomy_access\TaxonomyVocabAccess::handleAccess',
       ]);
+      $route->setOption('_admin_route', TRUE);
+
       $route_elements = explode('.', $route_id);
       $op = end($route_elements);
 
