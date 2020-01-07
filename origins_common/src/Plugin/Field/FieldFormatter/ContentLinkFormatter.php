@@ -26,13 +26,15 @@ use Drupal\text\Plugin\Field\FieldFormatter\TextTrimmedFormatter;
  */
 class ContentLinkFormatter extends FormatterBase implements TrustedCallbackInterface {
 
-  public static function defaultSettings()
-  {
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
     return [
-        'link_text' => 'more',
-        'trim_text' => FALSE,
-        'trim_length' => '600',
-      ] + parent::defaultSettings();
+      'link_text' => 'more',
+      'trim_text' => FALSE,
+      'trim_length' => '600',
+    ] + parent::defaultSettings();
   }
 
   /**
@@ -75,7 +77,8 @@ class ContentLinkFormatter extends FormatterBase implements TrustedCallbackInter
     $summary = [];
     if ($this->getSetting('trim_text')) {
       $summary[] = t('Link text: @link_text, trimmed to @trim_length characters', ['@link_text' => $this->getSetting('link_text'), '@trim_length' => $this->getSetting('trim_length')]);
-    } else {
+    }
+    else {
       $summary[] = t('Link text: @link_text', ['@link_text' => $this->getSetting('link_text')]);
     }
     return $summary;
@@ -115,7 +118,8 @@ class ContentLinkFormatter extends FormatterBase implements TrustedCallbackInter
           $elements[$delta]['#text'] = $item->value;
           $render_as_summary($elements[$delta]);
         }
-      } else {
+      }
+      else {
         $elements[$delta]['#text'] = $item->value;
       }
     }
@@ -127,7 +131,7 @@ class ContentLinkFormatter extends FormatterBase implements TrustedCallbackInter
   }
 
   /**
-   * Pre-render callback: Renders a processed text element's #markup as a summary.
+   * Pre-render callback: Render processed text element's #markup as summary.
    *
    * @param array $element
    *   A structured array with the following key-value pairs:
