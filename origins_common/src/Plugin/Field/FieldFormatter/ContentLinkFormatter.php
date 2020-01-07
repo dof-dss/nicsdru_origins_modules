@@ -28,6 +28,8 @@ class ContentLinkFormatter extends FormatterBase {
   {
     return [
         'link_text' => 'more',
+        'trim_text' => FALSE,
+        'trim_length' => '600',
       ] + parent::defaultSettings();
   }
 
@@ -41,6 +43,26 @@ class ContentLinkFormatter extends FormatterBase {
       '#default_value' => $this->getSetting('link_text'),
       '#required' => TRUE,
     ];
+
+    $element['trim_text'] = [
+      '#title' => t('Trim the text'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('trim_text'),
+    ];
+
+    $element['trim_length'] = [
+      '#title' => t('Trimmed limit'),
+      '#type' => 'number',
+      '#field_suffix' => t('characters'),
+      '#default_value' => $this->getSetting('trim_length'),
+      '#description' => t('If the summary is not set, the trimmed %label field will end at the last full sentence before this character limit.', ['%label' => $this->fieldDefinition->getLabel()]),
+      '#min' => 1,
+      '#states' => [
+        'invisible' => [
+          ':input[name="fields[' . $this->fieldDefinition->getName() . '][settings_edit_form][settings][trim_text]"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
     return $element;
   }
 
@@ -49,7 +71,11 @@ class ContentLinkFormatter extends FormatterBase {
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = t('Link text: @link_text', ['@link_text' => $this->getSetting('link_text')]);
+    if ($this->getSetting('trim_text')) {
+      $summary[] = t('Link text: @link_text, trimmed to @trim_length characters', ['@link_text' => $this->getSetting('link_text'), '@trim_length' => $this->getSetting('trim_length')]);
+    } else {
+      $summary[] = t('Link text: @link_text', ['@link_text' => $this->getSetting('link_text')]);
+    }
     return $summary;
   }
 
