@@ -111,7 +111,15 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
             $content = $this->renderer->render($view);
 
             // Match specified elements with a 'toc-' id attribute.
-            $regex = '/<' . $toc_settings['toc_element'] . '.*(toc-\d+).*>(.*)<\/' . $toc_settings['toc_element'] . '>/m';
+            // Complex regex explained:
+            // - Delimited with '/' at beginning and end of string.
+            // - Match groups captured with ():
+            // - First is the toc ID (toc-\d): \d means any digit.
+            // - Second is the link text (([<>]+): match at least one character that isn't angle brackets.
+            //   this helps avoid matching the entirety of a single line string when we want to extract multiple
+            //   matches within it.
+            // - Modifier flags i/m: case-insensitive, multiline.
+            $regex = '/<' . $toc_settings['toc_element'] . ' id="(toc-\d+)">([^<>]+)<\/' . $toc_settings['toc_element'] . '>/im';
             preg_match_all($regex, $content, $matches, PREG_SET_ORDER, 0);
 
             $items = [];
