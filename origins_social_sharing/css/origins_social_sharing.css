@@ -5,7 +5,6 @@
   font-size: 1.8rem;
   float: left;
   padding-bottom: 5px;
-  padding-right: 5px;
 }
 .social_sharing_buttons {
   box-sizing: border-box;
@@ -37,6 +36,7 @@ svg.ico {
   display: none;
 }
 .facebook_share_link,
-.twitter-share-button {
-  padding-right: 5px;
+.twitter-share-button,
+.email_share_link {
+  margin-left: 5px;
 }
