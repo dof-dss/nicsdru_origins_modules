@@ -18,6 +18,15 @@
   float: none;
   display: inline-block;
 }
+.twitter_share {
+  background-color: rgb(85, 172, 238);
+}
+.facebook_share {
+  background-color: rgb(59, 89, 152);
+}
+.email_share {
+  background-color: rgb(1, 102, 255);
+}
 .facebook_share svg, .twitter_share svg, .email_share svg {
   background-repeat: no-repeat;
   background-position: 50% 50%;
