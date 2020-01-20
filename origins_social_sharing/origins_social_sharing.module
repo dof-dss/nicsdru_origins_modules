@@ -17,8 +17,8 @@ function origins_social_sharing_theme() {
   // Get current node and extract title.
   $node = \Drupal::routeMatch()->getParameter('node');
   $title = '';
-  if (!empty($node)) {
-    $title = $node->getTitle() ?? '';
+  if (!empty($node) && is_object($node)) {
+    $title = $node->getTitle();
   }
   // Build Twitter link.
   $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title) . ' ' . rawurlencode($url->toString());
