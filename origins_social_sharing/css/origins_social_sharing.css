@@ -1,0 +1,42 @@
+.social_sharing {
+  height: 32px;
+}
+.social_sharing_label {
+  font-size: 1.8rem;
+  float: left;
+  padding-bottom: 5px;
+  padding-right: 5px;
+}
+.social_sharing_buttons {
+  box-sizing: border-box;
+  display: inline;
+}
+.facebook_share, .twitter_share, .email_share {
+  border-radius: 4px;
+  line-height: 32px;
+  opacity: 1;
+  width: 32px;
+  float: none;
+  display: inline-block;
+}
+.facebook_share svg, .twitter_share svg, .email_share svg {
+  background-repeat: no-repeat;
+  background-position: 50% 50%;
+  border: none;
+  display: block;
+  left: 0;
+  margin: 0 auto;
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  top: 0;
+  width: auto;
+  height: auto;
+}
+svg.ico {
+  display: none;
+}
+.facebook_share_link,
+.twitter-share-button {
+  padding-right: 5px;
+}

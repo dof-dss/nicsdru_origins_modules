@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_social_sharing.module.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_theme().
+ */
+function origins_social_sharing_theme() {
+  // Get current URL so that we can pass it to Facebook.
+  $url = Url::fromRoute('<current>', [], ['absolute' => 'true']);
+  $fb_link = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url->toString()) . '&amp;src=sdkpreparse';
+  // Get current node and extract title.
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $title = '';
+  if (!empty($node)) {
+    $title = $node->getTitle() ?? '';
+  }
+  // Build Twitter link.
+  $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title) . ' ' . rawurlencode($url->toString());
+  // Build mailto link.
+  $mail_link = "mailto:?subject=" . t("Shared from @host", ['@host' => $_SERVER['HTTP_HOST']]);
+  $mail_link .= "&body=" . rawurlencode($title . "\n") . rawurlencode($url->toString());
+  return [
+    'origins_social_sharing' => [
+      'variables' => [
+        'content' => NULL,
+        'fb_link' => $fb_link,
+        'tw_link' => $tw_link,
+        'mail_link' => $mail_link,
+      ],
+      'render element' => 'children',
+    ],
+  ];
+}
