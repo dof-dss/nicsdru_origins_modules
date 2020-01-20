@@ -14,7 +14,6 @@ function origins_social_sharing_theme() {
   return [
     'origins_social_sharing' => [
       'variables' => [
-        'content' => NULL,
         'fb_link' => NULL,
         'tw_link' => NULL,
         'mail_link' => NULL,
@@ -30,21 +29,24 @@ function origins_social_sharing_theme() {
  *
  */
 function origins_social_sharing_preprocess_block(&$variables) {
-  // Get current URL so that we can pass it to Facebook.
-  $url = Url::fromRoute('<current>', [], ['absolute' => 'true']);
-  $fb_link = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url->toString()) . '&amp;src=sdkpreparse';
-  $variables['content']['#fb_link'] = $fb_link;
-  // Get current node and extract title.
-  $node = \Drupal::routeMatch()->getParameter('node');
-  $title = '';
-  if (!empty($node) && is_object($node)) {
-    $title = $node->getTitle();
+  // Look for the 'social sharing' block.
+  if ($variables['plugin_id'] == 'origins_social_sharing') {
+    // Get current URL so that we can pass it to Facebook.
+    $url = Url::fromRoute('<current>', [], ['absolute' => 'true']);
+    $fb_link = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode($url->toString()) . '&amp;src=sdkpreparse';
+    $variables['content']['#fb_link'] = $fb_link;
+    // Get current node and extract title.
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $title = '';
+    if (!empty($node) && is_object($node)) {
+      $title = $node->getTitle();
+    }
+    // Build Twitter link.
+    $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title) . ' ' . rawurlencode($url->toString());
+    $variables['content']['#tw_link'] = $tw_link;
+    // Build mailto link.
+    $mail_link = "mailto:?subject=" . t("Shared from @host", ['@host' => $_SERVER['HTTP_HOST']]);
+    $mail_link .= "&body=" . rawurlencode($title . "\n") . rawurlencode($url->toString());
+    $variables['content']['#mail_link'] = $mail_link;
   }
-  // Build Twitter link.
-  $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title) . ' ' . rawurlencode($url->toString());
-  $variables['content']['#tw_link'] = $tw_link;
-  // Build mailto link.
-  $mail_link = "mailto:?subject=" . t("Shared from @host", ['@host' => $_SERVER['HTTP_HOST']]);
-  $mail_link .= "&body=" . rawurlencode($title . "\n") . rawurlencode($url->toString());
-  $variables['content']['#mail_link'] = $mail_link;
 }
