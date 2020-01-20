@@ -18,7 +18,6 @@ function origins_social_sharing_theme() {
         'tw_link' => NULL,
         'mail_link' => NULL,
       ],
-      'render element' => 'children',
     ],
   ];
 }
