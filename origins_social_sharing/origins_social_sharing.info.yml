@@ -1,0 +1,5 @@
+name: 'Origins: Social Sharing'
+type: module
+description: 'A social sharing block to add to a node view page'
+core: 8.x
+package: 'NICS: Origins'
