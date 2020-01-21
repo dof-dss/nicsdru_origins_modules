@@ -165,14 +165,16 @@ function origins_toc_entity_presave(EntityInterface $entity) {
         $field->save();
       }
 
-      // Enable the fields in the form display.
+      // Enable the fields in the form display, if haven't already got them.
       $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
-      $form_display->setComponent('field_toc_enable', [
-        'type' => 'boolean_checkbox',
-        'label' => 'above',
-        'settings' => ['link_to_entity' => 'false'],
-      ])->save();
-
+      if (empty($form_display->getComponent('field_toc_enable'))) {
+        var_dump(date('Y-m-d H:i:s', time()) . 'Enable the fields in the form display.');
+        $form_display->setComponent('field_toc_enable', [
+          'type' => 'boolean_checkbox',
+          'label' => 'above',
+          'settings' => ['link_to_entity' => 'false'],
+        ])->save();
+      }
     }
     else {
       // Delete the 'toc enable' field from this entity if it exists.
