@@ -1,0 +1,8 @@
+origins_social_sharing_css:
+  css:
+    theme:
+      css/origins_social_sharing.css: {}
+
+origins_social_sharing_js:
+  js:
+    js/origins_social_sharing.js: {}
