@@ -2,6 +2,7 @@
   "name": "dof-dss/nicsdru_origins_modules",
   "description": "Generic modules for DOF-DSS Drupal sites",
   "type": "drupal-module",
+  "license": "MIT",
   "require": {
     "composer/installers": "^1.6"
   }
