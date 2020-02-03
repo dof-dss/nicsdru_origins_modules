@@ -196,9 +196,16 @@ function layout_builder_search_node_presave(Node $entity) {
         if ($entity->hasField('field_lb_search_content')) {
           $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
           $build = $view_builder->view($entity, $search_index_display);
+          // Rendering a new entity outside of preview will likely trip a fatal error
+          // as the entity will not have fully saved. However, swapping to use preview
+          // mode allows us to gather more or less the equivalent then remove the markup
+          // to store the values against the field_lb_search_content field.
+          $build['#' . $entity->getEntityTypeId()]->in_preview = $entity->isNew();
           // Ideally we would use use a defined text format to filter
           // the content, this will suffice for the time being.
           $content = strip_tags(\Drupal::service('renderer')->render($build));
+          // Remove excess whitespace.
+          $content = preg_replace('/\s\s+/', ' ', $content);
           $entity->set('field_lb_search_content', $content);
         }
       }
