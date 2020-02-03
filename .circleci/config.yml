@@ -7,7 +7,7 @@ jobs:
   # Test that coding standards fit drupal.org definitions.
   coding_standards:
     docker:
-      - image: circleci/php:7.2.20-apache-browsers
+      - image: circleci/php:7.3.14-apache-browsers
     steps:
       - checkout
       - run:
@@ -27,7 +27,7 @@ jobs:
 
   deprecated_code:
     docker:
-      - image: circleci/php:7.2.20-apache-browsers
+      - image: circleci/php:7.3.14-apache-browsers
     steps:
       - run:
             name: Add OS and PHP extensions
