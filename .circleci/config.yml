@@ -29,15 +29,16 @@ jobs:
     docker:
       - image: circleci/php:7.2.20-apache-browsers
     steps:
+      - checkout:
+          path: /home/circleci/nicsdru_origins_modules
       - run:
-            name: Add OS and PHP extensions
+            name: Add OS and PHP extensions + config
             command: |
+              sudo cp /home/circleci/nicsdru_origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
               sudo apt-get update
               sudo apt-get install -y libpng-dev
               sudo docker-php-ext-install gd
-              composer global require hirak/prestissimo
-      - checkout:
-          path: /home/circleci/nicsdru_origins_modules
+              composer global require hirak/prestissimo      
       - run:
           name: Fetch latest Drupal version
           command: |
@@ -51,7 +52,6 @@ jobs:
           command: |
             cd ${CIRCLE_WORKING_DIRECTORY}
             composer require --dev mglaman/drupal-check --no-interaction --optimize-autoloader
-            composer require --dev phpstan/phpstan:0.11.17
       - run:
          name: Deprecated code check
          command: |
