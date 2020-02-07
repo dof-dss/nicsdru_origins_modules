@@ -26,6 +26,7 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
     return [
       'list_type' => 'ul',
       'list_classes' => '',
+      'display_item_link' => FALSE,
     ] + parent::defaultSettings();
   }
 
@@ -51,6 +52,12 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
       '#type' => 'textfield',
       '#default_value' => $this->getSetting('list_classes'),
       '#description' => $this->t('Space separated list of classes for the root list element.'),
+    ];
+
+    $elements['display_item_link'] = [
+      '#title' => $this->t('Display link to entity'),
+      '#type' => 'checkbox',
+      '#default_value' => $this->getSetting('display_item_link'),
     ];
 
     return $elements;

@@ -7,3 +7,6 @@ field.formatter.settings.html_list_formatter:
     list_classes:
       type: string
       label: 'List classes'
+    display_item_link:
+      type: boolean
+      label: 'Display item link'
