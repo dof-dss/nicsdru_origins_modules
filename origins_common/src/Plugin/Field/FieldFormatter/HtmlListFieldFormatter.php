@@ -25,6 +25,7 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
   public static function defaultSettings() {
     return [
       'list_type' => 'ul',
+      'list_classes' => '',
     ] + parent::defaultSettings();
   }
 
@@ -70,10 +71,11 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = [];
     $list_items = [];
+    $settings = $this->getSettings();
 
-    $list_type = $this->getSetting('list_type');
     $element['#theme'] = 'item_list';
-    $element['#list_type'] = $list_type;
+    $element['#list_type'] = $settings['list_type'];
+    $element['#attributes']['class'] = $settings['list_classes'];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
       $list_items[] = $entity->label();
