@@ -1,0 +1,7 @@
+field.formatter.settings.html_list_formatter:
+  type: mapping
+  label: 'List type'
+  mapping:
+    list_type:
+      type: string
+      label: 'List type'
