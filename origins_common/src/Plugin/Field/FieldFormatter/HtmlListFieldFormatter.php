@@ -51,7 +51,7 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
    */
   public function settingsSummary() {
     $summary = [];
-    $summary[] = $this->t('Displays HTML lists');
+    $summary[] = $this->t('List type: @list_type', ['@list_type' => $this->getSetting('list_type')]);
     return $summary;
   }
 
@@ -60,10 +60,17 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
     $element = [];
+    $list_items = [];
 
-    foreach ($items as $delta => $item) {
-      $element[$delta] = ['#markup' => $item->value];
+    $list_type = $this->getSetting('list_type');
+    $element['#theme'] = 'item_list';
+    $element['#list_type'] = $list_type;
+
+    foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
+      $list_items[] = $entity->label();
     }
+
+    $element['#items'] = $list_items;
 
     return $element;
   }
