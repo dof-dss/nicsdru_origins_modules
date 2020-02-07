@@ -85,7 +85,12 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
     $element['#attributes']['class'] = $settings['list_classes'];
 
     foreach ($this->getEntitiesToView($items, $langcode) as $delta => $entity) {
-      $list_items[] = $entity->label();
+      if ($settings['display_item_link']) {
+        $list_items[] = $entity->toLink();
+      }
+      else {
+        $list_items[] = $entity->label();
+      }
     }
 
     $element['#items'] = $list_items;
