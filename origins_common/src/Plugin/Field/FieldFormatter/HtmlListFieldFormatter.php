@@ -43,6 +43,15 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
       '#default_value' => $this->getSetting('list_type'),
     ];
 
+    // TODO: There is no form validator call for plugin settings forms,
+    // possibly look at using an ajax callback to validate CSS classes.
+    $elements['list_classes'] = [
+      '#title' => $this->t('List classes'),
+      '#type' => 'textfield',
+      '#default_value' => $this->getSetting('list_classes'),
+      '#description' => $this->t('Space separated list of classes for the root list element.'),
+    ];
+
     return $elements;
   }
 
@@ -74,4 +83,5 @@ class HtmlListFieldFormatter extends EntityReferenceFormatterBase {
 
     return $element;
   }
+
 }
