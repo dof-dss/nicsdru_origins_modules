@@ -36,7 +36,9 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
         $output .= '<li>' . t('Under your <a href=":searchapi">Search API</a> server index, include the \'field_lb_search_content\' field for indexing.', [':searchapi' => Url::fromRoute('search_api.overview')->toString()]) . '</li>';
       }
       $output .= '</ul>';
-
+      $output .= '<h4>' . t("Entity reference field HTML list display formatter") . '</h4>';
+      $output .= '<p>' . t("Displays entity references as OL or UL HTML lists with the option of assigning a class to the list.");
+      
       return $output;
 
     default:
