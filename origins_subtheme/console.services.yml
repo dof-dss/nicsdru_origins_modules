@@ -1,0 +1,6 @@
+services:
+  origins_subtheme.subtheme:
+    class: Drupal\origins_subtheme\Command\OriginsSubthemeCommand
+    arguments: []
+    tags:
+      - { name: drupal.command }

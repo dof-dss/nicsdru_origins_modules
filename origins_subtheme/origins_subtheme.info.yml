@@ -1,0 +1,5 @@
+name: 'Origins Subtheme'
+type: module
+description: 'Automated Subtheme Process'
+core: 8.x
+package: 'NICS: Origins'
