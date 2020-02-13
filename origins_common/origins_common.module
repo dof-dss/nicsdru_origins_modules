@@ -101,7 +101,7 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
     // Add 'Revision Number' column header.
     $newhead = ['tag' => 'th', 'content' => ['#markup' => t('Revision Number')]];
-    array_splice($variables['header'],1,0, [$newhead]);
+    array_splice($variables['header'], 1, 0, [$newhead]);
     if (isset($variables['header']['select_column_one'])) {
       $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare 1')];
     }
@@ -118,7 +118,8 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
-      } else {
+      }
+      else {
         // There is no 'revert' button in this row,
         // therefore it must be the current version.
         //
@@ -129,10 +130,7 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
       }
       $newcol = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
-      array_splice($variables['rows'][$idx]['cells'], 1,0, [$newcol]);
+      array_splice($variables['rows'][$idx]['cells'], 1, 0, [$newcol]);
     }
   }
 }
-
-
-
