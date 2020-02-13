@@ -101,6 +101,10 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
     // Add 'Revision Number' column header.
     $newhead = ['tag' => 'th', 'content' => ['#markup' => t('Revision Number')]];
+    // Insert this new column after the first one.
+    // Use array_splice as we don't know exactly how many columns there will be
+    // (and this code should work whether the 'diff' module has been enabled or
+    // not).
     array_splice($variables['header'], 1, 0, [$newhead]);
     if (isset($variables['header']['select_column_one'])) {
       $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare 1')];
@@ -130,6 +134,9 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
       }
       $newcol = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
+      // Use array_splice as we don't know exactly how many columns there
+      // will be (and this code should work whether the 'diff' module has
+      // been enabled or not).
       array_splice($variables['rows'][$idx]['cells'], 1, 0, [$newcol]);
     }
   }
