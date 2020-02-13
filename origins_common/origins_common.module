@@ -95,8 +95,13 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
     $newhead = ['tag' => 'th', 'content' => ['#markup' => t('Version')]];
     array_splice($variables['header'],1,0, [$newhead]);
     // Add extra version column to each row.
-    $newcol = ['tag' => 'td', 'content' => ['#markup' => 'testing']];
     foreach ($variables['rows'] as $idx => $row) {
+      $this_version = '';
+      if (isset($row['cells'][3]['content']['#links'])) {
+        $this_url = $row['cells'][3]['content']['#links']['revert']['url'];
+        $this_version = $this_url->getRouteParameters()['node_revision'];
+      }
+      $newcol = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       array_splice($variables['rows'][$idx]['cells'], 1,0, [$newcol]);
     }
   }
