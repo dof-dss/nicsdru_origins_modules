@@ -90,18 +90,39 @@ function origins_common_form_entity_embed_dialog_alter(&$form, FormStateInterfac
  * Implements hook_preprocess_table().
  */
 function origins_taxonomy_access_preprocess_table(&$variables) {
+  // Add new 'version' column to the node revisions tab.
+  //
+  // Making this change in preprocess is not beautiful, but seems
+  // to be the only workable solution as the 'diff' module has
+  // already been enabled and has taken over the core route with
+  // its own controller. If we created our own controller to do
+  // this then we would have to call the contrib controller,
+  // which does not sound like a good idea.
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
     // Add 'Version' column header.
     $newhead = ['tag' => 'th', 'content' => ['#markup' => t('Version')]];
     array_splice($variables['header'],1,0, [$newhead]);
-    // Add extra version column to each row.
+    // Loop through the rows.
     foreach ($variables['rows'] as $idx => $row) {
+      // Add extra version column to each row.
       $this_version = '';
       if (isset($row['cells'][3]['content']['#links'])) {
+        // Cheekily extract current revision from the 'revert' button link.
         $this_url = $row['cells'][3]['content']['#links']['revert']['url'];
-        $this_version = $this_url->getRouteParameters()['node_revision'];
+        if (isset($this_url)) {
+          $this_version = $this_url->getRouteParameters()['node_revision'];
+        }
+      } else {
+        // There is no 'revert' button in this row,
+        // therefore it must be the current version.
+        //
+        // Cannot manage to extract the revision id from this row
+        // anywhere so we'll (reluctantly) have to load up the full node.
+        $node = \Drupal::routeMatch()->getParameter('node');
+        $this_version = $node->getRevisionId();
       }
       $newcol = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
+      // Insert this new column after the first one.
       array_splice($variables['rows'][$idx]['cells'], 1,0, [$newcol]);
     }
   }
