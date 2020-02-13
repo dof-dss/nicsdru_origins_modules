@@ -85,3 +85,37 @@ function origins_common_form_entity_embed_dialog_alter(&$form, FormStateInterfac
   $form['attributes']['data-align']['#default_value'] = 'right';
   $form['attributes']['data-align']['#access'] = FALSE;
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_common_form_revision_overview_form_alter(&$form, FormStateInterface $form_state) {
+  $x = 1;
+  // $form['node_revisions_table'][0]['revision']
+  // $form['node_revisions_table'][0]['select_column_one']
+  // $form['node_revisions_table'][0]['select_column_two']
+  // $form['node_revisions_table'][0]['operations']
+}
+
+/**
+ * Implements hook_preprocess_table().
+ */
+function origins_taxonomy_access_preprocess_table(&$variables) {
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
+    $newcol = [2 => ['tag' => 'td', 'content' => ['#markup' => 'testing']]];
+    foreach ($variables['rows'] as $idx => $row) {
+      array_splice($variables['rows'][$idx]['cells'], 1,0, $newcol);
+    }
+  }
+}
+
+
+/**
+ * Implements hook_preprocess_form().
+ */
+function origins_taxonomy_access_preprocess_form(&$variables) {
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
+    $x = 1;
+  }
+}
+
