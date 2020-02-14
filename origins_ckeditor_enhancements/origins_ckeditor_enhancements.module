@@ -23,7 +23,11 @@ function origins_ckeditor_enhancements_element_info_alter(array &$types) {
  * Text input element process handler that will remove filter-help, 'About text formats'.
  */
 function remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
-  $element['format']['guidelines']['#access'] = FALSE;
-  $element['format']['help']['#access'] = FALSE;
+  // Only remove the filter help if the user doesn't have permission
+  // to use the 'Full HTML' text format.
+  if (!\Drupal::currentUser()->hasPermission('use text format full_html')) {
+    $element['format']['guidelines']['#access'] = FALSE;
+    $element['format']['help']['#access'] = FALSE;
+  }
   return $element;
 }
