@@ -15,7 +15,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @param array $types
  *   Text format process.
  */
-function remove_format_help_element_info_alter(array &$types) {
+function origins_ckeditor_enhancements_element_info_alter(array &$types) {
   $types['text_format']['#process'][] = 'remove_format_help_process_text_format_element';
 }
 
