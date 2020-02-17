@@ -100,21 +100,20 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
   // which does not sound like a good idea.
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
     // Add 'Revision Number' column header.
-    $newhead = ['tag' => 'th', 'content' => ['#markup' => t('Revision Number')]];
+    $new_head = ['tag' => 'th', 'content' => ['#markup' => t('Revision number')]];
     // Insert this new column after the first one.
     // Use array_splice as we don't know exactly how many columns there will be
     // (and this code should work whether the 'diff' module has been enabled or
     // not).
-    array_splice($variables['header'], 1, 0, [$newhead]);
+    array_splice($variables['header'], 1, 0, [$new_head]);
     if (isset($variables['header']['select_column_one'])) {
-      $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare 1')];
+      $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare revision 1')];
     }
     if (isset($variables['header']['select_column_two'])) {
-      $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare 2')];
+      $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
     }
-    // Loop through the rows.
+    // Loop through the rows and add the revision number column to each.
     foreach ($variables['rows'] as $idx => $row) {
-      // Add extra revision column to each row.
       $this_version = '';
       if (isset($row['cells'][3]['content']['#links'])) {
         // Cheekily extract current revision from the 'revert' button link.
@@ -132,12 +131,12 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         $node = \Drupal::routeMatch()->getParameter('node');
         $this_version = $node->getRevisionId();
       }
-      $newcol = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
+      $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
       // Use array_splice as we don't know exactly how many columns there
       // will be (and this code should work whether the 'diff' module has
       // been enabled or not).
-      array_splice($variables['rows'][$idx]['cells'], 1, 0, [$newcol]);
+      array_splice($variables['rows'][$idx]['cells'], 1, 0, [$new_col]);
     }
   }
 }
