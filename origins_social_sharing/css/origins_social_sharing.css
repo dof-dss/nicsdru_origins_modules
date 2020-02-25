@@ -41,9 +41,9 @@
   width: auto;
   height: auto;
 }
-svg.ico {
-  display: none;
-}
+/*svg.ico {*/
+/*  display: none;*/
+/*}*/
 .facebook_share_link,
 .twitter-share-button,
 .email_share_link {
