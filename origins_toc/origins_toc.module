@@ -32,7 +32,7 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
       $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
       $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
-      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will 
+      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will
       have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
       $output .= '<h4>' . t("Display") . '</h4>';
       $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
@@ -220,71 +220,11 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
           return;
         }
 
-        // Load the content as a dom object and fetch the specified elements.
-        $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
-        $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
-        $toc_class_exclusions = [];
-        $toc_element_exclusions = [];
-        $toc_item_index = 0;
-
-        if (!empty($toc_settings['toc_exclusions'])) {
-          $toc_class_exclusions = explode(',', $toc_settings['toc_exclusions']);
-        }
-
-        // Insert an incremented toc ID attribute.
-        foreach ($toc_elements as $id => $element) {
-          // Exclude any elements that have a class in the exclusions array.
-          if ($toc_class_exclusions) {
-            $class = $element->getAttribute('class');
-            foreach ($toc_class_exclusions as $exclusion) {
-              if (strpos($class, $exclusion) !== FALSE) {
-                $toc_element_exclusions[] = $id;
-                continue(2);
-              }
-            }
-          }
-
-          $element->setAttribute('id', 'toc-' . $toc_item_index);
-          $toc_item_index++;
-        }
-
-        $content = $dom->saveHTML();
-        // Strip the HTML document structure before saving as the body.
-        $content = substr($content, strpos($content, '<body>') + 6);
-        $content = str_replace('</body></html>', '', $content);
-
-        $build[$toc_settings['toc_source_field']]['0']['#text'] = $content;
-
-        // Display the toc field if present.
-        if ($display->getComponent('toc_display')) {
-          $items = [];
-
-          foreach ($toc_elements as $id => $element) {
-            // Skip excluded toc elements.
-            if (in_array($id, $toc_element_exclusions)) {
-              continue;
-            }
-            $items[] = [
-              '#title' => $element->nodeValue,
-              '#type' => 'link',
-              '#url' => $entity->toUrl('canonical')->setOption('fragment', $element->getAttribute('id')),
-            ];
-          }
-
-          if ($items) {
-            $build['items'] = [
-              '#theme' => 'item_list',
-              '#title' => $toc_settings['toc_title'],
-              '#attributes' => ['class' => 'list-origins-toc'],
-              '#items' => $items,
-            ];
-          }
-
-        }
       }
     }
   }
 
+  return $build;
 }
 
 /**
