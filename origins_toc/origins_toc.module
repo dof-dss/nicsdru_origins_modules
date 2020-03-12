@@ -81,20 +81,13 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_title', 'Table of contents'),
   ];
 
-  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
-
-  foreach ($fields as $field) {
-    if ($field instanceof FieldConfig) {
-      $field_options[$field->getName()] = $field->label();
-    }
-  }
-
-  $form['toc']['toc_config']['toc_source_field'] = [
-    '#type' => 'select',
-    '#title' => t('Source field'),
-    '#options' => $field_options,
-    '#description' => t('Select the field to build the table of contents for.'),
-    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_field', NULL),
+  $form['toc']['toc_config']['toc_source_container'] = [
+    '#type' => 'textfield',
+    '#title' => t('Source container'),
+    '#description' => t('CSS selector of the containing element to generate links for.'),
+    '#size' => 30,
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_container', NULL),
+    '#placeholder' => '#content-container',
   ];
 
   $form['toc']['toc_config']['toc_element'] = [
@@ -125,7 +118,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_title', $form_state->getValue('toc_title'));
-  $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
+  $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
 }
