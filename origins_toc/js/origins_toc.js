@@ -10,6 +10,8 @@
         $(this).attr('id', 'toc-' + index);
       });
 
+      // todo: generate toc links.
+
     }
   };
 })(jQuery, Drupal, drupalSettings);

@@ -142,6 +142,7 @@ class TableOfContentsBlock extends BlockBase implements ContainerFactoryPluginIn
         }
       }
     }
+
     return $build;
   }
 
