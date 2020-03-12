@@ -220,6 +220,9 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
           return;
         }
 
+        $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+        $build['#attached']['library'][] = 'origins_toc/toc';
+
       }
     }
   }
