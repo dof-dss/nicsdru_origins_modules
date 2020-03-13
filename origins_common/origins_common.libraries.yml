@@ -1,7 +1,0 @@
-in-page-navigation:
-  version: 1.x
-  js:
-    js/in_page_navigation.js: {}
-  dependencies:
-    - core/jquery
-    - core/drupalSettings
