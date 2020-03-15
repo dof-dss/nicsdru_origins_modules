@@ -92,7 +92,7 @@ function origins_common_form_entity_embed_dialog_alter(&$form, FormStateInterfac
 function origins_common_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id = NULL) {
   // Add a submit handler to the revision overview form to set
   // the view mode to 'diff' for revisions comparisons.
-  $form['#submit'][] = '_nidirect_common_revision_overview_form_submit';
+  $form['#submit'][] = '_origins_common_revision_overview_form_submit';
 }
 
 /**
