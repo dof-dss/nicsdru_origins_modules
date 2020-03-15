@@ -101,9 +101,6 @@ function origins_common_form_revision_overview_form_alter(&$form, FormStateInter
  * Modifies the redirect URL for the revision overview form set in its submitForm()
  * handler (see modules/contrib/diff/src/Form/RevisionOverviewForm.php) and adds an
  * additional view_mode=diff query param.
- *
- * @param array $form
- * @param FormStateInterface $form_state
  */
 function _origins_common_revision_overview_form_submit(array &$form, FormStateInterface $form_state) {
   // Get info about the entity we are doing a revision comparison on.
