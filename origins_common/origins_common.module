@@ -85,3 +85,42 @@ function origins_common_form_entity_embed_dialog_alter(&$form, FormStateInterfac
   $form['attributes']['data-align']['#default_value'] = 'right';
   $form['attributes']['data-align']['#access'] = FALSE;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_common_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id = NULL) {
+  // Add a submit handler to the revision overview form to set
+  // the view mode to 'diff' for revisions comparisons.
+  $form['#submit'][] = '_nidirect_common_revision_overview_form_submit';
+}
+
+/**
+ * Submit handler for revision overview form sets the revision comparison view mode to 'diff'.
+ *
+ * Modifies the redirect URL for the revision overview form set in its submitForm()
+ * handler (see modules/contrib/diff/src/Form/RevisionOverviewForm.php) and adds an
+ * additional view_mode=diff query param.
+ *
+ * @param array $form
+ * @param FormStateInterface $form_state
+ */
+function _origins_common_revision_overview_form_submit(array &$form, FormStateInterface $form_state) {
+  // Get info about the entity we are doing a revision comparison on.
+  $build_info = $form_state->getBuildInfo();
+  $entity = $build_info['args'][0];
+  $entity_type = $entity->getEntityTypeId();
+  $bundle = $entity->bundle();
+
+  // Get available view modes.
+  $view_modes = \Drupal::service('entity_display.repository')->getViewModeOptionsByBundle($entity_type, $bundle);
+
+  // If the diff view mode has been defined, add as a query param to the redirect url
+  // for the revision comparison overview form.
+  if (array_key_exists('diff', $view_modes)) {
+    $redirect_url = $form_state->getRedirect()->setOption('query', [
+      'view_mode' => 'diff',
+    ]);
+    $form_state->setRedirectUrl($redirect_url);
+  }
+}
