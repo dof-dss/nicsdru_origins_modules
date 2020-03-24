@@ -149,17 +149,21 @@ function layout_builder_search_node_type_presave(NodeType $entity) {
 
     // Enable the fields in the form display.
     $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
-    $form_display->setComponent('field_lb_search_enable', [
-      'type' => 'boolean_checkbox',
-      'label' => 'above',
-      'settings' => ['link_to_entity' => 'false'],
-    ]);
+    if (empty($form_display->getComponent('field_lb_search_enable'))) {
+      $form_display->setComponent('field_lb_search_enable', [
+        'type' => 'boolean_checkbox',
+        'label' => 'above',
+        'settings' => ['link_to_entity' => 'false'],
+      ]);
+    }
 
-    $form_display->setComponent('field_lb_search_content', [
-      'type' => 'string_textarea',
-      'label' => 'above',
-      'settings' => ['link_to_entity' => 'false'],
-    ])->save();
+    if (empty($form_display->getComponent('field_lb_search_content'))) {
+      $form_display->setComponent('field_lb_search_content', [
+        'type' => 'string_textarea',
+        'label' => 'above',
+        'settings' => ['link_to_entity' => 'false'],
+      ])->save();
+    }
 
   }
   else {
