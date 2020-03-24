@@ -76,7 +76,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
   $form['toc']['toc_config']['notice'] = [
     '#type' => 'html_tag',
     '#tag' => 'p',
-    '#value' => 'The setting below currently have no effect on the ToC creation.',
+    '#value' => 'The settings below currently have no effect on the ToC creation.',
     '#attributes' => ['style' => 'color: red'],
   ];
 
