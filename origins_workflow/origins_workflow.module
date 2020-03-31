@@ -61,7 +61,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   }
 
   // Node add forms.
-  if (in_array($form_id, $view_form_list)) {
+  if (isset($form['field_next_audit_due'])) {
     // Hide the audit date for everyone.
     $form['field_next_audit_due']['#access'] = FALSE;
     return;
