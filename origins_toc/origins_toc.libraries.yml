@@ -1,3 +1,7 @@
 toc:
   js:
     js/origins_toc.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
