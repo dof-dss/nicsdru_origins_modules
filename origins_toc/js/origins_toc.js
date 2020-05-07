@@ -14,36 +14,29 @@
         return;
       }
 
-      var tocHeadings = $('#main-article h2');
-      var $tocList = $('<ul class="nav-menu" />');
-      var $headingText = Drupal.t('On this page');
-      var $skipTocText = Drupal.t('Skip table of contents');
-      var $jumpTocText = Drupal.t('Jump to table of contents');
+      // This implementation doesn't use the configuration
+      // from the toc 3rd party settings 'toc_settings'.
+      let tocHeadings = $('#main-article h2');
+      let $tocList = $('<ul class="nav-menu" />');
+      let $headingText = Drupal.t('On this page');
+      let $skipTocText = Drupal.t('Skip table of contents');
 
       if (tocHeadings.length > 2) {
         // Iterate each element, append an anchor id and append link to block list.
         $(tocHeadings, context).once('toc').each(function(index) {
           $(this).attr('id', 'toc-' + index);
           $tocList.append(
-            '<li class="nav-item"><a href="#toc-' +
-            index +
-            '">' +
-            $(this).text() +
-            '</a></li>'
+            '<li class="nav-item"><a href="#toc-' + index + '">' + $(this).text() + '</a></li>'
           );
         });
 
-        // Create 2 TOC navs (only 1 will be visible, depending on screen size).
-        // TOC for the main area, allow this to be read by screen readers etc.
-        var $tocMain = $('<nav class="sub-menu toc toc-main" aria-labelledby="toc-main-heading" />');
-        $tocMain.append('<h2 id="toc-main-heading" class="menu-title">' + $headingText + '</h2>',
+        let $tocMain = $('.page-summary');
+        $tocMain.after('<h2 id="toc-main-heading" class="menu-title">' + $headingText + '</h2>',
           '<a href="#toc-main-skip" class="skip-link visually-hidden focusable">' +
           $skipTocText +
           '</a>',
           $tocList,
           '<a id="toc-main-skip"></a>');
-        $('.page-summary').after('<a href="#toc-aside" class="skip-link visually-hidden focusable skip-link__toc-aside">' + $jumpTocText + '</a>', $tocMain);
-
       }
     }
   };
