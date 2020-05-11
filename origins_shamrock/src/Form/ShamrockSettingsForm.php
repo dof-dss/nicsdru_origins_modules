@@ -2,13 +2,13 @@
 
 namespace Drupal\origins_shamrock\Form;
 
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Class ShamrockSettingsForm.
  */
-class ShamrockSettingsForm extends FormBase {
+class ShamrockSettingsForm extends ConfigFormBase {
   const SETTINGS = 'origins_shamrock.settings';
 
   /**
@@ -21,8 +21,15 @@ class ShamrockSettingsForm extends FormBase {
   /**
    * {@inheritdoc}
    */
+  protected function getEditableConfigNames() {
+    return [static::SETTINGS];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config(SETTINGS);
+    $config = $this->config(static::SETTINGS);
 
     $form['show_the_banner'] = [
       '#type' => 'checkbox',
@@ -43,8 +50,8 @@ class ShamrockSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config(SETTINGS)
-      ->set('show_banner', $form_state->getValue('show_the_banner'))
+    $this->configFactory->getEditable(static::SETTINGS)
+      ->set('show_banner', (bool)$form_state->getValue('show_the_banner'))
       ->save();
 
     parent::submitForm($form, $form_state);
