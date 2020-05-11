@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_shamrock.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_shamrock_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_shamrock module.
+    case 'help.page.origins_shamrock':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Operation Shamrock') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function origins_shamrock_theme() {
+  return [
+    'origins_shamrock' => [
+      'render element' => 'children',
+    ],
+  ];
+}

@@ -1,0 +1,5 @@
+name: 'Origins Shamrock'
+type: module
+description: 'Operation Shamrock'
+core: 8.x
+package: 'Origins'
