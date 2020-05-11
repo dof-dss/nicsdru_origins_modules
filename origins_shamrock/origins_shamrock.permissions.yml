@@ -1,0 +1,4 @@
+configure shamrock:
+  title: 'Configure Operation Shamrock'
+administer shamrock:
+  title: 'Administer Operation Shamrock'
