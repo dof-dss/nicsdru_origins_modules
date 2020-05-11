@@ -22,3 +22,19 @@ function origins_shamrock_admin_help($route_name, RouteMatchInterface $route_mat
     default:
   }
 }
+
+/**
+ * Implements hook_theme().
+ */
+function origins_shamrock_admin_theme() {
+  return [
+    'origins_shamrock_banner' => [
+      'render element' => 'children',
+      'variables' => [
+        'title' => NULL,
+        'body' => NULL,
+        'url' => NULL,
+      ],
+    ],
+  ];
+}
