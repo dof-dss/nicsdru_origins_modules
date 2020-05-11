@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_shamrock_admin.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_shamrock_admin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_shamrock_admin module.
+    case 'help.page.origins_shamrock_admin':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Operation Shamrock Admin') . '</p>';
+      return $output;
+
+    default:
+  }
+}

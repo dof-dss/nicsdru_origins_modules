@@ -1,0 +1,8 @@
+origins.shamrock.admin.admin_form:
+  path: '/admin/config/origins/shamrock/admin'
+  defaults:
+    _form: '\Drupal\origins_shamrock_admin\Form\ShamrockAdminForm'
+    _title: 'ShamrockAdminForm'
+  requirements:
+    _permission: 'administer shamrock'
+
