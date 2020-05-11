@@ -83,7 +83,7 @@ class ShamrockAdminForm extends ConfigFormBase {
 
     return $form;
   }
-  
+
   /**
    * {@inheritdoc}
    */

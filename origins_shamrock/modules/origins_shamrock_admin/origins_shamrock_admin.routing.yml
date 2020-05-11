@@ -6,3 +6,11 @@ origins.shamrock.admin.admin_form:
   requirements:
     _permission: 'administer shamrock'
 
+
+origins_shamrock_admin.shamrock_data_controller:
+  path: 'services/operation-shamrock.json'
+  defaults:
+    _controller: '\Drupal\origins_shamrock_admin\Controller\ShamrockDataController::index'
+    _title: 'index'
+  requirements:
+    _permission: 'access content'
