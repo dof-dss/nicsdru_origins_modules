@@ -51,7 +51,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory->getEditable(static::SETTINGS)
-      ->set('show_banner', (bool)$form_state->getValue('show_the_banner'))
+      ->set('show_banner', (bool) $form_state->getValue('show_the_banner'))
       ->save();
 
     parent::submitForm($form, $form_state);

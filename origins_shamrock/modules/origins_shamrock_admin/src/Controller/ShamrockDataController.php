@@ -21,9 +21,9 @@ class ShamrockDataController extends ControllerBase {
   protected $renderer;
 
   /**
-   * Constructs a new ContactListingController object.
+   * Constructs controller services.
    */
-  public function __construct(RendererInterface $renderer ) {
+  public function __construct(RendererInterface $renderer) {
     $this->renderer = $renderer;
   }
 
@@ -37,7 +37,7 @@ class ShamrockDataController extends ControllerBase {
   }
 
   /**
-   * index.
+   * Returns banner data.
    *
    * @return string
    *   Return banner data json array.

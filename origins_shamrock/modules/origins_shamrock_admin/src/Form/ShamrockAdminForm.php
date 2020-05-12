@@ -33,7 +33,7 @@ class ShamrockAdminForm extends ConfigFormBase {
     $config = $this->config(static::SETTINGS);
 
     $form['introduction'] = [
-      '#markup' => 'Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this page provides a central editorial console to insert and amend the text for a banner which will be rendered on sites which have enabled the Operation Shamrock module.'
+      '#markup' => 'Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this page provides a central editorial console to insert and amend the text for a banner which will be rendered on sites which have enabled the Operation Shamrock module.',
     ];
 
     $form['shamrock'] = [
@@ -92,7 +92,7 @@ class ShamrockAdminForm extends ConfigFormBase {
       ->set('title', $form_state->getValue('title'))
       ->set('body', $form_state->getValue('body'))
       ->set('url', $form_state->getValue('url'))
-      ->set('published', (bool)$form_state->getValue('published'))
+      ->set('published', (bool) $form_state->getValue('published'))
       ->set('modified', time())
       ->save();
 
