@@ -3,3 +3,5 @@ type: module
 description: 'Operation Shamrock'
 core: 8.x
 package: 'Origins'
+dependencies:
+  - origins_common
