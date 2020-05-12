@@ -4,8 +4,9 @@ description: 'Generic Workflow enhancements'
 core: 8.x
 package: 'NICS: Origins'
 dependencies:
-  - content_moderation
-  - workflows
-  - node
-  - user
-  - menu_ui
+  - drupal:content_moderation
+  - drupal:workflows
+  - drupal:node
+  - drupal:user
+  - drupal:menu_ui
+  - origins_common

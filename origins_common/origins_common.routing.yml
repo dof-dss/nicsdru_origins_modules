@@ -1,0 +1,7 @@
+origins.admin_config:
+  path: '/admin/config/origins'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Origins'
+  requirements:
+    _permission: 'access administration pages'

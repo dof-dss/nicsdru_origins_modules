@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_shamrock_admin.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_shamrock_admin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_shamrock_admin module.
+    case 'help.page.origins_shamrock_admin':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this admin page gives a site editor the option as to whether to render the banner on the front page of the site.') . '</p>';
+      $output .= '<p>' . t('This module allows accounts with the appropriate permission the ability to edit the banner title, text, URL and published state.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function origins_shamrock_admin_theme() {
+  return [
+    'origins_shamrock_banner' => [
+      'render element' => 'children',
+      'variables' => [
+        'title' => NULL,
+        'body' => NULL,
+        'url' => NULL,
+      ],
+    ],
+  ];
+}
