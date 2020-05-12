@@ -1,0 +1,7 @@
+origins_shamrock.settings:
+  title: 'Shamrock Administration'
+  route_name: origins.shamrock.admin.admin_form
+  description: 'Configure Operation Shamrock banner'
+  parent: origins.admin_config
+  weight: 10
+
