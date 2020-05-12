@@ -31,10 +31,14 @@ class ShamrockSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config(static::SETTINGS);
 
+    $form['introduction'] = [
+      '#markup' => 'Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this admin page gives a site editor the option as to whether to render the banner on the front page of the site. It is turned by default for some domains',
+    ];
+
     $form['show_the_banner'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show the banner'),
-      '#description' => $this->t('Display the Operation Shamrock banner on the website'),
+      '#description' => $this->t('Display the Operation Shamrock banner on the website.'),
       '#default_value' => $config->get('show_banner'),
       '#weight' => '0',
     ];
