@@ -1,0 +1,7 @@
+origins.shamrock.settings_form:
+  path: '/admin/config/origins/shamrock/settings'
+  defaults:
+    _form: '\Drupal\origins_shamrock\Form\ShamrockSettingsForm'
+    _title: 'ShamrockSettingsForm'
+  requirements:
+    _permission: 'configure shamrock'

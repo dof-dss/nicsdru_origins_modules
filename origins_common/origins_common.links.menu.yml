@@ -1,0 +1,5 @@
+origins.admin_config:
+  title: 'Origins'
+  description: 'Manage Origins module settings'
+  parent: system.admin_config
+  route_name: origins.admin_config
