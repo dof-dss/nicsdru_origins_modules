@@ -4,4 +4,3 @@ origins_shamrock.settings:
   description: 'Configure Operation Shamrock banner'
   parent: origins.admin_config
   weight: 10
-

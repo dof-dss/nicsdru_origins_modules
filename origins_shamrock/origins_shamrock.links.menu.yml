@@ -4,4 +4,3 @@ origins_shamrock.settings:
   description: 'Configure Operation Shamrock settings'
   parent: origins.admin_config
   weight: 10
-
