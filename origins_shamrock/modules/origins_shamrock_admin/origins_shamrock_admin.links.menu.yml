@@ -1,4 +1,4 @@
-origins_shamrock.settings:
+origins_shamrock.administration:
   title: 'Shamrock Administration'
   route_name: origins.shamrock.admin.admin_form
   description: 'Configure Operation Shamrock banner'
