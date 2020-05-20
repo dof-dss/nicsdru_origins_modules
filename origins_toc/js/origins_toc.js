@@ -19,9 +19,9 @@
 
         // This implementation doesn't use the configuration
         // from the toc 3rd party settings 'toc_settings'.
-        let tocHeadings = $('#main-article h2');
+        let tocHeadings = $('#main-article h2').not('toc--exclude');
         let $tocList = $('<ul class="nav-menu" />');
-        let $headingText = Drupal.t('On this page');
+        let $headingText = Drupal.t('Contents');
         let $skipTocText = Drupal.t('Skip table of contents');
 
         // Iterate each element, append an anchor id and append link to block list.
@@ -33,12 +33,14 @@
         });
 
         let $tocMain = $('.page-summary');
-        $tocMain.after('<h2 id="toc-main-heading" class="menu-title">' + $headingText + '</h2>',
-          '<a href="#toc-main-skip" class="skip-link visually-hidden focusable">' +
+        let $tocBlock = $('<nav class="sub-menu rel-menu toc-menu" aria-labelledby="toc-menu-heading" />');
+        $tocBlock.prepend('<h2 id="toc-menu-heading" class="menu-title">' + $headingText + '</h2>',
+          '<a href="#toc-main-skip" class="skip-link visually-hidden focusable" aria-label="' + $skipTocText + '">' +
           $skipTocText +
           '</a>',
-          $tocList,
-          '<a id="toc-main-skip"></a>');
+          $tocList);
+        $tocMain.after($tocBlock,
+          '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
       }
 
     }
