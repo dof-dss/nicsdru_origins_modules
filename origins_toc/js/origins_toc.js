@@ -33,13 +33,13 @@
         });
 
         let $tocMain = $('.page-summary');
-        let $tocBlock = $('<nav class="sub-menu rel-menu toc-menu" aria-labelledby="toc-menu-heading" />');
+        let $tocBlock = $('<nav class="sub-menu toc-menu" aria-labelledby="toc-menu-heading" />');
         $tocBlock.prepend('<h2 id="toc-menu-heading" class="menu-title">' + $headingText + '</h2>',
           '<a href="#toc-main-skip" class="skip-link visually-hidden focusable" aria-label="' + $skipTocText + '">' +
           $skipTocText +
           '</a>',
           $tocList);
-        $tocMain.after($tocBlock,
+        $tocMain.before($tocBlock,
           '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
       }
 
