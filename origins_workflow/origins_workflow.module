@@ -8,7 +8,6 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
-use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 
@@ -60,9 +59,8 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
     }
   }
 
-  // Node add forms.
-  if (in_array($form_id, $view_form_list)) {
-    // Hide the audit date for everyone.
+  // Hide the audit date for everyone.
+  if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
     return;
   }

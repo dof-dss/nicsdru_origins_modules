@@ -11,7 +11,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Component\Utility\Html;
 use Drupal\node\Entity\NodeType;
 
 /**
@@ -32,7 +31,7 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
       $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
       $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
-      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will 
+      $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will
       have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
       $output .= '<h4>' . t("Display") . '</h4>';
       $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
@@ -61,7 +60,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 
   $form['toc']['toc_enable'] = [
     '#type' => 'checkbox',
-    '#title' => t('Enable table of contents option.'),
+    '#title' => t('Enable table of contents.'),
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable', NULL),
   ];
 
@@ -74,6 +73,13 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     ],
   ];
 
+  $form['toc']['toc_config']['notice'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'p',
+    '#value' => 'The settings below currently have no effect on the ToC creation.',
+    '#attributes' => ['style' => 'color: red'],
+  ];
+
   $form['toc']['toc_config']['toc_title'] = [
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -81,20 +87,13 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_title', 'Table of contents'),
   ];
 
-  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $node_type);
-
-  foreach ($fields as $field) {
-    if ($field instanceof FieldConfig) {
-      $field_options[$field->getName()] = $field->label();
-    }
-  }
-
-  $form['toc']['toc_config']['toc_source_field'] = [
-    '#type' => 'select',
-    '#title' => t('Source field'),
-    '#options' => $field_options,
-    '#description' => t('Select the field to build the table of contents for.'),
-    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_field', NULL),
+  $form['toc']['toc_config']['toc_source_container'] = [
+    '#type' => 'textfield',
+    '#title' => t('Source container'),
+    '#description' => t('CSS selector of the containing element to generate links for.'),
+    '#size' => 30,
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_container', NULL),
+    '#placeholder' => '#content-container',
   ];
 
   $form['toc']['toc_config']['toc_element'] = [
@@ -125,7 +124,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_title', $form_state->getValue('toc_title'));
-  $type->setThirdPartySetting('origins_toc', 'toc_source_field', $form_state->getValue('toc_source_field'));
+  $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
 }
@@ -213,78 +212,25 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
     if ($toc_enabled) {
       $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
       $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+
       if (!empty($toc_settings) && array_key_exists($toc_settings['toc_source_field'], $build)) {
 
-        // Check if ToC's have been disabled at the node type level.
+        // Check if ToC's have been disabled at the entity type.
         if (!$toc_settings['toc_enable']) {
           return;
         }
 
-        // Load the content as a dom object and fetch the specified elements.
-        $dom = Html::load($build[$toc_settings['toc_source_field']]['0']['#text']);
-        $toc_elements = $dom->getElementsByTagName($toc_settings['toc_element']);
-        $toc_class_exclusions = [];
-        $toc_element_exclusions = [];
-        $toc_item_index = 0;
-
-        if (!empty($toc_settings['toc_exclusions'])) {
-          $toc_class_exclusions = explode(',', $toc_settings['toc_exclusions']);
+        if ($entity->hasField('field_toc_enable')) {
+          $toc_settings['toc_entity_enable'] = (int) $entity->get('field_toc_enable')->value;
         }
 
-        // Insert an incremented toc ID attribute.
-        foreach ($toc_elements as $id => $element) {
-          // Exclude any elements that have a class in the exclusions array.
-          if ($toc_class_exclusions) {
-            $class = $element->getAttribute('class');
-            foreach ($toc_class_exclusions as $exclusion) {
-              if (strpos($class, $exclusion) !== FALSE) {
-                $toc_element_exclusions[] = $id;
-                continue(2);
-              }
-            }
-          }
-
-          $element->setAttribute('id', 'toc-' . $toc_item_index);
-          $toc_item_index++;
-        }
-
-        $content = $dom->saveHTML();
-        // Strip the HTML document structure before saving as the body.
-        $content = substr($content, strpos($content, '<body>') + 6);
-        $content = str_replace('</body></html>', '', $content);
-
-        $build[$toc_settings['toc_source_field']]['0']['#text'] = $content;
-
-        // Display the toc field if present.
-        if ($display->getComponent('toc_display')) {
-          $items = [];
-
-          foreach ($toc_elements as $id => $element) {
-            // Skip excluded toc elements.
-            if (in_array($id, $toc_element_exclusions)) {
-              continue;
-            }
-            $items[] = [
-              '#title' => $element->nodeValue,
-              '#type' => 'link',
-              '#url' => $entity->toUrl('canonical')->setOption('fragment', $element->getAttribute('id')),
-            ];
-          }
-
-          if ($items) {
-            $build['items'] = [
-              '#theme' => 'item_list',
-              '#title' => $toc_settings['toc_title'],
-              '#attributes' => ['class' => 'list-origins-toc'],
-              '#items' => $items,
-            ];
-          }
-
-        }
+        $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+        $build['#attached']['library'][] = 'origins_toc/toc';
       }
     }
   }
 
+  return $build;
 }
 
 /**

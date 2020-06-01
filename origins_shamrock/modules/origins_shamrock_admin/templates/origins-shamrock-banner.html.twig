@@ -1,0 +1,21 @@
+{%
+
+  set result_classes = [
+  passed ? 'info-notice info-notice--success' : 'info-notice info-notice--error'
+]
+%}
+
+<div{{ attributes.addClass('opsh--banner').setAttribute('role', 'presentation') }}>
+  <a{{ attributes.addClass('opsh__link') }} href="{{ url }}">
+    <span{{ attributes.addClass('opsh__title') }}>
+      {{ title }}
+    </span>
+    <span{{ attributes.addClass('opsh__msg') }}>
+      {{ body }}
+    </span>
+    <span{{ attributes.addClass('opsh__read-more') }}>
+      {{ 'Read more'|t }}
+    </span>
+  </a>
+</div>
+

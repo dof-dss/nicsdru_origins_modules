@@ -1,0 +1,9 @@
+shamrock_banner:
+  css:
+    theme:
+      css/shamrock_banner.css: {}
+  js:
+    js/shamrock_banner.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
