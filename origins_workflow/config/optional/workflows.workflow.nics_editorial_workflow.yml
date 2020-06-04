@@ -2,9 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - node.type.article
-    - node.type.news
-    - node.type.publication
   module:
     - content_moderation
 id: nics_editorial_workflow
@@ -66,7 +63,4 @@ type_settings:
       weight: 2
   entity_types:
     node:
-      - article
-      - news
-      - publication
   default_moderation_state: draft
