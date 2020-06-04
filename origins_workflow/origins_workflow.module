@@ -254,7 +254,8 @@ function _build_audit_link(&$variables) {
     if (!empty($nid)) {
       if ($node->hasField('field_next_audit_due')) {
         return _audit_link('field_next_audit_due', $node->get('field_next_audit_due')->value, $nid);
-      } elseif ($node->hasField('field_next_review_date')) {
+      }
+      elseif ($node->hasField('field_next_review_date')) {
         return _audit_link('field_next_review_date', $node->get('field_next_review_date')->value, $nid);
       }
     }
