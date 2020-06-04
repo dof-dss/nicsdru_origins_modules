@@ -10,6 +10,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Link;
 
 /**
  * Implements hook_page_attachments().
@@ -243,28 +245,24 @@ function origins_workflow_preprocess_field(&$variables) {
  * Top level function to build audit links.
  */
 function _build_audit_link($type, &$variables) {
-  // Only start this processing if the 'origins_workflow'
-  // module is installed.
-  if (Drupal::service('module_handler')->moduleExists('origins_workflow')) {
-    // Get the current node.
-    $node = Drupal::routeMatch()->getParameter('node');
-    if (!empty($node)) {
-      $nid = NULL;
-      if (is_object($node) && ($node instanceof NodeInterface)) {
-        $nid = $node->id();
+  // Get the current node.
+  $node = Drupal::routeMatch()->getParameter('node');
+  if (!empty($node)) {
+    $nid = NULL;
+    if (is_object($node) && ($node instanceof Node)) {
+      $nid = $node->id();
+    }
+    elseif (is_string($node)) {
+      $nid = $node;
+      $node = Node::load($nid);
+    }
+    if (!empty($nid)) {
+      if ($type == 'health_condition') {
+        return _audit_link($type, $node->get('field_next_review_date')->value, $nid);
       }
-      elseif (is_string($node)) {
-        $nid = $node;
-        $node = Node::load($nid);
-      }
-      if (!empty($nid)) {
-        if ($type == 'health_condition') {
-          return _audit_link($type, $node->get('field_next_review_date')->value, $nid);
-        }
-        else {
-          // This will be an article, contact or page.
-          return _audit_link($type, $node->get('field_next_audit_due')->value, $nid);
-        }
+      else {
+        // This will be an article, contact or page.
+        return _audit_link($type, $node->get('field_next_audit_due')->value, $nid);
       }
     }
   }
