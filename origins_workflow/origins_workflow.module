@@ -200,3 +200,118 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
   }
 }
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function origins_workflow_preprocess_field(&$variables) {
+  // Implement audit link.
+  if (isset($variables['element'])
+    && isset($variables['element']['#entity_type'])
+    && ($variables['element']['#entity_type'] == 'node')
+  ) {
+    // We are only interested in certain content types.
+    $content_type = $variables['element']['#bundle'];
+    $msg = NULL;
+    switch ($content_type) {
+      case 'health_condition':
+        $msg = _build_audit_link('health_condition', $variables);
+        break;
+
+      case 'article':
+      case 'contact':
+      case 'page':
+        $msg = _build_audit_link('article', $variables);
+        break;
+    }
+    if ($msg) {
+      // Send out 'needs audit' link as a Drupal warning message.
+      // N.B. This will only be visible if the 'System Messages'
+      // block is visible.
+      $this_route = \Drupal::routeMatch()->getRouteName();
+      // Do not show audit message on revisions page.
+      if ($this_route != 'diff.revisions_diff') {
+        \Drupal::messenger()->addWarning(t($msg->jsonSerialize()));
+        // Make sure that this page is not cached.
+        $variables['#cache'] = ['max-age' => 0];
+      }
+    }
+  }
+}
+
+/**
+ * Top level function to build audit links.
+ */
+function _build_audit_link($type, &$variables) {
+  // Only start this processing if the 'origins_workflow'
+  // module is installed.
+  if (Drupal::service('module_handler')->moduleExists('origins_workflow')) {
+    // Get the current node.
+    $node = Drupal::routeMatch()->getParameter('node');
+    if (!empty($node)) {
+      $nid = NULL;
+      if (is_object($node) && ($node instanceof NodeInterface)) {
+        $nid = $node->id();
+      }
+      elseif (is_string($node)) {
+        $nid = $node;
+        $node = Node::load($nid);
+      }
+      if (!empty($nid)) {
+        if ($type == 'health_condition') {
+          return _audit_link($type, $node->get('field_next_review_date')->value, $nid);
+        }
+        else {
+          // This will be an article, contact or page.
+          return _audit_link($type, $node->get('field_next_audit_due')->value, $nid);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Utility function to build the audit link html.
+ */
+function _audit_link($type, $dt, $nid) {
+  if (!empty($dt) && (strtotime($dt) < Drupal::time()->getCurrentTime())) {
+    // Next review date is in the past,
+    // so this node is due for audit - display node edit link
+    // (if the user is allowed to see it).
+    $account = User::load(Drupal::currentUser()->id());
+    if ($account->hasPermission('audit content')) {
+      // Retrieve audit text from config.
+      $audit_button_text = Drupal::config('origins_workflow.auditsettings')->get('audit_button_text');
+      $audit_button_hover_text = Drupal::config('origins_workflow.auditsettings')->get('audit_button_hover_text');
+      // Set up common attributes for links.
+      $options = [
+        'attributes' => [
+          'rel' => 'nofollow',
+          'title' => $audit_button_hover_text,
+          'class' => 'audit_link',
+        ],
+      ];
+      $link_object = NULL;
+      if ($type == 'health_condition') {
+        // For health conditions, just send the user to the node edit
+        // form, where they can set the 'next review date' to a date
+        // in the future to remove this node from the 'needs audit' view.
+        $link_object = Link::createFromRoute($audit_button_text, 'entity.node.edit_form', ['node' => $nid], $options);
+      }
+      else {
+        // For articles, contacts and pages send the user
+        // to the 'content audit' page.
+        $link_object = Link::createFromRoute($audit_button_text, 'origins_workflow.audit_controller_content_audit', ['nid' => $nid], $options);
+      }
+      if ($link_object) {
+        // Return rendered link.
+        $link_rendered = $link_object->toRenderable();
+        \Drupal::service('renderer')->renderRoot($link_rendered);
+        return $link_rendered['#markup'];
+      }
+      else {
+        return "";
+      }
+    }
+  }
+}
