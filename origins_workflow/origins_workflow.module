@@ -214,17 +214,12 @@ function origins_workflow_preprocess_field(&$variables) {
   ) {
     // We are only interested in certain content types.
     $content_type = $variables['element']['#bundle'];
+    // Get a list of audited content types.
+    $config = \Drupal::config('origins_workflow.auditsettings');
+    $audit_types = $config->get('audit_content_types');
     $msg = NULL;
-    switch ($content_type) {
-      case 'health_condition':
-        $msg = _build_audit_link('health_condition', $variables);
-        break;
-
-      case 'article':
-      case 'contact':
-      case 'page':
-        $msg = _build_audit_link('article', $variables);
-        break;
+    if (in_array($content_type, $audit_types)) {
+      $msg = _build_audit_link($variables);
     }
     if ($msg) {
       // Send out 'needs audit' link as a Drupal warning message.
@@ -244,7 +239,7 @@ function origins_workflow_preprocess_field(&$variables) {
 /**
  * Top level function to build audit links.
  */
-function _build_audit_link($type, &$variables) {
+function _build_audit_link(&$variables) {
   // Get the current node.
   $node = Drupal::routeMatch()->getParameter('node');
   if (!empty($node)) {
@@ -257,12 +252,10 @@ function _build_audit_link($type, &$variables) {
       $node = Node::load($nid);
     }
     if (!empty($nid)) {
-      if ($type == 'health_condition') {
-        return _audit_link($type, $node->get('field_next_review_date')->value, $nid);
-      }
-      else {
-        // This will be an article, contact or page.
-        return _audit_link($type, $node->get('field_next_audit_due')->value, $nid);
+      if ($node->hasField('field_next_audit_due')) {
+        return _audit_link('field_next_audit_due', $node->get('field_next_audit_due')->value, $nid);
+      } elseif ($node->hasField('field_next_review_date')) {
+        return _audit_link('field_next_review_date', $node->get('field_next_review_date')->value, $nid);
       }
     }
   }
@@ -271,7 +264,7 @@ function _build_audit_link($type, &$variables) {
 /**
  * Utility function to build the audit link html.
  */
-function _audit_link($type, $dt, $nid) {
+function _audit_link($field, $dt, $nid) {
   if (!empty($dt) && (strtotime($dt) < Drupal::time()->getCurrentTime())) {
     // Next review date is in the past,
     // so this node is due for audit - display node edit link
@@ -290,15 +283,14 @@ function _audit_link($type, $dt, $nid) {
         ],
       ];
       $link_object = NULL;
-      if ($type == 'health_condition') {
-        // For health conditions, just send the user to the node edit
+      if ($field == 'field_next_review_date') {
+        // Just send the user to the node edit
         // form, where they can set the 'next review date' to a date
         // in the future to remove this node from the 'needs audit' view.
         $link_object = Link::createFromRoute($audit_button_text, 'entity.node.edit_form', ['node' => $nid], $options);
       }
       else {
-        // For articles, contacts and pages send the user
-        // to the 'content audit' page.
+        // Send the user to the 'content audit' page.
         $link_object = Link::createFromRoute($audit_button_text, 'origins_workflow.audit_controller_content_audit', ['nid' => $nid], $options);
       }
       if ($link_object) {
