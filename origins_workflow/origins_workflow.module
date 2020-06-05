@@ -10,6 +10,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
+use Drupal\node\Entity\Node;
+use Drupal\Core\Link;
 
 /**
  * Implements hook_page_attachments().
@@ -62,28 +64,6 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   // Hide the audit date for everyone.
   if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
-    return;
-  }
-
-  // Node edit forms.
-  if (in_array($form_id, $edit_form_list)) {
-    $account = \Drupal::entityTypeManager()->getStorage('user')->load(\Drupal::currentUser()->id());
-    // Check user access level.
-    if ($account->hasRole('administrator')) {
-      // Admin can see audit date and change it.
-      $form['field_next_audit_due']['#access'] = TRUE;
-      $form['field_next_audit_due']['#disabled'] = FALSE;
-    }
-    elseif ($account->hasPermission('audit content')) {
-      // If user has permission to audit content but is not an admin
-      // then they can see the audit date but not change it.
-      $form['field_next_audit_due']['#access'] = TRUE;
-      $form['field_next_audit_due']['#disabled'] = TRUE;
-    }
-    else {
-      // Hide the audit date for anyone else.
-      $form['field_next_audit_due']['#access'] = FALSE;
-    }
   }
 
   // Tweak the published filter on the admin/content form.
@@ -198,5 +178,109 @@ function origins_workflow_hide_moderation_field(&$view) {
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
   if (isset($data['tabs'][1]) && isset($data['tabs'][1]['content_moderation.moderated_content'])) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function origins_workflow_preprocess_field(&$variables) {
+  // Implement audit link.
+  if (isset($variables['element'])
+    && isset($variables['element']['#entity_type'])
+    && ($variables['element']['#entity_type'] == 'node')
+  ) {
+    // We are only interested in certain content types.
+    $content_type = $variables['element']['#bundle'];
+    // Get a list of audited content types.
+    $config = \Drupal::config('origins_workflow.auditsettings');
+    $audit_types = $config->get('audit_content_types');
+    $msg = NULL;
+    if (in_array($content_type, $audit_types)) {
+      $msg = _build_audit_link($variables);
+    }
+    if ($msg) {
+      // Send out 'needs audit' link as a Drupal warning message.
+      // N.B. This will only be visible if the 'System Messages'
+      // block is visible.
+      $this_route = \Drupal::routeMatch()->getRouteName();
+      // Do not show audit message on revisions page.
+      if ($this_route != 'diff.revisions_diff') {
+        \Drupal::messenger()->addWarning(t($msg->jsonSerialize()));
+        // Make sure that this page is not cached.
+        $variables['#cache'] = ['max-age' => 0];
+      }
+    }
+  }
+}
+
+/**
+ * Top level function to build audit links.
+ */
+function _build_audit_link(&$variables) {
+  // Get the current node.
+  $node = Drupal::routeMatch()->getParameter('node');
+  if (!empty($node)) {
+    $nid = NULL;
+    if (is_object($node) && ($node instanceof Node)) {
+      $nid = $node->id();
+    }
+    elseif (is_string($node)) {
+      $nid = $node;
+      $node = Node::load($nid);
+    }
+    if (!empty($nid)) {
+      if ($node->hasField('field_next_audit_due')) {
+        return _audit_link('field_next_audit_due', $node->get('field_next_audit_due')->value, $nid);
+      }
+      elseif ($node->hasField('field_next_review_date')) {
+        return _audit_link('field_next_review_date', $node->get('field_next_review_date')->value, $nid);
+      }
+    }
+  }
+}
+
+/**
+ * Utility function to build the audit link html.
+ */
+function _audit_link($field, $dt, $nid) {
+  if (!empty($dt) && (strtotime($dt) < Drupal::time()->getCurrentTime())) {
+    // Next review date is in the past,
+    // so this node is due for audit - display node edit link
+    // (if the user is allowed to see it).
+    $account = User::load(Drupal::currentUser()->id());
+    if ($account->hasPermission('audit content')) {
+      // Retrieve audit text from config.
+      $audit_button_text = Drupal::config('origins_workflow.auditsettings')->get('audit_button_text');
+      $audit_button_hover_text = Drupal::config('origins_workflow.auditsettings')->get('audit_button_hover_text');
+      // Set up common attributes for links.
+      $options = [
+        'attributes' => [
+          'rel' => 'nofollow',
+          'title' => $audit_button_hover_text,
+          'class' => 'audit_link',
+        ],
+      ];
+      $link_object = NULL;
+      if ($field == 'field_next_review_date') {
+        // Just send the user to the node edit
+        // form, where they can set the 'next review date' to a date
+        // in the future to remove this node from the 'needs audit' view.
+        $link_object = Link::createFromRoute($audit_button_text, 'entity.node.edit_form', ['node' => $nid], $options);
+      }
+      else {
+        // Send the user to the 'content audit' page.
+        $link_object = Link::createFromRoute($audit_button_text, 'origins_workflow.audit_controller_content_audit', ['nid' => $nid], $options);
+      }
+      if ($link_object) {
+        // Return rendered link.
+        $link_rendered = $link_object->toRenderable();
+        \Drupal::service('renderer')->renderRoot($link_rendered);
+        return $link_rendered['#markup'];
+      }
+      else {
+        return "";
+      }
+    }
   }
 }
