@@ -64,28 +64,6 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   // Hide the audit date for everyone.
   if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
-    return;
-  }
-
-  // Node edit forms.
-  if (in_array($form_id, $edit_form_list)) {
-    $account = \Drupal::entityTypeManager()->getStorage('user')->load(\Drupal::currentUser()->id());
-    // Check user access level.
-    if ($account->hasRole('administrator')) {
-      // Admin can see audit date and change it.
-      $form['field_next_audit_due']['#access'] = TRUE;
-      $form['field_next_audit_due']['#disabled'] = FALSE;
-    }
-    elseif ($account->hasPermission('audit content')) {
-      // If user has permission to audit content but is not an admin
-      // then they can see the audit date but not change it.
-      $form['field_next_audit_due']['#access'] = TRUE;
-      $form['field_next_audit_due']['#disabled'] = TRUE;
-    }
-    else {
-      // Hide the audit date for anyone else.
-      $form['field_next_audit_due']['#access'] = FALSE;
-    }
   }
 
   // Tweak the published filter on the admin/content form.
