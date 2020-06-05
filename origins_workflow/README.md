@@ -21,6 +21,11 @@ When you view a node that is due for audit, you will see an 'Audit this publishe
 appropriate permissions) clicks on this link, then there will be a further 'Audit this published content' link - if you click
 this as well then the auditing process is completed and the audit date is set a further six months in the future.
 
+N.B. If developers wish to test auditing by setting audit dates manually, this can be done in one of two ways:
+- by temporarily commenting out this line in origins_workflow_form_alter
+$form['field_next_audit_due']['#access'] = FALSE;
+- by manually setting audit dates in the database in the node__field_next_audit_due table
+
 # Testing
 
 Note that some functional and Nightwatch tests have been included with this module.
