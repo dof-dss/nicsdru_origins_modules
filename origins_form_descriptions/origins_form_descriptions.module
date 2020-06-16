@@ -8,18 +8,17 @@
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_form_BASE_FORM_ID_alter().
  */
-function origins_form_descriptions_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $route_name = \Drupal::routeMatch()->getRouteName();
+function origins_form_descriptions_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'origins_form_descriptions/form_descriptions';
+}
 
-  // Add JS/CSS to entity add/edit and canonical forms.
-  if (preg_match('/^entity.\w+.edit_form$/', $route_name)
-    || preg_match('/^\w+.add$/', $route_name)
-      || preg_match('/^entity.\w+.canonical$/', $route_name)) {
-
-    $form['#attached']['library'][] = 'origins_form_descriptions/form_descriptions';
-  }
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_form_descriptions_form_media_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'origins_form_descriptions/form_descriptions';
 }
 
 /**
