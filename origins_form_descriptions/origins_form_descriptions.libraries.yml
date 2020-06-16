@@ -1,0 +1,9 @@
+form_descriptions:
+  css:
+    theme:
+      css/form_descriptions.css: {}
+  js:
+    js/form_descriptions.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
