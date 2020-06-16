@@ -1,0 +1,6 @@
+/* Higher specificity than in form.css */
+.form-item div.description {
+  display: block;
+  margin-bottom: 0.5em;
+}
+
