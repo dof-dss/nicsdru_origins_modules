@@ -13,6 +13,9 @@
         // because they share almost the exact same label attribute values
         // but we can use jQuery to only use the first label to avoid duplicates.
         $('label[for^="' + labelFor + '"]').first().after($(this));
+
+        // Move descriptions in fieldsets after the legend.
+        $('fieldset[aria-describedby="' + descId + '"] legend').after($(this));
       });
     }
   };
