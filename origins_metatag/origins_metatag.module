@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_metatag.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Skip over if we have no meta tag field exposed.
+  if (empty($form['field_meta_tags'])) {
+    return;
+  }
+
+  if (\Drupal::currentUser()->hasPermission('view basic meta tags') == FALSE) {
+    // Hide all metatags if we can't even see basic ones.
+    $form['field_meta_tags']['#access'] = FALSE;
+  }
+
+  // Build up a list of keys for metatag types (excluding basic) so we can show/hide them.
+  $metatag_elements = [];
+
+  foreach ($form['field_meta_tags']['widget'][0] as $key => $item) {
+    if (preg_match('/^#/', $key) || $key == 'basic') {
+      continue;
+    }
+
+    $metatag_elements[] = $key;
+  }
+
+  // If the user can't see advanced tags, hide them all.
+  if (\Drupal::currentUser()->hasPermission('view advanced meta tags') == FALSE) {
+    foreach ($metatag_elements as $key) {
+      $form['field_meta_tags']['widget'][0][$key]['#access'] = FALSE;
+    }
+  }
+}
