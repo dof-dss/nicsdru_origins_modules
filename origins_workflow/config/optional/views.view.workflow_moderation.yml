@@ -263,7 +263,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "<div><a href='/origins_workflow/change_state/{{ nid }}/draft?destination=/admin/workflow/needs-review'>Change to Draft</a></div>\r\n<div><a href='/origins_workflow/change_state/{{ nid }}/published?destination=/admin/content/needs-review'>Change to Published</a></div>"
+            text: "<div><a href='/origins_workflow/change_state/{{ nid }}/draft?destination=/admin/content/needs-review'>Change to Draft</a></div>\r\n<div><a href='/origins_workflow/change_state/{{ nid }}/published?destination=/admin/content/needs-review'>Change to Published</a></div>"
             make_link: false
             path: ''
             absolute: false
@@ -958,7 +958,7 @@ display:
         filters: false
         filter_groups: false
         fields: false
-      path: admin/workflow/all-drafts
+      path: admin/content/all-drafts
       filters:
         moderation_state:
           id: moderation_state
@@ -1936,7 +1936,7 @@ display:
         filters: false
         filter_groups: false
         fields: false
-      path: admin/workflow/drafts
+      path: admin/content/drafts
       filters:
         moderation_state:
           id: moderation_state
@@ -2893,7 +2893,7 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: admin/workflow/needs-audit
+      path: admin/content/needs-audit
       display_description: ''
       defaults:
         filters: false
@@ -3695,7 +3695,7 @@ display:
     position: 1
     display_options:
       display_extenders: {  }
-      path: admin/workflow/needs-review
+      path: admin/content/needs-review
       display_description: ''
       defaults:
         filters: false
