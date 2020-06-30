@@ -1,0 +1,7 @@
+name: 'Origins Metatag'
+type: module
+description: 'Refine control to metatags options'
+core: 8.x
+package: 'Origins'
+dependencies:
+  - metatag
