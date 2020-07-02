@@ -21,7 +21,7 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
 
   if (\Drupal::currentUser()->hasPermission('edit basic meta tags')) {
     // Only show:
-    // Basic: keywords + description elements
+    // Basic: keywords + description elements.
     foreach ($form['field_meta_tags']['widget'][0]['basic'] as $key => &$item) {
       if (preg_match('/^#/', $key) || in_array($key, ['title', 'description']) == FALSE) {
         continue;
