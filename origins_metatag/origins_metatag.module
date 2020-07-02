@@ -16,7 +16,10 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
     return;
   }
 
-  if (\Drupal::currentUser()->hasPermission('view basic meta tags')) {
+  // Hide all options by default.
+  $form['field_meta_tags']['#access'] = FALSE;
+
+  if (\Drupal::currentUser()->hasPermission('edit basic meta tags')) {
     // Only show:
     // * Basic: keywords + description elements
     foreach ($form['field_meta_tags']['widget'][0]['basic'] as $key => &$item) {
@@ -26,7 +29,8 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
 
       $item['#access'] = FALSE;
     }
-    // * Advanced: robots element.
+
+    // * Advanced: robots element only.
     foreach ($form['field_meta_tags']['widget'][0]['advanced'] as $key => &$item) {
       if (preg_match('/^#/', $key) || $key == 'robots') {
         continue;
@@ -35,7 +39,7 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
       $item['#access'] = FALSE;
     }
 
-    // Hide the other options.
+    // Hide non-essential groups.
     foreach ($form['field_meta_tags']['widget'][0] as $key => &$item) {
       if (preg_match('/^#/', $key) || in_array($key, ['basic', 'advanced'])) {
         continue;
@@ -43,5 +47,7 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
 
       $item['#access'] = FALSE;
     }
+
+    $form['field_meta_tags']['#access'] = TRUE;
   }
 }
