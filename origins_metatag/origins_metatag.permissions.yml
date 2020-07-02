@@ -1,7 +1,3 @@
 'view basic meta tags':
-  title: View basic meta tags
-  description: View the basic meta tags for content.
-
-'view advanced meta tags':
-  title: View advanced meta tags
-  description: View the advanced  meta tags for content.
+  title: View restricted meta tags
+  description: View basic meta tags for content.
