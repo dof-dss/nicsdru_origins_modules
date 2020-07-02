@@ -26,9 +26,16 @@
 
         // Iterate each element, append an anchor id and append link to block list.
         $(tocHeadings, context).once('toc').each(function(index) {
+          const $linkText = $(this).text();
+
+          // Ignore the 'more useful links' section, if present.
+          if ($linkText.toLowerCase() == 'more useful links') {
+            return;
+          }
+
           $(this).attr('id', 'toc-' + index);
           $tocList.append(
-            '<li class="nav-item"><a href="#toc-' + index + '">' + $(this).text() + '</a></li>'
+            '<li class="nav-item"><a href="#toc-' + index + '">' + $linkText + '</a></li>'
           );
         });
 
@@ -39,7 +46,7 @@
           $skipTocText +
           '</a>',
           $tocList);
-        $tocMain.before($tocBlock,
+        $tocMain.after($tocBlock,
           '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
       }
 
