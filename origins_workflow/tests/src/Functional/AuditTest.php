@@ -35,6 +35,18 @@ class AuditTest extends BrowserTestBase {
   protected $entityTypeManager;
 
   /**
+   * Set to TRUE to strict check all configuration saved.
+   * TNeed to set to FALSE here because some contrib modules have a schema in
+   * config/schema that does not match the actual settings exported
+   * (eu_cookie_compliance and google_analytics_counter, I'm looking at you).
+   *
+   * @see \Drupal\Core\Config\Development\ConfigSchemaChecker
+   *
+   * @var bool
+   */
+  protected $strictConfigSchema = FALSE;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
