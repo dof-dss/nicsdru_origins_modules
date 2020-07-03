@@ -1,0 +1,11 @@
+name: 'Origins Media'
+type: module
+description: 'Origins: media management enhancements'
+core: 8.x
+package: 'Origins'
+dependencies:
+  - entity_embed
+  - media
+  - geolocation
+  - entity_browser
+  - whatlinkshere

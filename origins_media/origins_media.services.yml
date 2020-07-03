@@ -1,0 +1,5 @@
+services:
+  origins_media.route_subscriber:
+    class: Drupal\origins_media\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

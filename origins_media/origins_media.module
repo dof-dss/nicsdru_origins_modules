@@ -1,0 +1,173 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_media.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\views\Render\ViewsRenderPipelineMarkup;
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function origins_media_element_info_alter(array &$info) {
+  if (!array_key_exists('geolocation_input', $info)) {
+    return;
+  }
+
+  // Introduce an extra step to the form builder lifecycle to allow us to manipulate the element.
+  $info['geolocation_input']['#pre_render'][] = 'origins_media_pre_render_geolocation_input';
+}
+
+/**
+ * Callback to adapt the pre-rendering of the geolocation form element.
+ *
+ * @param array $element
+ *   The form element to process.
+ *
+ * @return array
+ *   The processed element.
+ */
+function origins_media_pre_render_geolocation_input(array $element) {
+  $element['latlng'] = [
+    '#type' => 'details',
+    '#title' => t('Coordinate details'),
+    '#open' => FALSE,
+  ];
+
+  // Need to introduce the extra parent element for the fieldset
+  // so that the element handler is able to extract the value from our form_state collection.
+  // Otherwise, it'll look for 'lat' or 'lng' and find them missing because we've moved them
+  // in the form structure.
+  array_splice($element['lng']['#array_parents'], -1, 0, ['latlng']);
+  array_splice($element['lat']['#array_parents'], -1, 0, ['latlng']);
+
+  // Copy the elements into our fieldset/details container.
+  $element['latlng']['lat'] = $element['lat'];
+  $element['latlng']['lng'] = $element['lng'];
+
+  // Replace the existing theme_wrapper callback with a generic container one.
+  $element['#theme_wrappers'] = ['container'];
+
+  // Get rid of the original elements now we've copied them into our fieldset.
+  unset($element['lat']);
+  unset($element['lng']);
+
+  return $element;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_media_form_entity_embed_dialog_alter(&$form, FormStateInterface &$form_state) {
+  if (empty($form['entity_browser'])) {
+    // Exit early if there's no entity browser defined (can occur on some steps).
+    return;
+  }
+
+  // Start introducing some changes to the default paragraphs based entity embed browser dialog:
+  // Title change to something more relevant/helpful, skip the review/embed steps for maps.
+  if ($form['entity_browser']['#entity_browser'] == 'location_browser') {
+    $form['#title'] = t('Choose map location');
+
+    // Skip review and embed steps by changing the AJAX callback on the form submit button.
+    $form['actions']['save_modal']['#ajax']['callback'] = '::submitEmbedStep';
+
+    // Pre-set a variety of attributes on the form that allow us to skip to the embed complete step
+    // and just see our entity embedded in the WYSIWYG area.
+    $form['attributes']['data-embed-button'] = [
+      '#type' => 'value',
+      '#value' => 'location',
+    ];
+    // NB: view mode is dynamically swapped in hook_entity_embed_alter().
+    $form['attributes']['data-entity-embed-display'] = [
+      '#type' => 'value',
+      '#value' => 'view_mode:paragraph.preview',
+    ];
+    $form['attributes']['data-entity-type'] = [
+      '#type' => 'value',
+      '#value' => 'paragraph',
+    ];
+    $form['attributes']['data-entity-embed-display-settings'] = [
+      '#type' => 'value',
+      '#value' => '',
+    ];
+  }
+}
+
+/**
+ * Implements hook_entity_embed_alter().
+ *
+ * Swap between entity embed view modes for Maps when you're viewing or editing nodes.
+ */
+function origins_media_entity_embed_alter(array &$build, EntityInterface $entity, array &$context) {
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
+    // Dynamic iframes are prohibited in CKEditor which breaks the display of
+    // maps for editors, so we swap view mode to use a static map instead.
+    if (method_exists($build['#entity'], 'getParagraphType')) {
+      if ($build['#entity']->getParagraphType()->id() == 'map') {
+        $context['data-entity-embed-display'] = str_replace('.preview', '.embed', $context['data-entity-embed-display']);
+        $build['#context']['data-entity-embed-display'] = str_replace('.preview', '.embed', $build['#context']['data-entity-embed-display']);
+        $build['#attributes']['data-entity-embed-display'] = str_replace('.preview', '.embed', $build['#attributes']['data-entity-embed-display']);
+        $build['entity']['#view_mode'] = 'embed';
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function origins_media_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+  if ($context['widget']->getPluginId() == 'entity_browser_entity_reference') {
+    $element['#attached']['library'][] = 'origins_media/entity_browser_entity_reference';
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  if ($form_id == 'entity_browser_media_entity_browser_form') {
+    // If this is not the inline entity form widget, add a CSS class to initially disable the 'Select' button.
+    if (empty($form['widget']['inline_entity_form'])) {
+      $form['widget']['actions']['submit']['#attributes']['class'][] = 'inactive';
+    }
+  }
+
+  // Disable Chosen select for embedded images view mode.
+  if ($form_id === 'editor_media_dialog') {
+    $form['view_mode']['#chosen'] = FALSE;
+  }
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ *
+ * Injects the usage value of a media item into the table display.
+ */
+function origins_media_preprocess_views_view_field(&$variables) {
+  $view = $variables['view'];
+  $field_id = $variables['field']->field;
+
+  if ($view->id() == 'media_library' && in_array($view->current_display, ['default_page', 'widget_table']) && $field_id == 'nothing') {
+    $mid = $variables['row']->mid;
+    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent($variables['row']->_entity, PHP_INT_MAX, 0);
+    $ref_count = $usage['total'];
+
+    $link = Link::createFromRoute(t('@count places', ['@count' => $ref_count]), 'whatlinkshere.references.media', ['media' => $mid]);
+    $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
+  }
+}
+
+/**
+ * Implements hook_preprocess_fieldset__media_library_widget();
+ */
+function origins_media_preprocess_fieldset__media_library_widget(array &$variables) {
+  // Hide the 'Show media item weights' link.
+  unset($variables['prefix']['weight_toggle']);
+}
