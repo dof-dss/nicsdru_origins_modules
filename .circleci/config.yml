@@ -38,12 +38,17 @@ jobs:
               sudo apt-get update
               sudo apt-get install -y libpng-dev
               sudo docker-php-ext-install gd
-              composer global require hirak/prestissimo      
+              composer global require hirak/prestissimo
       - run:
           name: Fetch latest Drupal version
           command: |
             composer create-project drupal-composer/drupal-project:8.x-dev ${CIRCLE_WORKING_DIRECTORY} --no-interaction
             mkdir -p ${CIRCLE_WORKING_DIRECTORY}/web/modules/nicsdru_origins_modules
+      - run:
+          name: Download dependent contrib modules.
+          command: |
+            cd ${CIRCLE_WORKING_DIRECTORY}
+            composer require drupal/webform drupal/entity_embed  --no-interaction --optimize-autoloader
       - run:
           name: Move custom code into position
           command: mv /home/circleci/nicsdru_origins_modules ${CIRCLE_WORKING_DIRECTORY}/web/modules/nicsdru_origins_modules
