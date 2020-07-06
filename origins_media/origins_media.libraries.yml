@@ -1,0 +1,6 @@
+entity_browser_entity_reference:
+  css:
+    theme:
+      css/entity-browser-entity-reference.css: {}
+  dependencies:
+    - entity_browser/entity_list
