@@ -2,6 +2,7 @@
 
 namespace Drupal\origins_shamrock\Form;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -58,6 +59,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
       ->set('show_banner', (bool) $form_state->getValue('show_the_banner'))
       ->save();
 
+    Cache::invalidateTags(['origins:operation_shamrock']);
     parent::submitForm($form, $form_state);
   }
 
