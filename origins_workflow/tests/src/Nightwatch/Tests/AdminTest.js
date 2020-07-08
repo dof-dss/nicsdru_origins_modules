@@ -28,11 +28,6 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.contain('Recipe');
-
-    browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
       .text.to.contain('Webform');
 
     browser
