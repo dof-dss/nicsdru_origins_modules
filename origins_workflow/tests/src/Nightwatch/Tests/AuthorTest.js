@@ -36,22 +36,22 @@ module.exports = {
       .text.to.not.contain('Webform');
 
     browser
-      .drupalRelativeURL('/admin/workflow/drafts')
+      .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
 
     browser
-      .drupalRelativeURL('/admin/workflow/all-drafts')
+      .drupalRelativeURL('/admin/content/all-drafts')
       .expect.element('h1.page-title')
       .text.to.contain('All drafts');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-review')
+      .drupalRelativeURL('/admin/content/needs-review')
       .expect.element('h1.page-title')
       .text.to.contain('Needs Review');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-audit')
+      .drupalRelativeURL('/admin/content/needs-audit')
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
 
