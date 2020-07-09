@@ -18,7 +18,7 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Driving instructor');
+      .text.to.contain('Driving instructor');
 
     browser
       .drupalRelativeURL('/node/add')
