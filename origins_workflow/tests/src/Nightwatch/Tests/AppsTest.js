@@ -35,7 +35,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
