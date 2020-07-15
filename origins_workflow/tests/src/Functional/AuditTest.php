@@ -78,6 +78,13 @@ class AuditTest extends BrowserTestBase {
   }
 
   /**
+   * Tests the behavior when creating a health condition.
+   */
+  public function testHealthConditionNodeCreate() {
+    $this->newNodeCreateTest('health_condition');
+  }
+
+  /**
    * Test the specified content type.
    */
   public function newNodeCreateTest($type) {
