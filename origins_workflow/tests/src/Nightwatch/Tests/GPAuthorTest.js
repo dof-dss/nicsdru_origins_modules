@@ -6,9 +6,19 @@ module.exports = {
       .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_gp_author', password: process.env.TEST_PASS });
 
     browser
+      .drupalRelativeURL('/gp/add')
+      .expect.element('h1.page-title')
+      .text.to.contain('Add GP');
+
+    browser
       .drupalRelativeURL('/node/add')
       .expect.element('h1.page-title')
       .text.to.contain('Create GP practice');
+
+    browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
@@ -30,7 +40,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
