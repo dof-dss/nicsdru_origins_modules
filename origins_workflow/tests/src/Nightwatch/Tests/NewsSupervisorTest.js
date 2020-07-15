@@ -11,6 +11,16 @@ module.exports = {
       .text.to.contain('Create News');
 
     browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
+
+    browser
+      .drupalRelativeURL('/admin/content/scheduled')
+      .expect.element('h1.page-title')
+      .text.to.contain('Scheduled Content');
+
+    browser
       .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
@@ -30,7 +40,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
