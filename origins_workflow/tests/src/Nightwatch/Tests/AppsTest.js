@@ -11,6 +11,11 @@ module.exports = {
       .text.to.contain('Access denied');
 
     browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
+
+    browser
       .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
