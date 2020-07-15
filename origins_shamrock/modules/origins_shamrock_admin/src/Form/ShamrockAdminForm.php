@@ -96,6 +96,8 @@ class ShamrockAdminForm extends ConfigFormBase {
       ->set('modified', time())
       ->save();
 
+    Cache::invalidateTags(['origins:operation_shamrock']);
+
     parent::submitForm($form, $form_state);
   }
 
