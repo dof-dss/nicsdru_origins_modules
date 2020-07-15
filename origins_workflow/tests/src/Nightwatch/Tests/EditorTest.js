@@ -11,9 +11,24 @@ module.exports = {
       .text.to.contain('Add content');
 
     browser
+      .drupalRelativeURL('/gp/add')
+      .expect.element('h1.page-title')
+      .text.to.contain('Add GP');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Application');
+
+    browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
       .text.to.contain('Article');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Contact');
 
     browser
       .drupalRelativeURL('/node/add')
@@ -23,17 +38,57 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.contain('Embargoed publication');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('External link');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Feature');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Featured content list');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('GP practice');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Health condition');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Landing page');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Recipe');
+      .text.to.contain('Link');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Webform');
+      .text.to.contain('News');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Publication');
+
+    browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
