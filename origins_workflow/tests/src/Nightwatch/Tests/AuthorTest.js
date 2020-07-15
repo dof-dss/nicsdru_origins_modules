@@ -13,27 +13,42 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.contain('Application');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Article');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Driving instructor');
+      .text.to.contain('Contact');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Landing page');
+      .text.to.contain('Embargoed publication');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Recipe');
+      .text.to.contain('External link');
 
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
-      .text.to.not.contain('Webform');
+      .text.to.contain('Link');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('News');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.contain('Publication');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
@@ -55,7 +70,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Access denied');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
