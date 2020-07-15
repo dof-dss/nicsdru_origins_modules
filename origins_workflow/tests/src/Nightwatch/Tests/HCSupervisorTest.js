@@ -11,6 +11,21 @@ module.exports = {
       .text.to.contain('Create Health condition');
 
     browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('h1.page-title')
+      .text.to.contain('Media');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('div.region-content')
+      .text.to.contain('Add media');
+
+    browser
       .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
@@ -30,7 +45,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Needs Audit');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
