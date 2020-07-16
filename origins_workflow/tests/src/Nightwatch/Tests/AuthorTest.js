@@ -23,7 +23,17 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.not.contain('Cold weather payment');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Contact');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Driving instructor');
 
     browser
       .drupalRelativeURL('/node/add')
@@ -38,6 +48,36 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.not.contain('Feature');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Featured content list');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('GP practice');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Health condition');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Health condition: alternative');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Landing page');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Link');
 
     browser
@@ -48,12 +88,42 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.not.contain('Page');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Publication');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Telephone Lookup');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Webform');
 
     browser
       .drupalRelativeURL('/admin/content')
       .expect.element('h1.page-title')
       .text.to.contain('Content');
+
+    browser
+      .drupalRelativeURL('/admin/content/scheduled')
+      .expect.element('h1.page-title')
+      .text.to.contain('Access denied');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('h1.page-title')
+      .text.to.contain('Media');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('div.region-content')
+      .text.to.contain('Add media');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
