@@ -11,6 +11,11 @@ module.exports = {
       .text.to.contain('Add content');
 
     browser
+      .drupalRelativeURL('/gp/add')
+      .expect.element('h1.page-title')
+      .text.to.contain('Access denied');
+
+    browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
       .text.to.contain('Application');
@@ -104,6 +109,11 @@ module.exports = {
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
       .text.to.not.contain('Webform');
+
+    browser
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
 
     browser
       .drupalRelativeURL('/admin/content/scheduled')

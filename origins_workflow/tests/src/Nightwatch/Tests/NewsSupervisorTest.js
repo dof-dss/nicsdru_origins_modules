@@ -21,6 +21,11 @@ module.exports = {
       .text.to.contain('Scheduled Content');
 
     browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('h1.page-title')
+      .text.to.contain('Access denied');
+
+    browser
       .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');

@@ -16,6 +16,11 @@ module.exports = {
       .text.to.contain('Content');
 
     browser
+      .drupalRelativeURL('/admin/content/scheduled')
+      .expect.element('h1.page-title')
+      .text.to.contain('Scheduled Content');
+
+    browser
       .drupalRelativeURL('/admin/content/media')
       .expect.element('h1.page-title')
       .text.to.contain('Media');
