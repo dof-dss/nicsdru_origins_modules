@@ -11,6 +11,11 @@ module.exports = {
       .text.to.contain('Create Driving instructor');
 
     browser
+      .drupalRelativeURL('/gp/add')
+      .expect.element('h1.page-title')
+      .text.to.contain('Access denied');
+
+    browser
       .drupalRelativeURL('/admin/content')
       .expect.element('h1.page-title')
       .text.to.contain('Content');
