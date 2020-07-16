@@ -28,6 +28,11 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.not.contain('Cold weather payment');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Contact');
 
     browser
@@ -68,6 +73,11 @@ module.exports = {
     browser
       .drupalRelativeURL('/node/add')
       .expect.element('ul.admin-list')
+      .text.to.not.contain('Health condition: alternative');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
       .text.to.contain('Landing page');
 
     browser
@@ -86,9 +96,34 @@ module.exports = {
       .text.to.contain('Publication');
 
     browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Telephone Lookup');
+
+    browser
+      .drupalRelativeURL('/node/add')
+      .expect.element('ul.admin-list')
+      .text.to.not.contain('Webform');
+
+    browser
       .drupalRelativeURL('/admin/content')
       .expect.element('h1.page-title')
       .text.to.contain('Content');
+
+    browser
+      .drupalRelativeURL('/admin/content/scheduled')
+      .expect.element('h1.page-title')
+      .text.to.contain('Scheduled Content');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('h1.page-title')
+      .text.to.contain('Media');
+
+    browser
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('div.region-content')
+      .text.to.contain('Add media');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
@@ -110,7 +145,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Needs Audit');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
