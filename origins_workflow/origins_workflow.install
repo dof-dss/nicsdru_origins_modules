@@ -70,17 +70,6 @@ function origins_workflow_uninstall() {
     '_editor' => 'editor_user',
     '_admin' => 'admin_user'
   ];
-  if (\Drupal::service('module_handler')->moduleExists('nidirect_common')) {
-    // Additional roles/users for NIDirect.
-    $name_list += ['_news_super' => 'news_supervisor',
-      '_gp_author' => 'gp_author_user',
-      '_gp_super' => 'gp_supervisor_user',
-      '_apps' => 'apps_user',
-      '_hc_author' => 'health_condition_author_user',
-      '_hc_super' => 'health_condition_supervisor_user',
-      '_driving_super' => 'driving_instructor_supervisor_user',
-    ];
-  }
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.
     $prefix = getenv('NW_TEST_USER_PREFIX');
