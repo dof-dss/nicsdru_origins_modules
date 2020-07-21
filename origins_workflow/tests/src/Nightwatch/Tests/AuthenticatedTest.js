@@ -7,48 +7,38 @@ module.exports = {
 
     browser
       .drupalRelativeURL('/node/add')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
-
-    browser
-      .drupalRelativeURL('/gp/add')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content')
-      .expect.element('h1.page-title')
-      .text.to.contain('Content');
-
-    browser
-      .drupalRelativeURL('/admin/content/scheduled')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content/media')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content/drafts')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content/all-drafts')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content/needs-review')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
       .drupalRelativeURL('/admin/content/needs-audit')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
   }
 
