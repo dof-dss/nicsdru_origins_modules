@@ -7,30 +7,39 @@ module.exports = {
 
     browser
       .drupalRelativeURL('/node/add')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
-      .drupalRelativeURL('/admin/workflow/drafts')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .drupalRelativeURL('/admin/content')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
-      .drupalRelativeURL('/admin/workflow/all-drafts')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-review')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .drupalRelativeURL('/admin/content/drafts')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-audit')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .drupalRelativeURL('/admin/content/all-drafts')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
-    // TODO Test access to D8 equivalent of 'File list' option
+    browser
+      .drupalRelativeURL('/admin/content/needs-review')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
+
+    browser
+      .drupalRelativeURL('/admin/content/needs-audit')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
+
   }
 
 };
