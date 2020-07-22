@@ -11,51 +11,40 @@ module.exports = {
       .text.to.contain('Add content');
 
     browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
-      .text.to.contain('Article');
+      .drupalRelativeURL('/admin/content')
+      .expect.element('h1.page-title')
+      .text.to.contain('Content');
 
     browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
-      .text.to.not.contain('Driving instructor');
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('h1.page-title')
+      .text.to.contain('Media');
 
     browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
-      .text.to.not.contain('Landing page');
+      .drupalRelativeURL('/admin/content/media')
+      .expect.element('div.region-content')
+      .text.to.contain('Add media');
 
     browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
-      .text.to.not.contain('Recipe');
-
-    browser
-      .drupalRelativeURL('/node/add')
-      .expect.element('ul.admin-list')
-      .text.to.not.contain('Webform');
-
-    browser
-      .drupalRelativeURL('/admin/workflow/drafts')
+      .drupalRelativeURL('/admin/content/drafts')
       .expect.element('h1.page-title')
       .text.to.contain('My Drafts');
 
     browser
-      .drupalRelativeURL('/admin/workflow/all-drafts')
+      .drupalRelativeURL('/admin/content/all-drafts')
       .expect.element('h1.page-title')
       .text.to.contain('All drafts');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-review')
+      .drupalRelativeURL('/admin/content/needs-review')
       .expect.element('h1.page-title')
       .text.to.contain('Needs Review');
 
     browser
-      .drupalRelativeURL('/admin/workflow/needs-audit')
-      .expect.element('h1.page-title')
-      .text.to.contain('Access denied');
+      .drupalRelativeURL('/admin/content/needs-audit')
+      .expect.element('body')
+      .text.to.contain('You are not authorized to access this page');
 
-    // TODO Test access to D8 equivalent of 'File list' option
   }
 
 };
