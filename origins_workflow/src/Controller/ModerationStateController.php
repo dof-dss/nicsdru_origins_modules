@@ -96,7 +96,10 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
 
     $entity->setRevisionTranslationAffected(TRUE);
     // Save the new revision.
-    $entity->setUnpublished()->save();
+    $entity->setUnpublished();
+    $entity->set('status', FALSE);
+    $entity->set('moderation_state', 'draft');
+    $entity->save();
     //$entity->save();
 
     // Log it.
