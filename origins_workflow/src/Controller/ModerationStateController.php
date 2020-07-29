@@ -87,20 +87,17 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     $original_revision_timestamp = $entity->getRevisionCreationTime();
     // Create a new revision.
     $entity->setNewRevision();
+    // We need this to be a draft.
+    $entity->set('moderation_state', 'draft');
     $request_time = \Drupal::time()->getRequestTime();
     $entity->setRevisionCreationTime($request_time);
     $entity->setChangedTime($request_time);
     $entity->setRevisionUserId($this->currentUser()->id());
-
     $entity->revision_log = t('Copy of the published revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]);
-
     $entity->setRevisionTranslationAffected(TRUE);
-    // Save the new revision.
     $entity->setUnpublished();
-    $entity->set('status', FALSE);
-    $entity->set('moderation_state', 'draft');
+    // Save the new revision.
     $entity->save();
-    //$entity->save();
 
     // Log it.
     $message = t('New revision of (nid @nid) created from published by @user', [
@@ -110,9 +107,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     ]);
     $this->logger->notice($message);
 
-    // Need to flush caches so that the new revision will appear.
-    //return $this->redirect('entity.node.version_history', ['node' => $nid]);
-
+    // Take the user to the edit form where they can edit this new draft.
     return $this->redirect('entity.node.edit_form', ['node' => $nid]);
   }
 
