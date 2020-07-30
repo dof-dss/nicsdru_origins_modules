@@ -70,7 +70,7 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
-        // Change the text to 'Copy to new revision'.
+        // Change the link text from 'Set as current revision' to 'Copy to new revision'.
         $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'] = t('Copy to new revision');
       }
       else {
@@ -81,6 +81,7 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         // anywhere so we'll (reluctantly) have to load up the full node.
         $node = \Drupal::routeMatch()->getParameter('node');
         $this_version = $node->getRevisionId();
+        // Now change the 'current revision' markup to a 'Create Draft of Published' link.
         $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
           ['title' => 'Create Draft of Published',
             'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published', ['nid' => $node->id()])
