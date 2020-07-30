@@ -83,8 +83,9 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         $this_version = $node->getRevisionId();
         // Now change the 'current revision' markup to a 'Create Draft of Published' link.
         $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
-          ['title' => 'Create Draft of Published',
-            'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published', ['nid' => $node->id()])
+          ['title' => t('Create Draft of Published'),
+            'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
+              ['nid' => $node->id()])
           ]
         ];
         $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
