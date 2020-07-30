@@ -10,9 +10,9 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class ModerationStateController.
+ * Class PublishedDraftController.
  */
-class ModerationStateController extends ControllerBase implements ContainerInjectionInterface {
+class PublishedDraftController extends ControllerBase implements ContainerInjectionInterface {
   /**
    * The entity type manager.
    *
@@ -55,27 +55,36 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   }
 
   /**
-   * Change_state of specified entity.
+   * Create new draft of published revision.
    */
-  public function changeState($nid, $new_state) {
+  public function newDraftOfPublished($nid) {
     // Load the entity.
     $entity = $this->entityTypeManager->getStorage('node')->load($nid);
-    if ($entity) {
-      // Request the state change.
-      $entity->set('moderation_state', $new_state);
-      $entity->save();
-      // Log it.
-      $message = t('State of @title (nid @nid) changed to @new_state by @user', [
-        '@title' => $entity->getTitle(),
-        '@nid' => $nid,
-        '@new_state' => $new_state,
-        '@user' => $this->currentUser()->getAccountName(),
-      ]);
-      $this->logger->notice($message);
-    }
-    // Redirect user to current page (although the 'destination'
-    // url argument will override this).
-    return $this->redirect('view.workflow_moderation.needs_review');
+    $original_revision_timestamp = $entity->getRevisionCreationTime();
+    // Create a new revision.
+    $entity->setNewRevision();
+    // We need this to be a draft.
+    $entity->set('moderation_state', 'draft');
+    $request_time = \Drupal::time()->getRequestTime();
+    $entity->setRevisionCreationTime($request_time);
+    $entity->setChangedTime($request_time);
+    $entity->setRevisionUserId($this->currentUser()->id());
+    $entity->revision_log = t('Copy of the published revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]);
+    $entity->setRevisionTranslationAffected(TRUE);
+    $entity->setUnpublished();
+    // Save the new revision.
+    $entity->save();
+
+    // Log it.
+    $message = t('New revision of (nid @nid) created from published by @user', [
+      '@title' => $entity->getTitle(),
+      '@nid' => $nid,
+      '@user' => $this->currentUser()->getAccountName(),
+    ]);
+    $this->logger->notice($message);
+
+    // Take the user to the edit form where they can edit this new draft.
+    return $this->redirect('entity.node.edit_form', ['node' => $nid]);
   }
 
 }
