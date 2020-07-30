@@ -306,26 +306,9 @@ function origins_workflow_preprocess_table(&$variables) {
         $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'] = t('Copy to new revision');
       }
       else {
-        // There is no 'revert' button in this row,
-        // therefore it must be the current version.
-        //
-        // Cannot manage to extract the revision id from this row
-        // anywhere so we'll (reluctantly) have to load up the full node.
-        $node = \Drupal::routeMatch()->getParameter('node');
-        $this_version = $node->getRevisionId();
-        if ($idx > 0) {
-          // Now change the 'current revision' markup to a 'Create Draft of Published' link.
-          $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
-            ['title' => t('Create Draft of Published'),
-              'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
-                ['nid' => $node->id()])
-            ]
-          ];
-          $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
-          unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
-          unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
-          unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
-        }
+        // There is no 'revert' button in this row, therefore it must be the
+        // current versionand we need to add a 'Create Draft of Published' link.
+        $this_version = _create_draft_link_for_revision($variables, $idx, $row);
       }
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
@@ -335,5 +318,29 @@ function origins_workflow_preprocess_table(&$variables) {
       array_splice($variables['rows'][$idx]['cells'], 1, 0, [$new_col]);
     }
   }
+}
+
+/**
+ * Add a 'Create Draft of Published' link.
+ */
+function _create_draft_link_for_revision(&$variables, $idx, $row) {
+  // Cannot manage to extract the revision id from this row
+  // anywhere so we'll (reluctantly) have to load up the full node.
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $this_version = $node->getRevisionId();
+  if ($idx > 0) {
+    // Now change the 'current revision' markup to a 'Create Draft of Published' link.
+    $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
+      ['title' => t('Create Draft of Published'),
+        'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
+          ['nid' => $node->id()])
+      ]
+    ];
+    $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
+    unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
+    unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
+    unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+  }
+  return $this_version;
 }
 
