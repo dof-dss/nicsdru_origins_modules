@@ -313,17 +313,19 @@ function origins_workflow_preprocess_table(&$variables) {
         // anywhere so we'll (reluctantly) have to load up the full node.
         $node = \Drupal::routeMatch()->getParameter('node');
         $this_version = $node->getRevisionId();
-        // Now change the 'current revision' markup to a 'Create Draft of Published' link.
-        $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
-          ['title' => t('Create Draft of Published'),
-            'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
-              ['nid' => $node->id()])
-          ]
-        ];
-        $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
-        unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
-        unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
-        unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+        if ($idx > 0) {
+          // Now change the 'current revision' markup to a 'Create Draft of Published' link.
+          $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
+            ['title' => t('Create Draft of Published'),
+              'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
+                ['nid' => $node->id()])
+            ]
+          ];
+          $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
+          unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
+          unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
+          unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+        }
       }
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
