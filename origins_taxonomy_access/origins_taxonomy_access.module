@@ -5,6 +5,8 @@
  * Hook functions for origins_taxonomy_access module.
  */
 
+use Drupal\Core\Url;
+
 /**
  * Implements hook_preprocess_item_list().
  *
@@ -68,6 +70,8 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
+        // Change the text to 'Copy to new revision'.
+        $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'] = t('Copy to new revision');
       }
       else {
         // There is no 'revert' button in this row,
@@ -77,6 +81,15 @@ function origins_taxonomy_access_preprocess_table(&$variables) {
         // anywhere so we'll (reluctantly) have to load up the full node.
         $node = \Drupal::routeMatch()->getParameter('node');
         $this_version = $node->getRevisionId();
+        $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
+          ['title' => 'Create Draft of Published',
+            'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published', ['nid' => $node->id()])
+          ]
+        ];
+        $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
+        unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
+        unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
+        unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
       }
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
       // Insert this new column after the first one.
