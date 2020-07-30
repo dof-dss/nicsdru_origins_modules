@@ -48,19 +48,6 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
  * Implements hook_form_alter().
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Manage access to 'next audit date' field.
-  // Get a list of audited content types.
-  $config = \Drupal::config('origins_workflow.auditsettings');
-  $audit_types = $config->get('audit_content_types');
-  $view_form_list = [];
-  $edit_form_list = [];
-  foreach ($audit_types as $this_type) {
-    if ($this_type) {
-      $view_form_list[] = 'node_' . $this_type . '_form';
-      $edit_form_list[] = 'node_' . $this_type . '_edit_form';
-    }
-  }
-
   // Hide the audit date for everyone.
   if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
