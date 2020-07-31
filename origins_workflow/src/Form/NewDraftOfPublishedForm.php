@@ -5,10 +5,12 @@ namespace Drupal\origins_workflow\Form;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,11 +28,11 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
   protected $nid;
 
   /**
-   * The node storage.
+   * The entity type manager.
    *
-   * @var \Drupal\node\NodeStorageInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $nodeStorage;
+  protected $entityTypeManager;
 
   /**
    * The date formatter service.
@@ -49,17 +51,20 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
   /**
    * Constructs a new NodeRevisionRevertForm.
    *
-   * @param \Drupal\Core\Entity\EntityStorageInterface $node_storage
-   *   The node storage.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
+   * @param \Psr\Log\LoggerInterface $logger
+   *   The logger interface.
    */
-  public function __construct(EntityStorageInterface $node_storage, DateFormatterInterface $date_formatter, TimeInterface $time) {
-    $this->nodeStorage = $node_storage;
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, TimeInterface $time, LoggerInterface $logger) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->dateFormatter = $date_formatter;
     $this->time = $time;
+    $this->logger = $logger;
   }
 
   /**
@@ -67,9 +72,10 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')->getStorage('node'),
+      $container->get('entity_type.manager'),
       $container->get('date.formatter'),
-      $container->get('datetime.time')
+      $container->get('datetime.time'),
+      $container->get('logger.factory')->get('new_draft_of_published')
     );
   }
 
@@ -84,7 +90,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to revert to the revision from');
+    return t('Are you sure you want to create a draft of the published revision?');
   }
 
   /**
@@ -98,7 +104,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return t('Revert');
+    return t('Create draft');
   }
 
   /**
@@ -122,6 +128,39 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Load the entity.
+    $entity = $this->entityTypeManager->getStorage('node')->load($this->nid);
+    $original_revision_timestamp = $entity->getRevisionCreationTime();
+    // Create a new revision.
+    $entity->setNewRevision();
+    // We need this to be a draft.
+    $entity->set('moderation_state', 'draft');
+    $request_time = \Drupal::time()->getRequestTime();
+    $entity->setRevisionCreationTime($request_time);
+    $entity->setChangedTime($request_time);
+    $entity->setRevisionUserId($this->currentUser()->id());
+    $entity->revision_log = t('Copy of the published revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]);
+    $entity->setRevisionTranslationAffected(TRUE);
+    $entity->setUnpublished();
+    // Save the new revision.
+    $entity->save();
+
+    // Log it.
+    $message = t('New revision of (nid @nid) created from published by @user', [
+      '@title' => $entity->getTitle(),
+      '@nid' => $this->nid,
+      '@user' => $this->currentUser()->getAccountName(),
+    ]);
+    $this->logger->notice($message);
+
+    // Take the user to the edit form where they can edit this new draft.
+    $form_state->setRedirect(
+      'entity.node.edit_form',
+      ['node' => $this->nid]
+    );
+
+
+
     // The revision timestamp will be updated when the revision is saved. Keep
     // the original one for the confirmation message.
     /*$original_revision_timestamp = $this->revision->getRevisionCreationTime();
