@@ -2,8 +2,8 @@
 origins_workflow.moderation_state_controller_new_draft_of_published:
   path: '/origins_workflow/new_draft_of_published/{nid}'
   defaults:
-    _controller: '\Drupal\origins_workflow\Controller\PublishedDraftController::newDraftOfPublished'
-    _title: 'new_draft_of_published'
+    _form: '\Drupal\origins_workflow\Form\NewDraftOfPublishedForm'
+    _title: 'New draft of published'
   requirements:
     _permission: 'access content'
 
