@@ -91,7 +91,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.node.edit_form', ['node' => $this->nid]);
+    return new Url('entity.node.version_history', ['node' => $this->nid]);
   }
 
   /**
