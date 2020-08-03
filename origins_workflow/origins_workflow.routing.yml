@@ -6,6 +6,8 @@ origins_workflow.moderation_state_controller_new_draft_of_published:
     _title: 'New draft of published'
   requirements:
     _permission: 'access content'
+  options:
+    _node_operation_route: TRUE
 
 origins_workflow.moderation_state_controller_change_state:
   path: '/origins_workflow/change_state/{nid}/{new_state}'
