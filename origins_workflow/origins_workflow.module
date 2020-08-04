@@ -302,8 +302,9 @@ function origins_workflow_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
-        // Change the link text from 'Set as current revision' to 'Copy to new revision' as it
-        // makes more sense - see issue https://www.drupal.org/project/drupal/issues/2899719
+        // Change the link text from 'Set as current revision' to
+        // 'Copy to new revision' as it makes more sense - see issue
+        // https://www.drupal.org/project/drupal/issues/2899719
         if (isset($variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'])) {
           $title_markup = $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'];
           // Check the existing text in an attempt to detect any core fix that
@@ -337,19 +338,34 @@ function _create_draft_link_for_revision(&$variables, $idx, $row) {
   // anywhere so we'll (reluctantly) have to load up the full node.
   $node = \Drupal::routeMatch()->getParameter('node');
   $this_version = $node->getRevisionId();
+  // Now change the 'Current Revision' markup to a
+  // 'Create Draft of Published' link.
   if ($idx > 0) {
-    // Now change the 'current revision' markup to a 'Create Draft of Published' link.
-    $variables['rows'][$idx]['cells'][3]['content']['#links'] = ['revert' =>
-      ['title' => t('Create Draft of Published'),
-        'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
-          ['nid' => $node->id()])
-      ]
-    ];
-    $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
-    unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
-    unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
-    unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+    // Just check that there is markup in there and no link (just in case
+    // core has been updated in the meantime, in which case this fix may
+    // not be needed).
+    if (isset($row['cells'][3]['content']['#markup']) && !isset($row['cells'][3]['content']['#links'])) {
+      $markup = $row['cells'][3]['content']['#markup'];
+      // There is markup in there, just double check that
+      // it says 'Current revision'.
+      if ($markup->getUntranslatedString() == 'Current revision') {
+        // Now go ahead and change the 'Current Revision' markup to a
+        // 'Create Draft of Published' link.
+        $variables['rows'][$idx]['cells'][3]['content']['#links'] = [
+          'revert' =>
+          [
+            'title' => t('Create Draft of Published'),
+            'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
+              ['nid' => $node->id()]),
+          ],
+        ];
+        $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
+        // Remove the markup.
+        unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
+        unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
+        unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+      }
+    }
   }
   return $this_version;
 }
-
