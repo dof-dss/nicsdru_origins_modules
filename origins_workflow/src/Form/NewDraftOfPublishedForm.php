@@ -2,14 +2,11 @@
 
 namespace Drupal\origins_workflow\Form;
 
-use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\node\NodeInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -155,5 +152,5 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
       ['node' => $this->nid]
     );
   }
-}
 
+}
