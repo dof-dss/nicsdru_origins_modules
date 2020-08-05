@@ -3,7 +3,6 @@
 namespace Drupal\origins_workflow\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -34,13 +33,10 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *   The entity type manager.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
-   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
-   *   The date formatter service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger, DateFormatterInterface $date_formatter) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger) {
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
-    $this->dateFormatter = $date_formatter;
   }
 
   /**
@@ -49,8 +45,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
-      $container->get('logger.factory')->get('origins_workflow'),
-      $container->get('date.formatter')
+      $container->get('logger.factory')->get('origins_workflow')
     );
   }
 
