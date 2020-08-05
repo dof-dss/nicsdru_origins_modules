@@ -2,6 +2,7 @@
 
 namespace Drupal\origins_workflow\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
@@ -46,6 +47,13 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
   protected $logger;
 
   /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs a new NodeRevisionRevertForm.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -54,11 +62,14 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    *   The date formatter service.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, LoggerInterface $logger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, LoggerInterface $logger, TimeInterface $time = NULL) {
     $this->entityTypeManager = $entity_type_manager;
     $this->dateFormatter = $date_formatter;
     $this->logger = $logger;
+    $this->time = $time;
   }
 
   /**
@@ -68,7 +79,8 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('date.formatter'),
-      $container->get('logger.factory')->get('new_draft_of_published')
+      $container->get('logger.factory')->get('new_draft_of_published'),
+      $container->get('datetime.time')
     );
   }
 
@@ -128,7 +140,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
     $entity->setNewRevision();
     // We need this to be a draft.
     $entity->set('moderation_state', 'draft');
-    $request_time = \Drupal::time()->getRequestTime();
+    $request_time = $this->time->getRequestTime();
     $entity->setRevisionCreationTime($request_time);
     $entity->setChangedTime($request_time);
     $entity->setRevisionUserId($this->currentUser()->id());
