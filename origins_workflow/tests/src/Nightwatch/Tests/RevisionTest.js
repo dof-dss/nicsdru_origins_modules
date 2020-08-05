@@ -11,17 +11,13 @@ module.exports = {
       .text.to.contain('Revisions for');
 
     browser
-      .drupalRelativeURL('/node/4807/revisions')
       .useXpath()
       .expect.element('//table//td[5]//em')
       .text.to.contain('Current revision');
 
     browser
-      .drupalRelativeURL('/node/4807/revisions')
       .useXpath()
       .expect.element('//table//tr[3]//td[5]//div//div//ul//li//a')
       .text.to.contain('Copy to new revision');
-
   }
-
 };
