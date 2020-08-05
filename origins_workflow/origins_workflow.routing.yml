@@ -5,7 +5,7 @@ origins_workflow.moderation_state_controller_new_draft_of_published:
     _form: '\Drupal\origins_workflow\Form\NewDraftOfPublishedForm'
     _title: 'New draft of published'
   requirements:
-    _permission: 'access content'
+    _permission: 'use nics_editorial_workflow transition draft_of_published'
   options:
     _node_operation_route: TRUE
 
