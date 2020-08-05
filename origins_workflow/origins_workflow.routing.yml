@@ -1,4 +1,14 @@
 
+origins_workflow.moderation_state_controller_new_draft_of_published:
+  path: '/origins_workflow/new_draft_of_published/{nid}'
+  defaults:
+    _form: '\Drupal\origins_workflow\Form\NewDraftOfPublishedForm'
+    _title: 'New draft of published'
+  requirements:
+    _permission: 'use nics_editorial_workflow transition draft_of_published'
+  options:
+    _node_operation_route: TRUE
+
 origins_workflow.moderation_state_controller_change_state:
   path: '/origins_workflow/change_state/{nid}/{new_state}'
   defaults:
