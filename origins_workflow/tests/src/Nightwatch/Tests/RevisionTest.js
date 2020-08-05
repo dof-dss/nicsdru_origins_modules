@@ -11,13 +11,16 @@ module.exports = {
       .text.to.contain('Revisions for');
 
     browser
-      .drupalRelativeURL('/node/add/article')
-      .assert.titleContains('Create Article')
-      .assert.visible('#edit-title-0-value')
-      .setValue('#edit-title-0-value', 'test title')
-      .assert.visible('#edit-field-subtheme-shs-0-0')
-      .click('#edit-field-subtheme-shs-0-0 option[value="12"]')
-      .assert.visible('#edit-submit');
+      .drupalRelativeURL('/node/4807/revisions')
+      .useXpath()
+      .expect.element('//table//td[5]//em')
+      .text.to.contain('Current revision');
+
+    browser
+      .drupalRelativeURL('/node/4807/revisions')
+      .useXpath()
+      .expect.element('//table//tr[3]//td[5]//div//div//ul//li//a')
+      .text.to.contain('Copy to new revision');
 
   }
 
