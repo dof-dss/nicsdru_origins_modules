@@ -40,13 +40,6 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
   protected $dateFormatter;
 
   /**
-   * A logger instance.
-   *
-   * @var \Psr\Log\LoggerInterface
-   */
-  protected $logger;
-
-  /**
    * The time service.
    *
    * @var \Drupal\Component\Datetime\TimeInterface
@@ -60,15 +53,12 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
    *   The entity type manager.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
-   * @param \Psr\Log\LoggerInterface $logger
-   *   The logger interface.
    * @param \Drupal\Component\Datetime\TimeInterface $time
    *   The time service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, LoggerInterface $logger, TimeInterface $time = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, DateFormatterInterface $date_formatter, TimeInterface $time = NULL) {
     $this->entityTypeManager = $entity_type_manager;
     $this->dateFormatter = $date_formatter;
-    $this->logger = $logger;
     $this->time = $time;
   }
 
@@ -79,7 +69,6 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
     return new static(
       $container->get('entity_type.manager'),
       $container->get('date.formatter'),
-      $container->get('logger.factory')->get('new_draft_of_published'),
       $container->get('datetime.time')
     );
   }
@@ -156,7 +145,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
       '@nid' => $this->nid,
       '@user' => $this->currentUser()->getAccountName(),
     ]);
-    $this->logger->notice($message);
+    $this->logger('new_draft_of_published')->notice($message);
 
     // Take the user to the edit form where they can edit this new draft.
     $form_state->setRedirect(
