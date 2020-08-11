@@ -33,6 +33,11 @@
             return;
           }
 
+          // Ignore empty h2s.
+          if ($linkText.toLowerCase().trim().length == 0) {
+            return;
+          }
+
           $(this).attr('id', 'toc-' + index);
           $tocList.append(
             '<li class="nav-item"><a href="#toc-' + index + '">' + $linkText + '</a></li>'
