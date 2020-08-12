@@ -5,6 +5,8 @@
  * Hook functions for origins_taxonomy_access module.
  */
 
+use Drupal\Core\Url;
+
 /**
  * Implements hook_preprocess_item_list().
  *
@@ -29,61 +31,6 @@ function origins_taxonomy_access_preprocess_item_list(&$variables) {
 
     if (\Drupal::currentUser()->hasPermission('edit terms in ' . $vocab_id) == FALSE) {
       unset($variables['items'][$index]);
-    }
-  }
-}
-
-/**
- * Implements hook_preprocess_table().
- */
-function origins_taxonomy_access_preprocess_table(&$variables) {
-  // Add new 'Revision Number' column to the node revisions tab.
-  //
-  // Making this change in preprocess is not beautiful, but seems
-  // to be the only workable solution as the 'diff' module has
-  // already been enabled and has taken over the core route with
-  // its own controller. If we created our own controller to do
-  // this then we would have to call the contrib controller,
-  // which does not sound like a good idea.
-  if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
-    // Add 'Revision Number' column header.
-    $new_head = ['tag' => 'th', 'content' => ['#markup' => t('Revision number')]];
-    // Insert this new column after the first one.
-    // Use array_splice as we don't know exactly how many columns there will be
-    // (and this code should work whether the 'diff' module has been enabled or
-    // not).
-    array_splice($variables['header'], 1, 0, [$new_head]);
-    if (isset($variables['header']['select_column_one'])) {
-      $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare revision 1')];
-    }
-    if (isset($variables['header']['select_column_two'])) {
-      $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
-    }
-    // Loop through the rows and add the revision number column to each.
-    foreach ($variables['rows'] as $idx => $row) {
-      $this_version = '';
-      if (isset($row['cells'][3]['content']['#links'])) {
-        // Cheekily extract current revision from the 'revert' button link.
-        $this_url = $row['cells'][3]['content']['#links']['revert']['url'];
-        if (isset($this_url)) {
-          $this_version = $this_url->getRouteParameters()['node_revision'];
-        }
-      }
-      else {
-        // There is no 'revert' button in this row,
-        // therefore it must be the current version.
-        //
-        // Cannot manage to extract the revision id from this row
-        // anywhere so we'll (reluctantly) have to load up the full node.
-        $node = \Drupal::routeMatch()->getParameter('node');
-        $this_version = $node->getRevisionId();
-      }
-      $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
-      // Insert this new column after the first one.
-      // Use array_splice as we don't know exactly how many columns there
-      // will be (and this code should work whether the 'diff' module has
-      // been enabled or not).
-      array_splice($variables['rows'][$idx]['cells'], 1, 0, [$new_col]);
     }
   }
 }

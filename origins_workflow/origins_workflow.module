@@ -8,6 +8,7 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 use Drupal\node\Entity\Node;
@@ -48,19 +49,6 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
  * Implements hook_form_alter().
  */
 function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Manage access to 'next audit date' field.
-  // Get a list of audited content types.
-  $config = \Drupal::config('origins_workflow.auditsettings');
-  $audit_types = $config->get('audit_content_types');
-  $view_form_list = [];
-  $edit_form_list = [];
-  foreach ($audit_types as $this_type) {
-    if ($this_type) {
-      $view_form_list[] = 'node_' . $this_type . '_form';
-      $edit_form_list[] = 'node_' . $this_type . '_edit_form';
-    }
-  }
-
   // Hide the audit date for everyone.
   if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
@@ -277,4 +265,110 @@ function _audit_link($field, $dt, $nid) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_preprocess_table().
+ */
+function origins_workflow_preprocess_table(&$variables) {
+  // Add new 'Revision Number' column to the node revisions tab.
+  //
+  // Making this change in preprocess is not beautiful, but seems
+  // to be the only workable solution as the 'diff' module has
+  // already been enabled and has taken over the core route with
+  // its own controller. If we created our own controller to do
+  // this then we would have to call the contrib controller,
+  // which does not sound like a good idea.
+  if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
+    // Add 'Revision Number' column header.
+    $new_head = ['tag' => 'th', 'content' => ['#markup' => t('Revision number')]];
+    // Insert this new column after the first one.
+    // Use array_splice as we don't know exactly how many columns there will be
+    // (and this code should work whether the 'diff' module has been enabled or
+    // not).
+    array_splice($variables['header'], 1, 0, [$new_head]);
+    if (isset($variables['header']['select_column_one'])) {
+      $variables['header']['select_column_one']['content'] = ['#markup' => t('Compare revision 1')];
+    }
+    if (isset($variables['header']['select_column_two'])) {
+      $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
+    }
+    // Loop through the rows and add the revision number column to each.
+    foreach ($variables['rows'] as $idx => $row) {
+      $this_version = '';
+      if (isset($row['cells'][3]['content']['#links'])) {
+        // Cheekily extract current revision from the 'revert' button link.
+        $this_url = $row['cells'][3]['content']['#links']['revert']['url'];
+        if (isset($this_url)) {
+          $this_version = $this_url->getRouteParameters()['node_revision'];
+        }
+        // Change the link text from 'Set as current revision' to
+        // 'Copy to new revision' as it makes more sense - see issue
+        // https://www.drupal.org/project/drupal/issues/2899719
+        if (isset($variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'])) {
+          $title_markup = $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'];
+          // Check the existing text in an attempt to detect any core fix that
+          // might come along.
+          $title_text = $title_markup->getUntranslatedString();
+          if (($title_text == 'Set as current revision') || ($title_text == 'Revert')) {
+            $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'] = t('Copy to new revision');
+          }
+        }
+      }
+      else {
+        // There is no 'revert' button in this row, therefore it must be the
+        // current versionand we need to add a 'Create Draft of Published' link.
+        $this_version = _create_draft_link_for_revision($variables, $idx, $row);
+      }
+      $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_version]];
+      // Insert this new column after the first one.
+      // Use array_splice as we don't know exactly how many columns there
+      // will be (and this code should work whether the 'diff' module has
+      // been enabled or not).
+      array_splice($variables['rows'][$idx]['cells'], 1, 0, [$new_col]);
+    }
+  }
+}
+
+/**
+ * Add a 'Create Draft of Published' link.
+ */
+function _create_draft_link_for_revision(&$variables, $idx, $row) {
+  // Cannot manage to extract the revision id from this row
+  // anywhere so we'll (reluctantly) have to load up the full node.
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $this_version = $node->getRevisionId();
+  // Does this user have permission to create drafts of published ?
+  if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
+    // Now change the 'Current Revision' markup to a
+    // 'Create Draft of Published' link.
+    if ($idx > 0) {
+      // Just check that there is markup in there and no link (just in case
+      // core has been updated in the meantime, in which case this fix may
+      // not be needed).
+      if (isset($row['cells'][3]['content']['#markup']) && !isset($row['cells'][3]['content']['#links'])) {
+        $markup = $row['cells'][3]['content']['#markup'];
+        // There is markup in there, just double check that
+        // it says 'Current revision'.
+        if ($markup->getUntranslatedString() == 'Current revision') {
+          // Now go ahead and change the 'Current Revision' markup to a
+          // 'Create Draft of Published' link.
+          $variables['rows'][$idx]['cells'][3]['content']['#links'] = [
+            'revert' =>
+              [
+                'title' => t('Create Draft of Published'),
+                'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
+                  ['nid' => $node->id()]),
+              ],
+          ];
+          $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
+          // Remove the markup.
+          unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
+          unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
+          unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
+        }
+      }
+    }
+  }
+  return $this_version;
 }
