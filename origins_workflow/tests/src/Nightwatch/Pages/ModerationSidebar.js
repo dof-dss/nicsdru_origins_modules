@@ -13,7 +13,7 @@ module.exports = {
       selector: '#cke_edit-body-0-value',
     },
     sidebarLink: {
-      selector: '#toolbar-bar > div.moderation-sidebar-toolbar-tab.toolbar-tab > a',
+      selector: 'div.moderation-sidebar-toolbar-tab.toolbar-tab > a',
     },
     sidebarTasks: {
       selector: '.moderation-sidebar-primary-tasks',

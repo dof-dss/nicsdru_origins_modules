@@ -1,5 +1,5 @@
 module.exports = {
-  '@tags': ['origins', 'origins_workflow', 'debug1'],
+  '@tags': ['origins', 'origins_workflow', 'debug'],
 
   before: function (browser) {
     // Resize default window size.

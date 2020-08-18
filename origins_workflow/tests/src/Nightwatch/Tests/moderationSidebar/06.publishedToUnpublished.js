@@ -14,13 +14,13 @@ module.exports = {
     // SHS widget isn't very friendly for form values so we need to simulate
     // actual click events on certain DOM elements.
     // '12' == Motoring theme.
-    browser.click('@fieldSubtheme');
-    browser.click('@fieldSubtheme option[value="12"]');
-    browser.click('@moderationStateOptions option[value="published"]');
+    browser.click('select[id="edit-field-subtheme-shs-0-0"]');
+    browser.click('select[id="edit-field-subtheme-shs-0-0"] option[value="12"]');
+    browser.click('select[id="edit-moderation-state-0-state"] option[value="published"]');
     browser
-      .setValue('@title', 'Test article (published to unpublished)')
-      .setValue('@fieldSummary', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
-      .waitForElementVisible('@CKEditorBody', 2000)
+      .setValue('input#edit-title-0-value', 'Test article (published to unpublished)')
+      .setValue('textarea#edit-field-summary-0-value', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+      .waitForElementVisible('#cke_edit-body-0-value', 2000)
       .execute(function (instance, content) {
           CKEDITOR.instances[instance].setData(content);
         }, [
@@ -28,21 +28,22 @@ module.exports = {
           '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>'
         ]
       )
-      .click('@submitForm');
+      .click('input#edit-submit');
   },
 
   'Check moderation task buttons': browser => {
     // Check our sidebar label shows as 'published' before we begin.
-    browser.click('@sidebarLink').expect.element('@sidebarStatus').text.to.equal('Status: Published');
+    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
+      .expect.element('.moderation-sidebar-info > p:nth-child(1)').text.to.equal('Status: Published');
 
     // DOM is a hybrid of styled links and form enclosed, styled input elements which makes
     // iterating over the collection rather more complex than desired. Everything here is very
     // precise with selectors to compensate as a result.
-    browser.expect.element('@sidebarTasks > a.button').text.to.equal('Edit content')
-    browser.expect.element('@sidebarTasks #unpublish').to.have.attribute('value').equals('Unpublish')
-    browser.expect.element('@sidebarTasks #archive').to.have.attribute('value').equals('Archive')
-    browser.expect.element('@sidebarTasks #draft_of_published').to.have.attribute('value').equals('Draft of Published');
-    browser.expect.element('@sidebarTasks a.button--danger').text.to.equal('Delete content')
+    browser.expect.element('.moderation-sidebar-primary-tasks > a.button').text.to.equal('Edit content')
+    browser.expect.element('.moderation-sidebar-primary-tasks #unpublish').to.have.attribute('value').equals('Unpublish')
+    browser.expect.element('.moderation-sidebar-primary-tasks #archive').to.have.attribute('value').equals('Archive')
+    browser.expect.element('.moderation-sidebar-primary-tasks #draft_of_published').to.have.attribute('value').equals('Draft of Published');
+    browser.expect.element('.moderation-sidebar-primary-tasks a.button--danger').text.to.equal('Delete content')
   },
 
   'PUBLISHED TO UNPUBLISHED': browser => {
@@ -51,7 +52,8 @@ module.exports = {
     // After alert accept we should be redirected to the article page itself.
 
     // Check our sidebar label shows as 'needs review'.
-    browser.click('@sidebarLink').expect.element('@sidebarStatus').text.to.equal('Status: Needs Review');
+    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
+      .expect.element('.moderation-sidebar-info > p:nth-child(1)').text.to.equal('Status: Needs Review');
 
   }
 
