@@ -21,21 +21,26 @@ module.exports = {
     sidebarStatus: {
       selector: '.moderation-sidebar-info > p:nth-child(1)',
     },
-    moderationStateOptions: {
-      selector: '#edit-moderation-state-0-state',
-    },
-    articleNodeForm: {
-      selector: 'input#edit-submit',
-    }
   },
   props: {
     titleText: 'Test article',
     loremIpsum: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    sidebarButtons: {
+      'draft': [
+        'Edit content',
+        'Submit for Review',
+        'Quick Publish',
+        'Delete content',
+      ],
+    },
   },
   commands: [{
-    createDraftArticleNode: function() {
+    // Some selectors using raw CSS values because we need them to be dynamic
+    // and the element aliases options don't allow us to interpolate the values.
+    // See fieldSubThemeWithMotoringValue vs moderation state dropdown below as examples.
+    createArticleNode: function(workflowState) {
       return this
-        .setValue('@title', this.props.titleText + ' (new to draft)')
+        .setValue('@title', this.props.titleText + ' (' + workflowState + ')')
         .setValue('@fieldSummary', this.props.loremIpsum)
         .click('@fieldSubThemeWithMotoringValue')
         .waitForElementVisible('@ckEditorBody', 2000)
@@ -46,11 +51,15 @@ module.exports = {
             this.props.loremIpsum
           ]
         )
+        .click('select[id="edit-moderation-state-0-state"] option[value="' + workflowState + '"]')
         .click('input#edit-submit');
     },
     checkModerationStatus: function(text) {
       return this
         .click('@sidebarLink').expect.element('@sidebarStatus').text.to.equal(text);
-    }
+    },
+    sidebarButtonClick: function(value) {
+      return this.click(value);
+    },
   }]
 };

@@ -13,9 +13,9 @@ module.exports = {
       .drupalRelativeURL('/node/add/article');
 
     // Load page objects.
-    const pageObjects = browser.page.moderationSidebar();
+    const pageObjects = browser.page.ModerationSidebar();
 
-    pageObjects.createDraftArticleNode();
+    pageObjects.createArticleNode('draft');
     pageObjects.checkModerationStatus('Status: Draft');
   }
 
