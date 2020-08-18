@@ -1,5 +1,0 @@
-services:
-  origins_taxonomy_access.route_subscriber:
-    class: Drupal\origins_taxonomy_access\Routing\RouteSubscriber
-    tags:
-      - { name: event_subscriber }
