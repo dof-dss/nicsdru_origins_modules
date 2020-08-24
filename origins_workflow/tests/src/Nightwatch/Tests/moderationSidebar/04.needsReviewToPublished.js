@@ -31,6 +31,10 @@ module.exports = {
       .click('input#edit-submit');
   },
 
+  after: function (browser) {
+    browser.drupalLogout();
+  },
+
   'Check moderation task options': browser => {
     // Check our sidebar label shows as 'needs review' before we begin.
     browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
