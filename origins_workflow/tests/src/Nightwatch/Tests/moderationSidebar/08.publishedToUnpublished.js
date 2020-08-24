@@ -31,6 +31,10 @@ module.exports = {
       .click('input#edit-submit');
   },
 
+  after: function (browser) {
+    browser.drupalLogout();
+  },
+
   'Check moderation task buttons': browser => {
     // Check our sidebar label shows as 'published' before we begin.
     browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')

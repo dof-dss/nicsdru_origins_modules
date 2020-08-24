@@ -30,6 +30,10 @@ module.exports = {
       .click('input#edit-submit');
   },
 
+  after: function (browser) {
+    browser.drupalLogout();
+  },
+
   'Check moderation task options': browser => {
     // Click to open the moderation sidebar.
     browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a');
