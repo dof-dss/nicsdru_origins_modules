@@ -45,15 +45,19 @@ function origins_unique_title_check_title(array &$form, FormStateInterface $form
     $bundle = \Drupal::routeMatch()->getParameter('node')->bundle();
   }
 
-  if (!empty($title) && \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle) == FALSE) {
+  if (!empty($title) &&
+    \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle) == FALSE) {
+
     $message = t("WARNING: '@title' is already in use as a title for a @type node.", [
       '@title' => $title,
       '@type' => \Drupal::entityTypeManager()->getStorage('node_type')->load($bundle)->label(),
     ]);
 
-    $render = [
-      '#markup' => '<div>' . $message . '</div>',
-    ];
+    $render = $form['title_unique'];
+    $render['#value'] = $message;
+  }
+  else {
+    $render = $form['title_unique'];
   }
 
   return $render;
