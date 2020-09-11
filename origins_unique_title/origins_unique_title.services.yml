@@ -1,0 +1,3 @@
+services:
+  origins_unique_title.validator:
+    class: Drupal\origins_unique_title\Validator

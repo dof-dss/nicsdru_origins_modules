@@ -1,0 +1,31 @@
+<?php
+
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['title']['widget'][0]['value']['#ajax'] = [
+    'callback' => 'origins_unique_title_check_title',
+    'event' => 'change',
+    'wrapper' => 'edit-output',
+    'progress' => [
+      'type' => 'throbber',
+      'message' => t('Checking if title is unique...'),
+    ],
+  ];
+
+  $form['output'] = [
+    '#type' => 'textfield',
+//    '#tag' => 'div',
+    '#default_value' => t('How now brown cow??'),
+    '#weight' => $form['title']['#weight'] + 1,
+  ];
+}
+
+function origins_unique_title_check_title(array &$form, FormStateInterface $form_state) {
+  return ['#markup' => '<p>hello</p>'];
+}

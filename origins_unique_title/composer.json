@@ -1,0 +1,8 @@
+{
+    "name": "drupal/origins_unique_title",
+    "type": "drupal-module",
+    "description": "Warns editors when a content title already exists",
+    "minimum-stability": "dev",
+    "require": { }
+}
+
