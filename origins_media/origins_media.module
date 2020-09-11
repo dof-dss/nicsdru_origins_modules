@@ -159,8 +159,11 @@ function origins_media_preprocess_views_view_field(&$variables) {
       && $field_id == 'nothing') {
 
     $mid = $variables['row']->mid;
-    $usage = \Drupal::service('whatlinkshere.linkmanager')
-              ->getReferenceContent($variables['row']->_entity, PHP_INT_MAX, 0);
+    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
+      $variables['row']->_entity,
+      PHP_INT_MAX,
+      0);
+
     $ref_count = $usage['total'];
 
     $link = Link::createFromRoute(
