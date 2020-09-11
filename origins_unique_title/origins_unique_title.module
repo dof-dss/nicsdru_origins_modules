@@ -1,7 +1,9 @@
 <?php
 
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\HtmlCommand;
+/**
+ * @file hooks and callback functions for origins_unique_title module.
+ */
+
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -11,21 +13,48 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
   $form['title']['widget'][0]['value']['#ajax'] = [
     'callback' => 'origins_unique_title_check_title',
     'event' => 'change',
-    'wrapper' => 'edit-output',
+    'wrapper' => 'title-unique',
     'progress' => [
       'type' => 'throbber',
-      'message' => t('Checking if title is unique...'),
+      'message' => t('Checking if title is unique') . '...',
     ],
   ];
 
-  $form['output'] = [
-    '#type' => 'textfield',
-//    '#tag' => 'div',
-    '#default_value' => t('How now brown cow??'),
+  $form['title_unique'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#attributes' => [
+      'id' => 'title-unique'
+    ],
     '#weight' => $form['title']['#weight'] + 1,
   ];
 }
 
+/**
+ * AJAX callback for checking the node title.
+ */
 function origins_unique_title_check_title(array &$form, FormStateInterface $form_state) {
-  return ['#markup' => '<p>hello</p>'];
+  $render = [];
+
+  $title = $form_state->getValue('title')[0]['value'];
+
+  if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
+    $bundle = \Drupal::routeMatch()->getParameter('node_type')->id();
+  }
+  else {
+    $bundle = \Drupal::routeMatch()->getParameter('node')->bundle();
+  }
+
+  if (!empty($title) && \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle) == FALSE) {
+    $message = t("WARNING: '@title' is already in use as a title for a @type node.", [
+      '@title' => $title,
+      '@type' => \Drupal::entityTypeManager()->getStorage('node_type')->load($bundle)->label(),
+    ]);
+
+    $render = [
+      '#markup' => '<div>' . $message . '</div>',
+    ];
+  }
+
+  return $render;
 }
