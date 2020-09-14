@@ -43,16 +43,29 @@ class UniqueTitleValidator {
    *   The title of the content.
    * @param string $bundle
    *   The machine id of the bundle, eg: page.
+   * @param array $exclude
+   *   List of node ids to exclude from the check, if any.
    * @return bool
    *   Whether or not this is a unique title in this bundle.
    */
-  public function isTitleUnique(string $title, string $bundle) {
+  public function isTitleUnique(string $title, string $bundle, array $exclude = []) {
+    $is_unique = TRUE;
+
     $result = $this->entityTypeManager->getStorage('node')->loadByProperties([
       'type' => $bundle,
       'title' => $title,
     ]);
 
-    return (empty($result));
+    if (!empty($result)) {
+      // Ignore any node ids in the exclude list.
+      foreach ($result as $node) {
+        if (!in_array($node->id(), $exclude)) {
+          $is_unique = FALSE;
+        }
+      }
+    }
+
+    return $is_unique;
   }
 
 }

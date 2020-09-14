@@ -37,16 +37,18 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
  */
 function origins_unique_title_check_title(array &$form, FormStateInterface $form_state) {
   $title = $form_state->getValue('title')[0]['value'];
+  $excludes = [];
 
   if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
     $bundle = \Drupal::routeMatch()->getParameter('node_type')->id();
   }
   else {
+    $excludes[] = \Drupal::routeMatch()->getParameter('node')->id();
     $bundle = \Drupal::routeMatch()->getParameter('node')->bundle();
   }
 
   if (!empty($title) &&
-    \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle) == FALSE) {
+    \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle, $excludes) == FALSE) {
 
     $message = t("@type content with title '@title' already exists. You must choose a different title.", [
       '@title' => $title,
@@ -64,18 +66,23 @@ function origins_unique_title_check_title(array &$form, FormStateInterface $form
   return $render;
 }
 
+/**
+ * Server side validation callback from the node form.
+ */
 function origins_unique_title_validate_title(array &$form, FormStateInterface $form_state) {
   $title = $form_state->getValue('title')[0]['value'];
+  $excludes = [];
 
   if (\Drupal::routeMatch()->getRouteName() == 'node.add') {
     $bundle = \Drupal::routeMatch()->getParameter('node_type')->id();
   }
   else {
+    $excludes[] = \Drupal::routeMatch()->getParameter('node')->id();
     $bundle = \Drupal::routeMatch()->getParameter('node')->bundle();
   }
 
   if (!empty($title) &&
-    \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle) == FALSE) {
+    \Drupal::service('origins_unique_title.validator')->isTitleUnique($title, $bundle, $excludes) == FALSE) {
 
     $message = t("@type content with title '@title' already exists. You must choose a different title.", [
       '@title' => $title,
