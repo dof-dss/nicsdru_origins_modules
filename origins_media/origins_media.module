@@ -154,12 +154,24 @@ function origins_media_preprocess_views_view_field(&$variables) {
   $view = $variables['view'];
   $field_id = $variables['field']->field;
 
-  if ($view->id() == 'media_library' && in_array($view->current_display, ['default_page', 'widget_table']) && $field_id == 'nothing') {
+  if ($view->id() == 'media_library'
+    && in_array($view->current_display, ['default_page', 'widget_table'])
+      && $field_id == 'nothing') {
+
     $mid = $variables['row']->mid;
-    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent($variables['row']->_entity, PHP_INT_MAX, 0);
+    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
+      $variables['row']->_entity,
+      PHP_INT_MAX,
+      0);
+
     $ref_count = $usage['total'];
 
-    $link = Link::createFromRoute(t('@count places', ['@count' => $ref_count]), 'whatlinkshere.references.media', ['media' => $mid]);
+    $link = Link::createFromRoute(
+      t('@count places', ['@count' => $ref_count]),
+      'whatlinkshere.references.media',
+      ['media' => $mid]
+    );
+
     $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
   }
 }
