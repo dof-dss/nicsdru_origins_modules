@@ -281,7 +281,13 @@ function origins_workflow_preprocess_table(&$variables) {
   // which does not sound like a good idea.
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.version_history') {
     // Add 'Revision Number' column header.
-    $new_head = ['tag' => 'th', 'content' => ['#markup' => t('Revision number')]];
+    $new_head = [
+      'tag' => 'th',
+      'content' => [
+        '#markup' => t('Revision number')
+      ]
+    ];
+
     // Insert this new column after the first one.
     // Use array_splice as we don't know exactly how many columns there will be
     // (and this code should work whether the 'diff' module has been enabled or
