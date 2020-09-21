@@ -9,10 +9,6 @@ include_once 'inc/layout_builder_search.inc';
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
-use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 
 /**
  * Implements hook_help().
@@ -24,18 +20,6 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t("About") . '</h3>';
       $output .= '<p>' . t("A common set of Drupal components.") . '</p>';
-      $output .= '<h4>' . t("Layout Builder Search Indexing") . '</h4>';
-      $output .= '<p>' . t("To enable Layout Builder search indexing:");
-      $output .= '<ul><li>' . t("Ensure the Node Type has at least one Layout Builder enabled display.") . '</li>';
-      $output .= '<li>' . t("Edit the Node Type and click 'Enable search indexing' under the 'Layout Builder search indexing' option") . '</li>';
-      $output .= '<li>' . t("Choose the display mode that will be used to generate the search index content and save the form.") . '</li>';
-      $output .= '<li>' . t("Within a Node edit form click 'Enable search indexing for this node' under the 'Layout Builder Search Indexing ' option.") . '</li>';
-      $output .= '<li>' . t("Within a Node edit form click 'Enable search indexing for this node' under the 'Layout Builder Search Indexing ' option.") . '</li>';
-      // Display Search API instructions.
-      if (\Drupal::moduleHandler()->moduleExists('search_api')) {
-        $output .= '<li>' . t('Under your <a href=":searchapi">Search API</a> server index, include the \'field_lb_search_content\' field for indexing.', [':searchapi' => Url::fromRoute('search_api.overview')->toString()]) . '</li>';
-      }
-      $output .= '</ul>';
       $output .= '<h4>' . t("Entity reference field HTML list display formatter") . '</h4>';
       $output .= '<p>' . t("Displays entity references as OL or UL HTML lists with the option of assigning a class to the list.");
 
@@ -55,11 +39,12 @@ function origins_common_form_revision_overview_form_alter(&$form, FormStateInter
 }
 
 /**
- * Submit handler for revision overview form sets the revision comparison view mode to 'diff'.
+ * Submit handler for revision overview form.
  *
- * Modifies the redirect URL for the revision overview form set in its submitForm()
- * handler (see modules/contrib/diff/src/Form/RevisionOverviewForm.php) and adds an
- * additional view_mode=diff query param.
+ * Modifies the redirect URL for the revision overview form set in its
+ * submitForm() handler
+ * (see modules/contrib/diff/src/Form/RevisionOverviewForm.php)
+ * and adds an additional view_mode=diff query param.
  */
 function _origins_common_revision_overview_form_submit(array &$form, FormStateInterface $form_state) {
   // Get info about the entity we are doing a revision comparison on.
@@ -71,8 +56,8 @@ function _origins_common_revision_overview_form_submit(array &$form, FormStateIn
   // Get available view modes.
   $view_modes = \Drupal::service('entity_display.repository')->getViewModeOptionsByBundle($entity_type, $bundle);
 
-  // If the diff view mode has been defined, add as a query param to the redirect url
-  // for the revision comparison overview form.
+  // If the diff view mode has been defined, add as a query param to the
+  // redirect url for the revision comparison overview form.
   if (array_key_exists('diff', $view_modes)) {
     $redirect_url = $form_state->getRedirect()->setOption('query', [
       'view_mode' => 'diff',
