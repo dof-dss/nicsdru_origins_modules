@@ -5,8 +5,6 @@
  * Contains origins_common.module.
  */
 
-include_once 'inc/layout_builder_search.inc';
-
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
