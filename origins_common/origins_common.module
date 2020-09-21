@@ -46,36 +46,6 @@ function origins_common_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Implements hook_entity_presave().
- */
-function origins_common_entity_presave(EntityInterface $entity) {
-
-  // Process Layout Builder search options on node type edit form submit.
-  if ($entity instanceof NodeType) {
-    layout_builder_search_node_type_presave($entity);
-  }
-
-  // Process Layout Builder search on node edit form submit.
-  if ($entity instanceof Node) {
-    layout_builder_search_node_presave($entity);
-  }
-}
-
-/**
- * Implements hook_form_FORM_ID_alter().
- */
-function origins_common_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  layout_builder_search_node_type_form_alter($form, $form_state, $form_id);
-}
-
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function origins_common_form_node_form_alter(&$form, $form_state, $form_id) {
-  layout_builder_search_node_edit_form_alter($form, $form_state, $form_id);
-}
-
-/**
  * Implements hook_form_FORM_ID_alter().
  */
 function origins_common_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id = NULL) {
