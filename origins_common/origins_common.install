@@ -21,3 +21,20 @@ function origins_common_uninstall() {
 
   field_purge_batch(10);
 }
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * Remove redundant Layout Builder search fields.
+ */
+function origins_common_update_8001() {
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_enable')) {
+    $field_storage->delete();
+  }
+
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_lb_search_content')) {
+    $field_storage->delete();
+  }
+}
