@@ -60,7 +60,7 @@ jobs:
       - run:
          name: Deprecated code check
          command: |
-            ${CIRCLE_WORKING_DIRECTORY}/vendor/bin/drupal-check ${CIRCLE_WORKING_DIRECTORY}/web/modules/nicsdru_origins_modules
+            ${CIRCLE_WORKING_DIRECTORY}/vendor/bin/drupal-check ${CIRCLE_WORKING_DIRECTORY}/web/modules/nicsdru_origins_modules -e "*/tests/src/*"
 
 workflows:
   version: 2

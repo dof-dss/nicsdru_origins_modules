@@ -40,7 +40,8 @@ module.exports = {
     // See fieldSubThemeWithMotoringValue vs moderation state dropdown below as examples.
     createArticleNode: function(workflowState) {
       return this
-        .setValue('@title', this.props.titleText + ' (' + workflowState + ')')
+        .setValue('@title', [Date.now() + ' -- ' + this.props.titleText + ' (' + workflowState + ')', this.api.Keys.TAB])
+        .pause(2000)
         .setValue('@fieldSummary', this.props.loremIpsum)
         .click('@fieldSubThemeWithMotoringValue')
         .waitForElementVisible('@ckEditorBody', 2000)
