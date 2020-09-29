@@ -18,7 +18,7 @@ module.exports = {
     browser.click('select[id="edit-field-subtheme-shs-0-0"] option[value="12"]');
     browser.click('select[id="edit-moderation-state-0-state"] option[value="published"]');
     browser
-      .setValue('input#edit-title-0-value', ['Test article (published to unpublished)', browser.Keys.TAB])
+      .setValue('input#edit-title-0-value', [Date.now() + ' -- ' + 'Test article (published to unpublished)', browser.Keys.TAB])
       .pause(2000)
       .setValue('textarea#edit-field-summary-0-value', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
       .waitForElementVisible('#cke_edit-body-0-value', 2000)
