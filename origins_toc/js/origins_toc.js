@@ -3,7 +3,7 @@
   Drupal.behaviors.originsToC = {
     attach: function attach (context) {
 
-      var tocHeadings = $('#main-article h2', context).once('attachToC');
+      var tocHeadings = $('body', context).once('attachToC');
       if (tocHeadings.length > 2) {
 
         if (typeof drupalSettings.origins_toc.settings !== 'undefined') {
@@ -19,9 +19,9 @@
 
         // This implementation doesn't use the configuration
         // from the toc 3rd party settings 'toc_settings'.
-        let tocHeadings = $('#main-article h2').not('toc--exclude');
+        let tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element).not(toc_settings.toc_exclusions);
         let $tocList = $('<ul class="nav-menu" />');
-        let $headingText = Drupal.t('Contents');
+        let $headingText = Drupal.t(toc_settings.toc_title);
         let $skipTocText = Drupal.t('Skip table of contents');
 
         // Iterate each element, append an anchor id and append link to block list.
