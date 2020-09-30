@@ -206,7 +206,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
       $toc_settings = $node_type->getThirdPartySettings('origins_toc');
 
-      if (!empty($toc_settings) && array_key_exists($toc_settings['toc_source_container'], $build)) {
+      if (!empty($toc_settings)) {
 
         // Check if ToC's have been disabled at the entity type.
         if (!$toc_settings['toc_enable']) {
