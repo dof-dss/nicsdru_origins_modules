@@ -9,16 +9,14 @@
         return;
       }
 
-      // Check if Toc is enabled for this entity type and this entity.
+      // Check if Toc is enabled for this entity type and this entity instance.
       if (toc_settings.toc_enable != 1 || toc_settings.toc_entity_enable != 1) {
         return;
       }
 
       var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element, context).once('attachToC');
-      if (tocHeadings.length > 2) {
 
-        // This implementation doesn't use the configuration
-        // from the toc 3rd party settings 'toc_settings'.
+      if (tocHeadings.length > 2) {
         let tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element).not(toc_settings.toc_exclusions);
         let $tocList = $('<ul class="nav-menu" />');
         let $headingText = Drupal.t(toc_settings.toc_title);
@@ -33,11 +31,12 @@
             return;
           }
 
-          // Ignore empty h2s.
+          // Ignore empty source elements.
           if ($linkText.toLowerCase().trim().length == 0) {
             return;
           }
 
+          // Build the ToC links.
           $(this).attr('id', 'toc-' + index);
           $tocList.append(
             '<li class="nav-item"><a href="#toc-' + index + '">' + $linkText + '</a></li>'
