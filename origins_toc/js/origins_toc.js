@@ -3,19 +3,19 @@
   Drupal.behaviors.originsToC = {
     attach: function attach (context) {
 
-      var tocHeadings = $('body', context).once('attachToC');
+      if (typeof drupalSettings.origins_toc.settings !== 'undefined') {
+        var toc_settings = drupalSettings.origins_toc.settings;
+      } else {
+        return;
+      }
+
+      // Check if Toc is enabled for this entity type and this entity.
+      if (toc_settings.toc_enable != 1 || toc_settings.toc_entity_enable != 1) {
+        return;
+      }
+
+      var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element, context).once('attachToC');
       if (tocHeadings.length > 2) {
-
-        if (typeof drupalSettings.origins_toc.settings !== 'undefined') {
-          var toc_settings = drupalSettings.origins_toc.settings;
-        } else {
-          return;
-        }
-
-        // Check if Toc is enabled for this entity type and this entity.
-        if (toc_settings.toc_enable != 1 || toc_settings.toc_entity_enable != 1) {
-          return;
-        }
 
         // This implementation doesn't use the configuration
         // from the toc 3rd party settings 'toc_settings'.
