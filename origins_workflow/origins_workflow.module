@@ -299,25 +299,31 @@ function origins_workflow_preprocess_table(&$variables) {
     if (isset($variables['header']['select_column_two'])) {
       $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
     }
+    // Check whether the 'diff' module has been installed and set the
+    // column for the 'action' links accordingly.
+    $action_column = 1;
+    if (\Drupal::moduleHandler()->moduleExists('diff')) {
+      $action_column = 3;
+    }
     // Loop through the rows and add the revision number column to each.
     foreach ($variables['rows'] as $idx => $row) {
       $this_version = '';
-      if (isset($row['cells'][3]['content']['#links'])) {
+      if (isset($row['cells'][$action_column]['content']['#links'])) {
         // Cheekily extract current revision from the 'revert' button link.
-        $this_url = $row['cells'][3]['content']['#links']['revert']['url'];
+        $this_url = $row['cells'][$action_column]['content']['#links']['revert']['url'];
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
         // Change the link text from 'Set as current revision' to
         // 'Copy to new revision' as it makes more sense - see issue
         // https://www.drupal.org/project/drupal/issues/2899719
-        if (isset($variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'])) {
-          $title_markup = $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'];
+        if (isset($variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'])) {
+          $title_markup = $variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'];
           // Check the existing text in an attempt to detect any core fix that
           // might come along.
           $title_text = $title_markup->getUntranslatedString();
           if (($title_text == 'Set as current revision') || ($title_text == 'Revert')) {
-            $variables['rows'][$idx]['cells'][3]['content']['#links']['revert']['title'] = t('Copy to new revision');
+            $variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'] = t('Copy to new revision');
           }
         }
       }
