@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Fetch phpcs and dependencies
           command: |
-            composer require drupal/coder --no-interaction --optimize-autoloader
+            composer require drupal/coder --prefer-stable --no-interaction --optimize-autoloader
             # Move vendor directory up a level as we don't want to code-check all of that.
             mv vendor ../
       - run:

@@ -73,13 +73,6 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     ],
   ];
 
-  $form['toc']['toc_config']['notice'] = [
-    '#type' => 'html_tag',
-    '#tag' => 'p',
-    '#value' => 'The settings below currently have no effect on the ToC creation.',
-    '#attributes' => ['style' => 'color: red'],
-  ];
-
   $form['toc']['toc_config']['toc_title'] = [
     '#type' => 'textfield',
     '#title' => t('Title'),
@@ -213,7 +206,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
       $toc_settings = $node_type->getThirdPartySettings('origins_toc');
 
-      if (!empty($toc_settings) && array_key_exists($toc_settings['toc_source_container'], $build)) {
+      if (!empty($toc_settings)) {
 
         // Check if ToC's have been disabled at the entity type.
         if (!$toc_settings['toc_enable']) {
@@ -222,10 +215,12 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
 
         if ($entity->hasField('field_toc_enable')) {
           $toc_settings['toc_entity_enable'] = (int) $entity->get('field_toc_enable')->value;
-        }
 
-        $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
-        $build['#attached']['library'][] = 'origins_toc/toc';
+          if ($toc_settings['toc_entity_enable']) {
+            $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+            $build['#attached']['library'][] = 'origins_toc/toc';
+          }
+        }
       }
     }
   }
