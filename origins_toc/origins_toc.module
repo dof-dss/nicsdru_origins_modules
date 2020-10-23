@@ -89,6 +89,11 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#size' => 30,
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_location', NULL),
     '#placeholder' => '#location',
+    '#states'=> [
+      'required' => [
+        ':input[name="toc_enable"]' => ['checked' => TRUE],
+      ],
+    ],
   ];
 
   $form['toc']['toc_config']['toc_insert'] = [
@@ -109,6 +114,11 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#size' => 30,
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_source_container', NULL),
     '#placeholder' => '#content-container',
+    '#states'=> [
+      'required' => [
+        ':input[name="toc_enable"]' => ['checked' => TRUE],
+      ],
+    ],
   ];
 
   $form['toc']['toc_config']['toc_element'] = [
