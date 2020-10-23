@@ -27,7 +27,9 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<p>' . t("To enable the Table of content for a node type:") . '</p>';
       $output .= '<ul><li>' . t("Edit the node type.") . '</li>';
       $output .= '<li>' . t("Click 'enable' from the 'Table of contents' section under advanced settings.") . '</li>';
-      $output .= '<li>' . t("Select a source field in the current content type from which generate your table of contents, typically the body field.") . '</li>';
+      $output .= '<li>' . t("Enter a CSS selector for the location the ToC should appear on the page.") . '</li>';
+      $output .= '<li>' . t("Select if the ToC should appear before or after the location element.") . '</li>';
+      $output .= '<li>' . t("Enter a CSS selector for the element that the ToC should be generated for.") . '</li>';
       $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
       $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
       $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
@@ -137,6 +139,8 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
   $type->setThirdPartySetting('origins_toc', 'toc_enable', $form_state->getValue('toc_enable'));
   $type->setThirdPartySetting('origins_toc', 'toc_title', $form_state->getValue('toc_title'));
+  $type->setThirdPartySetting('origins_toc', 'toc_location', $form_state->getValue('toc_location'));
+  $type->setThirdPartySetting('origins_toc', 'toc_insert', $form_state->getValue('toc_insert'));
   $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
