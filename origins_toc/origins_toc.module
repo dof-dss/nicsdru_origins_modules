@@ -80,6 +80,26 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_title', 'Table of contents'),
   ];
 
+  $form['toc']['toc_config']['toc_location'] = [
+    '#type' => 'textfield',
+    '#title' => t('Location'),
+    '#description' => t('CSS selector of the element where the ToC should be inserted.'),
+    '#size' => 30,
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_location', NULL),
+    '#placeholder' => '#location',
+  ];
+
+  $form['toc']['toc_config']['toc_insert'] = [
+    '#type' => 'select',
+    '#title' => t('Insert'),
+    '#options' => [
+      'after' => 'After',
+      'before' => 'Before',
+    ],
+    '#description' => t('Insert the ToC before or after the location element..'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_insert', NULL),
+  ];
+
   $form['toc']['toc_config']['toc_source_container'] = [
     '#type' => 'textfield',
     '#title' => t('Source container'),
