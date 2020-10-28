@@ -6,7 +6,7 @@ module.exports = {
       .drupalLogin({ name: process.env.NW_TEST_USER_PREFIX + '_admin', password: process.env.TEST_PASS });
 
     browser
-      .drupalRelativeURL('/node/5087/revisions')
+      .drupalRelativeURL('/node/698/revisions')
       .expect.element('h1.page-title')
       .text.to.contain('Revisions for');
 
