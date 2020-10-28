@@ -17,6 +17,7 @@
       var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element, context).once('attachToC');
 
       if (tocHeadings.length > 2) {
+
         let tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element).not(toc_settings.toc_exclusions);
         let $tocList = $('<ul class="nav-menu" />');
         let $headingText = Drupal.t(toc_settings.toc_title);
@@ -43,15 +44,22 @@
           );
         });
 
-        let $tocMain = $('.page-summary');
+
+        let $tocMain = $(toc_settings.toc_location);
         let $tocBlock = $('<nav class="sub-menu toc-menu" aria-labelledby="toc-menu-heading" />');
         $tocBlock.prepend('<h2 id="toc-menu-heading" class="menu-title">' + $headingText + '</h2>',
           '<a href="#toc-main-skip" class="skip-link visually-hidden focusable" aria-label="' + $skipTocText + '">' +
           $skipTocText +
           '</a>',
           $tocList);
-        $tocMain.after($tocBlock,
-          '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
+
+        if (toc_settings.toc_insert == 'before') {
+          $tocMain.before($tocBlock, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
+        } else {
+          $tocMain.after($tocBlock, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
+        }
+
+
       }
 
     }
