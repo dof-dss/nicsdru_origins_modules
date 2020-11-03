@@ -56,21 +56,58 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     // Load the entity.
     $entity = $this->entityTypeManager->getStorage('node')->load($nid);
     if ($entity) {
-      // Request the state change.
-      $entity->set('moderation_state', $new_state);
-      $entity->save();
-      // Log it.
-      $message = t('State of @title (nid @nid) changed to @new_state by @user', [
-        '@title' => $entity->getTitle(),
-        '@nid' => $nid,
-        '@new_state' => $new_state,
-        '@user' => $this->currentUser()->getAccountName(),
-      ]);
-      $this->logger->notice($message);
+      // See if this state change is allowed.
+      if ($this->transitionAllowed($entity, $new_state)) {
+        // Request the state change.
+        $entity->set('moderation_state', $new_state);
+        $entity->save();
+        // Log it.
+        $message = t('State of @title (nid @nid) changed to @new_state by @user', [
+          '@title' => $entity->getTitle(),
+          '@nid' => $nid,
+          '@new_state' => $new_state,
+          '@user' => $this->currentUser()->getAccountName(),
+        ]);
+        $this->logger->notice($message);
+      } else {
+        $message = t('State change of @title (nid @nid) to @new_state denied to @user', [
+          '@title' => $entity->getTitle(),
+          '@nid' => $nid,
+          '@new_state' => $new_state,
+          '@user' => $this->currentUser()->getAccountName(),
+        ]);
+        $this->logger->notice($message);
+      }
     }
     // Redirect user to current page (although the 'destination'
     // url argument will override this).
     return $this->redirect('view.workflow_moderation.needs_review');
+  }
+
+  /**
+   * Check user permission for state change.
+   */
+  private function transitionAllowed($entity, String $new_state) {
+    // Get the current moderation state.
+    $current_state = $entity->moderation_state->value;
+    // Check that we are looking at the latest revision.
+    if (!$entity->isLatestRevision()) {
+      $revision_ids = $this->entityTypeManager->getStorage('node')->revisionIds($entity);
+      $last_revision_id = end($revision_ids);
+      // Load the revision.
+      $last_revision = $this->entityTypeManager->getStorage('node')->loadRevision($last_revision_id);
+      $current_state = $last_revision->moderation_state->value;
+    }
+    // Check permissions of current user.
+    $current_user = $this->currentUser();
+    $transition_allowed = FALSE;
+    if (($current_state == 'draft') && ($new_state == 'published')) {
+      // Is this user allowed to use the 'quick publish' transition ?
+      if ($current_user->hasPermission('use editorial transition quick_publish')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    return $transition_allowed;
   }
 
 }
