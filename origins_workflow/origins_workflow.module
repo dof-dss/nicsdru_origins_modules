@@ -118,7 +118,7 @@ function origins_workflow_hide_moderation_field(&$view) {
   // 'My Drafts' and 'All Drafts' displays.
   if (($view->element['#display_id'] === 'my_drafts') || ($view->element['#display_id'] === 'all_drafts')) {
     // Show the 'Change to Publish' field if the user has that permission.
-    if (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition publish')) {
+    if (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition quick_publish')) {
       $view->field['nothing_1']->options['exclude'] = TRUE;
     }
     elseif (isset($view->field['nothing'])) {
