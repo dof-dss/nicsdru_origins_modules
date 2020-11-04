@@ -69,7 +69,8 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
           '@user' => $this->currentUser()->getAccountName(),
         ]);
         $this->logger->notice($message);
-      } else {
+      }
+      else {
         $message = t('State change of @title (nid @nid) to @new_state denied to @user', [
           '@title' => $entity->getTitle(),
           '@nid' => $nid,
@@ -106,15 +107,18 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       if ($current_user->hasPermission('use editorial transition quick_publish')) {
         $transition_allowed = TRUE;
       }
-    } else if (($current_state == 'draft') && ($new_state == 'needs_review')) {
+    }
+    elseif (($current_state == 'draft') && ($new_state == 'needs_review')) {
       if ($current_user->hasPermission('use editorial transition submit_for_review')) {
         $transition_allowed = TRUE;
       }
-    } else if (($current_state == 'needs_review') && ($new_state == 'draft')) {
+    }
+    elseif (($current_state == 'needs_review') && ($new_state == 'draft')) {
       if ($current_user->hasPermission('use editorial transition reject')) {
         $transition_allowed = TRUE;
       }
-    } else if (($current_state == 'needs_review') && ($new_state == 'published')) {
+    }
+    elseif (($current_state == 'needs_review') && ($new_state == 'published')) {
       if ($current_user->hasPermission('use editorial transition publish')) {
         $transition_allowed = TRUE;
       }
