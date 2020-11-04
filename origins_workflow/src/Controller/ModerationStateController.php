@@ -76,7 +76,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
           '@new_state' => $new_state,
           '@user' => $this->currentUser()->getAccountName(),
         ]);
-        $this->logger->notice($message);
+        $this->logger->error($message);
       }
     }
     // Redirect user to current page (although the 'destination'
@@ -104,6 +104,18 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     if (($current_state == 'draft') && ($new_state == 'published')) {
       // Is this user allowed to use the 'quick publish' transition ?
       if ($current_user->hasPermission('use editorial transition quick_publish')) {
+        $transition_allowed = TRUE;
+      }
+    } else if (($current_state == 'draft') && ($new_state == 'needs_review')) {
+      if ($current_user->hasPermission('use editorial transition submit_for_review')) {
+        $transition_allowed = TRUE;
+      }
+    } else if (($current_state == 'needs_review') && ($new_state == 'draft')) {
+      if ($current_user->hasPermission('use editorial transition reject')) {
+        $transition_allowed = TRUE;
+      }
+    } else if (($current_state == 'needs_review') && ($new_state == 'published')) {
+      if ($current_user->hasPermission('use editorial transition publish')) {
         $transition_allowed = TRUE;
       }
     }
