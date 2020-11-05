@@ -120,9 +120,15 @@ function origins_workflow_hide_moderation_field(&$view) {
     // Show the 'Change to Publish' field if the user has that permission.
     if (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition quick_publish')) {
       $view->field['nothing_1']->options['exclude'] = TRUE;
+      $view->field['nothing_2']->options['exclude'] = TRUE;
+    }
+    elseif (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition publish')) {
+      $view->field['nothing_1']->options['exclude'] = TRUE;
+      $view->field['nothing']->options['exclude'] = TRUE;
     }
     elseif (isset($view->field['nothing'])) {
       $view->field['nothing']->options['exclude'] = TRUE;
+      $view->field['nothing_2']->options['exclude'] = TRUE;
     }
   }
 
