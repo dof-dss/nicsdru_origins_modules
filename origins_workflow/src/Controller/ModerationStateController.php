@@ -123,6 +123,11 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         $transition_allowed = TRUE;
       }
     }
+    elseif (($current_state == 'published') && ($new_state == 'draft')) {
+      if ($current_user->hasPermission('use editorial transition draft_of_published')) {
+        $transition_allowed = TRUE;
+      }
+    }
     return $transition_allowed;
   }
 
