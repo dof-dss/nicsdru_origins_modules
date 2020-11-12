@@ -5,6 +5,7 @@
  * Contains code that amends the admin/content view.
  */
 
+use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -52,6 +53,15 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   // Hide the audit date for everyone.
   if (isset($form['field_next_audit_due'])) {
     $form['field_next_audit_due']['#access'] = FALSE;
+  }
+
+  // Default any moderation controls to 'Draft'.
+  if (NestedArray::keyExists($form, ['moderation_state', 'widget', 0, 'state'])) {
+    $moderation_value = &$form['moderation_state']['widget'][0]['state']['#default_value'];
+
+    if ($moderation_value != 'draft') {
+      $moderation_value = 'draft';
+    }
   }
 }
 
