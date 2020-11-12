@@ -4,6 +4,10 @@ module.exports = {
   before: function (browser) {
     // Resize default window size.
     browser.resizeWindow(1600, 2048);
+    // Dismiss EU cookie notice.
+    browser.drupalRelativeURL('/')
+      .pause(2000)
+      .click('xpath', '//div[@id="popup-buttons"]//button[text()="Accept all cookies"]');
 
     // Login as an editor.
     browser
