@@ -132,19 +132,25 @@ function origins_workflow_hide_moderation_field(&$view) {
       // Show the 'nothing' custom text field which has links for 'Change to Draft' / 'Change to Needs Review'
       // based on the current moderation state and always shows 'Change to Published'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
-      $view->field['nothing_2']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing_2'])) {
+        $view->field['nothing_2']->options['exclude'] = TRUE;
+      }
     }
     elseif (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition publish')) {
       // Show the 'nothing_2' custom text field which has links for 'Change to Draft' and 'Change to Published'
       // for nodes which have a state of 'Needs review'. For nodes in 'Draft' show 'Change to Needs Review'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
-      $view->field['nothing']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing'])) {
+        $view->field['nothing']->options['exclude'] = TRUE;
+      }
     }
     elseif (isset($view->field['nothing'])) {
       // Show the 'nothing_1' custom text field which has links for 'Change to Draft' / 'Change to Needs Review'
       // based on the current moderation state and does not have a  'Change to Published' link.
       $view->field['nothing']->options['exclude'] = TRUE;
-      $view->field['nothing_2']->options['exclude'] = TRUE;
+      if (isset($view->field['nothing_2'])) {
+        $view->field['nothing_2']->options['exclude'] = TRUE;
+      }
     }
   }
 
