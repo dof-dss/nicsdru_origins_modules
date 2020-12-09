@@ -102,19 +102,25 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     // Check permissions of current user.
     $current_user = $this->currentUser();
     $transition_allowed = FALSE;
-    if (($current_state == 'draft') && ($new_state == 'published')) {
-      // Is this user allowed to use the 'quick publish' transition ?
-      if ($current_user->hasPermission('use editorial transition quick_publish')) {
-        $transition_allowed = TRUE;
-      }
-    }
-    elseif (($current_state == 'draft') && ($new_state == 'draft')) {
+    if (($current_state == 'draft') && ($new_state == 'draft')) {
       if ($current_user->hasPermission('use editorial transition create_new_draft')) {
         $transition_allowed = TRUE;
       }
     }
     elseif (($current_state == 'draft') && ($new_state == 'needs_review')) {
       if ($current_user->hasPermission('use editorial transition submit_for_review')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'draft') && ($new_state == 'published')) {
+      // Is this user allowed to use the 'quick publish' transition ?
+      if ($current_user->hasPermission('use editorial transition quick_publish')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'published') && ($new_state == 'published')) {
+      // Is this user allowed to use the 'quick publish' transition ?
+      if ($current_user->hasPermission('use editorial transition quick_publish')) {
         $transition_allowed = TRUE;
       }
     }
@@ -125,6 +131,26 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     }
     elseif (($current_state == 'needs_review') && ($new_state == 'published')) {
       if ($current_user->hasPermission('use editorial transition publish')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'published') && ($new_state == 'needs_review')) {
+      if ($current_user->hasPermission('unpublish')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'published') && ($new_state == 'archived')) {
+      if ($current_user->hasPermission('use editorial transition archive')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'archived') && ($new_state == 'draft')) {
+      if ($current_user->hasPermission('use editorial transition restore_to_draft')) {
+        $transition_allowed = TRUE;
+      }
+    }
+    elseif (($current_state == 'archived') && ($new_state == 'published')) {
+      if ($current_user->hasPermission('use editorial transition restore')) {
         $transition_allowed = TRUE;
       }
     }
