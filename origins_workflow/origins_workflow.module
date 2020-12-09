@@ -336,7 +336,7 @@ function origins_workflow_preprocess_table(&$variables) {
           // Check the existing text in an attempt to detect any core fix that
           // might come along.
           $title_text = $title_markup->getUntranslatedString();
-          if (($title_text == 'Set as current revision') || ($title_text == 'Revert')) {
+          if ($title_text == 'Set as current revision') {
             // Change the URL to our controller so we're creating a new draft of the revision selected,
             // rather than reverting to that revision + it's publish state.
             $revert_link = &$variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert'];
