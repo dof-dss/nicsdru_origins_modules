@@ -6,7 +6,9 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
@@ -43,6 +45,14 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
         }
       }
     }
+  }
+
+  // Processing to alter revision log messages and include the revision number.
+  if ($entity instanceof ContentEntityInterface && $entity instanceof RevisionLogInterface) {
+    $source_revision_id = $entity->getLoadedRevisionId();
+    $entity->setRevisionLogMessage(t('Copy of revision @rev', [
+      '@rev' => $source_revision_id,
+    ]));
   }
 }
 
