@@ -133,7 +133,12 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
     $entity->setRevisionCreationTime($request_time);
     $entity->setChangedTime($request_time);
     $entity->setRevisionUserId($this->currentUser()->id());
-    $entity->revision_log = t('Copy of the published revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]);
+    $source_revision_id = $entity->getLoadedRevisionId();
+    $entity->revision_log = t('Copy of the published revision %rev from %date.',
+      [
+        '%date' => $this->dateFormatter->format($original_revision_timestamp),
+        '%rev' => $source_revision_id,
+      ]);
     $entity->setRevisionTranslationAffected(TRUE);
     $entity->setUnpublished();
     // Save the new revision.
