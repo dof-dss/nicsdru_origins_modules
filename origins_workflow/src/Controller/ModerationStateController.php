@@ -144,6 +144,11 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         $transition_allowed = TRUE;
       }
     }
+    elseif (($current_state == 'draft') && ($new_state == 'archived')) {
+      if ($current_user->hasPermission('use editorial transition archive')) {
+        $transition_allowed = TRUE;
+      }
+    }
     elseif (($current_state == 'archived') && ($new_state == 'draft')) {
       if ($current_user->hasPermission('use editorial transition restore_to_draft')) {
         $transition_allowed = TRUE;
