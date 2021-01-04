@@ -416,11 +416,17 @@ function _create_draft_link_for_revision(&$variables, $idx, $row) {
 }
 
 function origins_workflow_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
-  // Add an 'Archive' button to the moderation sidebar.
-  $build['actions']['primary']['archive'] = [];
-  $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
-  $build['actions']['primary']['archive']['#type'] = "link";
-  $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
-    ['nid' => $entity->id(), 'new_state' => 'archived']);
-  $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button']];
+  // Get current moderation state.
+  $current_state = $entity->moderation_state->value;
+  // Special case if this node is published but
+  // we are not looking at the latest revision.
+  if (($current_state == 'published') && !$entity->isLatestRevision()) {
+    // Add an 'Archive' button to the moderation sidebar.
+    $build['actions']['primary']['archive'] = [];
+    $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
+    $build['actions']['primary']['archive']['#type'] = "link";
+    $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
+      ['nid' => $entity->id(), 'new_state' => 'archived']);
+    $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button']];
+  }
 }
