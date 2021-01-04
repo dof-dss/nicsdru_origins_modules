@@ -442,6 +442,6 @@ function origins_workflow_moderation_sidebar_alter(array &$build, \Drupal\Core\E
       ['nid' => $entity->id(), 'new_state' => 'archived'],
       $options);
     // Style as a button in the moderation sidebar.
-    $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button']];
+    $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button', 'archive-link']];
   }
 }
