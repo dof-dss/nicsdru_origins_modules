@@ -10,6 +10,7 @@ use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\views\ViewExecutable;
@@ -412,4 +413,14 @@ function _create_draft_link_for_revision(&$variables, $idx, $row) {
     }
   }
   return $this_version;
+}
+
+function origins_workflow_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
+  // Add an 'Archive' button to the moderation sidebar.
+  $build['actions']['primary']['archive'] = [];
+  $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
+  $build['actions']['primary']['archive']['#type'] = "link";
+  $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
+    ['nid' => $entity->id(), 'new_state' => 'archived']);
+  $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button']];
 }
