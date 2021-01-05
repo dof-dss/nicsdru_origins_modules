@@ -51,8 +51,8 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   if ($entity instanceof ContentEntityInterface && $entity instanceof RevisionLogInterface) {
     $source_revision_id = $entity->getLoadedRevisionId();
     $msgobj = $entity->getRevisionLogMessage();
-    if (isset($msgobj)) {
-      $thismsg = $msgobj->getUntranslatedString();
+    if (!empty($msgobj)) {
+      $thismsg = ($msgobj instanceof TranslatableMarkup) ? $msgobj->getUntranslatedString() : $msgobj;
       if (!empty($thismsg)) {
         if (preg_match('/^Copy of the revision from/', $thismsg)) {
           $entity->setRevisionLogMessage(t('Copy of revision @rev', [
