@@ -2,3 +2,6 @@ admin.css:
   css:
     theme:
       css/admin.css: {}
+moderation_sidebar_fix:
+  js:
+    js/moderation_sidebar_fix.js: {}
