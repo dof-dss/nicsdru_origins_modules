@@ -418,7 +418,7 @@ function _create_draft_link_for_revision(&$variables, $idx, $row) {
 /**
  * Implements hook_moderation_sidebar_alter().
  */
-function origins_workflow_moderation_sidebar_alter(array &$build, \Drupal\Core\Entity\EntityInterface $entity) {
+function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterface $entity) {
   // Get current moderation state.
   $current_state = $entity->moderation_state->value;
   // Special case if this node is published but
@@ -442,7 +442,9 @@ function origins_workflow_moderation_sidebar_alter(array &$build, \Drupal\Core\E
       ['nid' => $entity->id(), 'new_state' => 'archived'],
       $options);
     // Style as a button in the moderation sidebar.
-    $build['actions']['primary']['archive']['#attributes'] = ['class' => ['moderation-sidebar-link', 'button', 'archive-link']];
+    $build['actions']['primary']['archive']['#attributes'] = [
+      'class' => ['moderation-sidebar-link', 'button', 'archive-link']
+    ];
   }
 }
 
