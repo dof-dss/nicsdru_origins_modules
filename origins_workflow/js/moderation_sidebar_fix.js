@@ -12,7 +12,7 @@
         by adding a confirmation here in the same way that moderation sidebar
         normally would.
          */
-        return confirm("When archived, this content will be unpublished. Are you sure that you want to archive?");
+        return confirm(Drupal.t("When archived, this content will be unpublished. Are you sure that you want to archive?"));
       });
     }
   };
