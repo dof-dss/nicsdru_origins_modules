@@ -347,15 +347,6 @@ function origins_workflow_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
-        // Change the link text from 'Set as current revision' to
-        // 'Copy to new revision' as it makes more sense - see issue
-        // https://www.drupal.org/project/drupal/issues/2899719
-        if (isset($variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'])) {
-          $title_markup = $variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'];
-          // Check the existing text in an attempt to detect any core fix that
-          // might come along.
-          $title_text = $title_markup->getUntranslatedString();
-        }
       }
       else {
         // There is no 'revert' button in this row, therefore it must be the
