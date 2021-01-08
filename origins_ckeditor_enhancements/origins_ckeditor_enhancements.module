@@ -42,6 +42,12 @@ function origins_ckeditor_enhancements_editor_js_settings_alter(array &$settings
       if (isset($settings['editor']['formats'][$text_format_id]['editorSettings']['format_tags'])) {
         $settings['editor']['formats'][$text_format_id]['editorSettings']['format_tags'] .= ';address';
       }
+
+      // Turn off paste from word prompt.
+      $word_cleanup_prompt = &$settings['editor']['formats'][$text_format_id]['editorSettings']['pasteFromWordPromptCleanup'];
+      if (!empty($word_cleanup_prompt)) {
+        $word_cleanup_prompt = FALSE;
+      }
     }
   }
 }
