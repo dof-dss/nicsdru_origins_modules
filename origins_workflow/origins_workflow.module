@@ -415,7 +415,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
   // Special case if this node is published but
   // we are not looking at the latest revision.
   if (($current_state == 'published') && !$entity->isLatestRevision()) {
-    if (\Drupal::currentUser()->hasPermission('use editorial transition archive')) {
+    if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition archive')) {
       // Add an 'Archive' button to the moderation sidebar, as
       // it fails to do this in this case.
       $build['actions']['primary']['archive'] = [];
