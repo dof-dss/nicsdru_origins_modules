@@ -10,13 +10,6 @@ module.exports = {
       .expect.element('h1.page-title')
       .text.to.contain('Revisions for');
 
-    /* Test that 'Copy to new revision' link has been inserted
-    *  by origins_workflow_preprocess_table() */
-    browser
-      .useXpath()
-      .expect.element('//table//td[5]//div//div//ul//li//a')
-      .text.to.contain('Copy to new revision');
-
     /* Test that link text has been overridden with
     * 'Create Draft of Published' by origins_workflow_preprocess_table() */
     browser

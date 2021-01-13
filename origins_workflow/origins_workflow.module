@@ -147,7 +147,7 @@ function origins_workflow_hide_moderation_field(&$view) {
   // 'My Drafts' and 'All Drafts' displays.
   if (($view->element['#display_id'] === 'my_drafts') || ($view->element['#display_id'] === 'all_drafts')) {
     // Show the 'Change to Publish' field if the user has that permission.
-    if (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition quick_publish')) {
+    if (isset($view->field['nothing_1']) && $account->hasPermission('use nics_editorial_workflow transition quick_publish')) {
       // Show the 'nothing' custom text field which has links for 'Change to Draft' / 'Change to Needs Review'
       // based on the current moderation state and always shows 'Change to Published'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
@@ -155,7 +155,7 @@ function origins_workflow_hide_moderation_field(&$view) {
         $view->field['nothing_2']->options['exclude'] = TRUE;
       }
     }
-    elseif (isset($view->field['nothing_1']) && $account->hasPermission('use editorial transition publish')) {
+    elseif (isset($view->field['nothing_1']) && $account->hasPermission('use nics_editorial_workflow transition publish')) {
       // Show the 'nothing_2' custom text field which has links for 'Change to Draft' and 'Change to Published'
       // for nodes which have a state of 'Needs review'. For nodes in 'Draft' show 'Change to Needs Review'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
@@ -176,7 +176,7 @@ function origins_workflow_hide_moderation_field(&$view) {
   // 'Needs Review' display.
   if ($view->element['#display_id'] === 'needs_review') {
     // Show the 'Change to Publish' field if the user has that permission.
-    if (isset($view->field['nothing_3']) && $account->hasPermission('use editorial transition publish')) {
+    if (isset($view->field['nothing_3']) && $account->hasPermission('use nics_editorial_workflow transition publish')) {
       $view->field['nothing_3']->options['exclude'] = TRUE;
     }
     elseif (isset($view->field['nothing'])) {
@@ -347,15 +347,6 @@ function origins_workflow_preprocess_table(&$variables) {
         if (isset($this_url)) {
           $this_version = $this_url->getRouteParameters()['node_revision'];
         }
-        // Change the link text from 'Set as current revision' to
-        // 'Copy to new revision' as it makes more sense - see issue
-        // https://www.drupal.org/project/drupal/issues/2899719
-        if (isset($variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'])) {
-          $title_markup = $variables['rows'][$idx]['cells'][$action_column]['content']['#links']['revert']['title'];
-          // Check the existing text in an attempt to detect any core fix that
-          // might come along.
-          $title_text = $title_markup->getUntranslatedString();
-        }
       }
       else {
         // There is no 'revert' button in this row, therefore it must be the
@@ -424,27 +415,29 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
   // Special case if this node is published but
   // we are not looking at the latest revision.
   if (($current_state == 'published') && !$entity->isLatestRevision()) {
-    // Add an 'Archive' button to the moderation sidebar, as
-    // it fails to do this in this case.
-    $build['actions']['primary']['archive'] = [];
-    $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
-    $build['actions']['primary']['archive']['#type'] = "link";
-    // Retrieve alias for current node.
-    $alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $entity->id());
-    // Redirect to current node view after changing state.
-    $options = [
-      'query' => [
-        'destination' => $alias
-      ],
-    ];
-    // Build URL to change state.
-    $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
-      ['nid' => $entity->id(), 'new_state' => 'archived'],
-      $options);
-    // Style as a button in the moderation sidebar.
-    $build['actions']['primary']['archive']['#attributes'] = [
-      'class' => ['moderation-sidebar-link', 'button', 'archive-link']
-    ];
+    if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition archive')) {
+      // Add an 'Archive' button to the moderation sidebar, as
+      // it fails to do this in this case.
+      $build['actions']['primary']['archive'] = [];
+      $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
+      $build['actions']['primary']['archive']['#type'] = "link";
+      // Retrieve alias for current node.
+      $alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $entity->id());
+      // Redirect to current node view after changing state.
+      $options = [
+        'query' => [
+          'destination' => $alias
+        ],
+      ];
+      // Build URL to change state.
+      $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
+        ['nid' => $entity->id(), 'new_state' => 'archived'],
+        $options);
+      // Style as a button in the moderation sidebar.
+      $build['actions']['primary']['archive']['#attributes'] = [
+        'class' => ['moderation-sidebar-link', 'button', 'archive-link']
+      ];
+    }
   }
 }
 
