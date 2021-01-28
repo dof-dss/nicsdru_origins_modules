@@ -39,3 +39,12 @@ function origins_form_descriptions_preprocess_form_element(&$variables) {
   // Add a default hidden class to avoid visual jerkiness when loading.
   $variables['description']['attributes']->addClass('js-hide');
 }
+
+/**
+ * Implements hook_theme_registry_alter
+ */
+function origins_form_descriptions_theme_registry_alter(&$theme_registry) {
+  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
+    $theme_registry['fieldset__media_library_widget']['path'] = drupal_get_path('module', 'origins_form_descriptions') . '/templates/media-library';
+  }
+}
