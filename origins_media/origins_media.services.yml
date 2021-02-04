@@ -3,3 +3,5 @@ services:
     class: Drupal\origins_media\Routing\RouteSubscriber
     tags:
       - { name: event_subscriber }
+  origins_media.pretty_mime_types:
+    class: Drupal\origins_media\PrettyMimes
