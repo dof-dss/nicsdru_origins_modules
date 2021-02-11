@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Install, uninstall and update hooks for Media module.
+ */
+
+use Drupal\Core\File\Exception\FileException;
+use Drupal\Core\File\FileSystemInterface;
+
+/**
+ * Implements hook_install().
+ */
+function origins_media_update_8800() {
+  $source = drupal_get_path('module', 'origins_media') . '/images/icons';
+  $destination = \Drupal::config('media.settings')->get('icon_base_uri');
+
+  $file_system = \Drupal::service('file_system');
+  $file_system->prepareDirectory($destination, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+
+  $files = $file_system->scanDirectory($source, '/.*\.(svg|png|jpg|jpeg|gif)$/');
+  foreach ($files as $file) {
+    if (!file_exists($destination . DIRECTORY_SEPARATOR . $file->filename)) {
+      try {
+        $data = file_get_contents($file_system->realpath($file->uri));
+        file_save_data($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_ERROR);
+      }
+      catch (FileException $e) {
+        // When reinstalling the media module we don't want to copy the icons when
+        // they already exist. The icons could be replaced (by a contrib module or
+        // manually), so we don't want to replace the existing files. Removing the
+        // files when we uninstall could also be a problem if the files are
+        // referenced somewhere else. Since showing an error that it was not
+        // possible to copy the files is also confusing, we silently do nothing.
+      }
+    }
+  }
+}
