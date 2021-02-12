@@ -158,25 +158,34 @@ function origins_media_preprocess_views_view_field(&$variables) {
   $view = $variables['view'];
   $field_id = $variables['field']->field;
 
-  if ($view->id() == 'media_library'
-    && in_array($view->current_display, ['default_page', 'widget_table'])
-      && $field_id == 'nothing') {
+  if ($view->id() == 'media_library' &&
+    in_array($view->current_display, ['default_page', 'widget_table'])) {
 
-    $mid = $variables['row']->mid;
-    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
-      $variables['row']->_entity,
-      PHP_INT_MAX,
-      0);
+    if ($field_id == 'filemime') {
+      $pretty_mimes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
+      $mime_type_key = $variables['output']->__toString();
 
-    $ref_count = $usage['total'];
+      // Replace with prettier version.
+      $variables['output'] = ViewsRenderPipelineMarkup::create($pretty_mimes[$mime_type_key]);
+    }
 
-    $link = Link::createFromRoute(
-      t('@count places', ['@count' => $ref_count]),
-      'whatlinkshere.references.media',
-      ['media' => $mid]
-    );
+    if ($field_id == 'nothing') {
+      $mid = $variables['row']->mid;
+      $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
+        $variables['row']->_entity,
+        PHP_INT_MAX,
+        0);
 
-    $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
+      $ref_count = $usage['total'];
+
+      $link = Link::createFromRoute(
+        t('@count places', ['@count' => $ref_count]),
+        'whatlinkshere.references.media',
+        ['media' => $mid]
+      );
+
+      $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
+    }
   }
 }
 
