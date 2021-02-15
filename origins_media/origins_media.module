@@ -5,9 +5,13 @@
  * Contains origins_media.module.
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\file\FileInterface;
+use Drupal\media\MediaInterface;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 
 /**
@@ -154,25 +158,34 @@ function origins_media_preprocess_views_view_field(&$variables) {
   $view = $variables['view'];
   $field_id = $variables['field']->field;
 
-  if ($view->id() == 'media_library'
-    && in_array($view->current_display, ['default_page', 'widget_table'])
-      && $field_id == 'nothing') {
+  if ($view->id() == 'media_library' &&
+    in_array($view->current_display, ['default_page', 'widget_table'])) {
 
-    $mid = $variables['row']->mid;
-    $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
-      $variables['row']->_entity,
-      PHP_INT_MAX,
-      0);
+    if ($field_id == 'filemime') {
+      $pretty_mimes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
+      $mime_type_key = $variables['output']->__toString();
 
-    $ref_count = $usage['total'];
+      // Replace with prettier version.
+      $variables['output'] = ViewsRenderPipelineMarkup::create($pretty_mimes[$mime_type_key]);
+    }
 
-    $link = Link::createFromRoute(
-      t('@count places', ['@count' => $ref_count]),
-      'whatlinkshere.references.media',
-      ['media' => $mid]
-    );
+    if ($field_id == 'nothing') {
+      $mid = $variables['row']->mid;
+      $usage = \Drupal::service('whatlinkshere.linkmanager')->getReferenceContent(
+        $variables['row']->_entity,
+        PHP_INT_MAX,
+        0);
 
-    $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
+      $ref_count = $usage['total'];
+
+      $link = Link::createFromRoute(
+        t('@count places', ['@count' => $ref_count]),
+        'whatlinkshere.references.media',
+        ['media' => $mid]
+      );
+
+      $variables['output'] = ViewsRenderPipelineMarkup::create($link->toString());
+    }
   }
 }
 
@@ -182,4 +195,58 @@ function origins_media_preprocess_views_view_field(&$variables) {
 function origins_media_preprocess_fieldset__media_library_widget(array &$variables) {
   // Hide the 'Show media item weights' link.
   unset($variables['prefix']['weight_toggle']);
+}
+
+/**
+ * Implements hook_preprocess_media().
+ */
+function origins_media_preprocess_media(array &$variables) {
+  if ($variables['view_mode'] == 'media_library' && $variables['media']->bundle() === 'document') {
+    $media_entity = &$variables['media'];
+    $file_storage = \Drupal::entityTypeManager()->getStorage('file');
+
+    // Get the underlying file associated with this document entity.
+    $file = $file_storage->load($media_entity->field_media_file->target_id);
+    $mimetype = $file->getMimeType();
+
+    // There shouldn't be an image file here, but just in case, screen for it as if
+    // it's genuine it likely has its own thumbnail so we would want to keep that.
+    if (preg_match('/jpeg|jpg|gif|png/', $mimetype)) {
+      return;
+    }
+
+    $mimetype_file = \Drupal::config('media.settings')->get('icon_base_uri') . '/' . str_replace('application/', 'application-', $mimetype) . '.png';
+
+    $thumbnail_file = $file_storage->loadByProperties([
+      'uri' => $mimetype_file,
+    ]);
+    $thumbnail_file = reset($thumbnail_file);
+
+    // Swap in the appropriate file reference for the icon representing this MIME type.
+    $variables['content']['thumbnail'][0]['#item']->setValue(['target_id' => $thumbnail_file->id()]);
+  }
+}
+
+/**
+ * Implements hook_preprocess_image_formatter().
+ */
+function origins_media_preprocess_image_formatter(array &$variables) {
+  if (empty($variables['url']) || $variables['image_style'] != 'thumbnail') {
+    return;
+  }
+
+  // Derive the media entity linked to from the URL.
+  $url = &$variables['url'];
+  $media_entity = $url->getOption('entity');
+
+  if ($media_entity instanceof MediaInterface && $media_entity->bundle() === 'document') {
+    $file_storage = \Drupal::entityTypeManager()->getStorage('file');
+    // Get the underlying file associated with this document entity.
+    $file = $file_storage->load($media_entity->field_media_file->target_id);
+    $mimetype = $file->getMimeType();
+    $mimetype_file = \Drupal::config('media.settings')->get('icon_base_uri') . '/' . str_replace('application/', 'application-', $mimetype) . '.png';
+
+    // Swap in the appropriate file reference for the icon representing this MIME type.
+    $variables['image']['#uri'] = $mimetype_file;
+  }
 }
