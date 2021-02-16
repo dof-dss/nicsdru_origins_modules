@@ -207,6 +207,11 @@ function origins_media_preprocess_media(array &$variables) {
 
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
+
+    if ($file instanceof FileInterface === FALSE) {
+      return;
+    }
+
     $mimetype = $file->getMimeType();
 
     // There shouldn't be an image file here, but just in case, screen for it as if
@@ -220,6 +225,11 @@ function origins_media_preprocess_media(array &$variables) {
     $thumbnail_file = $file_storage->loadByProperties([
       'uri' => $mimetype_file,
     ]);
+
+    if (empty($thumbnail_file)) {
+      return;
+    }
+
     $thumbnail_file = reset($thumbnail_file);
 
     // Swap in the appropriate file reference for the icon representing this MIME type.
