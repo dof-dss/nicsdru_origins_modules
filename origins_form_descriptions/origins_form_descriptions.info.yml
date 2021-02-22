@@ -3,3 +3,5 @@ type: module
 description: 'Moves the description on content form fields underneath the title'
 core: 8.x
 package: 'Origins'
+dependencies:
+  - drupal:media_library

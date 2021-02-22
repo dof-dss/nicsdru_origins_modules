@@ -4,7 +4,7 @@
  */
 (function ($, Drupal) {
   Drupal.behaviors.landinglisting = {
-    attach: (context) => {
+    attach: function (context) {
       $("a.archive-link").click(function(event) {
         /*
         A class of 'archive-link' means that this link has been faked by code in
