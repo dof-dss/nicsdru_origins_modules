@@ -32,4 +32,32 @@ class PrettyMimes {
     return $mimeTypes;
   }
 
+  /**
+   * Returns a simplified file type value for a mime type. Useful
+   * for CSS extensions, eg: in origins_media/css/media-library-styles.css.
+   *
+   * @return string[]
+   *   The keyed array of raw mime type keys and easier to read values.
+   */
+  public static function getSimpleMimeTypes() {
+    $simpleMimes = [
+      'application/pdf' => 'pdf',
+      'application/msword' => 'word',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'word',
+      'application/vnd.ms-excel' => 'excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'excel',
+      'application/vnd.ms-excel.sheet.macroEnabled.12' => 'excel',
+      'application/vnd.ms-powerpoint' => 'powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'powerpoint',
+      'application/vnd.oasis.opendocument.text' => 'opendocument-text',
+      'application/vnd.oasis.opendocument.spreadsheet' => 'opendocument-spreadsheet',
+      'application/vnd.oasis.opendocument.presentation' => 'opendocument-presentation',
+      'application/zip' => 'zip',
+      'text/csv' => 'csv',
+      'text/html' => 'html',
+    ];
+
+    return $simpleMimes;
+  }
+
 }

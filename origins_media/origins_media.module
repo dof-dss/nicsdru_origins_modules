@@ -254,9 +254,20 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
     $mimetype = $file->getMimeType();
-    $mimetype_file = \Drupal::config('media.settings')->get('icon_base_uri') . '/' . str_replace('application/', 'application-', $mimetype) . '.png';
+    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
 
-    // Swap in the appropriate file reference for the icon representing this MIME type.
-    $variables['image']['#uri'] = $mimetype_file;
+    // Replace the original image_style render element with a bespoke HTML element
+    // with our custom CSS attached to render the file icon as background CSS.
+    $variables['image'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => '',
+      '#attributes' => [
+        'class' => ['file--ico', 'file--ico__' . $simple_mimetypes[$mimetype]],
+      ],
+      '#attached' => [
+        'library' => 'origins_media/media_library_styles',
+      ],
+    ];
   }
 }
