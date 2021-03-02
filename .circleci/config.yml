@@ -7,7 +7,7 @@ jobs:
   # Test that coding standards fit drupal.org definitions.
   coding_standards:
     docker:
-      - image: circleci/php:7.3.14-apache-browsers
+      - image: circleci/php:7.4.15-apache-browsers
     steps:
       - checkout
       - run:
@@ -19,7 +19,7 @@ jobs:
       - run:
           name: Fetch phpcs convenience script
           command: |
-            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/development/phpcs.sh -o /home/circleci/project/phpcs.sh
+            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/main/phpcs.sh -o /home/circleci/project/phpcs.sh
             chmod +x /home/circleci/project/phpcs.sh
       - run:
           name: PHPCS static analysis
