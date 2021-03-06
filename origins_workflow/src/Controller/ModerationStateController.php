@@ -6,10 +6,12 @@ use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\StateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class ModerationStateController.
@@ -31,6 +33,20 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   protected $moderationInformation;
 
   /**
+   * Service object for the messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * Request stack object.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $request;
+
+  /**
    * A logger instance.
    *
    * @var \Psr\Log\LoggerInterface
@@ -44,12 +60,18 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *   The entity type manager.
    * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
    *   Moderation information service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   Messenger service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request
+   *   Request stack object.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, LoggerInterface $logger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger) {
     $this->entityTypeManager = $entity_type_manager;
     $this->moderationInformation = $moderation_information;
+    $this->messenger = $messenger;
+    $this->request = $request;
     $this->logger = $logger;
   }
 
@@ -60,6 +82,8 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     return new static(
       $container->get('entity_type.manager'),
       $container->get('content_moderation.moderation_information'),
+      $container->get('messenger'),
+      $container->get('request_stack'),
       $container->get('logger.factory')->get('origins_workflow')
     );
   }
@@ -93,13 +117,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         ]);
         $this->logger->notice($message);
 
-        if (!empty(\Drupal::request()->query->get('confirm'))) {
+        if (!empty($this->request->getCurrentRequest()->query->get('confirm'))) {
           $message = t('Moderation state of "@title" changed to @new_state', [
             '@title' => $entity->getTitle(),
             '@new_state' => $new_state_entity->label(),
           ]);
 
-          \Drupal::messenger()->addMessage($message, \Drupal::messenger()::TYPE_STATUS);
+          $this->messenger->addMessage($message, $this->messenger::TYPE_STATUS);
         }
       }
       else {
