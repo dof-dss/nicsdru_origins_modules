@@ -6,7 +6,6 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -51,7 +50,7 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   }
 
   // Processing to alter revision log messages and include the revision number.
-  if ($entity instanceof ContentEntityInterface && $entity instanceof RevisionLogInterface) {
+  if ($entity instanceof NodeInterface && $entity instanceof RevisionLogInterface) {
     $source_revision_id = $entity->getLoadedRevisionId();
     $msgobj = $entity->getRevisionLogMessage();
     if (!empty($msgobj)) {
@@ -459,7 +458,12 @@ function origins_workflow_preprocess_page(&$variables) {
  * Implements hook_entity_operation().
  */
 function origins_workflow_entity_operation(EntityInterface $entity) {
-  if ($entity instanceof ContentEntityInterface === FALSE) {
+  if ($entity instanceof NodeInterface === FALSE) {
+    return;
+  }
+
+  // Only apply on the moderation views routes.
+  if (!preg_match('/^view.workflow_moderation./', \Drupal::routeMatch()->getRouteName())) {
     return;
   }
 
