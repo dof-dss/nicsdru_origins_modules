@@ -201,7 +201,7 @@ function origins_media_preprocess_fieldset__media_library_widget(array &$variabl
  * Implements hook_preprocess_media().
  */
 function origins_media_preprocess_media(array &$variables) {
-  if ($variables['view_mode'] == 'media_library' && $variables['media']->bundle() === 'document') {
+  if ($variables['view_mode'] === 'media_library' && $variables['media']->bundle() === 'document') {
     $media_entity = &$variables['media'];
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
 
@@ -220,20 +220,21 @@ function origins_media_preprocess_media(array &$variables) {
       return;
     }
 
-    $mimetype_file = \Drupal::config('media.settings')->get('icon_base_uri') . '/' . str_replace('application/', 'application-', $mimetype) . '.png';
+    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
 
-    $thumbnail_file = $file_storage->loadByProperties([
-      'uri' => $mimetype_file,
-    ]);
-
-    if (empty($thumbnail_file)) {
-      return;
-    }
-
-    $thumbnail_file = reset($thumbnail_file);
-
-    // Swap in the appropriate file reference for the icon representing this MIME type.
-    $variables['content']['thumbnail'][0]['#item']->setValue(['target_id' => $thumbnail_file->id()]);
+    // Replace the original image_style render element with a bespoke HTML element
+    // with our custom CSS attached to render the file icon as background CSS.
+    $variables['content']['thumbnail'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => $media_entity->label(),
+      '#attributes' => [
+        'class' => ['file--ico', 'file--ico__' . $simple_mimetypes[$mimetype]],
+      ],
+      '#attached' => [
+        'library' => 'nicsdru_origins_theme/media_library_styles',
+      ],
+    ];
   }
 }
 
@@ -254,9 +255,20 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
     $mimetype = $file->getMimeType();
-    $mimetype_file = \Drupal::config('media.settings')->get('icon_base_uri') . '/' . str_replace('application/', 'application-', $mimetype) . '.png';
+    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
 
-    // Swap in the appropriate file reference for the icon representing this MIME type.
-    $variables['image']['#uri'] = $mimetype_file;
+    // Replace the original image_style render element with a bespoke HTML element
+    // with our custom CSS attached to render the file icon as background CSS.
+    $variables['image'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => $media_entity->label(),
+      '#attributes' => [
+        'class' => ['file--ico', 'file--ico__' . $simple_mimetypes[$mimetype]],
+      ],
+      '#attached' => [
+        'library' => 'nicsdru_origins_theme/media_library_styles',
+      ],
+    ];
   }
 }
