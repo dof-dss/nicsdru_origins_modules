@@ -98,4 +98,3 @@ function origins_common_moderation_sidebar_alter(&$build, &$context) {
     }
   }
 }
-
