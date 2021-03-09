@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -61,5 +62,39 @@ function _origins_common_revision_overview_form_submit(array &$form, FormStateIn
       'view_mode' => 'diff',
     ]);
     $form_state->setRedirectUrl($redirect_url);
+  }
+}
+
+/**
+ * Implements hook_moderation_sidebar_alter().
+ */
+function origins_common_moderation_sidebar_alter(&$build, &$context) {
+  if (!empty($build['actions']['secondary']['version_history'])) {
+    $revisions_link = Link::createFromRoute(
+      $build['actions']['secondary']['version_history']['#title']->__toString(),
+      'entity.node.version_history',
+      $build['actions']['secondary']['version_history']['#url']->getRouteParameters(),
+      $build['actions']['secondary']['version_history']['#url']->getOptions()
+    );
+
+    // Replace the URL of revisions link with the updated Link Url object.
+    if (!empty($build['actions']['secondary']['version_history']['#url'])) {
+      $build['actions']['secondary']['version_history']['#url'] = $revisions_link->getUrl();
+    }
+
+    // Strip AJAX class to link direct to page.
+    if (!empty($build['actions']['secondary']['version_history']['#attributes']['class'])) {
+      $build['actions']['secondary']['version_history']['#attributes']['class'] = array_diff($build['actions']['secondary']['version_history']['#attributes']['class'], ['use-ajax']);
+    }
+  }
+
+  if ($context instanceof Node && $context->getType() == 'webform') {
+    // Fix obscure off-canvas JS bug by repointing the URL to the underlying
+    // canonical test route name.
+    if (!empty($build['actions']['secondary']['entity.node.webform.test_form'])) {
+      $build['actions']['secondary']['entity.node.webform.test_form']['#url'] = Url::fromRoute(
+        'entity.webform.test_form', ['webform' => $context->get('webform')->target_id]
+      );
+    }
   }
 }
