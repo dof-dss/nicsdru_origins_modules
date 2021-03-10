@@ -2,22 +2,49 @@
 
 namespace Drupal\origins_workflow\Controller;
 
+use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\node\NodeInterface;
+use Drupal\workflows\StateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Class ModerationStateController.
  */
 class ModerationStateController extends ControllerBase implements ContainerInjectionInterface {
+
   /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
+
+  /**
+   * Service object for all moderation states.
+   *
+   * @var \Drupal\content_moderation\ModerationInformationInterface
+   */
+  protected $moderationInformation;
+
+  /**
+   * Service object for the messenger service.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
+   * Request stack object.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $request;
 
   /**
    * A logger instance.
@@ -31,11 +58,20 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
+   *   Moderation information service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   Messenger service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request
+   *   Request stack object.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerInterface $logger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->moderationInformation = $moderation_information;
+    $this->messenger = $messenger;
+    $this->request = $request;
     $this->logger = $logger;
   }
 
@@ -45,6 +81,9 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
+      $container->get('content_moderation.moderation_information'),
+      $container->get('messenger'),
+      $container->get('request_stack'),
       $container->get('logger.factory')->get('origins_workflow')
     );
   }
@@ -54,8 +93,16 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    */
   public function changeState($nid, $new_state) {
     // Load the entity.
+    /** @var \Drupal\node\NodeInterface $entity */
     $entity = $this->entityTypeManager->getStorage('node')->load($nid);
-    if ($entity) {
+
+    /** @var \Drupal\workflows\StateInterface $new_state_entity */
+    $new_state_entity = $this->moderationInformation
+      ->getWorkflowForEntity($entity)
+      ->getTypePlugin()
+      ->getState($new_state);
+
+    if ($entity instanceof NodeInterface && $new_state_entity instanceof StateInterface) {
       // See if this state change is allowed.
       if ($this->transitionAllowed($entity, $new_state)) {
         // Request the state change.
@@ -69,6 +116,15 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
           '@user' => $this->currentUser()->getAccountName(),
         ]);
         $this->logger->notice($message);
+
+        if (!empty($this->request->getCurrentRequest()->query->get('confirm'))) {
+          $message = t('Moderation state of "@title" changed to @new_state', [
+            '@title' => $entity->getTitle(),
+            '@new_state' => $new_state_entity->label(),
+          ]);
+
+          $this->messenger->addMessage($message, $this->messenger::TYPE_STATUS);
+        }
       }
       else {
         $message = t('State change of @title (nid @nid) to @new_state denied to @user', [
