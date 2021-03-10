@@ -6,17 +6,18 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Link;
+use Drupal\workflows\TransitionInterface;
 
 /**
  * Implements hook_page_attachments().
@@ -49,7 +50,7 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   }
 
   // Processing to alter revision log messages and include the revision number.
-  if ($entity instanceof ContentEntityInterface && $entity instanceof RevisionLogInterface) {
+  if ($entity instanceof NodeInterface && $entity instanceof RevisionLogInterface) {
     $source_revision_id = $entity->getLoadedRevisionId();
     $msgobj = $entity->getRevisionLogMessage();
     if (!empty($msgobj)) {
@@ -448,7 +449,94 @@ function origins_workflow_preprocess_page(&$variables) {
   // Add js to node view pages to fake a moderation
   // sidebar 'archive' button that is missing.
   $this_route = \Drupal::routeMatch()->getRouteName();
-  if ($this_route == 'entity.node.canonical') {
+  if ($this_route === 'entity.node.canonical') {
     $variables['#attached']['library'][] = 'origins_workflow/moderation_sidebar_fix';
   }
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function origins_workflow_entity_operation(EntityInterface $entity) {
+  if ($entity instanceof NodeInterface === FALSE) {
+    return;
+  }
+
+  // Only apply on the moderation views routes.
+  if (!preg_match('/^view.workflow_moderation./', \Drupal::routeMatch()->getRouteName())) {
+    return;
+  }
+
+  $operations = [];
+
+  // Add an operation to view the moderation history of this content.
+  if (\Drupal::currentUser()->hasPermission('view ' . $entity->bundle() . ' revisions')) {
+    $operations['view_moderation_history'] = [
+      'title' => \t('View moderation history'),
+      'url' => Url::fromRoute('entity.node.version_history', ['node' => $entity->id()]),
+      // Scheduled_transitions begins at 50 so place this just above.
+      'weight' => 49,
+    ];
+  }
+
+  // There's no combined permission check to assess valid transitions against
+  // specific node types. So we check the user's ability to more broadly administer
+  // this node type before we try and build custom links to toggle moderation states.
+  if (\Drupal::currentUser()->hasPermission('create ' . $entity->bundle() . ' content')) {
+    // Use the core service to fetch the permissable transitions based
+    // on underlying configuration and active user object.
+    $transitions = \Drupal::service('content_moderation.state_transition_validation')
+      ->getValidTransitions($entity, \Drupal::currentUser());
+
+    // Remove the current moderation status from the list of possible transitions.
+    // Quick publish isn't detected as an equivalent operation/status as published
+    // so we prune it off here for now as it makes no sense ot quick publish an
+    // already published piece of content.
+    if ($entity->moderation_state->value === 'published') {
+      unset($transitions['quick_publish']);
+    }
+
+    // We're going to use the permitted transitions returned above
+    // to create a collection of Url objects which we'll use to inject
+    // into the links collection. That allows editors to then select specific
+    // tasks to occur from a single location.
+
+    // Magic numbers... scheduled_transitions.module starts at 50 so a few
+    // between that and 0 (we want the 'Edit' link first) is fine.
+    $weight = 40;
+    foreach ($transitions as $id => $transition) {
+      if ($transition instanceof TransitionInterface === FALSE) {
+        // Skip over the transition if it's something other than
+        // a Transition object or something that implements that interface.
+        continue;
+      }
+
+      if ($transition->to()->id() === $entity->moderation_state->value) {
+        // Don't present link to change moderation state to the current value.
+        continue;
+      }
+
+      $url = Url::fromRoute('origins_workflow.moderation_state_controller_change_state', [
+        'nid' => $entity->id(),
+        'new_state' => $transition->to()->id(),
+      ],
+        [
+          'query' => [
+            'destination' => \Drupal::destination()->get(),
+            // Confirm query parameter triggers a message back to the user from the controller.
+            'confirm' => TRUE,
+          ]
+        ]);
+
+      $operations['change_to_' . $transition->to()->id()] = [
+        'title' => \t('Change to @label', ['@label' => $transition->to()->label()]),
+        'url' => $url,
+        'weight' => $weight,
+      ];
+
+      $weight--;
+    }
+  }
+
+  return $operations;
 }
