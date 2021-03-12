@@ -230,7 +230,11 @@ function origins_media_preprocess_media(array &$variables) {
       '#type' => 'html_tag',
       '#tag' => 'div',
       '#attributes' => [
-        'class' => ['file--media-library-preview', 'file--ico', 'file--ico__' . $simple_mimetypes[$mimetype]],
+        'class' => [
+          'file--media-library-preview',
+          'file--ico',
+          'file--ico__' . $simple_mimetypes[$mimetype]
+        ],
         'aria-label' => $pretty_mimetypes[$mimetype],
       ],
       '#attached' => [
@@ -265,7 +269,11 @@ function origins_media_preprocess_image_formatter(array &$variables) {
       '#type' => 'html_tag',
       '#tag' => 'div',
       '#attributes' => [
-        'class' => ['file--media-library-preview', 'file--ico', 'file--ico__' . $simple_mimetypes[$mimetype]],
+        'class' => [
+          'file--media-library-preview',
+          'file--ico',
+          'file--ico__' . $simple_mimetypes[$mimetype]
+        ],
         'aria-label' => $pretty_mimetypes[$mimetype],
       ],
       '#attached' => [
