@@ -25,6 +25,11 @@ class PrettyMimes {
       'application/vnd.oasis.opendocument.spreadsheet' => 'OpenDocument spreadsheet',
       'application/vnd.oasis.opendocument.presentation' => 'OpenDocument presentation',
       'application/zip' => 'ZIP archive',
+      'image/jpeg' => 'JPEG image',
+      'image/jpg' => 'JPG image',
+      'image/gif' => 'GIF image',
+      'image/png' => 'PNG image',
+      'image/svg+xml' => 'SVG image',
       'text/csv' => 'Comma-separated values',
       'text/html' => 'HTML (HyperText Markup Language)',
     ];

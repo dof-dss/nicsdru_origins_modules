@@ -5,11 +5,10 @@
  * Contains origins_media.module.
  */
 
-use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
@@ -163,7 +162,24 @@ function origins_media_preprocess_views_view_field(&$variables) {
 
     if ($field_id == 'filemime') {
       $pretty_mimes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
-      $mime_type_key = $variables['output']->__toString();
+      $mime_type_key = '';
+
+      if (empty($variables['output'])) {
+        // If empty, try checking mime type for an image.
+        $media = $variables['row']->_entity;
+
+        if ($media instanceof MediaInterface && $media->bundle() == 'image') {
+          // Need to load the file behind it to check what it is.
+          $file = File::load($media->field_media_image->target_id);
+
+          if ($file instanceof FileInterface) {
+            $mime_type_key = $file->getMimeType();
+          }
+        }
+      }
+      else {
+        $mime_type_key = $variables['output']->__toString();
+      }
 
       // Replace with prettier version.
       $variables['output'] = ViewsRenderPipelineMarkup::create($pretty_mimes[$mime_type_key]);
