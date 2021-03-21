@@ -5,3 +5,7 @@
 body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.group-result {
   display: none;
 }
+
+.origins-audit-actions .button {
+  margin: .5em !important;
+}
