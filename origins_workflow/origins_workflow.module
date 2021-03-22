@@ -93,12 +93,15 @@ function origins_workflow_menu_links_discovered_alter(&$links) {
   // dashboard menu if the nidirect_common module is installed.
   if (!in_array('origins_workflow.site_themes', $links)) {
     if (\Drupal::service('module_handler')->moduleExists('nidirect_common')) {
-      $links['origins_workflow.scheduled_tab'] = [
-        'title' => new TranslatableMarkup('Scheduled'),
-        'route_name' => 'view.scheduler_scheduled_content.overview',
-        'parent' => 'system.admin_content',
-        'weight' => 5,
-      ];
+      if (\Drupal::service('module_handler')->moduleExists('scheduler')) {
+        $links['origins_workflow.scheduled_tab'] = [
+          'title' => new TranslatableMarkup('Scheduled'),
+          'route_name' => 'view.scheduler_scheduled_content.overview',
+          'parent' => 'system.admin_content',
+          'weight' => 5,
+        ];
+      }
+
       $links['origins_workflow.gps'] = [
         'title' => new TranslatableMarkup('GPs'),
         'route_name' => 'entity.gp.collection',
