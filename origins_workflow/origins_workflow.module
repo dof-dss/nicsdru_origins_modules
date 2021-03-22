@@ -23,6 +23,8 @@ use Drupal\workflows\TransitionInterface;
  * Implements hook_page_attachments().
  */
 function origins_workflow_page_attachments(array &$attachments) {
+  // Attach library for dialogs.
+  $attachments['#attached']['library'][] = 'origins_workflow/origins_workflow.dialogs';
   // Attach extra custom css for admin menu.
   $attachments['#attached']['library'][] = 'origins_workflow/admin.css';
 }
@@ -277,7 +279,7 @@ function _audit_link($field, $dt, $nid) {
         'attributes' => [
           'rel' => 'nofollow',
           'title' => $audit_button_hover_text,
-          'class' => 'audit_link',
+          'class' => ['audit_link'],
         ],
       ];
       $link_object = NULL;
@@ -288,7 +290,10 @@ function _audit_link($field, $dt, $nid) {
         $link_object = Link::createFromRoute($audit_button_text, 'entity.node.edit_form', ['node' => $nid], $options);
       }
       else {
-        // Send the user to the 'content audit' page.
+        // Open 'content audit' page in an off-canvas dialog.
+        $options['attributes']['class'][] = 'use-ajax';
+        $options['attributes']['data-dialog-renderer'][] = 'off_canvas';
+        $options['attributes']['data-dialog-type'][] = 'dialog';
         $link_object = Link::createFromRoute($audit_button_text, 'origins_workflow.audit_controller_content_audit', ['nid' => $nid], $options);
       }
       if ($link_object) {
