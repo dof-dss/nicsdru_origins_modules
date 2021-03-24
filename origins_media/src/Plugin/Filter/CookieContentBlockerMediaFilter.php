@@ -26,6 +26,20 @@ class CookieContentBlockerMediaFilter extends FilterBase {
       return new FilterProcessResult($text);
     }
 
+    $text = preg_replace_callback('/(<drupal-media...* data-entity-uuid="(.+)"><\/drupal-media>)/m',
+      static function($matches) {
+        $replacement = $matches[1];
+      // TODO: Replace with injected service.
+        $entity = array_shift(\Drupal::entityTypeManager()->getStorage('media')->loadByProperties(['uuid' => $matches[2]]));
+
+        if ($entity && $entity->bundle() === 'remote_video') {
+          $replacement = "<cookiecontentblocker>$matches[1]</cookiecontentblocker>";
+        }
+        return $replacement;
+      },
+      $text
+    );
+
     return new FilterProcessResult($text);
   }
 
