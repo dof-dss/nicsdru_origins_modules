@@ -27,13 +27,15 @@ class CookieContentBlockerMediaFilter extends FilterBase {
     }
 
     $text = preg_replace_callback('/(<drupal-media...* data-entity-uuid="(.+)"><\/drupal-media>)/m',
-      static function($matches) {
+      static function ($matches) {
         $replacement = $matches[1];
-      // TODO: Replace with injected service.
+        // TODO: Replace with injected service. Use EntityRepository->loadEntityByUuid()
         $entity = array_shift(\Drupal::entityTypeManager()->getStorage('media')->loadByProperties(['uuid' => $matches[2]]));
 
+        $settings = base64_encode('{"button_text":"Show content","show_button":false,"show_placeholder":true,"blocked_message":"<a href=\'https://www.youtube.com/\'>Click here to view the video content</a>","enable_click":true}');
+
         if ($entity && $entity->bundle() === 'remote_video') {
-          $replacement = "<cookiecontentblocker>$matches[1]</cookiecontentblocker>";
+          $replacement = '<cookiecontentblocker data-settings="' . $settings . '">' . $matches[1] . '</cookiecontentblocker>';
         }
         return $replacement;
       },
