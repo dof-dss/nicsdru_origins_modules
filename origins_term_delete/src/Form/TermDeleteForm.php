@@ -14,9 +14,7 @@ use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a deletion confirmation form for taxonomy term.
- *
- * @internal
+ * Provides a safe(r) deletion confirmation form for taxonomy term.
  */
 class TermDeleteForm extends TaxonomyTermDeleteForm {
 
