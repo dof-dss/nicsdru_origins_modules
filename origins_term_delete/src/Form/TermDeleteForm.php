@@ -109,8 +109,8 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
     $form['preamble'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
-      '#value' => 'Please ensure that you move any content associated with this term to
-          a new term before deleting it.',
+      '#value' => $this->t('Please ensure that you move any content associated with this term to
+          a new term before deleting it.'),
     ];
 
     // Show a list of content that relates to this taxonomy term.
@@ -123,7 +123,7 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
       $form['preamble_warning'] = [
         '#type' => 'html_tag',
         '#tag' => 'h3',
-        '#value' => 'This term cannot be deleted as the content above is still associated with it.',
+        '#value' => $this->t('This term cannot be deleted as the content above is still associated with it.'),
       ];
 
       $form['actions']['submit']['#access'] = FALSE;
@@ -133,7 +133,7 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
       $form['preamble_warning'] = [
         '#type' => 'html_tag',
         '#tag' => 'h3',
-        '#value' => 'This action cannot be undone or reversed.',
+        '#value' => $this->t('This action cannot be undone or reversed.'),
       ];
     }
     return $form;
