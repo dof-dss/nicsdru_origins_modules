@@ -1,7 +1,0 @@
-filter_settings.origins_media_cookie_content_blocker_media_filter:
-  type: filter
-  label: 'Cookie Content Blocker Media Filter filter'
-  mapping:
-    example:
-      type: string
-      label: Example

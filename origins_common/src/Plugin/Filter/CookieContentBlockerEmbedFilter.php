@@ -1,21 +1,21 @@
 <?php
 
-namespace Drupal\origins_media\Plugin\Filter;
+namespace Drupal\origins_common\Plugin\Filter;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
 
 /**
- * Provides a 'Cookie Content Blocker Media Filter' filter.
+ * Provides a 'Cookie Content Blocker Embed Filter' filter.
  *
  * @Filter(
- *   id = "origins_media_cookie_content_blocker_media_filter",
- *   title = @Translation("Cookie Content Blocker Media Filter"),
+ *   id = "origins_media_cookie_content_blocker_embed_filter",
+ *   title = @Translation("Cookie Content Blocker Embed Filter"),
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
-class CookieContentBlockerMediaFilter extends FilterBase {
+class CookieContentBlockerEmbedFilter extends FilterBase {
 
   /**
    * {@inheritdoc}
@@ -51,5 +51,6 @@ class CookieContentBlockerMediaFilter extends FilterBase {
   public function tips($long = FALSE) {
     return $this->t("Ensure this filter is placed before 'media embed' and 'cookie content blocker' filters");
   }
+
 
 }
