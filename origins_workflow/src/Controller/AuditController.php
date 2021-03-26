@@ -76,34 +76,40 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
       $node = $this->entityTypeManager()->getStorage('node')->load($nid);
       if ($node) {
         // Retrieve audit text from config.
-        $audit_button_text = $this->config('origins_workflow.auditsettings')->get('audit_button_text');
         $audit_confirmation_text = $this->config('origins_workflow.auditsettings')->get('audit_confirmation_text');
         // Show confirmation text to user.
-        $render_array['confirmation_text'] = [
+        $render_array['origins_audit_text'] = [
           '#markup' => $this->t($audit_confirmation_text),
-          '#prefix' => "<div class='confirmation_text'>",
-          '#suffix' => "</div>",
+          '#prefix' => "<p class='confirmation_text'>",
+          '#suffix' => "</p>",
           '#weight' => 0,
         ];
-        // Build a confirm link.
-        $render_array['link1'] = [
-          '#title' => $this->t($audit_button_text),
-          '#type' => 'link',
-          '#url' => Url::fromRoute('origins_workflow.audit_controller_confirm_audit', ['nid' => $nid]),
-          '#attributes' => ['rel' => 'nofollow', 'class' => 'audit_link'],
-          '#prefix' => "<span class='confirm_audit'>",
-          '#suffix' => "</span>",
-          '#weight' => 1,
-        ];
-        // Build a cancel link.
-        $render_array['link2'] = [
-          '#title' => $this->t('Cancel'),
-          '#type' => 'link',
-          '#url' => Url::fromRoute('entity.node.canonical', ['node' => $nid]),
-          '#attributes' => ['rel' => 'nofollow', 'class' => 'cancel_link'],
-          '#prefix' => "<span class='cancel'>",
-          '#suffix' => "</span>",
-          '#weight' => 2,
+        // Build confirmation actions.
+        $render_array['origins_audit_actions'] = [
+          '#type' => 'container',
+          '#attributes' => [
+            'class' => 'origins-audit-actions',
+          ],
+          'origins_audit_confirm' => [
+            '#title' => $this->t('Audit complete'),
+            '#type' => 'link',
+            '#url' => Url::fromRoute('origins_workflow.audit_controller_confirm_audit', ['nid' => $nid]),
+            '#attributes' => [
+              'rel' => 'nofollow',
+              'class' => ['submit', 'button', 'button--primary']
+            ],
+            '#weight' => 1,
+          ],
+          'origins_audit_cancel' => [
+            '#title' => $this->t('Cancel'),
+            '#type' => 'link',
+            '#url' => Url::fromRoute('entity.node.canonical', ['node' => $nid]),
+            '#attributes' => [
+              'rel' => 'nofollow',
+              'class' => ['submit', 'button']
+            ],
+            '#weight' => 2,
+          ],
         ];
       }
     }

@@ -1,3 +1,8 @@
+origins_workflow.dialogs:
+  dependencies:
+    - core/jquery
+    - core/drupal.dialog.ajax
+    - core/jquery.form
 admin.css:
   css:
     theme:

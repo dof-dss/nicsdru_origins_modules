@@ -1,6 +1,7 @@
-audit_button_text: 'Audit this published content'
-audit_button_hover_text: 'Click this link to indicate you have checked this content for accuracy and relevance'
-audit_confirmation_text: 'Click this button to indicate that you have audited this published content and are happy that it is still accurate and relevant.'
+audit_text: 'This published content requires an audit to ensure it is still accurate and relevant.'
+audit_button_text: 'Audit required — this published content requires an audit to ensure it is still accurate and relevant'
+audit_button_hover_text: ''
+audit_confirmation_text: 'Review the content and select "Audit complete" if the content is still accurate and relevant.'
 audit_content_types:
   article: article
   news: 0
