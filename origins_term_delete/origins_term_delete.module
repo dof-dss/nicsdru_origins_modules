@@ -9,7 +9,5 @@
  * Implements hook_entity_type_alter().
  */
 function origins_term_delete_entity_type_alter(array &$entity_types) {
-  $entity_types['taxonomy_term']->setHandlerClass('form', [
-    'delete' => 'Drupal\origins_term_delete\Form\TermDeleteForm'
-  ]);
+  $entity_types['taxonomy_term']->setFormClass('delete', 'Drupal\origins_term_delete\Form\TermDeleteForm');
 }
