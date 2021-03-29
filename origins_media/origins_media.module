@@ -229,8 +229,18 @@ function origins_media_views_pre_render(ViewExecutable $view) {
  */
 function origins_media_preprocess_media(array &$variables) {
 
-  if ($variables['view_mode'] === 'media_library' && $variables['media']->bundle() === 'document') {
-    $media_entity = &$variables['media'];
+  if ($variables['view_mode'] !== 'media_library') {
+    return;
+  }
+
+  $media_entity = $variables['media'];
+
+  // Add class to the media entity wrapper to identify the media type.
+  $variables["attributes"]['class'][] = 'media-' . $media_entity->bundle();
+
+  // Replace generic document icons with a mimetype specific icon.
+  if ($media_entity->bundle() === 'document') {
+
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
 
     // Get the underlying file associated with this document entity.
@@ -264,6 +274,11 @@ function origins_media_preprocess_media(array &$variables) {
         'aria-label' => $pretty_mimetypes[$mimetype],
       ],
     ];
+  }
+
+  // Lo-fi fix for lack of indication that media entities are videos in the grid view.
+  if ($media_entity->bundle() === 'video' || $media_entity->bundle() === 'remote_video') {
+    $variables['name'] = t('Video: ') . $variables['name'];
   }
 }
 
