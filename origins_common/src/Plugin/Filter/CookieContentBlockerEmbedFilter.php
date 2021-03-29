@@ -7,6 +7,7 @@ use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -34,6 +35,12 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
    */
   protected $moduleHandler;
 
+  /**
+   * A logger instance.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected $logger;
 
   /**
    * Constructs a token filter plugin.
@@ -47,10 +54,11 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ModuleHandler $module_handler) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ModuleHandler $module_handler, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityRepository = $entity_repository;
     $this->moduleHandler = $module_handler;
+    $this->logger = $logger;
   }
 
   /**
@@ -63,6 +71,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       $plugin_definition,
       $container->get('entity.repository'),
       $container->get('module_handler'),
+      $container->get('logger.factory')->get('origins_common'),
     );
   }
 
@@ -78,6 +87,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
 
     // Ensure the Cookie Content Blocker module is installed.
     if ($this->moduleHandler->moduleExists('cookie_content_blocker') === FALSE) {
+      $this->logger->error('Cookie Content Blocker Embed Filter is enabled for text formats but the Cookie Content_Blocker is not installed.');
       return new FilterProcessResult($text);
     }
 
