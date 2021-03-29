@@ -4,6 +4,7 @@ namespace Drupal\origins_common\Plugin\Filter;
 
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
@@ -36,7 +37,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
   protected $moduleHandler;
 
   /**
-   * A logger instance.
+   * Logger instance.
    *
    * @var \Psr\Log\LoggerInterface
    */
@@ -53,6 +54,10 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
    *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
+   * @param \Drupal\Core\Extension\ModuleHandler $module_handler
+   *   The module handler service.
+   * @param \Psr\Log\LoggerInterface $logger
+   *   Logger instance.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ModuleHandler $module_handler, LoggerInterface $logger) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -73,6 +78,20 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       $container->get('module_handler'),
       $container->get('logger.factory')->get('origins_common'),
     );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $form['replacement_text'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Replacement link text'),
+      '#description' => $this->t('Text for the link to the embedded content.'),
+      '#default_value' => $this->settings['replacement_text'] ?? 'Click here to view the video content',
+    ];
+
+    return $form;
   }
 
   /**
@@ -100,9 +119,10 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
 
         if ($entity && $entity->bundle() === 'remote_video') {
           $url = $entity->get('field_media_oembed_video')->getString();
+          $link_text = $this->settings['replacement_text'];
           // Despite what the documentation says, we have to base64 encode the
           // settings as plain JSON doesn't work.
-          $settings = base64_encode('{"button_text":"Show content","show_button":false,"show_placeholder":true,"blocked_message":"<a href=\'' . $url . '\'>Click here to view the video content</a>","enable_click":true}');
+          $settings = base64_encode('{"button_text":"Show content","show_button":false,"show_placeholder":true,"blocked_message":"<a href=\'' . $url . '\'>' . $link_text . '</a>","enable_click":true}');
           $replacement = '<cookiecontentblocker data-settings="' . $settings . '">' . $matches[1] . '</cookiecontentblocker>';
         }
         return $replacement;
