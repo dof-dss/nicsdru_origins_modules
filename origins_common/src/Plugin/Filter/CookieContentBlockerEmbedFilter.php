@@ -89,9 +89,26 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       '#title' => $this->t('Replacement link text'),
       '#description' => $this->t('Text for the link to the embedded content.'),
       '#default_value' => $this->settings['replacement_text'] ?? 'Click here to view the video content',
+      '#element_validate' => [[static::class, 'settingsValidation']]
     ];
 
     return $form;
+  }
+
+  /**
+   * Validation handler for settings form.
+   *
+   * @param array $element
+   *   The allowed_view_modes form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public static function settingsValidation(array &$element, FormStateInterface $form_state) {
+    $replacement_text = $form_state->getValue(['filters', 'origins_media_cookie_content_blocker_embed_filter', 'settings', 'replacement_text']);
+
+    if (empty($replacement_text)) {
+      $form_state->setError($element, t('Replacement text cannot be left blank'));
+    }
   }
 
   /**
