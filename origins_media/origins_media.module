@@ -12,6 +12,7 @@ use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
+use Drupal\views\ViewExecutable;
 
 /**
  * Implements hook_element_info_alter().
@@ -214,6 +215,16 @@ function origins_media_preprocess_fieldset__media_library_widget(array &$variabl
 }
 
 /**
+ * Implements hook_views_pre_render().
+ */
+function origins_media_views_pre_render(ViewExecutable $view) {
+  // Attach origins media library styles to media library views.
+  if ($view->id() === 'media_library') {
+    $view->element['#attached']['library'][] = 'nicsdru_origins_theme/media_library_styles';
+  }
+}
+
+/**
  * Implements hook_preprocess_media().
  */
 function origins_media_preprocess_media(array &$variables) {
@@ -240,8 +251,7 @@ function origins_media_preprocess_media(array &$variables) {
     $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
     $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
 
-    // Replace the original image_style render element with a bespoke HTML element
-    // with our custom CSS attached to render the file icon as background CSS.
+    // Replace the original image_style render element with a bespoke HTML element.
     $variables['content']['thumbnail'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -252,9 +262,6 @@ function origins_media_preprocess_media(array &$variables) {
           'file--ico__' . $simple_mimetypes[$mimetype]
         ],
         'aria-label' => $pretty_mimetypes[$mimetype],
-      ],
-      '#attached' => [
-        'library' => 'nicsdru_origins_theme/media_library_styles',
       ],
     ];
   }
@@ -278,6 +285,7 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     $file = $file_storage->load($media_entity->field_media_file->target_id);
     $mimetype = $file->getMimeType();
     $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
+    $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
 
     // Replace the original image_style render element with a bespoke HTML element
     // with our custom CSS attached to render the file icon as background CSS.
@@ -291,9 +299,6 @@ function origins_media_preprocess_image_formatter(array &$variables) {
           'file--ico__' . $simple_mimetypes[$mimetype]
         ],
         'aria-label' => $pretty_mimetypes[$mimetype],
-      ],
-      '#attached' => [
-        'library' => 'nicsdru_origins_theme/media_library_styles',
       ],
     ];
   }
