@@ -99,12 +99,17 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
    * Validation handler for settings form.
    *
    * @param array $element
-   *   The allowed_view_modes form element.
+   *   The form element.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The form state.
    */
   public static function settingsValidation(array &$element, FormStateInterface $form_state) {
-    $replacement_text = $form_state->getValue(['filters', 'origins_media_cookie_content_blocker_embed_filter', 'settings', 'replacement_text']);
+    $replacement_text = $form_state->getValue([
+      'filters',
+      'origins_media_cookie_content_blocker_embed_filter',
+      'settings',
+      'replacement_text',
+    ]);
 
     if (empty($replacement_text)) {
       $form_state->setError($element, t('Replacement text cannot be left blank'));
