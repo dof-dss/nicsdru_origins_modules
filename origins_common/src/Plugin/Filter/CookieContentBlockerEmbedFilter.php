@@ -3,6 +3,7 @@
 namespace Drupal\origins_common\Plugin\Filter;
 
 use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\filter\FilterProcessResult;
 use Drupal\filter\Plugin\FilterBase;
@@ -27,6 +28,14 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
   protected $entityRepository;
 
   /**
+   * The module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+
+  /**
    * Constructs a token filter plugin.
    *
    * @param array $configuration
@@ -38,9 +47,10 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity repository service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityRepositoryInterface $entity_repository, ModuleHandler $module_handler) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityRepository = $entity_repository;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -52,6 +62,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       $plugin_id,
       $plugin_definition,
       $container->get('entity.repository'),
+      $container->get('module_handler'),
     );
   }
 
@@ -62,6 +73,11 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
 
     // Quick performance check for drupal media tags within the content.
     if (stripos($text, '<drupal-media') === FALSE) {
+      return new FilterProcessResult($text);
+    }
+
+    // Ensure the Cookie Content Blocker module is installed.
+    if ($this->moduleHandler->moduleExists('cookie_content_blocker') === FALSE) {
       return new FilterProcessResult($text);
     }
 
