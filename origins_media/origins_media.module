@@ -275,11 +275,6 @@ function origins_media_preprocess_media(array &$variables) {
       ],
     ];
   }
-
-  // Lo-fi fix for lack of indication that media entities are videos in the grid view.
-  if ($media_entity->bundle() === 'video' || $media_entity->bundle() === 'remote_video') {
-    $variables['name'] = t('Video: ') . $variables['name'];
-  }
 }
 
 /**
