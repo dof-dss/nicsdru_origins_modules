@@ -88,7 +88,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       '#type' => 'textfield',
       '#title' => $this->t('Replacement link text'),
       '#description' => $this->t('Text for the link to the embedded content.'),
-      '#default_value' => $this->settings['replacement_text'] ?? 'Click here to view the video content',
+      '#default_value' => $this->settings['replacement_text'] ?? $this->t('Click here to view the video content'),
       '#element_validate' => [[static::class, 'settingsValidation']]
     ];
 
@@ -128,7 +128,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
 
     // Ensure the Cookie Content Blocker module is installed.
     if ($this->moduleHandler->moduleExists('cookie_content_blocker') === FALSE) {
-      $this->logger->error('Cookie Content Blocker Embed Filter is enabled for text formats but the Cookie Content_Blocker is not installed.');
+      $this->logger->error($this->t('Cookie Content Blocker Embed Filter is enabled for text formats but the Cookie Content_Blocker is not installed.'));
       return new FilterProcessResult($text);
     }
 
