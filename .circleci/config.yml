@@ -22,11 +22,44 @@ jobs:
             curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/main/phpcs.sh -o /home/circleci/project/phpcs.sh
             chmod +x /home/circleci/project/phpcs.sh
       - run:
-          name: PHPCS static analysis
+          name: PHPCS analysis
           command: /home/circleci/project/phpcs.sh /home/circleci "/home/circleci/project"
+
+  deprecated_code:
+    docker:
+      - image: circleci/php:7.4.15-apache-browsers
+    steps:
+      - checkout:
+          path: /home/circleci/origins_modules
+      - run:
+          name: Add OS and PHP extensions/config
+          command: |
+            sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
+            sudo apt-get update
+            sudo apt-get install -y libpng-dev
+            sudo docker-php-ext-install gd
+      - run:
+          name: Fetch latest Drupal version
+          command: |
+            cd /home/circleci
+            composer create-project drupal-composer/drupal-project:8.x-dev /home/circleci/project --no-interaction
+      - run:
+          name: Download dependent contrib modules.
+          command: |
+            cd /home/circleci/project
+            composer require drupal/entity_embed mglaman/drupal-check --no-interaction
+      - run:
+          name: Move custom code into position
+          command: mv /home/circleci/origins_modules /home/circleci/project/web/modules/origins
+      - run:
+          name: Deprecated code check
+          command: |
+            cd /home/circleci/project/web
+            ../vendor/bin/drupal-check modules/origins -e "*/tests/*"
 
 workflows:
   version: 2
   static_analysis:
     jobs:
       - coding_standards
+      - deprecated_code
