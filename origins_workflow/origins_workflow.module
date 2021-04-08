@@ -88,6 +88,37 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 }
 
 /**
+ * Implements hook_entity_update().
+ */
+function origins_workflow_entity_update(EntityInterface $entity) {
+  // Identify nodes being archived.
+  if ($entity->moderation_state->value == 'archived') {
+    if ($entity->original->moderation_state->value == 'published') {
+      // This node is being archived, so we need to delete the alias (which
+      // will enable us to create redirects if we want to).
+      $actual_alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $entity->content_entity_id->value);
+      // Get all aliases attached to this node.
+      $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+      $alias_objects = $path_alias_storage->loadByProperties([
+        'path' => '/node/' . $entity->content_entity_id->value,
+        'langcode' => $entity->language()->getId()
+      ]);
+      $path_alias_storage->delete($alias_objects);
+      $alias_manager = \Drupal::service('path_alias.manager');
+      $alias_manager->cacheClear();
+      /*foreach ($alias_objects as $alias_object) {
+        // We could delete all aliases here, but for now we'll just delete the main one.
+        if ($alias_object->alias->value == $actual_alias) {
+          // Delete the main alias.
+          $path_alias_storage->delete([$alias_object]);
+          //$alias_object->delete();
+        }
+      }*/
+    }
+  }
+}
+
+/**
  * Implements hook_menu_links_discovered_alter().
  */
 function origins_workflow_menu_links_discovered_alter(&$links) {
