@@ -113,6 +113,31 @@ function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_
 }
 
 /**
+ * Implements hook_form_taxonomy_term_form_alter().
+ */
+function origins_workflow_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add an extra validator to the term edit form.
+  array_unshift($form['#validate'], '_origins_workflow_validate_term_path_alias');
+}
+
+/**
+ * Provide extra validation for taxonomy term edit form.
+ */
+function _origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
+  // If this node has its moderation state set to 'archived' then make sure
+  // that 'generate automatic alias' is un-checked and that the 'URL alias'
+  // field is empty. This will make sure that there is no alias and hence
+  // it will be possible to create a redirect to a replacement node if
+  // necessary.
+  if ($form_state->getValue('status')['value'] == 0) {
+    $path_alias_settings = $form_state->getValue('path');
+    $path_alias_settings[0]['alias'] = '';
+    $path_alias_settings[0]['pathauto'] = 0;
+    $form_state->setValue('path', $path_alias_settings);
+  }
+}
+
+/**
  * Implements hook_menu_links_discovered_alter().
  */
 function origins_workflow_menu_links_discovered_alter(&$links) {
