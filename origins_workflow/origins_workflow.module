@@ -91,10 +91,19 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function origins_workflow_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add an extra validator to the node edit form.
   array_unshift($form['#validate'], '_origins_workflow_validate_path_alias');
 }
 
+/**
+ * Provide extra validation for node edit form.
+ */
 function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_state) {
+  // If this node has its moderation state set to 'archived' then make sure
+  // that 'generate automatic alias' is un-checked and that the 'URL alias'
+  // field is empty. This will make sure that there is no alias and hence
+  // it will be possible to create a redirect to a replacement node if
+  // necessary.
   if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
     $path_alias_settings = $form_state->getValue('path');
     $path_alias_settings[0]['alias'] = '';
