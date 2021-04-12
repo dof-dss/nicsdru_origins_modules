@@ -141,7 +141,12 @@ function _origins_workflow_validate_term_path_alias(&$form, FormStateInterface $
  * Implements hook_entity_update().
  */
 function origins_workflow_entity_update(EntityInterface $entity) {
-  // Identify nodes being archived.
+  // Note that this will only work if the module weighting of the
+  // origins_workflow module is higher than that of the 'pathauto'
+  // module. This is because the hook_entity_update in 'pathauto'
+  // re-creates the alias, and the code in here deletes it !
+  // We want the alias deletion to run last so that it really
+  // is deleted.
   if (($entity->moderation_state->value == 'archived')
     && ($entity->original->moderation_state->value == 'published')) {
     // This node is being archived, so we need to delete the alias (which
