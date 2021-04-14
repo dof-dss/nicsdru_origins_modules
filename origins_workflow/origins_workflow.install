@@ -13,6 +13,11 @@ use Drupal\user\Entity\User;
  * Perform actions to set up the site for this module.
  */
 function origins_workflow_install() {
+  // Assign a weight 1 higher than pathauto to ensure that alias
+  // handling in origins_workflow_entity_update is not negated
+  // by post save processing in pathauto.
+  module_set_weight('origins_workflow', 2);
+
   // Assign user 1 the "administrator" role.
   $user = User::load(1);
   $user->roles[] = 'administrator';

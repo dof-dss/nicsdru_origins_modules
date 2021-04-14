@@ -88,6 +88,83 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
 }
 
 /**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_workflow_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add an extra validator to the node edit form.
+  array_unshift($form['#validate'], '_origins_workflow_validate_path_alias');
+}
+
+/**
+ * Provide extra validation for node edit form.
+ */
+function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_state) {
+  // If this node has its moderation state set to 'archived' then make sure
+  // that 'generate automatic alias' is un-checked and that the 'URL alias'
+  // field is empty. This will make sure that there is no alias and hence
+  // it will be possible to create a redirect to a replacement node if
+  // necessary.
+  if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
+    $path_alias_settings = $form_state->getValue('path');
+    $path_alias_settings[0]['alias'] = '';
+    $path_alias_settings[0]['pathauto'] = 0;
+    $form_state->setValue('path', $path_alias_settings);
+  }
+}
+
+/**
+ * Implements hook_form_taxonomy_term_form_alter().
+ */
+function origins_workflow_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add an extra validator to the term edit form.
+  array_unshift($form['#validate'], '_origins_workflow_validate_term_path_alias');
+}
+
+/**
+ * Provide extra validation for taxonomy term edit form.
+ */
+function _origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
+  // If this term is unpublished then make sure
+  // that 'generate automatic alias' is un-checked and that the 'URL alias'
+  // field is empty. This will make sure that there is no alias and hence
+  // it will be possible to create a redirect to a replacement term if
+  // necessary.
+  if ($form_state->getValue('status')['value'] == 0) {
+    $path_alias_settings = $form_state->getValue('path');
+    $path_alias_settings[0]['alias'] = '';
+    $path_alias_settings[0]['pathauto'] = 0;
+    $form_state->setValue('path', $path_alias_settings);
+  }
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function origins_workflow_entity_update(EntityInterface $entity) {
+  // Note that this will only work if the module weighting of the
+  // origins_workflow module is higher than that of the 'pathauto'
+  // module. This is because the hook_entity_update in 'pathauto'
+  // re-creates the alias, and the code in here deletes it !
+  // We want the alias deletion to run last so that it really
+  // is deleted.
+  if (($entity->moderation_state->value == 'archived')
+    && ($entity->original->moderation_state->value == 'published')) {
+    // This node is being archived, so we need to delete the alias (which
+    // will enable us to create redirects if we want to).
+    if (!empty($entity->nid->value)) {
+      // Get all aliases attached to this node.
+      $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+      $alias_objects = $path_alias_storage->loadByProperties([
+        'path' => '/node/' . $entity->nid->value,
+        'langcode' => $entity->language()->getId()
+      ]);
+      // Delete all aliases for this node.
+      $path_alias_storage->delete($alias_objects);
+    }
+  }
+}
+
+/**
  * Implements hook_menu_links_discovered_alter().
  */
 function origins_workflow_menu_links_discovered_alter(&$links) {
