@@ -1,7 +1,7 @@
 name: 'Origins: Workflow'
 type: module
 description: 'Generic Workflow enhancements'
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 package: 'NICS: Origins'
 dependencies:
   - drupal:content_moderation

@@ -1,7 +1,7 @@
 name: 'Origins: Layouts'
 type: module
 description: 'Generic Layout Builder layouts'
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 package: 'NICS: Origins'
 dependencies:
   - drupal:help
