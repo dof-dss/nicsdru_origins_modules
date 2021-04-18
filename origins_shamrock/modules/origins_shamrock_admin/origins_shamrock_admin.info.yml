@@ -1,5 +1,5 @@
 name: 'Origins Shamrock Admin'
 type: module
 description: 'Operation Shamrock Admin'
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 package: 'Origins'
