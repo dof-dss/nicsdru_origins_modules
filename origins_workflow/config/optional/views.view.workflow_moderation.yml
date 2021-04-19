@@ -1,4 +1,4 @@
-uuid: 69bd0e4e-76f9-4d88-80fb-d34050c023ca
+uuid: c6b3a04b-630f-45e6-9d5b-ba11759fb8eb
 langcode: en
 status: true
 dependencies:
@@ -1912,7 +1912,7 @@ display:
       access:
         type: perm
         options:
-          perm: 'view own unpublished content'
+          perm: 'view any unpublished content'
     cache_metadata:
       max-age: -1
       contexts:
