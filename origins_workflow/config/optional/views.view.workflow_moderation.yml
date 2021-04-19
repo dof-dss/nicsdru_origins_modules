@@ -29,13 +29,9 @@ display:
     position: 0
     display_options:
       access:
-        type: role
+        type: perm
         options:
-          role:
-            administrator: administrator
-            author_user: author_user
-            supervisor_user: supervisor_user
-            admin_user: admin_user
+          perm: 'view any unpublished content'
       cache:
         type: tag
         options: {  }
