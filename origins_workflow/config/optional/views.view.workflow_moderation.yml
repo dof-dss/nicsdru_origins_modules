@@ -1,4 +1,4 @@
-uuid: 16640f49-fd2a-494d-bd82-985cc5cfa482
+uuid: 69bd0e4e-76f9-4d88-80fb-d34050c023ca
 langcode: en
 status: true
 dependencies:
@@ -6,16 +6,14 @@ dependencies:
     - user.role.admin_user
     - user.role.administrator
     - user.role.author_user
-    - user.role.editor_user
     - user.role.supervisor_user
     - workflows.workflow.nics_editorial_workflow
   module:
     - content_moderation
-    - datetime
     - node
     - user
 _core:
-  default_config_hash: qmeJXDzqRz-sV5iAHcmJgIoorYcaDuZ4J8TrVdqQ8uk
+  default_config_hash: UNrEnYdcQfORxKj-iAgyuHKbNCTNhNhhI_UpLYkHd5o
 id: workflow_moderation
 label: 'Workflow: Moderation'
 module: views
@@ -37,7 +35,6 @@ display:
             administrator: administrator
             author_user: author_user
             supervisor_user: supervisor_user
-            editor_user: editor_user
             admin_user: admin_user
       cache:
         type: tag
@@ -958,6 +955,7 @@ display:
         filters: false
         filter_groups: false
         fields: false
+        access: false
       path: admin/content/all-drafts
       filters:
         moderation_state:
@@ -1911,6 +1909,10 @@ display:
           entity_type: node
           entity_field: changed
           plugin_id: field
+      access:
+        type: perm
+        options:
+          perm: 'view own unpublished content'
     cache_metadata:
       max-age: -1
       contexts:
@@ -1919,7 +1921,7 @@ display:
         - url
         - url.query_args
         - 'user.node_grants:view'
-        - user.roles
+        - user.permissions
       tags:
         - 'config:workflow_list'
   my_drafts:
@@ -1936,6 +1938,7 @@ display:
         filters: false
         filter_groups: false
         fields: false
+        access: false
       path: admin/content/drafts
       filters:
         moderation_state:
@@ -2874,6 +2877,10 @@ display:
           entity_type: node
           entity_field: changed
           plugin_id: field
+      access:
+        type: perm
+        options:
+          perm: 'view own unpublished content'
     cache_metadata:
       max-age: -1
       contexts:
@@ -2883,7 +2890,7 @@ display:
         - url.query_args
         - user
         - 'user.node_grants:view'
-        - user.roles
+        - user.permissions
       tags:
         - 'config:workflow_list'
   needs_audit:
@@ -3700,6 +3707,7 @@ display:
       defaults:
         filters: false
         filter_groups: false
+        access: false
       filters:
         moderation_state:
           id: moderation_state
@@ -3947,6 +3955,10 @@ display:
         operator: AND
         groups:
           1: AND
+      access:
+        type: perm
+        options:
+          perm: 'use nics_editorial_workflow transition publish'
     cache_metadata:
       max-age: -1
       contexts:
@@ -3955,6 +3967,6 @@ display:
         - url
         - url.query_args
         - 'user.node_grants:view'
-        - user.roles
+        - user.permissions
       tags:
         - 'config:workflow_list'
