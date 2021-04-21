@@ -16,7 +16,7 @@ class ShamrockDataController extends ControllerBase {
   /**
    * Drupal renderer.
    *
-   * @var Drupal\Core\Render\RendererInterface
+   * @var \Drupal\Core\Render\RendererInterface
    */
   protected $renderer;
 
