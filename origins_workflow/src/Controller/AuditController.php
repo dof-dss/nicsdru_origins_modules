@@ -66,8 +66,8 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
   /**
    * Content Audit.
    *
-   * @return string
-   *   Return confirmation string.
+   * @return array
+   *   Return confirmation render array.
    */
   public function contentAudit($nid) {
     $render_array = [];
