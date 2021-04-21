@@ -1,7 +1,7 @@
 name: 'Origins: Term Delete'
 type: module
 description: 'A utility module to prevent users from accidentally deleting term entities reference by other content.'
-core: 8.x
+core_version_requirement: ^8.8 || ^9
 package: 'NICS: Origins'
 dependencies:
   - drupal:taxonomy

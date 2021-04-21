@@ -44,23 +44,37 @@ class ShamrockDataController extends ControllerBase {
    */
   public function index() {
     $config = $this->config(ShamrockAdminForm::SETTINGS);
-
-    $build['banner'] = [
-      '#theme' => 'origins_shamrock_banner',
-      '#title' => $config->get('title'),
-      '#body' => $config->get('body'),
-      '#url' => $config->get('url'),
-    ];
-
-    $banner = $this->renderer->render($build);
-
     $response = new JsonResponse();
-    $response->setContent(json_encode([
-      'enabled' => $config->get('published'),
-      'banner' => $banner,
-    ]));
 
-    $response->setLastModified(new \DateTime('@' . $config->get('modified')));
+    // If the Shamrock config has data build the banner, otherwise return
+    // that it is not enabled.
+    if ($config->get('modified')) {
+      $modified = $config->get('modified');
+
+      $build['banner'] = [
+        '#theme' => 'origins_shamrock_banner',
+        '#title' => $config->get('title'),
+        '#body' => $config->get('body'),
+        '#url' => $config->get('url'),
+      ];
+
+      $response->setContent(
+        json_encode([
+          'enabled' => $config->get('published'),
+          'banner' => $this->renderer->render($build),
+        ])
+      );
+    }
+    else {
+      $modified = time();
+      $response->setContent(
+        json_encode([
+          'enabled' => FALSE,
+        ])
+      );
+    }
+
+    $response->setLastModified(new \DateTime('@' . $modified));
 
     return $response;
   }
