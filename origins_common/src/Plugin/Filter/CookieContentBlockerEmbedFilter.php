@@ -137,7 +137,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       function ($matches) {
         // If the embedded media isn't applicable, return the original match.
         $replacement = $matches[1];
-        $entity = $this->entityRepository->loadEntityByUuid('media', $matches[2], TRUE);
+        $entity = $this->entityRepository->loadEntityByUuid('media', $matches[2]);
 
         if ($entity && $entity->bundle() === 'remote_video') {
           $url = $entity->get('field_media_oembed_video')->getString();
