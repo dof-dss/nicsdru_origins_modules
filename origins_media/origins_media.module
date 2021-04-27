@@ -313,3 +313,11 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     ];
   }
 }
+
+/*
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_media_form_media_library_add_form_upload_alter(&$form, FormStateInterface $form_state) {
+  // Prevent new uploaded media from having the name field populated.
+  $form['media'][0]['fields']['name']['widget'][0]['value']['#default_value'] = '';
+}
