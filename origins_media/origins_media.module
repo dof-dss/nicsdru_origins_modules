@@ -325,10 +325,13 @@ function origins_media_form_media_library_add_form_upload_alter(&$form, FormStat
  * Process function for Media Library file uploads.
  */
 function origins_media_media_library_file_upload_process($form, FormStateInterface $form_state) {
-
   // Remove the default filename from the media widget name field.
-  if (!empty($form['media'][0]['fields']['name']['widget'][0]['value']['#default_value'])) {
-    $form['media'][0]['fields']['name']['widget'][0]['value']['#default_value'] = '';
+  if (is_array($form['media'])) {
+    foreach ($form['media'] as &$media_item) {
+      if (!empty($media_item['fields']['name']['widget'][0]['value']['#default_value'])) {
+        $media_item['fields']['name']['widget'][0]['value']['#default_value'] = '';
+      }
+    }
   }
 
   return $form;
