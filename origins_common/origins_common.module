@@ -101,6 +101,9 @@ function origins_common_moderation_sidebar_alter(&$build, &$context) {
   }
 }
 
+/*
+ * Implements hook_preprocess_page().
+ */
 function origins_common_preprocess_page(&$variables) {
   $theme = \Drupal::service('theme.manager')->getActiveTheme();
 
