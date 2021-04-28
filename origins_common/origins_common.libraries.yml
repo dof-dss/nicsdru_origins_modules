@@ -1,4 +1,4 @@
-admin:
+adminimal:
   css:
     theme:
-      css/origins-common-admin.css: {}
+      css/origins-common-adminimal.css: {}
