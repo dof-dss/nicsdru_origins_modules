@@ -510,7 +510,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
       $build['actions']['primary']['archive']['#type'] = "link";
       // Retrieve alias for current node.
-      $alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $entity->id());
+      $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
       // Redirect to current node view after changing state.
       $options = [
         'query' => [
