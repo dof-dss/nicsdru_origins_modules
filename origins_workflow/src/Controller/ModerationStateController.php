@@ -105,6 +105,11 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     if ($entity instanceof NodeInterface && $new_state_entity instanceof StateInterface) {
       // See if this state change is allowed.
       if ($this->transitionAllowed($entity, $new_state)) {
+        // Get the latest revision (this is necessary as loading the entity
+        // will have given us the latest 'default' revision, which is not
+        // what we want if there is a draft of published).
+        $vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($nid);
+        $entity = $this->entityTypeManager->getStorage('node')->loadRevision($vid);
         // Request the state change.
         $entity->set('moderation_state', $new_state);
         $entity->save();
