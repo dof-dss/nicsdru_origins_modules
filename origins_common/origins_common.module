@@ -100,3 +100,17 @@ function origins_common_moderation_sidebar_alter(&$build, &$context) {
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function origins_common_preprocess_page(&$variables) {
+  $theme = \Drupal::service('theme.manager')->getActiveTheme();
+
+  // Adding the origins adminimal library for tweaks to the Adminimal theme if
+  // the current page is using that theme.
+  if ($theme->getName() === 'adminimal_theme') {
+    $variables['#attached']['library'][] = 'origins_common/adminimal';
+  }
+
+}

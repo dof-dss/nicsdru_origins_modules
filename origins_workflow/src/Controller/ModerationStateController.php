@@ -105,6 +105,24 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     if ($entity instanceof NodeInterface && $new_state_entity instanceof StateInterface) {
       // See if this state change is allowed.
       if ($this->transitionAllowed($entity, $new_state)) {
+        // Get the latest revision (this is necessary as loading the entity
+        // will have given us the latest 'default' revision, which is not
+        // what we want if there is a draft of published).
+        $vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($nid);
+        $entity = $this->entityTypeManager->getStorage('node')->loadRevision($vid);
+        // The 'revision_translation_affected' field is poorly documented (and
+        // understood) in Drupal core. There is much discussion at
+        // https://www.drupal.org/project/drupal/issues/2746541 but the answer
+        // seems to be to set it to '1' across the board to solve the problem
+        // of revisions not appearing on the revisions tab.
+        $entity->setRevisionTranslationAffected(1);
+        // Set the owner of the new revision to be the current user
+        // and set an appropriate revision log message.
+        $entity->setRevisionUserId($this->currentUser()->id());
+        $revision_log_message = t('Used quick transition to change state to @new_state', [
+          '@new_state' => $new_state,
+        ]);
+        $entity->setRevisionLogMessage($revision_log_message);
         // Request the state change.
         $entity->set('moderation_state', $new_state);
         $entity->save();

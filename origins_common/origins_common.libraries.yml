@@ -1,0 +1,4 @@
+adminimal:
+  css:
+    theme:
+      css/origins-common-adminimal.css: {}

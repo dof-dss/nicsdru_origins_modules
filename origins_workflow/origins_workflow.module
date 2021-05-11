@@ -510,7 +510,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
       $build['actions']['primary']['archive']['#type'] = "link";
       // Retrieve alias for current node.
-      $alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/' . $entity->id());
+      $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
       // Redirect to current node view after changing state.
       $options = [
         'query' => [
@@ -579,7 +579,17 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     // Quick publish isn't detected as an equivalent operation/status as published
     // so we prune it off here for now as it makes no sense ot quick publish an
     // already published piece of content.
-    if ($entity->moderation_state->value === 'published') {
+    $revision_id = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->getLatestRevisionId($entity->id());
+    $revision_moderation_state = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->loadRevision($revision_id)
+      ->moderation_state->value;
+
+    $node_moderation_state = $entity->moderation_state->value;
+
+    if ($revision_moderation_state === 'published') {
       unset($transitions['quick_publish']);
     }
 
@@ -598,7 +608,7 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
         continue;
       }
 
-      if ($transition->to()->id() === $entity->moderation_state->value) {
+      if ($transition->to()->id() === $revision_moderation_state) {
         // Don't present link to change moderation state to the current value.
         continue;
       }
