@@ -1,7 +1,7 @@
 (function ($, Drupal) {
   Drupal.behaviors.formDescriptions = {
     attach: function attach (context) {
-      $('.description').each(function(){
+      $('.form-item .description').each(function(){
         // Find parent field ID, derive from the description id attribute.
         const descId = $(this).attr('id');
         const suffix = '--description';
