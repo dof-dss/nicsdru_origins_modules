@@ -29,18 +29,6 @@ function origins_form_descriptions_form_media_form_alter(&$form, FormStateInterf
 }
 
 /**
- * Implements hook_preprocess_form_element().
- */
-function origins_form_descriptions_preprocess_form_element(&$variables) {
-  if (empty($variables['description']['attributes'])) {
-    return;
-  }
-
-  // Add a default hidden class to avoid visual jerkiness when loading.
-  $variables['description']['attributes']->addClass('js-hide');
-}
-
-/**
  * Implements hook_theme_registry_alter
  */
 function origins_form_descriptions_theme_registry_alter(&$theme_registry) {
