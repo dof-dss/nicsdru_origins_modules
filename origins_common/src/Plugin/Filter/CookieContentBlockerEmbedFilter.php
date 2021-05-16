@@ -133,7 +133,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
     }
 
     // Wrap 'drupal-media' tags in cookiecontentblocker tags if applicable.
-    $text = preg_replace_callback('/(<drupal-media...* data-entity-uuid="(\S+)"><\/drupal-media>)/m',
+    $text = preg_replace_callback('/(<drupal-media.*data-entity-uuid="(\S*)".*><\/drupal-media>)/U',
       function ($matches) {
         // If the embedded media isn't applicable, return the original match.
         $replacement = $matches[1];
