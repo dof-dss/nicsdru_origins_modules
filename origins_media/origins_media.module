@@ -336,3 +336,23 @@ function origins_media_media_library_file_upload_process($form, FormStateInterfa
 
   return $form;
 }
+
+/**
+ * Implements hook_preprocess_media_oembed_iframe().
+ */
+function origins_media_preprocess_media_oembed_iframe(&$variables) {
+  // If we're embedding a Youtube embed object, and there isn't already
+  // and rel=0 parameter... add a rel=0 query parameter to the HTML
+  // to show related videos from the same channel as the video, not videos
+  // based on the viewer's recommendations from their own viewing history.
+  $html = &$variables['media'];
+
+  $is_youtube_embed = preg_match('|youtube.com\/embed|', $html);
+  $has_rel_parameter = preg_match('|rel=0|', $html);
+
+  if ($is_youtube_embed && $has_rel_parameter == FALSE) {
+    // Use preg_replace to glue in a rel=0 query parameter after
+    // the ? designating the list of query parameters.
+    $html = preg_replace('|(youtube.com\/embed\/\w+)\?(.+)|', '$1?rel=0&$2', $html);
+  }
+}
