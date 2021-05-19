@@ -336,3 +336,18 @@ function origins_media_media_library_file_upload_process($form, FormStateInterfa
 
   return $form;
 }
+
+/**
+ * Implements hook_preprocess_media_oembed_iframe().
+ */
+function origins_media_preprocess_media_oembed_iframe(&$variables) {
+  // If we're embedding a Youtube embed object, and there isn't already
+  // and rel=0 parameter... add a rel=0 query parameter to the HTML
+  // to show related videos from the same channel as the video, not videos
+  // based on the viewer's recommendations from their own viewing history.
+
+  // Based on implementation from Core's media_test_oembed_preprocess_media_oembed_iframe().
+  if ($variables['resource']->getProvider()->getName() === 'YouTube') {
+    $variables['media'] = str_replace('?feature=oembed', '?rel=0&feature=oembed', (string) $variables['media']);
+  }
+}
