@@ -147,7 +147,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
           $add_cookie_content_blocker = FALSE;
         }
 
-        if (($entity && $entity->bundle() === 'remote_video') && $add_cookie_content_blocker) {
+        if ($add_cookie_content_blocker && ($entity && $entity->bundle() === 'remote_video')) {
           $url = $entity->get('field_media_oembed_video')->getString();
           $link_text = $this->settings['replacement_text'];
           // Despite what the documentation says, we have to base64 encode the
