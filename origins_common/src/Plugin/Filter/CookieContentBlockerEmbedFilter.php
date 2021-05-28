@@ -88,7 +88,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
       '#type' => 'textfield',
       '#title' => $this->t('Replacement link text'),
       '#description' => $this->t('Text for the link to the embedded content.'),
-      '#default_value' => $this->settings['replacement_text'] ?? $this->t('Click here to view the video content'),
+      '#default_value' => $this->settings['replacement_text'] ?? $this->t('1 - Click here to view the video content'),
       '#element_validate' => [[static::class, 'settingsValidation']]
     ];
 
@@ -139,7 +139,15 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
         $replacement = $matches[1];
         $entity = $this->entityRepository->loadEntityByUuid('media', $matches[2]);
 
-        if ($entity && $entity->bundle() === 'remote_video') {
+        // Don't add the cookie blocker wrapper if we are on the node edit page, as
+        // editors should always see the video preview.
+        $add_cookie_content_blocker = TRUE;
+        $this_route = \Drupal::routeMatch()->getRouteName();
+        if ($this_route == 'media.filter.preview') {
+          $add_cookie_content_blocker = FALSE;
+        }
+
+        if (($entity && $entity->bundle() === 'remote_video') && $add_cookie_content_blocker) {
           $url = $entity->get('field_media_oembed_video')->getString();
           $link_text = $this->settings['replacement_text'];
           // Despite what the documentation says, we have to base64 encode the
