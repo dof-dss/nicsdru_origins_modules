@@ -140,6 +140,14 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_exclusions', NULL),
   ];
 
+  $form['toc']['toc_config']['toc_enable_all'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable for all (override node settings)'),
+    '#description' => t('This will override the individual node level ToC state set by editors.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable_all', 0),
+  ];
+
+
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
 }
 
