@@ -161,6 +161,7 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
+  $type->setThirdPartySetting('origins_toc', 'toc_enable_all', $form_state->getValue('toc_enable_all'));
 }
 
 /**
