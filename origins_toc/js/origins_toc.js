@@ -9,8 +9,8 @@
         return;
       }
 
-      // Check if Toc is enabled for this entity type and this entity instance.
-      if (toc_settings.toc_enable != 1 || toc_settings.toc_entity_enable != 1) {
+      // Check if Toc is enabled for this entity type and this entity instance and not overridden.
+      if (toc_settings.toc_enable != 1 || (toc_settings.toc_entity_enable != 1 && toc_settings.toc_enable_all != 1)) {
         return;
       }
 
