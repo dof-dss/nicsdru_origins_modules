@@ -11,6 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\flag\Entity\Flag;
 use Drupal\node\Entity\NodeType;
 
 /**
@@ -162,8 +163,16 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
 function origins_toc_entity_presave(EntityInterface $entity) {
   if ($entity instanceof NodeType) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
+
+    $disable_toc_flag = Flag::load('disable_toc');
+    $flag_bundles = $disable_toc_flag->getBundles();
+
     if ($toc_enabled) {
-      // TODO:: Update 'disable_toc' flag, adding current bundle to Flaggable types.
+      if (!in_array($entity->id(), $flag_bundles)) {
+        $flag_bundles[] = $entity->id();
+        $disable_toc_flag->set('bundles', $flag_bundles);
+        $disable_toc_flag->save();
+      }
     }
     else {
       // TODO:: Update 'disable_toc' flag, removing current bundle from Flaggable types.
@@ -203,7 +212,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       return $build;
     }
 
-    // TODO:: Add toc library if current node is not flagged with 'disbale_toc'.
+    // TODO:: Add toc library if current node is not flagged with 'disable_toc'.
       $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
       $build['#attached']['library'][] = 'origins_toc/toc';
   }
