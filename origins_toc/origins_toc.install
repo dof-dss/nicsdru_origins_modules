@@ -38,7 +38,11 @@ function origins_toc_update_8001() {
       'unflag_long' => 'Display the Table of Contents for this content (when appropriate)',
       'unflag_message' => 'Table of Contents display is now enabled for [node:title] when the page meets the ToC display requirements',
       'link_type' => 'ajax_link',
-      'flagTypeConfig' => [],
+      'flagTypeConfig' => [
+        'show_as_field' => FALSE,
+        'show_on_form' => TRUE,
+        'show_contextual_link' => FALSE,
+      ],
       'linkTypeConfig' => [],
     ]);
     $flag->save();
