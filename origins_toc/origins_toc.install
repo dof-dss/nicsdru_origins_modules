@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * @file
+ * Module install, uninstall and update functions.
+ */
+
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\flag\Entity\Flag;
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * Update hook to switch from field based status to flag.
+ */
+function origins_toc_update_8001() {
+  // Remove toc_enable field if present.
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable')) {
+    $field_storage->delete();
+  }
+
+  // Create the 'Disable ToC' flag if it is not already present.
+  $toc_flag = Flag::load('disable_toc');
+  if ($toc_flag === null) {
+    $flag = Flag::create([
+      'id' => 'disable_toc',
+      'label' => 'Disable Table of Contents',
+      'flag_type' => 'entity:node',
+      'entity_type' => 'node',
+      'bundles' => [],
+      'global' => TRUE,
+      'flag_short' => 'Disable ToC',
+      'flag_long' => 'Hide the Table of Contents for this content',
+      'flag_message' => 'Table of Contents display is now disabled for [node:title]',
+      'unflag_short' => 'Enable ToC',
+      'unflag_long' => 'Display the Table of Contents for this content (when appropriate)',
+      'unflag_message' => 'Table of Contents display is now enabled for [node:title] when the page meets the ToC display requirements',
+      'link_type' => 'ajax_link',
+      'flagTypeConfig' => [],
+      'linkTypeConfig' => [],
+    ]);
+    $flag->save();
+  }
+
+}
