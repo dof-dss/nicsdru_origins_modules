@@ -163,50 +163,10 @@ function origins_toc_entity_presave(EntityInterface $entity) {
   if ($entity instanceof NodeType) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
     if ($toc_enabled) {
-      // If 'toc enable' doesn't exist for this node, create it.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
-      if (!$field) {
-        // Create the enabled field for this entity.
-        $field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable');
-
-        // If the field storage config doesn't exist, create it.
-        if (empty($field_storage)) {
-          $field_storage = \Drupal::entityTypeManager()
-            ->getStorage('field_storage_config')
-            ->create([
-              'type' => 'boolean',
-              'field_name' => 'field_toc_enable',
-              'entity_type' => 'node',
-              'locked' => TRUE,
-            ]);
-          $field_storage->save();
-        }
-
-        $field = FieldConfig::create([
-          'field_storage' => $field_storage,
-          'bundle' => $entity->id(),
-          'label' => t('Display Table of Contents'),
-        ]);
-        $field->setTranslatable(FALSE);
-        $field->save();
-      }
-
-      // Enable the fields in the form display, if haven't already got them.
-      $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
-      if (empty($form_display->getComponent('field_toc_enable'))) {
-        $form_display->setComponent('field_toc_enable', [
-          'type' => 'boolean_checkbox',
-          'label' => 'above',
-          'settings' => ['link_to_entity' => 'false'],
-        ])->save();
-      }
+      // TODO:: Update 'disable_toc' flag, adding current bundle to Flaggable types.
     }
     else {
-      // Delete the 'toc enable' field from this entity if it exists.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
-      if ($field) {
-        $field->delete();
-      }
+      // TODO:: Update 'disable_toc' flag, removing current bundle from Flaggable types.
     }
   }
 }
@@ -235,6 +195,7 @@ function origins_toc_form_node_form_alter(&$form, $form_state, $form_id) {
 function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
   $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+  $build = [];
 
   if (!empty($toc_settings)) {
     // Check if ToC's have been disabled at the entity type.
@@ -242,40 +203,10 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       return $build;
     }
 
-    if ($entity->hasField('field_toc_enable')) {
-      $toc_settings['toc_entity_enable'] = (int) $entity->get('field_toc_enable')->value;
-    }
-
-    if ((isset($toc_settings['toc_enable_all']) && $toc_settings['toc_enable_all']) || $toc_settings['toc_entity_enable']) {
+    // TODO:: Add toc library if current node is not flagged with 'disbale_toc'.
       $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
       $build['#attached']['library'][] = 'origins_toc/toc';
-    }
   }
 
   return $build;
-}
-
-/**
- * Implements entity_extra_field_info().
- */
-function origins_toc_entity_extra_field_info() {
-  $extra = [];
-
-  foreach (NodeType::loadMultiple() as $node_type) {
-    $toc_settings = $node_type->getThirdPartySettings('origins_toc');
-    if (empty($toc_settings)) {
-      continue;
-    }
-
-    if ($toc_settings['toc_enable']) {
-      $extra['node'][$node_type->Id()]['display']['toc_display'] = [
-        'label' => t('Table of contents'),
-        'description' => t('Displays a table of contents with links for this node.'),
-        'weight' => -10,
-        'visible' => TRUE,
-      ];
-    }
-  }
-
-  return $extra;
 }
