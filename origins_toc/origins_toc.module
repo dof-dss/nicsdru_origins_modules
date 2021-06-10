@@ -141,6 +141,27 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_exclusions', NULL),
   ];
 
+  $form['toc']['toc_config']['toc_screen_depth'] = [
+    '#type' => 'select',
+    '#title' => t('Minimum length of content before ToC display'),
+    '#options' => [
+      '0' => 'Display all the time',
+      '1' => '1 screen',
+      '2' => '2 screens',
+      '3' => '3 screens',
+      '4' => '4 screens',
+      '5' => '5 screens',
+      '6' => '6 screen',
+      '7' => '7 screen',
+      '8' => '8 screens',
+      '9' => '9 screens',
+      '10' => '10 screens',
+      '11' => '11 screens 🤘',
+    ],
+    '#description' => t('The length of content on the current users display before the ToC will be displayed.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_screen_depth', 0),
+  ];
+
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
 }
 
@@ -155,6 +176,7 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
+  $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', $form_state->getValue('toc_screen_depth'));
 }
 
 /**
