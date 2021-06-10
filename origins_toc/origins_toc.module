@@ -194,7 +194,6 @@ function origins_toc_entity_presave(EntityInterface $entity) {
 function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
   $toc_settings = $node_type->getThirdPartySettings('origins_toc');
-  $build = [];
 
   if (!empty($toc_settings)) {
     // Check if ToC's have been disabled at the entity type.
@@ -202,9 +201,18 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       return $build;
     }
 
-    // TODO:: Add toc library if current node is not flagged with 'disable_toc'.
-      $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
-      $build['#attached']['library'][] = 'origins_toc/toc';
+    $flag_service = Drupal::service('flag.count');
+    $flags = $flag_service->getEntityFlagCounts($entity);
+
+    // Check if the entity has the disable_toc flag set.
+    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] === 1) {
+      return $build;
+    }
+
+    // Adding the toc library if the current entity type has toc enabled and the
+    // current node does not have the disable_toc flag set.
+    $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+    $build['#attached']['library'][] = 'origins_toc/toc';
   }
 
   return $build;
