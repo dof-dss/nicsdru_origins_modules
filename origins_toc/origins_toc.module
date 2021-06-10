@@ -168,6 +168,8 @@ function origins_toc_entity_presave(EntityInterface $entity) {
     $flag_bundles = $disable_toc_flag->getBundles();
 
     if ($toc_enabled) {
+      // Update 'disable_toc' flag, adding the current bundle to the Flaggable
+      // types.
       if (!in_array($entity->id(), $flag_bundles)) {
         $flag_bundles[] = $entity->id();
         $disable_toc_flag->set('bundles', $flag_bundles);
@@ -175,7 +177,13 @@ function origins_toc_entity_presave(EntityInterface $entity) {
       }
     }
     else {
-      // TODO:: Update 'disable_toc' flag, removing current bundle from Flaggable types.
+      // Update 'disable_toc' flag, removing the current bundle from Flaggable
+      // types.
+      if (in_array($entity->id(), $flag_bundles)) {
+        $flag_bundles = array_diff($flag_bundles, [$entity->id()]);
+        $disable_toc_flag->set('bundles', $flag_bundles);
+        $disable_toc_flag->save();
+      }
     }
   }
 }
