@@ -59,11 +59,13 @@ function origins_toc_update_8001() {
 
 }
 
-
+/**
+ * Create the disable_toc flag.
+ */
 function _create_toc_flag() {
   // Create the 'Disable ToC' flag if it is not already present.
   $toc_flag = Flag::load('disable_toc');
-  if ($toc_flag === null) {
+  if ($toc_flag === NULL) {
     $flag = Flag::create([
       'id' => 'disable_toc',
       'label' => 'Disable Table of Contents',
