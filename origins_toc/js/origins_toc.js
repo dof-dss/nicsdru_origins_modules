@@ -67,8 +67,8 @@
         console.table({
           'Viewport height': viewport_height,
           'Source container height': source_container_height,
-          'Number of text screens': text_screen_count,
-          'Screen depth requirement': toc_settings.toc_screen_depth,
+          'Content screens count': text_screen_count,
+          'Screen depth requirement': parseInt(toc_settings.toc_screen_depth),
           'Source container' : toc_settings.toc_source_container,
           'Source element' : toc_settings.toc_element,
           'Source exclusions' : toc_settings.toc_exclusions,
