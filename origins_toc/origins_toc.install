@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * @file
+ * Module install, uninstall and update functions.
+ */
+
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\flag\Entity\Flag;
+
+/**
+ * Implements hook_install().
+ */
+function origins_toc_install() {
+  // Create the disable_toc flag.
+  _create_toc_flag();
+}
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * Update hook to switch from field based status to flag.
+ */
+function origins_toc_update_8001() {
+  // Remove toc_enable field if present.
+  if ($field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable')) {
+    $field_storage->delete();
+  }
+
+  // Create the disable_toc flag.
+  _create_toc_flag();
+
+  $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+
+  // Update ToC configuration for each entity if it exists.
+  foreach ($node_types as $type) {
+    $toc_settings = $type->getThirdPartySettings('origins_toc');
+    if (!empty($toc_settings)) {
+
+      $entities_with_toc_config[] = $type->id();
+
+      if ($toc_settings['toc_enable'] === 1) {
+        // Set a default for screen depth.
+        $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', 2);
+      }
+
+      // Remove redundant setting.
+      $type->unsetThirdPartySetting('origins_toc', 'toc_enable_all');
+      $type->save();
+    }
+  }
+
+  // Display a list of entities that need config exported.
+  if (!empty($entities_with_toc_config)) {
+    \Drupal::messenger()->addMessage("The following entities will need to have their config exported: " . implode(', ', $entities_with_toc_config));
+  }
+
+}
+
+/**
+ * Create the disable_toc flag.
+ */
+function _create_toc_flag() {
+  // Create the 'Disable ToC' flag if it is not already present.
+  $toc_flag = Flag::load('disable_toc');
+  if ($toc_flag === NULL) {
+    $flag = Flag::create([
+      'id' => 'disable_toc',
+      'label' => 'Disable Table of Contents',
+      'flag_type' => 'entity:node',
+      'entity_type' => 'node',
+      'bundles' => [],
+      'global' => TRUE,
+      'flag_short' => 'Disable ToC',
+      'flag_long' => 'Hide the Table of Contents for this content',
+      'flag_message' => 'Table of Contents display is now disabled for [node:title]',
+      'unflag_short' => 'Enable ToC',
+      'unflag_long' => 'Display the Table of Contents for this content (when appropriate)',
+      'unflag_message' => 'Table of Contents display is now enabled for [node:title] when the page meets the ToC display requirements',
+      'link_type' => 'ajax_link',
+      'flagTypeConfig' => [
+        'show_as_field' => FALSE,
+        'show_on_form' => TRUE,
+        'show_contextual_link' => FALSE,
+      ],
+      'linkTypeConfig' => [],
+    ]);
+    $flag->save();
+  }
+}

@@ -3,3 +3,6 @@ type: module
 description: 'Provides Table of Contents display options'
 core_version_requirement: ^8.8 || ^9
 package: 'NICS: Origins'
+dependencies:
+  - drupal:help
+  - flag

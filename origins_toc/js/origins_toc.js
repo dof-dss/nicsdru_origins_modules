@@ -8,18 +8,18 @@
       } else {
         return;
       }
-
-      // Check if Toc is enabled for this entity type and this entity instance and not overridden.
-      if (toc_settings.toc_enable != 1 || (toc_settings.toc_entity_enable != 1 && toc_settings.toc_enable_all != 1)) {
+      // Check if Toc is enabled for this entity type.
+      if (toc_settings.toc_enable != 1) {
         return;
       }
 
       var tocHeadings = $(toc_settings.toc_source_container + ' > ' + toc_settings.toc_element, context).once('attachToC');
       var viewport_height = $(window).height();
       var source_container_height = $(toc_settings.toc_source_container).height();
-      var text_screen_count = source_container_height / viewport_height;
+      var text_screen_count = Math.round(source_container_height / viewport_height);
 
-      if ((tocHeadings.length > 2 && text_screen_count > 2) || (tocHeadings.length > 3 && text_screen_count > 1)) {
+      // Display the ToC if the content area is longer or equal to the minimum screen depth.
+      if (text_screen_count >= toc_settings.toc_screen_depth) {
         var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element).not(toc_settings.toc_exclusions);
         var $tocList = $('<ul class="nav-menu" />');
         var $headingText = Drupal.t(toc_settings.toc_title);
@@ -61,10 +61,20 @@
           $tocMain.after($tocBlock, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
         }
       }
-      else {
-        console.log('TOC not shown - page too short');
-        console.log('TOC heading count: ' + tocHeadings.length);
-        console.log('TOC text screen count: ' + text_screen_count);
+
+      if (toc_settings.toc_debug) {
+        console.group(['Origins ToC debug information']);
+        console.table({
+          'Viewport height': viewport_height,
+          'Source container height': source_container_height,
+          'Content screens count': text_screen_count,
+          'Screen depth requirement': parseInt(toc_settings.toc_screen_depth),
+          'Source container' : toc_settings.toc_source_container,
+          'Source element' : toc_settings.toc_element,
+          'Source exclusions' : toc_settings.toc_exclusions,
+          'Source element count' : tocHeadings.length,
+        });
+        console.groupEnd();
       }
     }
   };
