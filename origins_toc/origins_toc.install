@@ -48,4 +48,19 @@ function origins_toc_update_8001() {
     $flag->save();
   }
 
+  $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+
+  foreach ($node_types as $type) {
+    $toc_settings = $type->getThirdPartySettings('origins_toc');
+    if (!empty($toc_settings) && $toc_settings['toc_enable'] === 1) {
+
+      // Set a default for screen depth.
+      $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', 2);
+
+      // Remove redundant setting.
+      $type->unsetThirdPartySetting('origins_toc', 'toc_enable_all');
+      $type->save();
+    }
+  }
+
 }
