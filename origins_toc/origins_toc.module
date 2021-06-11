@@ -162,6 +162,13 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_screen_depth', 0),
   ];
 
+  $form['toc']['toc_config']['toc_debug'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable debug'),
+    '#description' => t('Display debugging information in the browser console window.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_debug', 0),
+  ];
+
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
 }
 
@@ -177,6 +184,7 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
   $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', $form_state->getValue('toc_screen_depth'));
+  $type->setThirdPartySetting('origins_toc', 'toc_debug', $form_state->getValue('toc_debug'));
 }
 
 /**
