@@ -34,9 +34,12 @@ function origins_toc_update_8001() {
 
   $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
 
+  // Update ToC configuration for each entity if it exists.
   foreach ($node_types as $type) {
     $toc_settings = $type->getThirdPartySettings('origins_toc');
     if (!empty($toc_settings)) {
+
+      $entities_with_toc_config[] = $type->id();
 
       if ($toc_settings['toc_enable'] === 1) {
         // Set a default for screen depth.
@@ -47,6 +50,11 @@ function origins_toc_update_8001() {
       $type->unsetThirdPartySetting('origins_toc', 'toc_enable_all');
       $type->save();
     }
+  }
+
+  // Display a list of entities that need config exported.
+  if (!empty($entities_with_toc_config)) {
+    \Drupal::messenger()->addMessage("The following entities will need to have their config exported: " . implode(', ', $entities_with_toc_config));
   }
 
 }
