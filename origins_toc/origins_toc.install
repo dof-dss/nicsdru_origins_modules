@@ -9,6 +9,14 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\flag\Entity\Flag;
 
 /**
+ * Implements hook_install().
+ */
+function origins_toc_install() {
+  // Create the disable_toc flag.
+  _create_toc_flag();
+}
+
+/**
  * Implementations of hook_update_N().
  */
 
@@ -21,6 +29,30 @@ function origins_toc_update_8001() {
     $field_storage->delete();
   }
 
+  // Create the disable_toc flag.
+  _create_toc_flag();
+
+  $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+
+  foreach ($node_types as $type) {
+    $toc_settings = $type->getThirdPartySettings('origins_toc');
+    if (!empty($toc_settings)) {
+
+      if ($toc_settings['toc_enable'] === 1) {
+        // Set a default for screen depth.
+        $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', 2);
+      }
+
+      // Remove redundant setting.
+      $type->unsetThirdPartySetting('origins_toc', 'toc_enable_all');
+      $type->save();
+    }
+  }
+
+}
+
+
+function _create_toc_flag() {
   // Create the 'Disable ToC' flag if it is not already present.
   $toc_flag = Flag::load('disable_toc');
   if ($toc_flag === null) {
@@ -47,22 +79,4 @@ function origins_toc_update_8001() {
     ]);
     $flag->save();
   }
-
-  $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
-
-  foreach ($node_types as $type) {
-    $toc_settings = $type->getThirdPartySettings('origins_toc');
-    if (!empty($toc_settings)) {
-
-      if ($toc_settings['toc_enable'] === 1) {
-        // Set a default for screen depth.
-        $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', 2);
-      }
-
-      // Remove redundant setting.
-      $type->unsetThirdPartySetting('origins_toc', 'toc_enable_all');
-      $type->save();
-    }
-  }
-
 }
