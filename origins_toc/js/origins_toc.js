@@ -61,10 +61,20 @@
           $tocMain.after($tocBlock, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
         }
       }
-      else {
-        console.log('TOC not shown - page too short');
-        console.log('TOC heading count: ' + tocHeadings.length);
-        console.log('TOC text screen count: ' + text_screen_count);
+
+      if (toc_settings.toc_debug) {
+        console.group(['Origins ToC debug information']);
+        console.table({
+          'Viewport height': viewport_height,
+          'Source container height': source_container_height,
+          'Number of text screens': text_screen_count,
+          'Screen depth requirement': toc_settings.toc_screen_depth,
+          'Source container' : toc_settings.toc_source_container,
+          'Source element' : toc_settings.toc_element,
+          'Source exclusions' : toc_settings.toc_exclusions,
+          'Source element count' : tocHeadings.length,
+        });
+        console.groupEnd();
       }
     }
   };
