@@ -145,7 +145,6 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#type' => 'select',
     '#title' => t('Minimum length of content before ToC display'),
     '#options' => [
-      '0' => 'Display all the time',
       '1' => '1 screen',
       '2' => '2 screens',
       '3' => '3 screens',
@@ -159,7 +158,7 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
       '11' => '11 screens 🤘',
     ],
     '#description' => t('The length of content on the current users display before the ToC will be displayed.'),
-    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_screen_depth', 0),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_screen_depth', 1),
   ];
 
   $form['toc']['toc_config']['toc_debug'] = [
