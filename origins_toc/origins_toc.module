@@ -33,15 +33,11 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<li>' . t("Enter a CSS selector for the element that the ToC should be generated for.") . '</li>';
       $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
       $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
-      $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
+      $output .= '<li>' . t("The Minimum length of content setting controls when the ToC will be displayed depending on the screen length of the source content.") . '</li>';
+      $output .= '<li>' . t("The 'Enable Debug' option will display useful ToC debug information in the browser console. This option should be disabled on production sites.") . '</li></ul>';
       $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will
-      have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
-      $output .= '<h4>' . t("Display") . '</h4>';
-      $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
-      $output .= '<ol><li>' . t("By default a 'Table of contents' field will be added to the content type Display Mode when the Table of contents option is enabled.");
-      $output .= t("This can be repositioned or disabled from the Display Mode configuration page.") . '</li>';
-      $output .= '<li>' . t("A 'Table of contents' block is also provided under the 'Origins: Table of Contents' category.") . '</li></ol>';
-      $output .= '<p>' . t("NOTE: For performance reasons it is recommended that you use the field instead of the block to display the Table of contents.") . '';
+      have the option of disabling the ToC display from the Flags section of the form.") . '</p>';
+
       return $output;
 
     default:
