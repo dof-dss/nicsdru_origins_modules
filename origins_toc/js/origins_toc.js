@@ -3,6 +3,11 @@
   Drupal.behaviors.originsToC = {
     attach: function attach (context) {
 
+      // Prevent duplication of ToC menu if it already exists.
+      if ($('.toc-menu').length > 0) {
+        return;
+      }
+
       if (typeof drupalSettings.origins_toc.settings !== 'undefined') {
         var toc_settings = drupalSettings.origins_toc.settings;
       } else {
