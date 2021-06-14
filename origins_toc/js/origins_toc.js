@@ -13,14 +13,19 @@
       } else {
         return;
       }
+
       // Check if Toc is enabled for this entity type.
       if (toc_settings.toc_enable != 1) {
         return;
       }
 
+      // Determine the number of scrollable screens for the toc source container on the users device.
       var viewport_height = $(window).height();
       var source_container_height = $(toc_settings.toc_source_container).height();
       var text_screen_count = Math.round(source_container_height / viewport_height);
+
+      // Select all of the requested Heading elements within the source container which have content but excluding
+      // those from the toc_exclusions query.
       var toc_headings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions).once('attachToC');
 
       // Display the ToC if the content area is longer or equal to the minimum screen depth and contains more than 2
