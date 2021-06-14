@@ -18,21 +18,20 @@
         return;
       }
 
-      var tocHeadings = $(toc_settings.toc_source_container + ' > ' + toc_settings.toc_element, context).once('attachToC');
       var viewport_height = $(window).height();
       var source_container_height = $(toc_settings.toc_source_container).height();
       var text_screen_count = Math.round(source_container_height / viewport_height);
-      var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions);
+      var toc_headings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions).once('attachToC');
 
       // Display the ToC if the content area is longer or equal to the minimum screen depth and contains more than 2
       // heading elements.
-      if (text_screen_count >= toc_settings.toc_screen_depth && tocHeadings.length > 2) {
+      if (text_screen_count >= toc_settings.toc_screen_depth && toc_headings.length > 2) {
         var $tocList = $('<ul class="nav-menu" />');
         var $headingText = Drupal.t(toc_settings.toc_title);
         var $skipTocText = Drupal.t('Skip table of contents');
 
         // Iterate each element, append an anchor id and append link to block list.
-        $(tocHeadings, context).once('toc').each(function(index) {
+        $(toc_headings, context).once('toc').each(function(index) {
           var $linkText = $(this).text();
 
           // Ignore the 'more useful links' section, if present.
@@ -78,7 +77,7 @@
           'Source container' : toc_settings.toc_source_container,
           'Source element' : toc_settings.toc_element,
           'Source exclusions' : toc_settings.toc_exclusions,
-          'Source element count' : tocHeadings.length,
+          'Source element count' : toc_headings.length,
         });
         console.groupEnd();
       }
