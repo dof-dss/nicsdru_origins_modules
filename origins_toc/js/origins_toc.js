@@ -17,10 +17,11 @@
       var viewport_height = $(window).height();
       var source_container_height = $(toc_settings.toc_source_container).height();
       var text_screen_count = Math.round(source_container_height / viewport_height);
+      var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions);
 
-      // Display the ToC if the content area is longer or equal to the minimum screen depth.
-      if (text_screen_count >= toc_settings.toc_screen_depth) {
-        var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions);
+      // Display the ToC if the content area is longer or equal to the minimum screen depth and contains more than 2
+      // heading elements.
+      if (text_screen_count >= toc_settings.toc_screen_depth && tocHeadings.length > 2) {
         var $tocList = $('<ul class="nav-menu" />');
         var $headingText = Drupal.t(toc_settings.toc_title);
         var $skipTocText = Drupal.t('Skip table of contents');
