@@ -190,6 +190,13 @@ function origins_toc_entity_presave(EntityInterface $entity) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
 
     $disable_toc_flag = Flag::load('disable_toc');
+
+    // Warn if the require Flag is missing.
+    if ($disable_toc_flag === NULL) {
+      \Drupal::logger('origins_toc')->warning("The 'disable_toc' Flag was not found, the Table of Content settings will not be saved/updated.");
+      return;
+    }
+
     $flag_bundles = $disable_toc_flag->getBundles();
 
     if ($toc_enabled) {
