@@ -20,7 +20,7 @@
 
       // Display the ToC if the content area is longer or equal to the minimum screen depth.
       if (text_screen_count >= toc_settings.toc_screen_depth) {
-        var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element).not(toc_settings.toc_exclusions);
+        var tocHeadings = $(toc_settings.toc_source_container + ' ' + toc_settings.toc_element + ':not(:empty)').not(toc_settings.toc_exclusions);
         var $tocList = $('<ul class="nav-menu" />');
         var $headingText = Drupal.t(toc_settings.toc_title);
         var $skipTocText = Drupal.t('Skip table of contents');
