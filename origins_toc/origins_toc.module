@@ -11,6 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\flag\Entity\Flag;
 use Drupal\node\Entity\NodeType;
 
 /**
@@ -32,15 +33,11 @@ function origins_toc_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<li>' . t("Enter a CSS selector for the element that the ToC should be generated for.") . '</li>';
       $output .= '<li>' . t("Select a source element to generate the table of contents for, typically an H2 or H3 element.") . '</li>';
       $output .= '<li>' . t("You can exclude source elements with a certain class by adding the class name to the exclusions field.") . '</li>';
-      $output .= '<li>' . t("The title field will override the default title for the field display only. The block title will not be affected.") . '</li></ul>';
+      $output .= '<li>' . t("The Minimum length of content setting controls when the ToC will be displayed depending on the screen length of the source content.") . '</li>';
+      $output .= '<li>' . t("The 'Enable Debug' option will display useful ToC debug information in the browser console. This option should be disabled on production sites.") . '</li></ul>';
       $output .= '<p>' . t("When a content type has the Table of contents enabled, on the content edit screen the author will
-      have the option of toggling on and off the display of the toc from the advanced settings section.") . '</p>';
-      $output .= '<h4>' . t("Display") . '</h4>';
-      $output .= '<p>' . t("The module provides two options for display the Table of contents.") . '';
-      $output .= '<ol><li>' . t("By default a 'Table of contents' field will be added to the content type Display Mode when the Table of contents option is enabled.");
-      $output .= t("This can be repositioned or disabled from the Display Mode configuration page.") . '</li>';
-      $output .= '<li>' . t("A 'Table of contents' block is also provided under the 'Origins: Table of Contents' category.") . '</li></ol>';
-      $output .= '<p>' . t("NOTE: For performance reasons it is recommended that you use the field instead of the block to display the Table of contents.") . '';
+      have the option of disabling the ToC display from the Flags section of the form.") . '</p>';
+
       return $output;
 
     default:
@@ -140,11 +137,31 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
     '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_exclusions', NULL),
   ];
 
-  $form['toc']['toc_config']['toc_enable_all'] = [
+  $form['toc']['toc_config']['toc_screen_depth'] = [
+    '#type' => 'select',
+    '#title' => t('Minimum length of content before ToC display'),
+    '#options' => [
+      '1' => '1 screen',
+      '2' => '2 screens',
+      '3' => '3 screens',
+      '4' => '4 screens',
+      '5' => '5 screens',
+      '6' => '6 screen',
+      '7' => '7 screen',
+      '8' => '8 screens',
+      '9' => '9 screens',
+      '10' => '10 screens',
+      '11' => '11 screens 🤘',
+    ],
+    '#description' => t('The length of content on the current users display before the ToC will be displayed.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_screen_depth', 1),
+  ];
+
+  $form['toc']['toc_config']['toc_debug'] = [
     '#type' => 'checkbox',
-    '#title' => t('Display for all (override node settings)'),
-    '#description' => t('This will override the individual node level ToC state set by editors.'),
-    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_enable_all', 0),
+    '#title' => t('Enable debug'),
+    '#description' => t('Display debugging information in the browser console window.'),
+    '#default_value' => $node->getThirdPartySetting('origins_toc', 'toc_debug', 0),
   ];
 
   $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
@@ -161,7 +178,8 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
   $type->setThirdPartySetting('origins_toc', 'toc_source_container', $form_state->getValue('toc_source_container'));
   $type->setThirdPartySetting('origins_toc', 'toc_element', $form_state->getValue('toc_element'));
   $type->setThirdPartySetting('origins_toc', 'toc_exclusions', $form_state->getValue('toc_exclusions'));
-  $type->setThirdPartySetting('origins_toc', 'toc_enable_all', $form_state->getValue('toc_enable_all'));
+  $type->setThirdPartySetting('origins_toc', 'toc_screen_depth', $form_state->getValue('toc_screen_depth'));
+  $type->setThirdPartySetting('origins_toc', 'toc_debug', $form_state->getValue('toc_debug'));
 }
 
 /**
@@ -170,70 +188,35 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
 function origins_toc_entity_presave(EntityInterface $entity) {
   if ($entity instanceof NodeType) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
+
+    $disable_toc_flag = Flag::load('disable_toc');
+
+    // Warn if the require Flag is missing.
+    if ($disable_toc_flag === NULL) {
+      \Drupal::logger('origins_toc')->warning("The 'disable_toc' Flag was not found, the Table of Content settings will not be saved/updated.");
+      return;
+    }
+
+    $flag_bundles = $disable_toc_flag->getBundles();
+
     if ($toc_enabled) {
-      // If 'toc enable' doesn't exist for this node, create it.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
-      if (!$field) {
-        // Create the enabled field for this entity.
-        $field_storage = FieldStorageConfig::loadByName('node', 'field_toc_enable');
-
-        // If the field storage config doesn't exist, create it.
-        if (empty($field_storage)) {
-          $field_storage = \Drupal::entityTypeManager()
-            ->getStorage('field_storage_config')
-            ->create([
-              'type' => 'boolean',
-              'field_name' => 'field_toc_enable',
-              'entity_type' => 'node',
-              'locked' => TRUE,
-            ]);
-          $field_storage->save();
-        }
-
-        $field = FieldConfig::create([
-          'field_storage' => $field_storage,
-          'bundle' => $entity->id(),
-          'label' => t('Display Table of Contents'),
-        ]);
-        $field->setTranslatable(FALSE);
-        $field->save();
-      }
-
-      // Enable the fields in the form display, if haven't already got them.
-      $form_display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.' . $entity->id() . '.default');
-      if (empty($form_display->getComponent('field_toc_enable'))) {
-        $form_display->setComponent('field_toc_enable', [
-          'type' => 'boolean_checkbox',
-          'label' => 'above',
-          'settings' => ['link_to_entity' => 'false'],
-        ])->save();
+      // Update 'disable_toc' flag, adding the current bundle to the Flaggable
+      // types.
+      if (!in_array($entity->id(), $flag_bundles)) {
+        $flag_bundles[] = $entity->id();
+        $disable_toc_flag->set('bundles', $flag_bundles);
+        $disable_toc_flag->save();
       }
     }
     else {
-      // Delete the 'toc enable' field from this entity if it exists.
-      $field = FieldConfig::loadByName('node', $entity->id(), 'field_toc_enable');
-      if ($field) {
-        $field->delete();
+      // Update 'disable_toc' flag, removing the current bundle from Flaggable
+      // types.
+      if (in_array($entity->id(), $flag_bundles)) {
+        $flag_bundles = array_diff($flag_bundles, [$entity->id()]);
+        $disable_toc_flag->set('bundles', $flag_bundles);
+        $disable_toc_flag->save();
       }
     }
-  }
-}
-
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function origins_toc_form_node_form_alter(&$form, $form_state, $form_id) {
-
-  // If 'toc enable' field exists move to the advanced area of the form.
-  if (array_key_exists('field_toc_enable', $form)) {
-    $form['toc'] = [
-      '#type' => 'details',
-      '#group' => 'advanced',
-      '#title' => t('Table of contents'),
-    ];
-    $form['toc']['toc_settings'] = $form['field_toc_enable'];
-
-    unset($form['field_toc_enable']);
   }
 }
 
@@ -250,40 +233,19 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
       return $build;
     }
 
-    if ($entity->hasField('field_toc_enable')) {
-      $toc_settings['toc_entity_enable'] = (int) $entity->get('field_toc_enable')->value;
+    $flag_service = Drupal::service('flag.count');
+    $flags = $flag_service->getEntityFlagCounts($entity);
+
+    // Check if the entity has the disable_toc flag set.
+    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] === 1) {
+      return $build;
     }
 
-    if ($toc_settings['toc_enable_all'] || $toc_settings['toc_entity_enable']) {
-      $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
-      $build['#attached']['library'][] = 'origins_toc/toc';
-    }
+    // Adding the toc library if the current entity type has toc enabled and the
+    // current node does not have the disable_toc flag set.
+    $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+    $build['#attached']['library'][] = 'origins_toc/toc';
   }
 
   return $build;
-}
-
-/**
- * Implements entity_extra_field_info().
- */
-function origins_toc_entity_extra_field_info() {
-  $extra = [];
-
-  foreach (NodeType::loadMultiple() as $node_type) {
-    $toc_settings = $node_type->getThirdPartySettings('origins_toc');
-    if (empty($toc_settings)) {
-      continue;
-    }
-
-    if ($toc_settings['toc_enable']) {
-      $extra['node'][$node_type->Id()]['display']['toc_display'] = [
-        'label' => t('Table of contents'),
-        'description' => t('Displays a table of contents with links for this node.'),
-        'weight' => -10,
-        'visible' => TRUE,
-      ];
-    }
-  }
-
-  return $extra;
 }
