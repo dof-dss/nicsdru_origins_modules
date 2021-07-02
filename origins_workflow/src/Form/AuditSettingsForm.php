@@ -200,11 +200,14 @@ class AuditSettingsForm extends ConfigFormBase {
    * Add audit field to the content type.
    */
   private function addAuditField($type) {
-    // Check to see if 'field_next_review_date' is present, if it is
-    // then we don't need to add 'field_next_audit_due'.
-    $check_review_date = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_review_date");
-    if ($check_review_date) {
-      return;
+    // Check to see if this is the heakth condition content type and the
+    // 'field_next_review_date' is present. If it is then we don't need to
+    // add 'field_next_audit_due'.
+    if ($type == 'health_condition') {
+      $check_review_date = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_review_date");
+      if ($check_review_date) {
+        return;
+      }
     }
     // Add an audit field to the content type.
     $field_storage = $this->entityTypeManager->getStorage('field_storage_config')->load("node.field_next_audit_due");
