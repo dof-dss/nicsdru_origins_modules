@@ -183,7 +183,9 @@ function origins_media_preprocess_views_view_field(&$variables) {
       }
 
       // Replace with prettier version.
-      $variables['output'] = ViewsRenderPipelineMarkup::create($pretty_mimes[$mime_type_key]);
+      if (array_key_exists($mime_type_key, $pretty_mimes)) {
+        $variables['output'] = ViewsRenderPipelineMarkup::create($pretty_mimes[$mime_type_key]);
+      }
     }
 
     if ($field_id == 'nothing') {

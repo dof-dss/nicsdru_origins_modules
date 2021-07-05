@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (empty($form['field_meta_tags'])) {
+    return;
+  }
   // Remove any schema_metatag (or submodule) form elements because they make
   // the form so enormously large, it struggles to handle AJAX requests from
   // media entity widgets and cannot generate entity previews.
