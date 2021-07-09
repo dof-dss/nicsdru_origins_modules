@@ -7,7 +7,7 @@ module.exports = {
     // Dismiss EU cookie notice.
     browser.drupalRelativeURL('/')
       .pause(2000)
-      .click('xpath', '//div[@id="popup-buttons"]//button[text()="Accept all cookies"]');
+      .click('xpath', '//div[@id="popup-buttons"]//button[text()="Accept cookies"]');
   },
 
   'CREATE NEW DRAFT': browser => {
