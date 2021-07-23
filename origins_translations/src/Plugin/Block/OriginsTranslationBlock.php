@@ -20,7 +20,7 @@ class OriginsTranslationBlock extends BlockBase {
    */
   public function build() {
     $build['content'] = [
-      '#markup' => $this->t('Translate this page'),
+      '#markup' => $this->t('<a class="use-ajax" href="/origins-translations/translation-link-ui">Translate this page</a> <div class="ajax-wrapper"></div>'),
     ];
     return $build;
   }

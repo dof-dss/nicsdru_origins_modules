@@ -1,0 +1,7 @@
+origins_translations.translation-link-ui:
+  path: '/origins-translations/translation-link-ui'
+  defaults:
+    _title: 'Translations UI'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsUiController::build'
+  requirements:
+    _permission: 'access content'
