@@ -32,7 +32,9 @@ class OriginsTranslationsUiController extends ControllerBase {
       'Armenian' => 'hy',
     ];
 
-    $url = $request->getQueryString();
+    $url = $request->query->get('url');
+
+//    var_dump($url);
 
     foreach ($languages as $language => $code) {
       $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language;
