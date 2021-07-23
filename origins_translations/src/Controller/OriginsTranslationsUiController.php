@@ -25,8 +25,6 @@ class OriginsTranslationsUiController extends ControllerBase {
     $response = new AjaxResponse();
 
     $selector = '.ajax-wrapper';
-    $content = 'list of languages';
-
     $languages = [
       'Afrikaans' => 'af',
       'Albanian' => 'sq',
@@ -40,11 +38,17 @@ class OriginsTranslationsUiController extends ControllerBase {
       $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language;
     }
 
-    $content = [
+    $content['language_dropdown'] = [
       '#type' => 'select',
       '#title' => $this->t('Select language'),
-      '#options' => $translations
+      '#options' => $translations,
+      '#attributes' => ['class' => ['origins-translation']],
     ];
+
+    $content['#attached']['library'][] = 'origins_translations/origins_translations.link_ui';
+
+
+    // TODO: Add cache context for URLs
 
     $response->addCommand(new ReplaceCommand($selector, $content, []));
 
