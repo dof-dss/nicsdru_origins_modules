@@ -26,6 +26,26 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $selector = '.ajax-wrapper';
     $content = 'list of languages';
+
+    $languages = [
+      'Afrikaans' => 'af',
+      'Albanian' => 'sq',
+      'Arabic' => 'ar',
+      'Armenian' => 'hy',
+    ];
+
+    $url = $request->getQueryString();
+
+    foreach ($languages as $language => $code) {
+      $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language;
+    }
+
+    $content = [
+      '#type' => 'select',
+      '#title' => $this->t('Select language'),
+      '#options' => $translations
+    ];
+
     $response->addCommand(new ReplaceCommand($selector, $content, []));
 
     return $response;

@@ -19,8 +19,11 @@ class OriginsTranslationBlock extends BlockBase {
    * {@inheritdoc}
    */
   public function build() {
+
+    $url = \Drupal::request()->getUri();
+
     $build['content'] = [
-      '#markup' => $this->t('<a class="use-ajax" href="/origins-translations/translation-link-ui">Translate this page</a> <div class="ajax-wrapper"></div>'),
+      '#markup' => $this->t('<a class="use-ajax" href="/origins-translations/translation-link-ui?url=' . $url . '">Translate this page</a> <div class="ajax-wrapper"></div>'),
     ];
     return $build;
   }
