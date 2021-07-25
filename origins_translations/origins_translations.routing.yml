@@ -5,3 +5,9 @@ origins_translations.translation-link-ui:
     _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsUiController::build'
   requirements:
     _permission: 'access content'
+
+origins_translations.settings_form:
+  path: '/admin/config/system/origins/translations'
+  defaults:
+    _title: 'Origins Translations settings'
+    _form: 'Drupal\origins_translations\Form\SettingsForm'
