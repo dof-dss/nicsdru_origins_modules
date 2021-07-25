@@ -11,3 +11,5 @@ origins_translations.settings_form:
   defaults:
     _title: 'Origins Translations settings'
     _form: 'Drupal\origins_translations\Form\SettingsForm'
+  requirements:
+    _permission: 'administer origins translations configuration'

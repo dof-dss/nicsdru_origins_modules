@@ -1,0 +1,3 @@
+administer origins translations configuration:
+  title: 'Administer Origins Translations configuration'
+  restrict access: true
