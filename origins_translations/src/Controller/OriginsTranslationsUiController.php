@@ -5,6 +5,8 @@ namespace Drupal\origins_translations\Controller;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -19,7 +21,10 @@ class OriginsTranslationsUiController extends ControllerBase {
   public function build(Request $request) {
 
     if (!$request->isXmlHttpRequest()) {
-      throw new NotFoundHttpException();
+      $translations_page = Url::fromRoute('origins_translations.translations-page');
+      $response = new RedirectResponse($translations_page->toString());
+      $response->send();
+      var_dump('FOO');
     }
 
     $response = new AjaxResponse();

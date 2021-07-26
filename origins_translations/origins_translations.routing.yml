@@ -13,3 +13,11 @@ origins_translations.settings_form:
     _form: 'Drupal\origins_translations\Form\SettingsForm'
   requirements:
     _permission: 'administer origins translations configuration'
+
+origins_translations.translations-page:
+  path: 'translations'
+  defaults:
+    _title: 'Translations'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::build'
+  requirements:
+    _permission: 'access content'
