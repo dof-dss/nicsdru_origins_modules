@@ -6,14 +6,6 @@ origins_translations.translation-link-ui:
   requirements:
     _permission: 'access content'
 
-origins_translations.settings_form:
-  path: '/admin/config/system/origins/translations'
-  defaults:
-    _title: 'Origins Translations settings'
-    _form: 'Drupal\origins_translations\Form\SettingsForm'
-  requirements:
-    _permission: 'administer origins translations configuration'
-
 origins_translations.translations-page:
   path: 'translations'
   defaults:
@@ -22,3 +14,27 @@ origins_translations.translations-page:
     _title_callback: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::getTitle'
   requirements:
     _permission: 'access content'
+
+origins_translations.settings.settings:
+  path: '/admin/config/system/origins/translations/settings'
+  defaults:
+    _title: 'Origins Translations settings'
+    _form: 'Drupal\origins_translations\Form\SettingsForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.languages:
+  path: '/admin/config/system/origins/translations/languages'
+  defaults:
+    _title: 'Origins Translations languages'
+    _form: 'Drupal\origins_translations\Form\LanguagesForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.translations_page:
+  path: '/admin/config/system/origins/translations/translations-page'
+  defaults:
+    _title: 'Origins Translations page'
+    _form: 'Drupal\origins_translations\Form\TranslationsPageForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
