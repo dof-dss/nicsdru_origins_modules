@@ -5,6 +5,10 @@ namespace Drupal\origins_translations\Form;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Lock\NullLockBackend;
+use Google\Cloud\Translate\V2\TranslateClient;
+use Google\Cloud\Translate\V3\TranslationServiceClient;
+
 
 /**
  * Configure Origins Translations settings for this site.
@@ -30,34 +34,14 @@ class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $form['page'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Translations page'),
-      '#open' => TRUE,
-    ];
-
-    $form['page']['title'] = [
+    $form['apikey'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Title'),
-      '#required' => TRUE,
-      '#default_value' => $this->config('origins_translations.settings')->get('title'),
+      '#title' => $this->t('API key'),
+      '#description' => $this->t("Create an API key at https://console.cloud.google.com/apis/credentials"),
+      '#default_value' => $this->config('origins_translations.settings')->get('apikey'),
     ];
 
-    $form['page']['content'] = [
-      '#type' => 'text_format',
-      '#title' => $this->t('Content'),
-      '#required' => TRUE,
-      '#format' => $this->config('origins_translations.settings')->get('content')['format'],
-      '#default_value' => $this->config('origins_translations.settings')->get('content')['value'],
-    ];
-
-    $form['options'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Options'),
-      '#open' => TRUE,
-    ];
-
-    $form['options']['domain'] = [
+    $form['domain'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Replace domain'),
       '#description' => $this->t("Typically you would enter the live site domain if using this on a development site which Google Translate won't have access to."),
@@ -85,8 +69,6 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('origins_translations.settings')
-      ->set('title', $form_state->getValue('title'))
-      ->set('content', $form_state->getValue('content'))
       ->set('domain', trim($form_state->getValue('domain'),' /'))
       ->save();
     parent::submitForm($form, $form_state);

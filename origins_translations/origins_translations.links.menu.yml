@@ -1,5 +1,5 @@
-origins_translations.settings_form:
+origins_translations.settings:
   title: Origins Translations
   description: Configure Origins Translations.
   parent: origins.admin_config
-  route_name: origins_translations.settings_form
+  route_name: origins_translations.settings.settings
