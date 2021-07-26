@@ -19,5 +19,6 @@ origins_translations.translations-page:
   defaults:
     _title: 'Translations'
     _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::build'
+    _title_callback: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::getTitle'
   requirements:
     _permission: 'access content'

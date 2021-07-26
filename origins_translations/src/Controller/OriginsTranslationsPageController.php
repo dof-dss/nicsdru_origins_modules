@@ -15,10 +15,18 @@ class OriginsTranslationsPageController extends ControllerBase {
   public function build() {
 
     $build['content'] = [
-      '#markup' => $this->t('Translations page'),
+      '#type' => 'processed_text',
+      '#text' => $this->config('origins_translations.settings')->get('content')['value'],
+      '#format' => $this->config('origins_translations.settings')->get('content')['format'],
     ];
 
     return $build;
   }
 
+  /**
+   * Title callback.
+   */
+  public function getTitle() {
+    return $this->config('origins_translations.settings')->get('title');
+  }
 }
