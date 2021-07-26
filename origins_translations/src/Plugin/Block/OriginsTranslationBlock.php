@@ -6,6 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a link to translations for the current URL.
@@ -25,6 +26,12 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    */
   protected $config;
 
+  /**
+   * The current request object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
 
   /**
    * Creates a LocalActionsBlock instance.
@@ -37,10 +44,13 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    *   The plugin implementation definition.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   A config factory for retrieving required config objects.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition,  ConfigFactoryInterface $config_factory) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, Request $request) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->config = $config_factory->get('origins_translations.settings');
+    $this->request = $request;
   }
 
   /**
@@ -52,6 +62,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $plugin_id,
       $plugin_definition,
       $container->get('config.factory'),
+      $container->get('request_stack')->getCurrentRequest(),
     );
   }
   /**
@@ -62,9 +73,9 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
     $domain = $this->config->get('domain');
 
     if (empty($domain)) {
-      $url = \Drupal::request()->getUri();
+      $url = $this->request->getUri();
     } else {
-      $url = $domain . \Drupal::request()->getPathInfo();
+      $url = $domain . $this->request->getPathInfo();
     }
 
     $build['content'] = [
