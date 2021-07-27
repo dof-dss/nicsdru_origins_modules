@@ -31,6 +31,22 @@ origins_translations.settings.languages:
   requirements:
     _permission: 'administer origins translations configuration'
 
+origins_translations.settings.languages.edit:
+  path: '/admin/config/system/origins/translations/languages/edit/{code}'
+  defaults:
+    _title: 'Origins Translations: Edit language'
+    _form: 'Drupal\origins_translations\Form\LanguageEditForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.languages.toggle:
+  path: '/admin/config/system/origins/translations/languages/toggle/{code}'
+  defaults:
+    _title: 'Origins Translations: Edit language'
+    _form: 'Drupal\origins_translations\Form\LanguageEditForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
 origins_translations.settings.translations_page:
   path: '/admin/config/system/origins/translations/translations-page'
   defaults:
