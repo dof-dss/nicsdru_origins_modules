@@ -3,17 +3,48 @@
 namespace Drupal\origins_translations\Form;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Lock\NullLockBackend;
 use Google\Cloud\Translate\V2\TranslateClient;
 use Google\Cloud\Translate\V3\TranslationServiceClient;
+use Drupal\Core\State\StateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
  * Configure Origins Translations settings for this site.
  */
 class SettingsForm extends ConfigFormBase {
+
+  /**
+   * The state service.
+   */
+  protected $state;
+
+  /**
+   * MediaSettingsForm constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   */
+  public function __construct(ConfigFactoryInterface $configFactory, StateInterface $state) {
+    parent::__construct($configFactory);
+    $this->state = $state;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('state')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -38,7 +69,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('API key'),
       '#description' => $this->t("Create an API key at https://console.cloud.google.com/apis/credentials"),
-      '#default_value' => $this->config('origins_translations.settings')->get('apikey'),
+      '#default_value' =>  $this->state->get('origins_translations.settings.apikey'),
     ];
 
     $form['domain'] = [
@@ -71,6 +102,9 @@ class SettingsForm extends ConfigFormBase {
     $this->config('origins_translations.settings')
       ->set('domain', trim($form_state->getValue('domain'),' /'))
       ->save();
+
+    $this->state->set('origins_translations.settings.apikey', trim($form_state->getValue('apikey')));
+
     parent::submitForm($form, $form_state);
   }
 
