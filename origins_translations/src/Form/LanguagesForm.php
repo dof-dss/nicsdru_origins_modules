@@ -2,14 +2,13 @@
 
 namespace Drupal\origins_translations\Form;
 
-use Drupal\Component\Utility\UrlHelper;
+use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Lock\NullLockBackend;
+use Drupal\Core\Link;
 use Drupal\Core\State\StateInterface;
-use Google\Cloud\Translate\V2\TranslateClient;
-use Google\Cloud\Translate\V3\TranslationServiceClient;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
@@ -64,6 +63,8 @@ class LanguagesForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+
+//
 //
 //    $translationClient = new TranslateClient([
 //      'key' => 'AIzaSyD4RhmhRngu5sSoiAHSniF5IHmK7dYxrqc'
@@ -89,15 +90,37 @@ class LanguagesForm extends ConfigFormBase {
 
     $form['languages'] = [
       '#type' => 'table',
-      '#caption' => $this->t('Languages'),
       '#header' => [
-        $this->t('Name'),
+        $this->t('Operations'),
+        $this->t('Language'),
         $this->t('Enabled'),
         $this->t('Translate this page'),
         $this->t('Select a language'),
       ],
-      '#rows' => array_values($languages)
     ];
+
+    foreach ($languages as $code => $language) {
+      $form['languages']['#rows'][$code] = [
+        ['data' => [
+          '#type' => 'dropbutton',
+          '#links' => [
+            'edit' => [
+              'title' => $this->t('Edit'),
+              'url' => Url::fromRoute('origins_translations.settings.languages.edit', ['code' => $code])
+            ],
+            'toggle' => [
+              'title' => $this->t('Enable/Disable'),
+              'url' => Url::fromRoute('origins_translations.settings.languages.toggle', ['code' => $code])
+            ]
+          ],
+        ]],
+        $language['0'],
+        $language['1'],
+        $language['2'],
+        $language['3'],
+      ];
+    }
+
 
     return parent::buildForm($form, $form_state);
   }
@@ -106,7 +129,6 @@ class LanguagesForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-
     parent::submitForm($form, $form_state);
   }
 
