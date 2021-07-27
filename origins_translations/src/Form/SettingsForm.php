@@ -6,9 +6,6 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Lock\NullLockBackend;
-use Google\Cloud\Translate\V2\TranslateClient;
-use Google\Cloud\Translate\V3\TranslationServiceClient;
 use Drupal\Core\State\StateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

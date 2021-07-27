@@ -3,17 +3,48 @@
 namespace Drupal\origins_translations\Form;
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Lock\NullLockBackend;
+use Drupal\Core\State\StateInterface;
 use Google\Cloud\Translate\V2\TranslateClient;
 use Google\Cloud\Translate\V3\TranslationServiceClient;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
  * Configure Origins Translations languages for this site.
  */
 class LanguagesForm extends ConfigFormBase {
+
+  /**
+   * The state service.
+   */
+  protected $state;
+
+  /**
+   * MediaSettingsForm constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
+   *   The config factory.
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   */
+  public function __construct(ConfigFactoryInterface $configFactory, StateInterface $state) {
+    parent::__construct($configFactory);
+    $this->state = $state;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('state')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -50,6 +81,23 @@ class LanguagesForm extends ConfigFormBase {
 ////    }
 //
 //    ksm($response, $langs);
+
+    $config = $this->config('origins_translations.languages');
+
+    $languages = $config->getRawData();
+    unset($languages['_core']);
+
+    $form['languages'] = [
+      '#type' => 'table',
+      '#caption' => $this->t('Languages'),
+      '#header' => [
+        $this->t('Name'),
+        $this->t('Enabled'),
+        $this->t('Translate this page'),
+        $this->t('Select a language'),
+      ],
+      '#rows' => array_values($languages)
+    ];
 
     return parent::buildForm($form, $form_state);
   }
