@@ -56,7 +56,7 @@ class TranslationsPageForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('origins_translations.settings')
+    $this->configFactory()->getEditable('origins_translations.settings')
       ->set('title', $form_state->getValue('title'))
       ->set('content', $form_state->getValue('content'))
       ->save();

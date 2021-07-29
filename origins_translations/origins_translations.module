@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_translations.module.
+ */
+
+use Drupal\Core\Render\BubbleableMetadata;
+
+/**
+ * Implements hook_token_info().
+ */
+function origins_translations_token_info() {
+  $types['origins'] = ['name' => 'Origins'];
+
+  $tokens['translations_languages_list'] = [
+    'name' => t('Translation languages list'),
+    'description' => t('Displays a list of active site languages linking to Google Translate .'),
+  ];
+
+  return [
+    'types' => $types,
+    'tokens' => ['origins' => $tokens],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function origins_translations_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+
+  if ($type == 'origins') {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'translations_languages_list':
+          $output = 'LIST OF LANGS';
+          $replacements[$original] = render($output);
+          break;
+      }
+    }
+  }
+  return $replacements;
+}
+
