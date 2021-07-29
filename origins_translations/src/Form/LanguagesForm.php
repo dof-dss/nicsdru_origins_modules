@@ -115,7 +115,7 @@ class LanguagesForm extends ConfigFormBase {
           ],
         ]],
         $language['0'],
-        $language['1'],
+        ($language['1']) ? $this->t('True') : $this->t('False'),
         $language['2'],
         $language['3'],
       ];
