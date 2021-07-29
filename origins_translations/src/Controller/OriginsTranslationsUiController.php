@@ -24,23 +24,17 @@ class OriginsTranslationsUiController extends ControllerBase {
       $translations_page = Url::fromRoute('origins_translations.translations-page');
       $response = new RedirectResponse($translations_page->toString());
       $response->send();
-      var_dump('FOO');
     }
 
     $response = new AjaxResponse();
 
     $selector = '.ajax-wrapper';
-    $languages = [
-      'Afrikaans' => 'af',
-      'Albanian' => 'sq',
-      'Arabic' => 'ar',
-      'Armenian' => 'hy',
-    ];
+    $languages = $this->getActiveLanguages();
 
     $url = $request->query->get('url');
 
-    foreach ($languages as $language => $code) {
-      $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language;
+    foreach ($languages as $code => $language) {
+      $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language[0];
     }
 
     $content['language_dropdown'] = [
@@ -52,12 +46,20 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $content['#attached']['library'][] = 'origins_translations/origins_translations.link_ui';
 
-
     // TODO: Add cache context for URLs
 
     $response->addCommand(new ReplaceCommand($selector, $content, []));
 
     return $response;
+  }
+
+  protected function getActiveLanguages() {
+    $config = $this->config('origins_translations.languages');
+
+    $languages = $config->getRawData();
+    unset($languages['_core']);
+
+    return array_filter($languages, static fn($language) => $language['1'] === TRUE);
   }
 
 }
