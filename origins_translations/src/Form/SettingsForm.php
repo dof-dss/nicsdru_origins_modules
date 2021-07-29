@@ -96,7 +96,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('origins_translations.settings')
+    $this->configFactory()->getEditable('origins_translations.settings')
       ->set('domain', trim($form_state->getValue('domain'),' /'))
       ->save();
 
