@@ -4,6 +4,7 @@ namespace Drupal\origins_translations\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -38,7 +39,52 @@ class OriginsTranslationsAdminController extends ControllerBase {
   }
 
   /**
-   * Builds the response.
+   * Display a table of languages and settings for the site.
+   */
+  public function languages() {
+    $config = $this->config('origins_translations.languages');
+
+    $languages = $config->getRawData();
+    unset($languages['_core']);
+
+    $build['languages'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Operations'),
+        $this->t('Language'),
+        $this->t('Enabled'),
+        $this->t('Translate this page'),
+        $this->t('Select a language'),
+      ],
+    ];
+
+    foreach ($languages as $code => $language) {
+      $build['languages']['#rows'][$code] = [
+        ['data' => [
+          '#type' => 'dropbutton',
+          '#links' => [
+            'edit' => [
+              'title' => $this->t('Edit'),
+              'url' => Url::fromRoute('origins_translations.settings.languages.edit', ['code' => $code])
+            ],
+            'toggle' => [
+              'title' => $this->t('Enable/Disable'),
+              'url' => Url::fromRoute('origins_translations.settings.languages.toggle', ['code' => $code])
+            ]
+          ],
+        ]],
+        $language['0'],
+        ($language['1']) ? $this->t('True') : $this->t('False'),
+        $language['2'],
+        $language['3'],
+      ];
+    }
+
+    return $build;
+  }
+
+  /**
+   * Toggle method for enabling or disabling a language.
    */
   public function toggle() {
     $lang_code = $this->routeMatch->getParameter('code');
