@@ -43,7 +43,7 @@ origins_translations.settings.languages.toggle:
   path: '/admin/config/system/origins/translations/languages/toggle/{code}'
   defaults:
     _title: 'Origins Translations: Edit language'
-    _form: 'Drupal\origins_translations\Form\LanguageEditForm'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsAdminController::toggle'
   requirements:
     _permission: 'administer origins translations configuration'
 

@@ -1,4 +1,4 @@
-af: ["Afrikaans", "1", "Vertaal hierdie bladsy", "Kies 'n taal"]
-sq: ["Albanian", "1", "Përkthejeni këtë faqe", "Zgjidhni një gjuhë"]
-am: ["Amharic", "1", "ይህንን ገጽ ይተርጉሙ", "ቋንቋ ይምረጡ"]
-ar: ["Arabic", "1", "ترجم هذه الصفحة", "اختر لغة"]
+af: ["Afrikaans", true, "Vertaal hierdie bladsy", "Kies 'n taal"]
+sq: ["Albanian", true, "Përkthejeni këtë faqe", "Zgjidhni një gjuhë"]
+am: ["Amharic", true, "ይህንን ገጽ ይተርጉሙ", "ቋንቋ ይምረጡ"]
+ar: ["Arabic", true, "ترجم هذه الصفحة", "اختر لغة"]
