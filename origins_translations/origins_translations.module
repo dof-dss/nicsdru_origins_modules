@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Url;
 
 /**
  * Implements hook_token_info().
@@ -34,7 +35,33 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'translations_languages_list':
-          $output = 'LIST OF LANGS';
+
+          $request = \Drupal::request();
+
+          $url = $request->query->get('url');
+
+          if (empty($url)) {
+            $url = $request->getUriForPath('/');
+          }
+
+          $languages = \Drupal::config('origins_translations.languages')->getRawData();
+          unset($languages['_core']);
+
+          $links = [];
+
+          foreach ($languages as $code => $language) {
+            $links[] = [
+              '#type' => 'link',
+              '#url' => Url::fromUri('https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url),
+              '#title' => $language[0],
+            ];
+          }
+
+          $output = [
+            '#theme' => 'item_list',
+            '#items' => $links,
+          ];
+
           $replacements[$original] = render($output);
           break;
       }
