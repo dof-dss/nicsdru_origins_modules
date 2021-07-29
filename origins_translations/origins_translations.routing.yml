@@ -27,7 +27,7 @@ origins_translations.settings.languages:
   path: '/admin/config/system/origins/translations/languages'
   defaults:
     _title: 'Origins Translations languages'
-    _form: 'Drupal\origins_translations\Form\LanguagesForm'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsAdminController::languages'
   requirements:
     _permission: 'administer origins translations configuration'
 
