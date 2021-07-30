@@ -46,6 +46,7 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
 
           $languages = \Drupal::config('origins_translations.languages')->getRawData();
           unset($languages['_core']);
+          $languages = array_filter($languages, static fn($language) => $language['1'] === TRUE);
 
           $links = [];
 
