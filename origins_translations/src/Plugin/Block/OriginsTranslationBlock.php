@@ -3,6 +3,7 @@
 namespace Drupal\origins_translations\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -80,21 +81,12 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $url = $domain . $this->request->getPathInfo();
     }
 
-    $browser_lang = substr($this->request->getPreferredLanguage(), 0, 2);
-
-    if (strpos($browser_lang, 'en') !== 0) {
-      $languages = \Drupal::config('origins_translations.languages')->getRawData();
-      if (array_key_exists($browser_lang, $languages)) {
-        $title = $languages[$browser_lang][2] ?? $title;
-      }
-    }
-
-
     $build['link'] = [
       '#title' => $title,
       '#type' => 'link',
       '#url' => \Drupal\Core\Url::fromRoute('origins_translations.translation-link-ui', ['url' => $url]),
-      '#attributes' => ['class' => ['use-ajax']],
+      '#attributes' => ['class' => ['origins-translation-link', 'use-ajax']],
+      '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']]
     ];
 
     $build['ajax-wrapper'] = [
