@@ -19,7 +19,7 @@ class OriginsTranslationsUiController extends ControllerBase {
   /**
    * Builds the AJAX response.
    */
-  public function build(Request $request) {
+  public function selectLanguage(Request $request) {
 
     if (!$request->isXmlHttpRequest()) {
       $translations_page = Url::fromRoute('origins_translations.translations-page');
