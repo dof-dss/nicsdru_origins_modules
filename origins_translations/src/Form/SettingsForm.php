@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-
 /**
  * Configure Origins Translations settings for this site.
  */
@@ -17,6 +16,8 @@ class SettingsForm extends ConfigFormBase {
 
   /**
    * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
    */
   protected $state;
 
@@ -66,7 +67,7 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('API key'),
       '#description' => $this->t("Create an API key at https://console.cloud.google.com/apis/credentials"),
-      '#default_value' =>  $this->state->get('origins_translations.settings.apikey'),
+      '#default_value' => $this->state->get('origins_translations.settings.apikey'),
     ];
 
     $form['domain'] = [
@@ -97,7 +98,7 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory()->getEditable('origins_translations.settings')
-      ->set('domain', trim($form_state->getValue('domain'),' /'))
+      ->set('domain', trim($form_state->getValue('domain'), ' /'))
       ->save();
 
     $this->state->set('origins_translations.settings.apikey', trim($form_state->getValue('apikey')));

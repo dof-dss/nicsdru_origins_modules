@@ -67,6 +67,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $container->get('request_stack')->getCurrentRequest(),
     );
   }
+
   /**
    * {@inheritdoc}
    */
@@ -77,7 +78,8 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
 
     if (empty($domain)) {
       $url = $this->request->getUri();
-    } else {
+    }
+    else {
       $url = $domain . $this->request->getPathInfo();
     }
 
@@ -86,7 +88,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#type' => 'link',
       '#url' => \Drupal\Core\Url::fromRoute('origins_translations.translation-link-ui.select', ['url' => $url]),
       '#attributes' => ['class' => ['origins-translation-link', 'use-ajax']],
-      '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']]
+      '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],
     ];
 
     $build['ajax-wrapper'] = [

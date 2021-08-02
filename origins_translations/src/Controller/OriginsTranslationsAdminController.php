@@ -60,19 +60,21 @@ class OriginsTranslationsAdminController extends ControllerBase {
 
     foreach ($languages as $code => $language) {
       $build['languages']['#rows'][$code] = [
-        ['data' => [
-          '#type' => 'dropbutton',
-          '#links' => [
-            'edit' => [
-              'title' => $this->t('Edit'),
-              'url' => Url::fromRoute('origins_translations.settings.languages.edit', ['code' => $code])
+        [
+          'data' => [
+            '#type' => 'dropbutton',
+            '#links' => [
+              'edit' => [
+                'title' => $this->t('Edit'),
+                'url' => Url::fromRoute('origins_translations.settings.languages.edit', ['code' => $code]),
+              ],
+              'toggle' => [
+                'title' => $this->t('Enable/Disable'),
+                'url' => Url::fromRoute('origins_translations.settings.languages.toggle', ['code' => $code]),
+              ],
             ],
-            'toggle' => [
-              'title' => $this->t('Enable/Disable'),
-              'url' => Url::fromRoute('origins_translations.settings.languages.toggle', ['code' => $code])
-            ]
           ],
-        ]],
+        ],
         $language['0'],
         ($language['1']) ? $this->t('True') : $this->t('False'),
         $language['2'],

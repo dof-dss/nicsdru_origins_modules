@@ -70,4 +70,3 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
   }
   return $replacements;
 }
-

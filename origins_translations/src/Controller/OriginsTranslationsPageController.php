@@ -29,4 +29,5 @@ class OriginsTranslationsPageController extends ControllerBase {
   public function getTitle() {
     return $this->config('origins_translations.settings')->get('title');
   }
+
 }
