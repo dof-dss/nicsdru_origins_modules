@@ -8,6 +8,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -43,11 +44,6 @@ class OriginsTranslationsUiController extends ControllerBase {
       '#options' => $translations,
       '#attributes' => ['class' => ['origins-translation']],
     ];
-
-    $content['#attached']['library'][] = 'origins_translations/origins_translations.link_ui';
-
-    // TODO: Add cache context for URLs
-
     $response->addCommand(new ReplaceCommand($selector, $content, []));
 
     return $response;
@@ -60,6 +56,26 @@ class OriginsTranslationsUiController extends ControllerBase {
     unset($languages['_core']);
 
     return array_filter($languages, static fn($language) => $language['1'] === TRUE);
+  }
+
+  /**
+   * Returns a translated title if present in the configuration.
+   * 
+   * @param Request $request
+   * @return Response
+   */
+  public function title(Request $request) {
+    $response = new Response();
+
+    $config = $this->config('origins_translations.languages');
+    $languages = $config->getRawData();
+    $code = $request->get('code');
+
+    if (array_key_exists($code, $languages)) {
+      return $response->setContent($languages[$code][2]);
+    } else {
+      return $response->setContent('Translate this page');
+    }
   }
 
 }

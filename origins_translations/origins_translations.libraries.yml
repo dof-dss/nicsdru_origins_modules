@@ -1,9 +1,5 @@
-# Custom module library for general purposes.
 origins_translations.link_ui:
   js:
     js/origins-translations.js: {}
-  css:
-    component:
-      css/origins-translations.css: {}
   dependencies:
     - core/drupalSettings
