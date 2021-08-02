@@ -84,7 +84,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
     $build['link'] = [
       '#title' => $title,
       '#type' => 'link',
-      '#url' => \Drupal\Core\Url::fromRoute('origins_translations.translation-link-ui', ['url' => $url]),
+      '#url' => \Drupal\Core\Url::fromRoute('origins_translations.translation-link-ui.select', ['url' => $url]),
       '#attributes' => ['class' => ['origins-translation-link', 'use-ajax']],
       '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']]
     ];
