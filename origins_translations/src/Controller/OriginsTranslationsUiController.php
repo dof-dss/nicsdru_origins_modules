@@ -31,8 +31,8 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $selector = '.ajax-wrapper';
     $languages = $this->getActiveLanguages();
-
     $url = $request->query->get('url');
+    $translations[''] = 'Select a language';
 
     foreach ($languages as $code => $language) {
       $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language[0];
@@ -40,8 +40,7 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $content['language_dropdown'] = [
       '#type' => 'select',
-      '#title' => $this->t('Select language'),
-      '#options' => $translations,
+      '#options' =>  $translations,
       '#attributes' => ['class' => ['origins-translation']],
     ];
     $response->addCommand(new ReplaceCommand($selector, $content, []));
