@@ -32,7 +32,13 @@ class OriginsTranslationsUiController extends ControllerBase {
     $selector = '.ajax-wrapper';
     $languages = $this->getActiveLanguages();
     $url = $request->query->get('url');
-    $translations[''] = 'Select a language';
+    $code = substr($request->headers->get('accept-language'), 0, 2);
+
+    if (array_key_exists($code, $languages) && strpos($code, 'en') !== 0) {
+      $translations[''] = $languages[$code][3];
+    } else {
+      $translations[''] = 'Select a language';
+    }
 
     foreach ($languages as $code => $language) {
       $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language[0];
