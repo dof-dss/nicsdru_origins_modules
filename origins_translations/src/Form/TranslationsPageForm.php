@@ -2,13 +2,8 @@
 
 namespace Drupal\origins_translations\Form;
 
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Lock\NullLockBackend;
-use Google\Cloud\Translate\V2\TranslateClient;
-use Google\Cloud\Translate\V3\TranslationServiceClient;
-
 
 /**
  * Configure Origins Translations page settings for this site.

@@ -36,7 +36,8 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     if (array_key_exists($code, $languages) && strpos($code, 'en') !== 0) {
       $translations[''] = $languages[$code][3];
-    } else {
+    }
+    else {
       $translations[''] = 'Select a language';
     }
 
@@ -46,7 +47,7 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $content['language_dropdown'] = [
       '#type' => 'select',
-      '#options' =>  $translations,
+      '#options' => $translations,
       '#attributes' => ['class' => ['origins-translation']],
     ];
     $response->addCommand(new ReplaceCommand($selector, $content, []));
@@ -54,6 +55,9 @@ class OriginsTranslationsUiController extends ControllerBase {
     return $response;
   }
 
+  /**
+   * Returns an array of enabled languages and translations.
+   */
   protected function getActiveLanguages() {
     $config = $this->config('origins_translations.languages');
 
@@ -65,9 +69,6 @@ class OriginsTranslationsUiController extends ControllerBase {
 
   /**
    * Returns a translated title if present in the configuration.
-   *
-   * @param Request $request
-   * @return Response
    */
   public function title(Request $request) {
     $response = new Response();
@@ -78,7 +79,8 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     if (array_key_exists($code, $languages)) {
       return $response->setContent($languages[$code][2]);
-    } else {
+    }
+    else {
       return $response->setContent('Translate this page');
     }
   }
