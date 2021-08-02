@@ -60,7 +60,7 @@ class OriginsTranslationsUiController extends ControllerBase {
 
   /**
    * Returns a translated title if present in the configuration.
-   * 
+   *
    * @param Request $request
    * @return Response
    */
