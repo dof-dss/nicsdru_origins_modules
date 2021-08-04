@@ -3,6 +3,7 @@
 namespace Drupal\origins_translations\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Element\Url;
@@ -35,6 +36,8 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    */
   protected $request;
 
+  protected $formBuilder;
+
   /**
    * Creates a LocalActionsBlock instance.
    *
@@ -48,11 +51,14 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    *   A config factory for retrieving required config objects.
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request object.
+   * @param \Drupal\Core\Form\FormBuilder $form_builder
+   *   The form builder object.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, Request $request) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ConfigFactoryInterface $config_factory, Request $request, FormBuilder $form_builder) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->config = $config_factory->get('origins_translations.settings');
     $this->request = $request;
+    $this->formBuilder = $form_builder;
   }
 
   /**
@@ -65,6 +71,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $plugin_definition,
       $container->get('config.factory'),
       $container->get('request_stack')->getCurrentRequest(),
+      $container->get('form_builder'),
     );
   }
 
@@ -73,7 +80,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    */
   public function build() {
 
-    $build = \Drupal::formBuilder()->getForm('Drupal\origins_translations\Form\LanguageSelectorForm');
+    $build = $this->formBuilder->getForm('Drupal\origins_translations\Form\LanguageSelectorForm');
 
     return $build;
   }
