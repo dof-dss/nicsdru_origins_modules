@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\origins_translations\Utilities;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Component\Utility\Html;
 
 /**
  * Provides a form to select a translation.
@@ -52,6 +53,8 @@ class LanguageSelectorForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
 
     $url = $this->getRequest()->getUri();
+    $wrapper_id = Html::getUniqueId('translations-select-wrapper');
+
 
     $form['translations-link'] = [
       '#type' => 'link',
@@ -67,9 +70,9 @@ class LanguageSelectorForm extends FormBase {
       '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],
       '#ajax' => [
         'callback' => '::displayLanguageOptions',
-        'wrapper' => 'translations-select-wrapper',
+        'wrapper' => $wrapper_id,
       ],
-      '#suffix' => '<div id="translations-select-wrapper"></div>',
+      '#suffix' => '<div id="' . $wrapper_id . '"></div>',
     ];
 
     return $form;
