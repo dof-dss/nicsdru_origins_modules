@@ -6,16 +6,12 @@
 (function($, Drupal) {
   'use strict';
 
-  // If ajax is enabled, we want to hide items that are marked as hidden in
-  // our example.
-  if (Drupal.ajax) {
-    $('.ajax-example-hide').hide();
-  }
-
+  // Disable the non-javascript link.
   function disableLinkUi(i, elm) {
     $(elm).addClass('hidden');
   }
 
+  // Enable the AJAX button and update title.
   function enableButtonUi(i, elm) {
     $(elm).removeClass('hidden');
     if (navigator.language.substr(0,2) !== 'en') {
@@ -23,21 +19,21 @@
     }
   }
 
+  // Open the selected translation in a new tab.
+  function viewTranslation(i, elm) {
+    $(elm).change(function () {
+      if ($(elm).val().length > 0) {
+        window.open(('https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' + $(elm).val()));
+      }
+    });
+  }
+
   Drupal.behaviors.originsTranslate = {
     attach: function (context, settings) {
-
       $('.origins-translation-link', context).once('origins-translation').each(disableLinkUi);
       $('.origins-translation-button', context).once('origins-translation').each(enableButtonUi);
-
-      $('.origins-translation-select', context).once('origins-translation').each(function () {
-        $(this).change(function () {
-          if ($(this).val().length > 0) {
-            window.open(('https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' + $(this).val()));
-          }
-        });
-      });
+      $('.origins-translation-select', context).once('origins-translation').each(viewTranslation);
     }
   };
-
 
 })(jQuery, Drupal, drupalSettings);
