@@ -73,29 +73,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    */
   public function build() {
 
-    $title = $this->t('Translate this page');
-    $domain = $this->config->get('domain');
-
-    if (empty($domain)) {
-      $url = $this->request->getUri();
-    }
-    else {
-      $url = $domain . $this->request->getPathInfo();
-    }
-
-    $build['link'] = [
-      '#title' => $title,
-      '#type' => 'link',
-      '#url' => \Drupal\Core\Url::fromRoute('origins_translations.translation-link-ui.select', ['url' => $url]),
-      '#attributes' => ['class' => ['origins-translation-link', 'use-ajax']],
-      '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],
-    ];
-
-    $build['ajax-wrapper'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => ['class' => ['ajax-wrapper']],
-    ];
+    $build = \Drupal::formBuilder()->getForm('Drupal\origins_translations\Form\LanguageSelectorForm');
 
     return $build;
   }
