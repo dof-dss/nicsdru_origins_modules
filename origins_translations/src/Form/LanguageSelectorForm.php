@@ -29,13 +29,14 @@ class LanguageSelectorForm extends FormBase {
       '#type' => 'link',
       '#title' => $this->t('Translate this page'),
       '#url' => Url::fromRoute('origins_translations.translations-page', ['url' => $url]),
-      '#attributes' => ['class' => ['translations-link']],
+      '#attributes' => ['class' => ['origins-translation-link']],
     ];
 
     $form['translations-button'] = [
       '#type' => 'button',
       '#value' => $this->t('Translate this page'),
-      '#attributes' => ['class' => ['use-ajax', 'hidden']],
+      '#attributes' => ['class' => ['origins-translation-button', 'hidden']],
+      '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],
       '#ajax' => [
         'callback' => '::displayLanguageOptions',
         'wrapper' => 'translations-select-wrapper',
@@ -55,7 +56,7 @@ class LanguageSelectorForm extends FormBase {
 
     $languages = array_filter($languages, static fn($language) => $language['1'] === TRUE);
 
-    $url = $request->query->get('url');
+    $url = $request->getUri();
     $code = substr($request->headers->get('accept-language'), 0, 2);
 
     if (array_key_exists($code, $languages) && strpos($code, 'en') !== 0) {
@@ -66,14 +67,13 @@ class LanguageSelectorForm extends FormBase {
     }
 
     foreach ($languages as $code => $language) {
-      $translations['https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url] = $language[0];
+      $translations[$code . '&u=' . $url] = $language[0];
     }
-
 
     $form['translation-select'] = [
       '#type' => 'select',
       '#options' => $translations,
-      '#attributes' => ['class' => ['origins-translation']],
+      '#attributes' => ['class' => ['origins-translation-select']],
     ];
     return $form['translation-select'];
   }
