@@ -31,7 +31,9 @@
 
       $('.origins-translation-select', context).once('origins-translation').each(function () {
         $(this).change(function () {
-          window.open(($(this).val()));
+          if ($(this).val().length > 0) {
+            window.open(('https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' + $(this).val()));
+          }
         });
       });
     }
