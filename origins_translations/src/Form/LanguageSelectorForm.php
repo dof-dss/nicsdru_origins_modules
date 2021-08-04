@@ -51,10 +51,18 @@ class LanguageSelectorForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $request = $this->getRequest();
+    $url = $this->config('origins_translations.settings')->get('domain');
 
-    $url = $this->getRequest()->getUri();
+    // If the domain is set we need to append the current path.
+    if (!empty($url)) {
+      $url .= $request->getPathInfo();
+    }
+    else {
+      $url = $request->getUri();
+    }
+
     $wrapper_id = Html::getUniqueId('translations-select-wrapper');
-
 
     $form['translations-link'] = [
       '#type' => 'link',
@@ -84,8 +92,17 @@ class LanguageSelectorForm extends FormBase {
   public function displayLanguageOptions($form, FormStateInterface $form_state) {
     $request = $this->getRequest();
     $languages = $this->utilities->getActiveLanguages();
-    $url = $request->getUri();
     $code = substr($request->headers->get('accept-language'), 0, 2);
+
+    $url = $this->config('origins_translations.settings')->get('domain');
+
+    // If the domain is set we need to append the current path.
+    if (!empty($url)) {
+      $url .= $request->getPathInfo();
+    }
+    else {
+      $url = $request->getUri();
+    }
 
     if (array_key_exists($code, $languages) && strpos($code, 'en') !== 0) {
       $translations[''] = $languages[$code][3];
