@@ -35,7 +35,7 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'translations_languages_list':
-
+          $utils = \Drupal::service('origins_translations.utilities');
           $request = \Drupal::request();
 
           $url = $request->query->get('url');
@@ -44,10 +44,7 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
             $url = $request->getUriForPath('/');
           }
 
-          $languages = \Drupal::config('origins_translations.languages')->getRawData();
-          unset($languages['_core']);
-          $languages = array_filter($languages, static fn($language) => $language['1'] === TRUE);
-
+          $languages = $utils->getActiveLanguages();
           $links = [];
 
           foreach ($languages as $code => $language) {

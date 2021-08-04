@@ -5,11 +5,39 @@ namespace Drupal\origins_translations\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\origins_translations\Utilities;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form to select a translation.
  */
 class LanguageSelectorForm extends FormBase {
+
+  /**
+   * Origins Translation utilities.
+   *
+   * @var \Drupal\origins_translations\Utilities
+   */
+  protected $utilities;
+
+  /**
+   * The controller constructor.
+   *
+   * @param \Drupal\origins_translations\Utilities $utilities
+   *   Origins Translations utilities service.
+   */
+  public function __construct(Utilities $utilities) {
+    $this->utilities = $utilities;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('origins_translations.utilities')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -49,13 +77,7 @@ class LanguageSelectorForm extends FormBase {
 
   public function displayLanguageOptions($form, FormStateInterface $form_state) {
     $request = $this->getRequest();
-    $config = $this->config('origins_translations.languages');
-
-    $languages = $config->getRawData();
-    unset($languages['_core']);
-
-    $languages = array_filter($languages, static fn($language) => $language['1'] === TRUE);
-
+    $languages = $this->utilities->getActiveLanguages();
     $url = $request->getUri();
     $code = substr($request->headers->get('accept-language'), 0, 2);
 
