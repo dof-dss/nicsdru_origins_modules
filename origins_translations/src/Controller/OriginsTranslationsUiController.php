@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Returns responses for Origins Translations routes.
  */
 class OriginsTranslationsUiController extends ControllerBase {
+
   /**
    * Returns a translated title if present in the configuration.
    */
