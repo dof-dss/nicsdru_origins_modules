@@ -21,7 +21,7 @@ class LanguageSelectorForm extends FormBase {
   protected $utilities;
 
   /**
-   * The controller constructor.
+   * The form constructor.
    *
    * @param \Drupal\origins_translations\Utilities $utilities
    *   Origins Translations utilities service.

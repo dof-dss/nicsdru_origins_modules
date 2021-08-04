@@ -15,7 +15,14 @@
   function enableButtonUi(i, elm) {
     $(elm).removeClass('hidden');
     if (navigator.language.substr(0,2) !== 'en') {
-      $(elm).load('/origins-translations/translation-link-ui/title/' + navigator.language.substr(0,2));
+      $.ajax({
+        url: '/origins-translations/translation-link-ui/title/' + navigator.language.substr(0,2),
+      })
+        .done(function(data) {
+          if (data) {
+            $(elm).val(data);
+          }
+        });
     }
   }
 
