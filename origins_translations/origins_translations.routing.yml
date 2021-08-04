@@ -1,11 +1,3 @@
-origins_translations.translation-link-ui.select:
-  path: '/origins-translations/translation-link-ui/select'
-  defaults:
-    _title: 'Translations UI'
-    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsUiController::selectLanguage'
-  requirements:
-    _permission: 'access content'
-
 origins_translations.translation-link-ui.title:
   path: '/origins-translations/translation-link-ui/title/{code}'
   defaults:
