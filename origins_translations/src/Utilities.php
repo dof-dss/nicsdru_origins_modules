@@ -5,7 +5,7 @@ namespace Drupal\origins_translations;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
- * Utilities service.
+ * Provides Utility methods for the Origins Translations module.
  */
 class Utilities {
 

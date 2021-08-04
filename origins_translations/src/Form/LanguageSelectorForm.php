@@ -75,6 +75,9 @@ class LanguageSelectorForm extends FormBase {
     return $form;
   }
 
+  /**
+   * AJAX callback to display a select list of languages.
+   */
   public function displayLanguageOptions($form, FormStateInterface $form_state) {
     $request = $this->getRequest();
     $languages = $this->utilities->getActiveLanguages();
@@ -100,6 +103,11 @@ class LanguageSelectorForm extends FormBase {
     return $form['translation-select'];
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    // Method stub to comply with interface.
   }
+
 }
