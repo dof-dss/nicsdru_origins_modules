@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\origins_translations\Form\LanguageSelectorForm;
+
 /**
  * @file
  * Contains origins_translations.module.
@@ -16,7 +18,12 @@ function origins_translations_token_info() {
 
   $tokens['translations_languages_list'] = [
     'name' => t('Translation languages list'),
-    'description' => t('Displays a list of active site languages linking to Google Translate .'),
+    'description' => t('Displays a list of active site languages linking to Google Translate.'),
+  ];
+
+  $tokens['translations_languages_select'] = [
+    'name' => t('Translation languages select'),
+    'description' => t('Allows the user to select a language to translate the current page.'),
   ];
 
   return [
@@ -62,6 +69,9 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
 
           $replacements[$original] = render($output);
           break;
+        case 'translations_languages_select':
+          $output = \Drupal::formBuilder()->getForm(LanguageSelectorForm::class);
+          $replacements[$original] = render($output);
       }
     }
   }
