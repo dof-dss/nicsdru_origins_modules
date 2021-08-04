@@ -1,5 +1,12 @@
 origins_translations.link_ui:
+  css:
+    theme:
+      css/translations_ui.css: { }
   js:
     js/origins-translations.js: {}
   dependencies:
-    - core/drupalSettings
+    - core/drupal
+    - core/drupal.ajax
+    - core/drupal.url
+    - core/jquery
+    - core/jquery.once
