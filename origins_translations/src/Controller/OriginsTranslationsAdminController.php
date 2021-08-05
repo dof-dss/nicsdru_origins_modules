@@ -8,7 +8,7 @@ use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Returns responses for Origins Translations routes.
+ * Returns responses for Origins Translations admin pages.
  */
 class OriginsTranslationsAdminController extends ControllerBase {
 

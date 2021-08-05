@@ -64,6 +64,8 @@ class LanguageSelectorForm extends FormBase {
 
     $wrapper_id = Html::getUniqueId('translations-select-wrapper');
 
+    // Provide a link to the translations page for when the browser doesn't
+    // have Javascript enabled. This will be hidden if JS is enabled.
     $form['translations-link'] = [
       '#type' => 'link',
       '#title' => $this->t('Translate this page'),
@@ -71,6 +73,9 @@ class LanguageSelectorForm extends FormBase {
       '#attributes' => ['class' => ['origins-translation-link']],
     ];
 
+    // Provide a button for AJAX callbacks when Javascript is enabled.
+    // We can't bind an AJAX call to the link element above because of this bug
+    // in Drupal core: https://www.drupal.org/project/drupal/issues/2915954
     $form['translations-button'] = [
       '#type' => 'button',
       '#value' => $this->t('Translate this page'),
@@ -94,6 +99,7 @@ class LanguageSelectorForm extends FormBase {
     $languages = $this->utilities->getActiveLanguages();
     $code = substr($request->headers->get('accept-language'), 0, 2);
 
+    // Allow for Simplified (zh-cn) and Traditional (zh-tw) Chinese.
     if ($code === 'zh') {
       $code = strtolower(substr($request->headers->get('accept-language'), 0, 5));
     }
@@ -108,6 +114,8 @@ class LanguageSelectorForm extends FormBase {
       $url = $request->getUri();
     }
 
+    // Provide a translation for 'Select a language' if available for the
+    // detected browser language.
     if (array_key_exists($code, $languages) && strpos($code, 'en') !== 0) {
       $translations[''] = $languages[$code][3];
     }

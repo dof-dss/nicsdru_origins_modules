@@ -22,7 +22,7 @@ class SettingsForm extends ConfigFormBase {
   protected $state;
 
   /**
-   * MediaSettingsForm constructor.
+   * Settings Form constructor.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
@@ -62,17 +62,6 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-
-     // TODO: Possibly look at using Google Cloud translate API to compare the
-     // available languages to the current site config by calling the
-     // getSupportedLanguages endpoint.
-
-//    $form['apikey'] = [
-//      '#type' => 'textfield',
-//      '#title' => $this->t('API key'),
-//      '#description' => $this->t("Create an API key at https://console.cloud.google.com/apis/credentials"),
-//      '#default_value' => $this->state->get('origins_translations.settings.apikey'),
-//    ];
 
     $form['domain'] = [
       '#type' => 'textfield',
