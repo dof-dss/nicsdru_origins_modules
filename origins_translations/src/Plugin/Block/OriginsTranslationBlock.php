@@ -4,9 +4,7 @@ namespace Drupal\origins_translations\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormBuilder;
-use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\Core\Render\Element\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +34,11 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    */
   protected $request;
 
+  /**
+   * The form builder service.
+   *
+   * @var \Drupal\Core\Form\FormBuilder
+   */
   protected $formBuilder;
 
   /**

@@ -17,11 +17,12 @@
     var lang_code = navigator.language.substr(0,2);
 
     if (lang_code !== 'en') {
+      // Allow for Simplified (zh-cn) and Traditional (zh-tw) Chinese.
       if (lang_code === 'zh') {
         lang_code = navigator.language;
-        console.log(lang_code);
       }
 
+      // Lookup the translation for the UI title.
       $.ajax({
         url: '/origins-translations/translation-link-ui/title/' + lang_code,
       })
