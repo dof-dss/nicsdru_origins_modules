@@ -94,6 +94,10 @@ class LanguageSelectorForm extends FormBase {
     $languages = $this->utilities->getActiveLanguages();
     $code = substr($request->headers->get('accept-language'), 0, 2);
 
+    if ($code === 'zh') {
+      $code = strtolower(substr($request->headers->get('accept-language'), 0, 5));
+    }
+
     $url = $this->config('origins_translations.settings')->get('domain');
 
     // If the domain is set we need to append the current path.
