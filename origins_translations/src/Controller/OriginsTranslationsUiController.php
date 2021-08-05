@@ -47,7 +47,7 @@ class OriginsTranslationsUiController extends ControllerBase {
 
     $config = $this->config('origins_translations.languages');
     $languages = $config->getRawData();
-    $code = $request->get('code');
+    $code =  strtolower($request->get('code'));
 
     if (array_key_exists($code, $languages)) {
       return $response->setContent($languages[$code][2]);

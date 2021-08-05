@@ -14,9 +14,16 @@
   // Enable the AJAX button and update title.
   function enableButtonUi(i, elm) {
     $(elm).removeClass('hidden');
-    if (navigator.language.substr(0,2) !== 'en') {
+    var lang_code = navigator.language.substr(0,2);
+
+    if (lang_code !== 'en') {
+      if (lang_code === 'zh') {
+        lang_code = navigator.language;
+        console.log(lang_code);
+      }
+
       $.ajax({
-        url: '/origins-translations/translation-link-ui/title/' + navigator.language.substr(0,2),
+        url: '/origins-translations/translation-link-ui/title/' + lang_code,
       })
         .done(function(data) {
           if (data) {
