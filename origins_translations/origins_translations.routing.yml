@@ -1,0 +1,56 @@
+origins_translations.translation-link-ui.title:
+  path: '/origins-translations/translation-link-ui/title/{code}'
+  defaults:
+    _title: 'Translations UI'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsUiController::title'
+  requirements:
+    _permission: 'access content'
+
+origins_translations.translations-page:
+  path: 'translations'
+  defaults:
+    _title: 'Translations'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::build'
+    _title_callback: '\Drupal\origins_translations\Controller\OriginsTranslationsPageController::getTitle'
+  requirements:
+    _permission: 'access content'
+
+origins_translations.settings.settings:
+  path: '/admin/config/system/origins/translations/settings'
+  defaults:
+    _title: 'Origins Translations settings'
+    _form: 'Drupal\origins_translations\Form\SettingsForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.languages:
+  path: '/admin/config/system/origins/translations/languages'
+  defaults:
+    _title: 'Origins Translations languages'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsAdminController::languages'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.languages.edit:
+  path: '/admin/config/system/origins/translations/languages/edit/{code}'
+  defaults:
+    _title: 'Origins Translations: Edit language'
+    _form: 'Drupal\origins_translations\Form\LanguageEditForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.languages.toggle:
+  path: '/admin/config/system/origins/translations/languages/toggle/{code}'
+  defaults:
+    _title: 'Origins Translations: Edit language'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsAdminController::toggle'
+  requirements:
+    _permission: 'administer origins translations configuration'
+
+origins_translations.settings.translations_page:
+  path: '/admin/config/system/origins/translations/translations-page'
+  defaults:
+    _title: 'Origins Translations page'
+    _form: 'Drupal\origins_translations\Form\TranslationsPageForm'
+  requirements:
+    _permission: 'administer origins translations configuration'
