@@ -1,0 +1,4 @@
+services:
+  origins_translations.utilities:
+    class: Drupal\origins_translations\Utilities
+    arguments: ['@config.factory']

@@ -1,0 +1,96 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_translations.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\origins_translations\Form\LanguageSelectorForm;
+use Drupal\Core\Render\BubbleableMetadata;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function origins_translations_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.origins_translations':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides a translation link or dropdown for the current page.') . '</p>';
+      $output .= '<p>' . t('Translation can be added via a block or token') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_token_info().
+ */
+function origins_translations_token_info() {
+  $types['origins'] = ['name' => 'Origins'];
+
+  $tokens['translations_languages_list'] = [
+    'name' => t('Translation languages list'),
+    'description' => t('Displays a list of active site languages linking to Google Translate.'),
+  ];
+
+  $tokens['translations_languages_select'] = [
+    'name' => t('Translation languages select'),
+    'description' => t('Allows the user to select a language to translate the current page.'),
+  ];
+
+  return [
+    'types' => $types,
+    'tokens' => ['origins' => $tokens],
+  ];
+}
+
+/**
+ * Implements hook_tokens().
+ */
+function origins_translations_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
+  $replacements = [];
+
+  if ($type == 'origins') {
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'translations_languages_list':
+          $utils = \Drupal::service('origins_translations.utilities');
+          $request = \Drupal::request();
+
+          $url = $request->query->get('url');
+
+          if (empty($url)) {
+            $url = $request->getUriForPath('/');
+          }
+
+          $languages = $utils->getActiveLanguages();
+          $links = [];
+
+          foreach ($languages as $code => $language) {
+            $links[] = [
+              '#type' => 'link',
+              '#url' => Url::fromUri('https://translate.google.com/translate?hl=en&tab=TT&sl=auto&tl=' . $code . '&u=' . $url),
+              '#title' => $language[0],
+            ];
+          }
+
+          $output = [
+            '#theme' => 'item_list',
+            '#items' => $links,
+          ];
+
+          $replacements[$original] = render($output);
+          break;
+
+        case 'translations_languages_select':
+          $output = \Drupal::formBuilder()->getForm(LanguageSelectorForm::class);
+          $replacements[$original] = render($output);
+      }
+    }
+  }
+  return $replacements;
+}

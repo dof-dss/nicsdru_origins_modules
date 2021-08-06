@@ -1,0 +1,7 @@
+input[type=submit].origins-translation-button {
+  background-image: none !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-weight: normal !important;
+}
