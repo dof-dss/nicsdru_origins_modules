@@ -31,6 +31,8 @@ class AuditTest extends BrowserTestBase {
    * Drupal\Tests\BrowserTestBase::$defaultTheme is required. See
    * https://www.drupal.org/node/3083055, which includes recommendations
    * on which theme to use.
+   *
+   * @var string
    */
   protected $defaultTheme = 'classy';
 
