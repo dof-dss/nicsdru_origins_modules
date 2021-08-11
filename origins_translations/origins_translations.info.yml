@@ -1,0 +1,7 @@
+name: Origins Translations
+type: module
+description: Provides translation services
+package: 'NICS: Origins'
+core: 8.x
+core_version_requirement: ^8 || ^9
+configure: origins_translations.settings.settings

@@ -28,6 +28,15 @@ class AuditTest extends BrowserTestBase {
   protected $profile = 'test_profile';
 
   /**
+   * Drupal\Tests\BrowserTestBase::$defaultTheme is required. See
+   * https://www.drupal.org/node/3083055, which includes recommendations
+   * on which theme to use.
+   *
+   * @var string
+   */
+  protected $defaultTheme = 'classy';
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface

@@ -1,0 +1,17 @@
+origins_translations.settings.settings:
+  route_name: origins_translations.settings.settings
+  title: 'Settings'
+  base_route: origins_translations.settings
+  weight: 10
+
+origins_translations.settings.languages:
+  route_name: origins_translations.settings.languages
+  title: 'Languages'
+  base_route: origins_translations.settings
+  weight: 20
+
+origins_translations.settings.translations_page:
+  route_name: origins_translations.settings.translations_page
+  title: 'Translations page'
+  base_route: origins_translations.settings
+  weight: 30
