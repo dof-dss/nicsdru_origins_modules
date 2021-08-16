@@ -39,10 +39,10 @@ function origins_social_sharing_preprocess_block(&$variables) {
       $title = $node->getTitle();
     }
     // Build Twitter link.
-    $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title) . ' ' . rawurlencode($url->toString());
+    $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title . ' ') . rawurlencode($url->toString());
     $variables['content']['#tw_link'] = $tw_link;
     // Build mailto link.
-    $mail_link = "mailto:?subject=" . t("Shared from @host", ['@host' => \Drupal::request()->server->get('HTTP_HOST')]);
+    $mail_link = "mailto:?subject=" . rawurlencode(t("Shared from @host", ['@host' => \Drupal::request()->server->get('HTTP_HOST')]));
     $mail_link .= "&body=" . rawurlencode($title . "\n") . rawurlencode($url->toString());
     $variables['content']['#mail_link'] = $mail_link;
   }
