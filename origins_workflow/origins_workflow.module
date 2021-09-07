@@ -500,15 +500,17 @@ function _create_draft_link_for_revision(&$variables, $idx, $row) {
 function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterface $entity) {
   // Get current moderation state.
   $current_state = $entity->moderation_state->value;
-  // Special case if this node is published but
-  // we are not looking at the latest revision.
-  if (($current_state == 'published') && !$entity->isLatestRevision()) {
-    if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition archive')) {
-      // Add an 'Archive' button to the moderation sidebar, as
-      // it fails to do this in this case.
-      $build['actions']['primary']['archive'] = [];
-      $build['actions']['primary']['archive']['#title'] = Markup::create('Archive');
-      $build['actions']['primary']['archive']['#type'] = "link";
+
+  if ($current_state === 'published') {
+    $dop_link_exists = NestedArray::keyExists(
+      $build, ['actions', 'primary', 'quick_draft_form', 'draft_of_published']
+    );
+
+    if ($entity->isLatestRevision() && $dop_link_exists) {
+      // Entity is published, but we have no forward revisions so hide the draft of published option.
+      hide($build['actions']['primary']['quick_draft_form']['draft_of_published']);
+    }
+    else {
       // Retrieve alias for current node.
       $alias = \Drupal::service('path_alias.manager')->getAliasByPath('/node/' . $entity->id());
       // Redirect to current node view after changing state.
@@ -517,14 +519,47 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
           'destination' => $alias
         ],
       ];
-      // Build URL to change state.
-      $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
-        ['nid' => $entity->id(), 'new_state' => 'archived'],
-        $options);
-      // Style as a button in the moderation sidebar.
-      $build['actions']['primary']['archive']['#attributes'] = [
-        'class' => ['moderation-sidebar-link', 'button', 'archive-link']
-      ];
+
+      // Inject an option for 'Draft of published'.
+      // This isn't added by the core workflow module as that only responds to
+      // publish status rather than that in conjunction with available revisions.
+      if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
+        $dop_link = [
+          '#type' => 'link',
+          '#title' => Markup::create(t('Draft of published')),
+          '#url' => Url::fromRoute(
+            'origins_workflow.moderation_state_controller_new_draft_of_published', [
+              'nid' => $entity->id(),
+              'new_state' => 'draft_of_published'
+            ], $options),
+          '#attributes' => [
+            'class' => [
+              'moderation-sidebar-link',
+              'button',
+              'draft-of-published--link',
+            ]
+          ],
+        ];
+
+        $build['actions']['primary']['draft_of_published'] = $dop_link;
+      }
+
+      if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition archive')) {
+        // Add an 'Archive' button to the moderation sidebar, as
+        // it fails to do this in this case.
+        $build['actions']['primary']['archive'] = [];
+        $build['actions']['primary']['archive']['#title'] = Markup::create(t('Archive'));
+        $build['actions']['primary']['archive']['#type'] = 'link';
+
+        // Build URL to change state.
+        $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
+          ['nid' => $entity->id(), 'new_state' => 'archived'],
+          $options);
+        // Style as a button in the moderation sidebar.
+        $build['actions']['primary']['archive']['#attributes'] = [
+          'class' => ['moderation-sidebar-link', 'button', 'archive--link']
+        ];
+      }
     }
   }
 }

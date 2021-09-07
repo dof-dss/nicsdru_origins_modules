@@ -24,50 +24,45 @@ module.exports = {
     browser
       .setValue('input#edit-title-0-value', [Date.now() + ' -- ' + 'Test article (published to draft of published)', browser.Keys.TAB])
       .pause(2000)
-      .setValue('textarea#edit-field-summary-0-value', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.')
+      .setValue('textarea#edit-field-summary-0-value', 'Lorem ipsum dolor sit amet.')
       .waitForElementVisible('#cke_edit-body-0-value', 2000)
       .execute(function (instance, content) {
           CKEDITOR.instances[instance].setData(content);
         }, [
           'edit-body-0-value',
-          '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>'
+          '<p>Lorem ipsum dolor sit amet</p>'
         ]
       )
       .click('input#edit-submit');
+
+    // Set up a forward revision.
+    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
+      .click('div.moderation-sidebar-primary-tasks > a:nth-child(1)')
+      .pause(2000)
+      .setValue('textarea#edit-field-summary-0-value', 'A forward revision change')
+      .click('input#edit-submit');
+
+    // View the published revision to see the draft of published link option.
+    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
+      .click('div.moderation-sidebar-primary-tasks > a:nth-child(1)');
   },
 
   after: function (browser) {
     browser.drupalLogout();
   },
 
-  'Check moderation task buttons': browser => {
-    // Check our sidebar label shows as 'published' before we begin.
+  'DRAFT OF PUBLISHED WITH FORWARD REVISION': browser => {
     browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
-      .expect.element('.moderation-sidebar-info > p:nth-child(1)').text.to.equal('Status: Published');
-
-    // DOM is a hybrid of styled links and form enclosed, styled input elements which makes
-    // iterating over the collection rather more complex than desired. Everything here is very
-    // precise with selectors to compensate as a result.
-    browser.expect.element('.moderation-sidebar-primary-tasks > a.button').text.to.equal('Edit content')
-    browser.expect.element('.moderation-sidebar-primary-tasks #archive').to.have.attribute('value').equals('Archive')
-    browser.expect.element('.moderation-sidebar-primary-tasks #draft_of_published').to.have.attribute('value').equals('Draft of Published');
-    browser.expect.element('.moderation-sidebar-primary-tasks a.button--danger').text.to.equal('Delete content')
-  },
-
-  'PUBLISHED TO DRAFT OF PUBLISHED': browser => {
-    // Moderation sidebar should already be open from previous test, click the button we need to change moderation state.
-    browser.click('input#draft_of_published');
-
-    // Check our sidebar label shows as 'Draft'.
-    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a')
-      .expect.element('.moderation-sidebar-info > p:nth-child(1)').text.to.equal('Status: Draft');
+      .click('div.moderation-sidebar-primary-tasks > a.draft-of-published--link');
+    browser.click('input#edit-submit');
 
     // Validate remaining sidebar options.
-    browser.expect.element('.moderation-sidebar-primary-tasks > a.button:nth-child(1)').text.to.equal('View live content')
-    browser.expect.element('.moderation-sidebar-primary-tasks > a.button:nth-child(2)').text.to.equal('Edit draft')
-    browser.expect.element('.moderation-sidebar-primary-tasks #moderation-sidebar-discard-draft').to.have.attribute('value').equals('Discard draft')
-    browser.expect.element('.moderation-sidebar-primary-tasks #submit_for_review').to.have.attribute('value').equals('Submit for Review');
-    browser.expect.element('.moderation-sidebar-primary-tasks #quick_publish').to.have.attribute('value').equals('Quick Publish');
+    browser.click('div.moderation-sidebar-toolbar-tab.toolbar-tab > a');
+    browser.expect.element('div.moderation-sidebar-primary-tasks > a:nth-child(1)').text.to.equal('View existing draft');
+    browser.expect.element('div.moderation-sidebar-primary-tasks > a:nth-child(2)').text.to.equal('Edit draft');
+    browser.expect.element('div.moderation-sidebar-primary-tasks > a:nth-child(3)').text.to.equal('Draft of published');
+    browser.expect.element('div.moderation-sidebar-primary-tasks > a:nth-child(4)').text.to.equal('Archive');
+    browser.expect.element('div.moderation-sidebar-primary-tasks > a:nth-child(5)').text.to.equal('Delete content');
 
   }
 
