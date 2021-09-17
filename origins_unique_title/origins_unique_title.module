@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['title']['widget'][0]['value']['#ajax'] = [
     'callback' => 'origins_unique_title_check_title',
+    'disable-refocus' => TRUE,
     'event' => 'change',
     'wrapper' => 'title-unique',
     'progress' => [
@@ -26,7 +27,7 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
     '#attributes' => [
       'id' => 'title-unique'
     ],
-    '#weight' => $form['title']['#weight'] + 1,
+    '#weight' => $form['title']['#weight'] + 0.5,
   ];
 
   $form['#validate'][] = 'origins_unique_title_validate_title';
@@ -49,6 +50,7 @@ function origins_unique_title_check_title(array &$form, FormStateInterface $form
 
   if (!empty($title) &&
     \Drupal::service('origins_unique_title.title_validator')->isTitleUnique($title, $bundle, $excludes) == FALSE) {
+
 
     $message = t("@type content with title '@title' already exists. You must choose a different title.", [
       '@title' => $title,
