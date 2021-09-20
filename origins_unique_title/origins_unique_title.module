@@ -27,7 +27,10 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
     '#attributes' => [
       'id' => 'title-unique'
     ],
-    '#weight' => $form['title']['#weight'] + 0.5,
+//    Setting the title message to + 0 so that the error message appears directly below the title
+//    field. This was originally set to + 1 bit the error message was appearing below the next fielded
+//    item in the form list.
+    '#weight' => $form['title']['#weight'] + 0,
   ];
 
   $form['#validate'][] = 'origins_unique_title_validate_title';
