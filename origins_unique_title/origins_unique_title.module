@@ -27,9 +27,9 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
     '#attributes' => [
       'id' => 'title-unique'
     ],
-//    Setting the title message to + 0 so that the error message appears directly below the title
-//    field. This was originally set to + 1 but the error message was appearing below the next fielded
-//    item after the title in the form list.
+    //    Setting the title message to + 0 so that the error message appears directly below the title
+    //    field. This was originally set to + 1 but the error message was appearing below the next fielded
+    //    item after the title in the form list.
     '#weight' => $form['title']['#weight'] + 0,
   ];
 
