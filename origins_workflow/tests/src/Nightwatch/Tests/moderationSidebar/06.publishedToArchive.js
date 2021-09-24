@@ -50,7 +50,7 @@ module.exports = {
     // precise with selectors to compensate as a result.
     browser.expect.element('.moderation-sidebar-primary-tasks > a.button').text.to.equal('Edit content')
     browser.expect.element('.moderation-sidebar-primary-tasks #archive').to.have.attribute('value').equals('Archive')
-    browser.expect.element('.moderation-sidebar-primary-tasks #draft_of_published').to.have.attribute('value').equals('Draft of Published');
+    browser.expect.element('.moderation-sidebar-primary-tasks #draft_of_published').not.to.be.present
     browser.expect.element('.moderation-sidebar-primary-tasks a.button--danger').text.to.equal('Delete content')
   },
 
