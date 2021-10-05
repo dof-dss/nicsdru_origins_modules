@@ -12,12 +12,8 @@ use Drupal\Core\Form\FormStateInterface;
 function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form['title']['widget'][0]['value']['#ajax'] = [
     'callback' => 'origins_unique_title_check_title',
-    'event' => 'change',
+    'event' => 'submit',
     'wrapper' => 'title-unique',
-    'progress' => [
-      'type' => 'throbber',
-      'message' => t('Checking if title is unique') . '...',
-    ],
   ];
 
   $form['title_unique'] = [
@@ -26,7 +22,10 @@ function origins_unique_title_form_node_form_alter(&$form, FormStateInterface $f
     '#attributes' => [
       'id' => 'title-unique'
     ],
-    '#weight' => $form['title']['#weight'] + 1,
+    // Setting the title message to + 0 so that the error message appears directly below the title
+    // field. This was originally set to + 1 but the error message was appearing below the next fielded
+    // item after the title in the form list.
+    '#weight' => $form['title']['#weight'] + 0,
   ];
 
   $form['#validate'][] = 'origins_unique_title_validate_title';
