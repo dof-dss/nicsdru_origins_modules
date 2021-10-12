@@ -17,6 +17,16 @@ origins_workflow.moderation_state_controller_change_state:
   requirements:
     _permission: 'access content'
 
+origins_workflow.moderation_state_controller_revert_to_state:
+  path: '/origins_workflow/revert_state/{nid}/{vid}/{new_state}'
+  defaults:
+    _form: '\Drupal\origins_workflow\Form\RevertToModerationStateForm'
+    _title: 'Revert to Moderation State'
+  requirements:
+    _permission: 'access content'
+  options:
+    _node_operation_route: TRUE
+
 origins_workflow.audit_controller_content_audit:
   path: '/origins_workflow/content_audit/{nid}'
   defaults:
