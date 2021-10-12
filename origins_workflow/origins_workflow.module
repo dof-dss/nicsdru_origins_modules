@@ -454,7 +454,7 @@ function origins_workflow_preprocess_table(&$variables) {
         }
 
         // Tweak revert links.
-        if($revert_link['title']->getUntranslatedString() == 'Set as current revision') {
+        if ($revert_link['title']->getUntranslatedString() == 'Set as current revision') {
           // When content moderation is enabled, pending revisions have a revert link
           // with text "Set as current revision". But this is misleading. If a node's
           // current (or default) revision is a published revision, then reverting a
@@ -463,8 +463,9 @@ function origins_workflow_preprocess_table(&$variables) {
           // Note there are proposed changes in Drupal 9 which fix this very issue.
           // @see https://www.drupal.org/project/drupal/issues/2899719.
           $revert_link['title'] = t('Copy as latest revision');
-        } else {
-          // This must be past revision.
+        }
+        else {
+          // This must be a past revision.
           // Create a "Revert as draft" link in addition to the normal
           // Revert link. The normal revert link reverts a revision and
           // preserves the moderation state. Users often need to create
