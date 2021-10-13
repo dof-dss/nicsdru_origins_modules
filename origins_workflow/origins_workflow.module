@@ -424,11 +424,10 @@ function origins_workflow_preprocess_table(&$variables) {
       $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
     }
 
-    // Check whether the 'diff' module has been installed and set the
-    // column for the 'action' links accordingly.
+    // Set the column that contains 'action' links - it is normally the last cell in a row.
     $action_column = 1;
-    if (\Drupal::moduleHandler()->moduleExists('diff')) {
-      $action_column = 3;
+    if (!empty($variables['rows'][0]['cells'])) {
+      $action_column = array_key_last($variables['rows'][0]['cells']);
     }
 
     // Loop through the rows and:
