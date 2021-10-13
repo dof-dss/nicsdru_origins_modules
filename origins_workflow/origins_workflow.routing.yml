@@ -23,7 +23,7 @@ origins_workflow.moderation_state_controller_revert_to_state:
     _form: '\Drupal\origins_workflow\Form\RevertToModerationStateForm'
     _title: 'Revert to Moderation State'
   requirements:
-    _permission: 'access content'
+    _permission: 'use nics_editorial_workflow transition create_new_draft'
   options:
     _node_operation_route: TRUE
 
