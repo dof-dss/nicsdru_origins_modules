@@ -1,0 +1,11 @@
+services:
+  origins_workflow.revision_revert_breadcrumb:
+    class: Drupal\origins_workflow\Breadcrumb\RevisionRevertBreadcrumb
+    arguments: ['@entity_type.manager', '%breadcrumb.revert.matches%', '@request_stack']
+    tags:
+      - { name: breadcrumb_builder, priority: 100 }
+
+parameters:
+  breadcrumb.revert.matches:
+    - origins_workflow.moderation_state_controller_revert_to_state
+    - origins_workflow.moderation_state_controller_new_draft_of_published

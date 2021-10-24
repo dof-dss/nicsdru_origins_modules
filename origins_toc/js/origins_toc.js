@@ -39,6 +39,11 @@
         $(tocHeadings, context).once('toc').each(function(index) {
           var $linkText = $(this).text();
 
+          // Ignore visually hidden elements.
+          if ($(this).hasClass('visually-hidden')) {
+            return;
+          }
+
           // Ignore the 'more useful links' section, if present.
           if ($linkText.toLowerCase() == 'more useful links') {
             return;
