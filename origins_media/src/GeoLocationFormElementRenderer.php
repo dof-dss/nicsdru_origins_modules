@@ -5,7 +5,7 @@ namespace Drupal\origins_media;
 use Drupal\Core\Render\Element\RenderCallbackInterface;
 
 /**
- * Trusted callback to alter the GeoLocation form element rendering.
+ * Static callback to alter the GeoLocation form element rendering.
  */
 class GeoLocationFormElementRenderer implements RenderCallbackInterface {
 
@@ -20,9 +20,9 @@ class GeoLocationFormElementRenderer implements RenderCallbackInterface {
     ];
 
     // Need to introduce the extra parent element for the fieldset
-    // so that the element handler is able to extract the value from our form_state collection.
-    // Otherwise, it'll look for 'lat' or 'lng' and find them missing because we've moved them
-    // in the form structure.
+    // so that the element handler is able to extract the value from our
+    // form_state collection. Otherwise, it'll look for 'lat' or 'lng' and find
+    // them missing because we've moved them in the form structure.
     array_splice($element['lng']['#array_parents'], -1, 0, ['latlng']);
     array_splice($element['lat']['#array_parents'], -1, 0, ['latlng']);
 
