@@ -90,15 +90,15 @@ class TranslationsPageForm extends ConfigFormBase {
     // Validation for required fields depending on the selected form state.
     if ($form_state->getValue('override_default_route')) {
       if (empty($form_state->getValue('override_url'))) {
-        $form_state->setErrorByName('override_url');
+        $form_state->setErrorByName('override_url', 'You must provide a URL.');
       }
     } else {
       if (empty($form_state->getValue('title'))) {
-        $form_state->setErrorByName('title');
+        $form_state->setErrorByName('title', 'You must provide a title.');
       }
 
       if (empty($form_state->getValue('content')['value'])) {
-        $form_state->setErrorByName('content');
+        $form_state->setErrorByName('content', 'You must provide some content.');
       }
     }
   }
