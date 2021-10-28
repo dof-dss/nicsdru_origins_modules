@@ -29,17 +29,38 @@ class TranslationsPageForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $form['override_default_route'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Provide a URL for the translation page'),
+      '#default_value' => $this->config('origins_translations.settings')->get('override_default_route'),
+    ];
+
+    $form['override_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Url to translation page'),
+      '#default_value' => $this->config('origins_translations.settings')->get('override_url'),
+    ];
+
+    $form['divider'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'hr',
+    ];
+
     $form['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
-      '#required' => TRUE,
       '#default_value' => $this->config('origins_translations.settings')->get('title'),
+    ];
+
+    $form['summary'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Summary'),
+      '#default_value' => $this->config('origins_translations.settings')->get('summary')['value'],
     ];
 
     $form['content'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Content'),
-      '#required' => TRUE,
       '#format' => $this->config('origins_translations.settings')->get('content')['format'],
       '#default_value' => $this->config('origins_translations.settings')->get('content')['value'],
     ];
@@ -52,7 +73,10 @@ class TranslationsPageForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory()->getEditable('origins_translations.settings')
+      ->set('override_default_route', $form_state->getValue('override_default_route'))
+      ->set('override_url', $form_state->getValue('override_url'))
       ->set('title', $form_state->getValue('title'))
+      ->set('summary', $form_state->getValue('summary'))
       ->set('content', $form_state->getValue('content'))
       ->save();
     parent::submitForm($form, $form_state);
