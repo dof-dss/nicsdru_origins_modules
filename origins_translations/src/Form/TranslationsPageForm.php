@@ -62,6 +62,7 @@ class TranslationsPageForm extends ConfigFormBase {
       '#type' => 'text_format',
       '#title' => $this->t('Content'),
       '#format' => $this->config('origins_translations.settings')->get('content')['format'],
+      '#description' => $this->t('Token: [origins:translations_languages_list] - Displays a list of active site languages linking to Google Translate.'),
       '#default_value' => $this->config('origins_translations.settings')->get('content')['value'],
     ];
 
