@@ -39,6 +39,11 @@ class TranslationsPageForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Url to translation page'),
       '#default_value' => $this->config('origins_translations.settings')->get('override_url'),
+      '#states' => [
+        'visible' => [
+          ':input[name="override_default_route"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     $form['divider'] = [
@@ -46,19 +51,28 @@ class TranslationsPageForm extends ConfigFormBase {
       '#tag' => 'hr',
     ];
 
-    $form['title'] = [
+    $form['page_container'] = [
+      '#type' => 'container',
+      '#states' => [
+        'invisible' => [
+          ':input[name="override_default_route"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['page_container']['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
       '#default_value' => $this->config('origins_translations.settings')->get('title'),
     ];
 
-    $form['summary'] = [
+    $form['page_container']['summary'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Summary'),
       '#default_value' => $this->config('origins_translations.settings')->get('summary')['value'],
     ];
 
-    $form['content'] = [
+    $form['page_container']['content'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Content'),
       '#format' => $this->config('origins_translations.settings')->get('content')['format'],
