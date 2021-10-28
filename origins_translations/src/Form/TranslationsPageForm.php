@@ -92,7 +92,8 @@ class TranslationsPageForm extends ConfigFormBase {
       if (empty($form_state->getValue('override_url'))) {
         $form_state->setErrorByName('override_url', 'You must provide a URL.');
       }
-    } else {
+    }
+    else {
       if (empty($form_state->getValue('title'))) {
         $form_state->setErrorByName('title', 'You must provide a title.');
       }
