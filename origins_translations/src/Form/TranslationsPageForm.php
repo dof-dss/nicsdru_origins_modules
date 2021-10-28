@@ -86,6 +86,26 @@ class TranslationsPageForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    // Validation for required fields depending on the selected form state.
+    if ($form_state->getValue('override_default_route')) {
+      if (empty($form_state->getValue('override_url'))) {
+        $form_state->setErrorByName('override_url');
+      }
+    } else {
+      if (empty($form_state->getValue('title'))) {
+        $form_state->setErrorByName('title');
+      }
+
+      if (empty($form_state->getValue('content')['value'])) {
+        $form_state->setErrorByName('content');
+      }
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory()->getEditable('origins_translations.settings')
       ->set('override_default_route', $form_state->getValue('override_default_route'))
