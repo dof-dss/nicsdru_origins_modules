@@ -69,7 +69,7 @@ class TranslationsPageForm extends ConfigFormBase {
     $form['page_container']['summary'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Summary'),
-      '#default_value' => $this->config('origins_translations.settings')->get('summary')['value'],
+      '#default_value' => $this->config('origins_translations.settings')->get('summary'),
     ];
 
     $form['page_container']['content'] = [
