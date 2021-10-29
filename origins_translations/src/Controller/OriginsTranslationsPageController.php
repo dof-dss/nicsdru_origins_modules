@@ -21,10 +21,32 @@ class OriginsTranslationsPageController extends ControllerBase {
       return new RedirectResponse($url);
     }
 
+    $build['title'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h1',
+      '#value' => $this->config('origins_translations.settings')->get('title'),
+      '#attributes' => ['class' => ['origins-translations-title']],
+    ];
+
+    if (!empty($summary = $this->config('origins_translations.settings')->get('summary'))) {
+      $build['summary'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#value' => $summary,
+        '#attributes' => ['class' => ['origins-translations-summary']],
+      ];
+    }
+
     $build['content'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['origins-translations-text']],
+    ];
+
+    $build['content']['text'] = [
       '#type' => 'processed_text',
       '#text' => $this->config('origins_translations.settings')->get('content')['value'],
       '#format' => $this->config('origins_translations.settings')->get('content')['format'],
+      '#attributes' => ['class' => ['origins-translations-content']],
     ];
 
     return $build;
