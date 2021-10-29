@@ -18,8 +18,11 @@ function origins_translations_help($route_name, RouteMatchInterface $route_match
     case 'help.page.origins_translations':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('Provides a translation link or dropdown for the current page.') . '</p>';
-      $output .= '<p>' . t('Translation can be added via a block or token') . '</p>';
+      $output .= '<p>' . t('Provides a translation link or dropdown for the current page.');
+      $output .= '<br>' . t('Translation can be added via a block or token.') . '</p>';
+      $output .= '<h3>' . t('Tokens') . '</h3>';
+      $output .= '<ul><li>' . t('[origins:translations_languages_list] - Displays a list of active site languages linking to Google Translate.') . '</li>';
+      $output .= '<li>' . t('[origins:translations_languages_select] - Allows the user to select a language to translate the current page.') . '</li></ul>';
       return $output;
 
     default:
