@@ -66,7 +66,7 @@ class SettingsForm extends ConfigFormBase {
     $form['domain'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Replace domain'),
-      '#description' => $this->t("Typically you would enter the live site domain if using this on a development site which Google Translate won't have access to."),
+      '#description' => $this->t("Typically you would enter the live site domain if using this on a development site as Google Translate may not have access to local or restricted environments."),
       '#default_value' => $this->config('origins_translations.settings')->get('domain'),
     ];
 
