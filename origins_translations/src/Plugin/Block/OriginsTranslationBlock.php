@@ -82,10 +82,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
    * {@inheritdoc}
    */
   public function build() {
-
-    $build = $this->formBuilder->getForm('Drupal\origins_translations\Form\LanguageSelectorForm');
-
-    return $build;
+    return $this->formBuilder->getForm('Drupal\origins_translations\Form\LanguageSelectorForm');
   }
 
 }

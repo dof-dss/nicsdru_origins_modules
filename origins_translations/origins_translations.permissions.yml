@@ -1,3 +1,5 @@
 administer origins translations configuration:
   title: 'Administer Origins Translations configuration'
   restrict access: true
+edit origins translations page:
+  title: 'Edit Origins Translations page'

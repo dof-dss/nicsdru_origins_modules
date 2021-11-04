@@ -53,4 +53,4 @@ origins_translations.settings.translations_page:
     _title: 'Origins Translations page'
     _form: 'Drupal\origins_translations\Form\TranslationsPageForm'
   requirements:
-    _permission: 'administer origins translations configuration'
+    _permission: 'administer origins translations configuration+edit origins translations page'
