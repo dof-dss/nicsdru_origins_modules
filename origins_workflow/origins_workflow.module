@@ -104,7 +104,9 @@ function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_
   // field is empty. This will make sure that there is no alias and hence
   // it will be possible to create a redirect to a replacement node if
   // necessary.
-  if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
+  $moderation_state = $form_state->getValue('moderation_state');
+
+  if (!empty($moderation_state) && $form_state->getValue('moderation_state')[0]['value'] === 'archived') {
     $path_alias_settings = $form_state->getValue('path');
     $path_alias_settings[0]['alias'] = '';
     $path_alias_settings[0]['pathauto'] = 0;

@@ -13,6 +13,7 @@ use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\ViewExecutable;
+use Drupal\origins_media\GeoLocationFormElementRenderer;
 
 /**
  * Implements hook_element_info_alter().
@@ -22,45 +23,11 @@ function origins_media_element_info_alter(array &$info) {
     return;
   }
 
-  // Introduce an extra step to the form builder lifecycle to allow us to manipulate the element.
-  $info['geolocation_input']['#pre_render'][] = 'origins_media_pre_render_geolocation_input';
-}
-
-/**
- * Callback to adapt the pre-rendering of the geolocation form element.
- *
- * @param array $element
- *   The form element to process.
- *
- * @return array
- *   The processed element.
- */
-function origins_media_pre_render_geolocation_input(array $element) {
-  $element['latlng'] = [
-    '#type' => 'details',
-    '#title' => t('Coordinate details'),
-    '#open' => FALSE,
+  // Add a pre-render call to alter the output of the geolocation form element.
+  $info['geolocation_input']['#pre_render'][] = [
+    GeoLocationFormElementRenderer::class,
+    'preRender',
   ];
-
-  // Need to introduce the extra parent element for the fieldset
-  // so that the element handler is able to extract the value from our form_state collection.
-  // Otherwise, it'll look for 'lat' or 'lng' and find them missing because we've moved them
-  // in the form structure.
-  array_splice($element['lng']['#array_parents'], -1, 0, ['latlng']);
-  array_splice($element['lat']['#array_parents'], -1, 0, ['latlng']);
-
-  // Copy the elements into our fieldset/details container.
-  $element['latlng']['lat'] = $element['lat'];
-  $element['latlng']['lng'] = $element['lng'];
-
-  // Replace the existing theme_wrapper callback with a generic container one.
-  $element['#theme_wrappers'] = ['container'];
-
-  // Get rid of the original elements now we've copied them into our fieldset.
-  unset($element['lat']);
-  unset($element['lng']);
-
-  return $element;
 }
 
 /**
