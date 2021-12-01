@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
+use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\NodeInterface;
 use Drupal\views\ViewExecutable;
 use Drupal\user\Entity\User;
@@ -163,6 +164,49 @@ function origins_workflow_entity_update(EntityInterface $entity) {
         ]);
         // Delete all aliases for this node.
         $path_alias_storage->delete($alias_objects);
+      }
+    }
+  }
+  // Now add processing for moderation sidebar.
+  _origins_workflow_menu_creation_check($entity);
+}
+
+/**
+ * Check for menu creation.
+ */
+function _origins_workflow_menu_creation_check(EntityInterface $entity)
+{
+  // If a node is published using the moderation sidebar it is possible
+  // that menu creation might be overlooked. Code added here to rectify
+  // this bug.
+  $node_type = $entity->bundle();
+  $excluded_types = ['menu_link_content', 'content_moderation_state'];
+  if (!in_array($node_type, $excluded_types)) {
+    $nid = $entity->id();
+    // Collect the $_REQUEST params.
+    $request = \Drupal::request()->request->all();
+    // See if this update hook has been called from the moderation sidebar
+    // and check if the page is being published.
+    if (!empty($request['op']) && ($request['op'] == 'Publish')) {
+      if (!empty($request['form_id']) && ($request['form_id'] == 'moderation_sidebar_quick_transition_form')) {
+        // Can we see a menu entry for this node ?
+        $existing_menu = MenuLinkContent::load($nid);
+        if (empty($existing_menu)) {
+          // Has a new menu entry been selected?
+          $query = \Drupal::entityQuery('menu_link_content')
+            ->accessCheck(TRUE)
+            ->condition('link.uri', 'entity:node/' . $nid)
+            ->sort('id', 'ASC')
+            ->range(0, 1);
+          $result = $query->execute();
+          $id = (!empty($result)) ? reset($result) : FALSE;
+          if ($id) {
+            // New menu entry has been set up, activate it.
+            $menu_link = MenuLinkContent::load($id);
+            $menu_link->enabled->value = 1;
+            $menu_link->save();
+          }
+        }
       }
     }
   }
@@ -728,6 +772,6 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
       $weight--;
     }
   }
-
   return $operations;
 }
+
