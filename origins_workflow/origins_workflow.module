@@ -174,8 +174,7 @@ function origins_workflow_entity_update(EntityInterface $entity) {
 /**
  * Check for menu creation.
  */
-function _origins_workflow_menu_creation_check(EntityInterface $entity)
-{
+function _origins_workflow_menu_creation_check(EntityInterface $entity) {
   // If a node is published using the moderation sidebar it is possible
   // that menu creation might be overlooked. Code added here to rectify
   // this bug.
@@ -774,4 +773,3 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
   }
   return $operations;
 }
-
