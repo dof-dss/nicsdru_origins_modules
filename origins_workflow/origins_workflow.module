@@ -599,6 +599,12 @@ function _create_draft_link_for_revision(&$variables, $node, $idx, $row) {
  * Implements hook_moderation_sidebar_alter().
  */
 function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterface $entity) {
+
+  // Early return if this entity has no moderation state.
+  if (empty($entity->moderation_state)) {
+    return;
+  }
+
   // Get current moderation state.
   $current_state = $entity->moderation_state->value;
 
