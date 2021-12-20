@@ -262,24 +262,27 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
-    $mimetype = $file->getMimeType();
-    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
-    $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
 
-    // Replace the original image_style render element with a bespoke HTML element
-    // with our custom CSS attached to render the file icon as background CSS.
-    $variables['image'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => [
-          'file--media-library-preview',
-          'file--ico',
-          'file--ico__' . $simple_mimetypes[$mimetype]
+    if ($file) {
+      $mimetype = $file->getMimeType();
+      $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
+      $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
+
+      // Replace the original image_style render element with a bespoke HTML element
+      // with our custom CSS attached to render the file icon as background CSS.
+      $variables['image'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => [
+            'file--media-library-preview',
+            'file--ico',
+            'file--ico__' . $simple_mimetypes[$mimetype]
+          ],
+          'aria-label' => $pretty_mimetypes[$mimetype],
         ],
-        'aria-label' => $pretty_mimetypes[$mimetype],
-      ],
-    ];
+      ];
+    }
   }
 }
 
