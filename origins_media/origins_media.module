@@ -70,6 +70,18 @@ function origins_media_form_entity_embed_dialog_alter(&$form, FormStateInterface
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_media_form_media_document_delete_form_alter(&$form, FormStateInterface &$form_state) {
+  // When media items are deleted, we want the media_file_delete module to
+  // delete the associated file from the file system. Ensure the option
+  // "Also delete the associated file?" is checked by default.
+  if (!empty($form['also_delete_file'])) {
+    $form['also_delete_file']['#default_value'] = 1;
+  }
+}
+
+/**
  * Implements hook_entity_embed_alter().
  *
  * Swap between entity embed view modes for Maps when you're viewing or editing nodes.
@@ -263,7 +275,7 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
 
-    if ($file) {
+    if ($file instanceof FileInterface) {
       $mimetype = $file->getMimeType();
       $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
       $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
