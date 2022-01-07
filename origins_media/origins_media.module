@@ -117,7 +117,6 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
 
   // Alterations for specific media entity forms.
   switch ($form_id) {
-
     case 'media_document_edit_form':
     case 'media_image_edit_form':
     case 'media_video_edit_form':
@@ -137,7 +136,6 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
         $form['also_delete_file']['#default_value'] = 1;
       }
       break;
-      
   }
 }
 
