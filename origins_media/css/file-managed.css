@@ -1,0 +1,3 @@
+.form-managed-file [data-drupal-selector*="-remove-button"] {
+  display: none;
+}

@@ -4,3 +4,10 @@ entity_browser_entity_reference:
       css/entity-browser-entity-reference.css: {}
   dependencies:
     - entity_browser/entity_list
+
+managed_file:
+  css:
+    theme:
+      css/file-managed.css: {}
+  dependencies:
+    - core/drupal

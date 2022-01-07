@@ -70,18 +70,6 @@ function origins_media_form_entity_embed_dialog_alter(&$form, FormStateInterface
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function origins_media_form_media_document_delete_form_alter(&$form, FormStateInterface &$form_state) {
-  // When media items are deleted, we want the media_file_delete module to
-  // delete the associated file from the file system. Ensure the option
-  // "Also delete the associated file?" is checked by default.
-  if (!empty($form['also_delete_file'])) {
-    $form['also_delete_file']['#default_value'] = 1;
-  }
-}
-
-/**
  * Implements hook_entity_embed_alter().
  *
  * Swap between entity embed view modes for Maps when you're viewing or editing nodes.
@@ -125,6 +113,28 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
   // Disable Chosen select for embedded images view mode.
   if ($form_id === 'editor_media_dialog') {
     $form['view_mode']['#chosen'] = FALSE;
+  }
+
+  // Alterations for specific media entity forms.
+  switch ($form_id) {
+    case 'media_document_edit_form':
+    case 'media_image_edit_form':
+    case 'media_video_edit_form':
+    case 'media_audio_edit_form':
+      // Attach library to managed file fields when editing media entities.
+      $form['#attached']['library'][] = 'origins_media/managed_file';
+      break;
+    case 'media_document_delete_form':
+    case 'media_image_delete_form':
+    case 'media_video_delete_form':
+    case 'media_audio_delete_form':
+      // When media items are deleted, we want the media_file_delete module to
+      // delete the associated file from the file system. Ensure the option
+      // "Also delete the associated file?" is checked by default.
+      if (!empty($form['also_delete_file'])) {
+        $form['also_delete_file']['#default_value'] = 1;
+      }
+      break;
   }
 }
 
