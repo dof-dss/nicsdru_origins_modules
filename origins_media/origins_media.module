@@ -117,6 +117,7 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
 
   // Alterations for specific media entity forms.
   switch ($form_id) {
+
     case 'media_document_edit_form':
     case 'media_image_edit_form':
     case 'media_video_edit_form':
@@ -124,6 +125,7 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
       // Attach library to managed file fields when editing media entities.
       $form['#attached']['library'][] = 'origins_media/managed_file';
       break;
+
     case 'media_document_delete_form':
     case 'media_image_delete_form':
     case 'media_video_delete_form':
@@ -135,6 +137,7 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
         $form['also_delete_file']['#default_value'] = 1;
       }
       break;
+      
   }
 }
 
