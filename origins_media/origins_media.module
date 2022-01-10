@@ -11,6 +11,7 @@ use Drupal\Core\Link;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
+use Drupal\origins_media\Element\ManagedFileTrustedCallback;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\ViewExecutable;
 use Drupal\origins_media\GeoLocationFormElementRenderer;
@@ -121,8 +122,11 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
     case 'media_image_edit_form':
     case 'media_video_edit_form':
     case 'media_audio_edit_form':
-      // Attach library to managed file fields when editing media entities.
-      $form['#attached']['library'][] = 'origins_media/managed_file';
+      // Add a process callback to (managed_file) file field.
+      $form['field_media_file']['widget'][0]['#process'][] = [
+        ManagedFileTrustedCallback::class,
+        'processManagedFile'
+      ];
       break;
 
     case 'media_document_delete_form':
