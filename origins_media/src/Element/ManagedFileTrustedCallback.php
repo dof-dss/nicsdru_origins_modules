@@ -24,7 +24,7 @@ class ManagedFileTrustedCallback implements TrustedCallbackInterface {
    */
   public static function processManagedFile(&$element) {
     if (!empty($element['remove_button'])) {
-      $element['remove_button']['#access'] = false;
+      $element['remove_button']['#access'] = FALSE;
     }
     return $element;
   }
