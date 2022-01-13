@@ -11,7 +11,7 @@ use Drupal\Core\File\FileSystemInterface;
  * Implements hook_install().
  */
 function origins_media_update_8800() {
-  $source = drupal_get_path('module', 'origins_media') . '/images/icons';
+  $source = \Drupal::service('extension.list.module')->getPath('origins_media') . '/images/icons';
   $destination = \Drupal::config('media.settings')->get('icon_base_uri');
 
   $file_system = \Drupal::service('file_system');
