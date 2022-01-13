@@ -22,6 +22,6 @@ function origins_media_update_8800() {
     $data = file_get_contents($file_system->realpath($file->uri));
     // Replace any files that already exist. This differs from how media.install approaches it
     // but we want to ensure we overwrite any existing files with this update's versions.
-    file_save_data($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_REPLACE);
+    \Drupal::service('file.repository')->writeData($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_REPLACE);
   }
 }
