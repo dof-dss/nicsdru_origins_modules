@@ -56,8 +56,10 @@ function origins_translations_token_info() {
  */
 function origins_translations_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
+  /** @var Drupal\Core\Render\Renderer $renderer */
+  $renderer = \Drupal::service('renderer');
 
-  if ($type == 'origins') {
+  if ($type === 'origins') {
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'translations_languages_list':
@@ -86,12 +88,12 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
             '#items' => $links,
           ];
 
-          $replacements[$original] = render($output);
+          $replacements[$original] = $renderer->render($output);
           break;
 
         case 'translations_languages_select':
           $output = \Drupal::formBuilder()->getForm(LanguageSelectorForm::class);
-          $replacements[$original] = render($output);
+          $replacements[$original] = $renderer->render($output);
       }
     }
   }
