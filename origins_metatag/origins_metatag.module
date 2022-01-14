@@ -17,13 +17,15 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
   // Remove any schema_metatag (or submodule) form elements because they make
   // the form so enormously large, it struggles to handle AJAX requests from
   // media entity widgets and cannot generate entity previews.
-  // We always want to do this because it'll break the page submission, even for site admins.
+  // We always want to do this because it'll break the page submission, even
+  // for site admins.
   foreach ($form['field_meta_tags']['widget'][0] as $key => $value) {
     if (preg_match('/^schema_/', $key)) {
       $form['field_meta_tags']['widget'][0][$key]['#access'] = FALSE;
     }
   }
-  // Skip over if we have no meta tag field exposed or the user can administer meta tags.
+  // Skip over if we have no meta tag field exposed or the user can administer
+  // meta tags.
   if (empty($form['field_meta_tags']) || \Drupal::currentUser()->hasPermission('administer meta tags')) {
     return;
   }
