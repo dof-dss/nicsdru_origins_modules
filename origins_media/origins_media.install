@@ -20,8 +20,9 @@ function origins_media_update_8800() {
   $files = $file_system->scanDirectory($source, '/.*\.(svg|png|jpg|jpeg|gif)$/');
   foreach ($files as $file) {
     $data = file_get_contents($file_system->realpath($file->uri));
-    // Replace any files that already exist. This differs from how media.install approaches it
-    // but we want to ensure we overwrite any existing files with this update's versions.
+    // Replace any files that already exist. This differs from how media.install
+    // approaches it but we want to ensure we overwrite any existing files with
+    // this update's versions.
     \Drupal::service('file.repository')->writeData($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_REPLACE);
   }
 }

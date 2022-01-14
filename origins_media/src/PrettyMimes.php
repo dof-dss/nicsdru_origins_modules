@@ -5,8 +5,9 @@ namespace Drupal\origins_media;
 class PrettyMimes {
 
   /**
-   * Convenience function to expose as service to avoid repetition
-   * between preprocess functions and classes.
+   * Convenience function to expose as service.
+   *
+   * Function to avoid repetition between preprocess functions and classes.
    *
    * @return string[]
    *   The keyed array of raw mime type keys and easier to read values.
@@ -38,8 +39,10 @@ class PrettyMimes {
   }
 
   /**
-   * Returns a simplified file type value for a mime type. Useful
-   * for CSS extensions, eg: in origins_media/css/media-library-styles.css.
+   * Returns a simplified file type value for a mime type.
+   *
+   * Useful for CSS extensions,
+   * eg: in origins_media/css/media-library-styles.css.
    *
    * @return string[]
    *   The keyed array of raw mime type keys and easier to read values.

@@ -5,6 +5,8 @@ namespace Drupal\origins_media\Element;
 use Drupal\Core\Security\TrustedCallbackInterface;
 
 /**
+ * Trusted callbacks for Managed File form element.
+ *
  * Provides trusted callbacks for the Managed File form element in Media
  * entity editing forms.
  *
