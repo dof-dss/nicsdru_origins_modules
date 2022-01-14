@@ -2,6 +2,9 @@
 
 namespace Drupal\origins_media;
 
+/**
+ * Provides utility methods for file MIME types.
+ */
 class PrettyMimes {
 
   /**
