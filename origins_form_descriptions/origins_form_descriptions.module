@@ -29,7 +29,7 @@ function origins_form_descriptions_form_media_form_alter(&$form, FormStateInterf
 }
 
 /**
- * Implements hook_theme_registry_alter
+ * Implements hook_theme_registry_alter().
  */
 function origins_form_descriptions_theme_registry_alter(&$theme_registry) {
   if (\Drupal::service('router.admin_context')->isAdminRoute()) {
