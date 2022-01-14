@@ -79,7 +79,12 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
   }
 
   // Default any moderation controls to 'Draft'.
-  if (NestedArray::keyExists($form, ['moderation_state', 'widget', 0, 'state'])) {
+  if (NestedArray::keyExists($form, [
+    'moderation_state',
+    'widget',
+    0,
+    'state',
+  ])) {
     $moderation_value = &$form['moderation_state']['widget'][0]['state']['#default_value'];
 
     if ($moderation_value != 'draft') {
@@ -160,7 +165,7 @@ function origins_workflow_entity_update(EntityInterface $entity) {
         $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
         $alias_objects = $path_alias_storage->loadByProperties([
           'path' => '/node/' . $entity->nid->value,
-          'langcode' => $entity->language()->getId()
+          'langcode' => $entity->language()->getId(),
         ]);
         // Delete all aliases for this node.
         $path_alias_storage->delete($alias_objects);
@@ -179,7 +184,10 @@ function _origins_workflow_menu_creation_check(EntityInterface $entity) {
   // that menu creation might be overlooked. Code added here to rectify
   // this bug.
   $node_type = $entity->bundle();
-  if (!in_array($node_type, ['menu_link_content', 'content_moderation_state'])) {
+  if (!in_array($node_type, [
+    'menu_link_content',
+    'content_moderation_state',
+  ])) {
     $nid = $entity->id();
     // Collect the $_REQUEST params.
     $request = \Drupal::request()->request->all();
@@ -277,24 +285,28 @@ function origins_workflow_hide_moderation_field(&$view) {
   if (($view->element['#display_id'] === 'my_drafts') || ($view->element['#display_id'] === 'all_drafts')) {
     // Show the 'Change to Publish' field if the user has that permission.
     if (isset($view->field['nothing_1']) && $account->hasPermission('use nics_editorial_workflow transition quick_publish')) {
-      // Show the 'nothing' custom text field which has links for 'Change to Draft' / 'Change to Needs Review'
-      // based on the current moderation state and always shows 'Change to Published'.
+      // Show the 'nothing' custom text field which has links for
+      // 'Change to Draft' / 'Change to Needs Review' based on the current
+      // moderation state and always shows 'Change to Published'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
       if (isset($view->field['nothing_2'])) {
         $view->field['nothing_2']->options['exclude'] = TRUE;
       }
     }
     elseif (isset($view->field['nothing_1']) && $account->hasPermission('use nics_editorial_workflow transition publish')) {
-      // Show the 'nothing_2' custom text field which has links for 'Change to Draft' and 'Change to Published'
-      // for nodes which have a state of 'Needs review'. For nodes in 'Draft' show 'Change to Needs Review'.
+      // Show the 'nothing_2' custom text field which has links for
+      // 'Change to Draft' and 'Change to Published' for nodes which have a
+      // state of 'Needs review'. For nodes in 'Draft' show
+      // 'Change to Needs Review'.
       $view->field['nothing_1']->options['exclude'] = TRUE;
       if (isset($view->field['nothing'])) {
         $view->field['nothing']->options['exclude'] = TRUE;
       }
     }
     elseif (isset($view->field['nothing'])) {
-      // Show the 'nothing_1' custom text field which has links for 'Change to Draft' / 'Change to Needs Review'
-      // based on the current moderation state and does not have a  'Change to Published' link.
+      // Show the 'nothing_1' custom text field which has links for
+      // 'Change to Draft' / 'Change to Needs Review' based on the current
+      // moderation state and does not have a  'Change to Published' link.
       $view->field['nothing']->options['exclude'] = TRUE;
       if (isset($view->field['nothing_2'])) {
         $view->field['nothing_2']->options['exclude'] = TRUE;
@@ -468,7 +480,8 @@ function origins_workflow_preprocess_table(&$variables) {
       $variables['header']['select_column_two']['content'] = ['#markup' => t('Compare revision 2')];
     }
 
-    // Set the column that contains 'action' links - it is normally the last cell in a row.
+    // Set the column that contains 'action' links - it is normally the last
+    // cell in a row.
     $action_column = 1;
     if (!empty($variables['rows'][0]['cells'])) {
       $action_column = array_key_last($variables['rows'][0]['cells']);
@@ -490,7 +503,8 @@ function origins_workflow_preprocess_table(&$variables) {
 
         $revert_link = &$links['revert'];
 
-        // Cheekily extract this row's revision id from the 'revert' button link.
+        // Cheekily extract this row's revision id from the 'revert' button
+        // link.
         $this_url = $revert_link['url'];
         if (isset($this_url)) {
           $this_revisionId = $this_url->getRouteParameters()['node_revision'];
@@ -498,12 +512,14 @@ function origins_workflow_preprocess_table(&$variables) {
 
         // Tweak revert links.
         if ($revert_link['title']->getUntranslatedString() == 'Set as current revision') {
-          // When content moderation is enabled, pending revisions have a revert link
-          // with text "Set as current revision". But this is misleading. If a node's
-          // current (or default) revision is a published revision, then reverting a
-          // pending revision creates another revision that is the latest revision. It
-          // does not become the current or default revision at all.
-          // Note there are proposed changes in Drupal 9 which fix this very issue.
+          // When content moderation is enabled, pending revisions have a
+          // revert link with text "Set as current revision". But this is
+          // misleading. If a node's current (or default) revision is a
+          // published revision, then reverting a pending revision creates
+          // another revision that is the latest revision. It does not become
+          // the current or default revision at all.
+          // Note there are proposed changes in Drupal 9 which fix this
+          // very issue.
           // @see https://www.drupal.org/project/drupal/issues/2899719.
           $revert_link['title'] = t('Copy as latest revision');
         }
@@ -516,20 +532,21 @@ function origins_workflow_preprocess_table(&$variables) {
           // publishing it again. Note there are proposed changes in
           // Drupal 9 which, if implemented, mean we no longer need this.
           // @see https://www.drupal.org/project/drupal/issues/2906568.
-
           // Just copy the existing revert link and modify it for our
           // "Revert as Draft" link.
           $revert_as_draft_link = $revert_link;
           $revert_as_draft_link['title'] = t('Revert as Draft');
 
-          // Change the URL to our controller so we're creating a new draft of the revision selected,
-          // rather than reverting to that revision + it's publish state.
-          // Need to add a destination query parameter to override the redirect in the controller.
+          // Change the URL to our controller so we're creating a new draft of
+          // the revision selected, rather than reverting to that revision +
+          // it's publish state.
+          // Need to add a destination query parameter to override the redirect
+          // in the controller.
           $revert_as_draft_link['url'] = Url::fromRoute('origins_workflow.moderation_state_controller_revert_to_state',
             [
               'nid' => \Drupal::routeMatch()->getParameter('node')->id(),
               'vid' => $this_revisionId,
-              'new_state' => 'draft'
+              'new_state' => 'draft',
             ],
             ['query' => ['destination' => \Drupal::request()->getPathInfo()]]
           );
@@ -614,7 +631,8 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
     );
 
     if ($entity->isLatestRevision() && $dop_link_exists) {
-      // Entity is published, but we have no forward revisions so hide the draft of published option.
+      // Entity is published, but we have no forward revisions so hide the
+      // draft of published option.
       hide($build['actions']['primary']['quick_draft_form']['draft_of_published']);
     }
     else {
@@ -623,13 +641,14 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       // Redirect to current node view after changing state.
       $options = [
         'query' => [
-          'destination' => $alias
+          'destination' => $alias,
         ],
       ];
 
       // Inject an option for 'Draft of published'.
       // This isn't added by the core workflow module as that only responds to
-      // publish status rather than that in conjunction with available revisions.
+      // publish status rather than that in conjunction with available
+      // revisions.
       if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
         $dop_link = [
           '#type' => 'link',
@@ -637,14 +656,14 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
           '#url' => Url::fromRoute(
             'origins_workflow.moderation_state_controller_new_draft_of_published', [
               'nid' => $entity->id(),
-              'new_state' => 'draft_of_published'
+              'new_state' => 'draft_of_published',
             ], $options),
           '#attributes' => [
             'class' => [
               'moderation-sidebar-link',
               'button',
               'draft-of-published--link',
-            ]
+            ],
           ],
         ];
 
@@ -664,7 +683,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
           $options);
         // Style as a button in the moderation sidebar.
         $build['actions']['primary']['archive']['#attributes'] = [
-          'class' => ['moderation-sidebar-link', 'button', 'archive--link']
+          'class' => ['moderation-sidebar-link', 'button', 'archive--link'],
         ];
       }
     }
@@ -709,18 +728,20 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
   }
 
   // There's no combined permission check to assess valid transitions against
-  // specific node types. So we check the user's ability to more broadly administer
-  // this node type before we try and build custom links to toggle moderation states.
+  // specific node types. So we check the user's ability to more broadly
+  // administer this node type before we try and build custom links to toggle
+  // moderation states.
   if (\Drupal::currentUser()->hasPermission('create ' . $entity->bundle() . ' content')) {
     // Use the core service to fetch the permissable transitions based
     // on underlying configuration and active user object.
     $transitions = \Drupal::service('content_moderation.state_transition_validation')
       ->getValidTransitions($entity, \Drupal::currentUser());
 
-    // Remove the current moderation status from the list of possible transitions.
-    // Quick publish isn't detected as an equivalent operation/status as published
-    // so we prune it off here for now as it makes no sense ot quick publish an
-    // already published piece of content.
+    // Remove the current moderation status from the list of possible
+    // transitions.
+    // Quick publish isn't detected as an equivalent operation/status as
+    // published so we prune it off here for now as it makes no sense ot quick
+    // publish an already published piece of content.
     $revision_id = \Drupal::entityTypeManager()
       ->getStorage('node')
       ->getLatestRevisionId($entity->id());
@@ -739,7 +760,6 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     // to create a collection of Url objects which we'll use to inject
     // into the links collection. That allows editors to then select specific
     // tasks to occur from a single location.
-
     // Magic numbers... scheduled_transitions.module starts at 50 so a few
     // between that and 0 (we want the 'Edit' link first) is fine.
     $weight = 40;
@@ -762,9 +782,10 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
         [
           'query' => [
             'destination' => \Drupal::destination()->get(),
-            // Confirm query parameter triggers a message back to the user from the controller.
+            // Confirm query parameter triggers a message back to the user
+            // from the controller.
             'confirm' => TRUE,
-          ]
+          ],
         ]);
 
       $operations['change_to_' . $transition->to()->id()] = [

@@ -28,6 +28,8 @@ class AuditTest extends BrowserTestBase {
   protected $profile = 'test_profile';
 
   /**
+   * Set default theme.
+   *
    * Drupal\Tests\BrowserTestBase::$defaultTheme is required. See
    * https://www.drupal.org/node/3083055, which includes recommendations
    * on which theme to use.

@@ -52,4 +52,3 @@ origins_workflow.audit_settings_form:
     _role: 'administrator'
   options:
     _admin_route: TRUE
-
