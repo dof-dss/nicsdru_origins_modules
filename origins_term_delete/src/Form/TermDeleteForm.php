@@ -1,7 +1,12 @@
 <?php
+/**
+ * #internal Drupal\taxonomy\Form\TermDeleteForm
+ */
 
 namespace Drupal\origins_term_delete\Form;
 
+use Drupal\Core\Entity\ContentEntityDeleteForm;
+use Drupal\Core\Url;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -9,14 +14,13 @@ use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\CurrentRouteMatch;
 use Drupal\Core\Session\AccountInterface;
-use Drupal\taxonomy\Form\TermDeleteForm as TaxonomyTermDeleteForm;
 use Drupal\taxonomy\TermInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a safe(r) deletion confirmation form for taxonomy term.
  */
-class TermDeleteForm extends TaxonomyTermDeleteForm {
+class TermDeleteForm extends ContentEntityDeleteForm {
 
   /**
    * Entity type manager service object.
@@ -77,13 +81,6 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
   /**
    * {@inheritdoc}
    */
-  public function getDescription() {
-    return $this->t('Important notice: please read the information below');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
@@ -110,7 +107,7 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#value' => $this->t('Please ensure that you move any content associated with this term to
-          a new term before deleting it.'),
+              a new term before deleting it.'),
     ];
 
     // Show a list of content that relates to this taxonomy term.
@@ -137,6 +134,36 @@ class TermDeleteForm extends TaxonomyTermDeleteForm {
       ];
     }
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCancelUrl() {
+    // The cancel URL is the vocabulary collection, terms have no global
+    // list page.
+    return new Url('entity.taxonomy_vocabulary.collection');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getRedirectUrl() {
+    return $this->getCancelUrl();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDescription() {
+    return $this->t('Important notice: please read the information below');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getDeletionMessage() {
+    return $this->t('Deleted term %name.', ['%name' => $this->entity->label()]);
   }
 
 }
