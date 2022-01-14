@@ -7,7 +7,7 @@ use Drupal\Core\Layout\LayoutDefault;
 use Drupal\Core\Plugin\PluginFormInterface;
 
 /**
- * Class OriginsLayouts.
+ * Provides customisations to the core Layout Builder.
  *
  * @package Drupal\origins_layouts
  */

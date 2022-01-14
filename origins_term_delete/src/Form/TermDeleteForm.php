@@ -1,7 +1,4 @@
 <?php
-/**
- * #internal Drupal\taxonomy\Form\TermDeleteForm
- */
 
 namespace Drupal\origins_term_delete\Form;
 
@@ -19,11 +16,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a safe(r) deletion confirmation form for taxonomy term.
+ *
+ * #internal Drupal\taxonomy\Form\TermDeleteForm.
  */
 class TermDeleteForm extends ContentEntityDeleteForm {
 
   /**
    * Entity type manager service object.
+   *
    * @var \Drupal\Core\Entity\EntityTypeManager
    */
   protected $entityTypeManager;
@@ -44,6 +44,7 @@ class TermDeleteForm extends ContentEntityDeleteForm {
 
   /**
    * TermDeleteForm constructor.
+   *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   Entity repository service object.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
