@@ -62,4 +62,4 @@ workflows:
   static_analysis:
     jobs:
       - coding_standards
-      - deprecated_code
+#      - deprecated_code
