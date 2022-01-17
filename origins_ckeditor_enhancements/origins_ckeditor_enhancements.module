@@ -9,18 +9,15 @@ use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_element_info_alter().
- *
- * Adds process handler for text format
- *
- * @param array $types
- *   Text format process.
  */
 function origins_ckeditor_enhancements_element_info_alter(array &$types) {
   $types['text_format']['#process'][] = 'remove_format_help_process_text_format_element';
 }
 
 /**
- * Text input element process handler that will remove filter-help, 'About text formats'.
+ * Text input element process handler.
+ *
+ * Removes the filter-help 'About text formats' text.
  */
 function remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
   // Only remove the filter help if the user doesn't have permission

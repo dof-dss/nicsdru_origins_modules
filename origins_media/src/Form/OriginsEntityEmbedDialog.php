@@ -8,8 +8,9 @@ use Drupal\embed\EmbedButtonInterface;
 use Drupal\entity_embed\Form\EntityEmbedDialog;
 
 /**
- * Extend the base entity embed dialog class to ensure
- * we can pre-set a step for location entity embedding.
+ * Extend the base entity embed dialog class.
+ *
+ * Allows us to ensure we can pre-set a step for location entity embedding.
  */
 class OriginsEntityEmbedDialog extends EntityEmbedDialog {
 

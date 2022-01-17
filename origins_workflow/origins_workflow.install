@@ -29,7 +29,7 @@ function origins_workflow_install() {
     '_authenticated' => '',
     '_super' => 'supervisor_user',
     '_editor' => 'editor_user',
-    '_admin' => 'admin_user'
+    '_admin' => 'admin_user',
   ];
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.
@@ -73,7 +73,7 @@ function origins_workflow_uninstall() {
     '_authenticated' => '',
     '_super' => 'supervisor_user',
     '_editor' => 'editor_user',
-    '_admin' => 'admin_user'
+    '_admin' => 'admin_user',
   ];
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.

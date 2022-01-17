@@ -11,7 +11,7 @@ use Drupal\Core\File\FileSystemInterface;
  * Implements hook_install().
  */
 function origins_media_update_8800() {
-  $source = drupal_get_path('module', 'origins_media') . '/images/icons';
+  $source = \Drupal::service('extension.list.module')->getPath('origins_media') . '/images/icons';
   $destination = \Drupal::config('media.settings')->get('icon_base_uri');
 
   $file_system = \Drupal::service('file_system');
@@ -20,8 +20,9 @@ function origins_media_update_8800() {
   $files = $file_system->scanDirectory($source, '/.*\.(svg|png|jpg|jpeg|gif)$/');
   foreach ($files as $file) {
     $data = file_get_contents($file_system->realpath($file->uri));
-    // Replace any files that already exist. This differs from how media.install approaches it
-    // but we want to ensure we overwrite any existing files with this update's versions.
-    file_save_data($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_REPLACE);
+    // Replace any files that already exist. This differs from how media.install
+    // approaches it but we want to ensure we overwrite any existing files with
+    // this update's versions.
+    \Drupal::service('file.repository')->writeData($data, $destination . '/' . $file->filename, FileSystemInterface::EXISTS_REPLACE);
   }
 }

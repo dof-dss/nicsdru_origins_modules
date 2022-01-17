@@ -45,6 +45,7 @@ class UniqueTitleValidator {
    *   The machine id of the bundle, eg: page.
    * @param array $exclude
    *   List of node ids to exclude from the check, if any.
+   *
    * @return bool
    *   Whether or not this is a unique title in this bundle.
    */

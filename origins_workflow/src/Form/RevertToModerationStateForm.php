@@ -179,7 +179,8 @@ class RevertToModerationStateForm extends ConfirmFormBase {
       ->getTypePlugin()
       ->getState($this->new_state);
 
-    // Revert the node revision if its valid node and we are reverting to a valid state.
+    // Revert the node revision if its valid node and we are reverting to a
+    // valid state.
     if ($node instanceof NodeInterface && $newStateEntity instanceof StateInterface) {
 
       // Details of old revision to be reverted.
@@ -213,7 +214,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
         // Set revision log message.
         $revision_log_message = t('Copy of revision @vid', [
-          '@vid' => $this->vid
+          '@vid' => $this->vid,
         ]);
         $node->setRevisionLogMessage($revision_log_message);
 

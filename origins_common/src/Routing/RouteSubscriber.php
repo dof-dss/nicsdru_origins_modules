@@ -5,6 +5,9 @@ namespace Drupal\origins_common\Routing;
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Provides a route subscriber for taxonomy.
+ */
 class RouteSubscriber extends RouteSubscriberBase {
 
   /**

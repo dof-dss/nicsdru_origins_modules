@@ -79,7 +79,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
         $audit_confirmation_text = $this->config('origins_workflow.auditsettings')->get('audit_confirmation_text');
         // Show confirmation text to user.
         $render_array['origins_audit_text'] = [
-          '#markup' => $this->t($audit_confirmation_text),
+          '#markup' => $this->t('@message', ['@message' => '$audit_confirmation_text']),
           '#prefix' => "<p class='confirmation_text'>",
           '#suffix' => "</p>",
           '#weight' => 0,
@@ -96,7 +96,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
             '#url' => Url::fromRoute('origins_workflow.audit_controller_confirm_audit', ['nid' => $nid]),
             '#attributes' => [
               'rel' => 'nofollow',
-              'class' => ['submit', 'button', 'button--primary']
+              'class' => ['submit', 'button', 'button--primary'],
             ],
             '#weight' => 1,
           ],
@@ -106,7 +106,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
             '#url' => Url::fromRoute('entity.node.canonical', ['node' => $nid]),
             '#attributes' => [
               'rel' => 'nofollow',
-              'class' => ['submit', 'button']
+              'class' => ['submit', 'button'],
             ],
             '#weight' => 2,
           ],
@@ -126,7 +126,8 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
     // Bump up the 'next audit due' date and log it.
     $node = $this->entityTypeManager()->getStorage('node')->load($nid);
     if ($node) {
-      // TODO Make the time period an amendable field on the audit settings form.
+      // TODO: Make the time period an amendable field on the audit
+      // settings form.
       $node->set('field_next_audit_due', date('Y-m-d', strtotime("+6 months")));
       $node->save();
       $message = "nid " . $nid . " " . $this->t("has been audited by") . " ";

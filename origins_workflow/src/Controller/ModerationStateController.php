@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Class ModerationStateController.
+ * Provides customisations to the core Workflow module.
  */
 class ModerationStateController extends ControllerBase implements ContainerInjectionInterface {
 
