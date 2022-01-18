@@ -127,15 +127,15 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
     case 'media_image_edit_form':
     case 'media_video_edit_form':
     case 'media_audio_edit_form':
-
-      // Add a process callback to managed file fields.
+      // Add a process callback to managed file field widgets.
+      // Candidate field names for managed file fields.
       $file_fieldnames = [
         'field_media_file',
         'field_media_image',
         'field_media_video_file',
         'field_media_audio_file',
       ];
-      
+      // Add callback to each candidate managed file field widget.
       foreach ($file_fieldnames as $key) {
         if (!empty($form[$key]['widget'][0]['#process'])) {
           $form[$key]['widget'][0]['#process'][] = [
@@ -144,7 +144,6 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
           ];
         }
       }
-
       break;
 
     case 'media_document_delete_form':
