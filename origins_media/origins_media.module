@@ -128,15 +128,15 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
     case 'media_video_edit_form':
     case 'media_audio_edit_form':
 
-      $file_fields = [
+      // Add a process callback to managed file fields.
+      $file_fieldnames = [
         'field_media_file',
         'field_media_image',
         'field_media_video_file',
         'field_media_audio_file',
       ];
-
-      foreach ($file_fields as $key) {
-        // Add a process callback to the file field.
+      
+      foreach ($file_fieldnames as $key) {
         if (!empty($form[$key]['widget'][0]['#process'])) {
           $form[$key]['widget'][0]['#process'][] = [
             ManagedFileTrustedCallback::class,
