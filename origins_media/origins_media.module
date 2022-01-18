@@ -11,6 +11,7 @@ use Drupal\Core\Link;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
+use Drupal\origins_media\Element\ManagedFileTrustedCallback;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\ViewExecutable;
 use Drupal\origins_media\GeoLocationFormElementRenderer;
@@ -35,20 +36,23 @@ function origins_media_element_info_alter(array &$info) {
  */
 function origins_media_form_entity_embed_dialog_alter(&$form, FormStateInterface &$form_state) {
   if (empty($form['entity_browser'])) {
-    // Exit early if there's no entity browser defined (can occur on some steps).
+    // Exit early if there's no entity browser defined(can occur on some steps).
     return;
   }
 
-  // Start introducing some changes to the default paragraphs based entity embed browser dialog:
-  // Title change to something more relevant/helpful, skip the review/embed steps for maps.
+  // Start introducing some changes to the default paragraphs based entity
+  // embed browser dialog:
+  // Title change to something more relevant/helpful, skip the review/embed
+  // steps for maps.
   if ($form['entity_browser']['#entity_browser'] == 'location_browser') {
     $form['#title'] = t('Choose map location');
 
-    // Skip review and embed steps by changing the AJAX callback on the form submit button.
+    // Skip review and embed steps by changing the AJAX callback on the form
+    // submit button.
     $form['actions']['save_modal']['#ajax']['callback'] = '::submitEmbedStep';
 
-    // Pre-set a variety of attributes on the form that allow us to skip to the embed complete step
-    // and just see our entity embedded in the WYSIWYG area.
+    // Pre-set a variety of attributes on the form that allow us to skip to the
+    // embed complete step and just see our entity embedded in the WYSIWYG area.
     $form['attributes']['data-embed-button'] = [
       '#type' => 'value',
       '#value' => 'location',
@@ -72,7 +76,8 @@ function origins_media_form_entity_embed_dialog_alter(&$form, FormStateInterface
 /**
  * Implements hook_entity_embed_alter().
  *
- * Swap between entity embed view modes for Maps when you're viewing or editing nodes.
+ * Swap between entity embed view modes for Maps when you're viewing or
+ * editing nodes.
  */
 function origins_media_entity_embed_alter(array &$build, EntityInterface $entity, array &$context) {
   if (\Drupal::routeMatch()->getRouteName() == 'entity.node.canonical') {
@@ -104,7 +109,8 @@ function origins_media_field_widget_form_alter(&$element, FormStateInterface $fo
 function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   if ($form_id == 'entity_browser_media_entity_browser_form') {
-    // If this is not the inline entity form widget, add a CSS class to initially disable the 'Select' button.
+    // If this is not the inline entity form widget, add a CSS class to
+    // initially disable the 'Select' button.
     if (empty($form['widget']['inline_entity_form'])) {
       $form['widget']['actions']['submit']['#attributes']['class'][] = 'inactive';
     }
@@ -113,6 +119,32 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
   // Disable Chosen select for embedded images view mode.
   if ($form_id === 'editor_media_dialog') {
     $form['view_mode']['#chosen'] = FALSE;
+  }
+
+  // Alterations for specific media entity forms.
+  switch ($form_id) {
+    case 'media_document_edit_form':
+    case 'media_image_edit_form':
+    case 'media_video_edit_form':
+    case 'media_audio_edit_form':
+      // Add a process callback to (managed_file) file field.
+      $form['field_media_file']['widget'][0]['#process'][] = [
+        ManagedFileTrustedCallback::class,
+        'processManagedFile',
+      ];
+      break;
+
+    case 'media_document_delete_form':
+    case 'media_image_delete_form':
+    case 'media_video_delete_form':
+    case 'media_audio_delete_form':
+      // When media items are deleted, we want the media_file_delete module to
+      // delete the associated file from the file system. Ensure the option
+      // "Also delete the associated file?" is checked by default.
+      if (!empty($form['also_delete_file'])) {
+        $form['also_delete_file']['#default_value'] = 1;
+      }
+      break;
   }
 }
 
@@ -176,7 +208,7 @@ function origins_media_preprocess_views_view_field(&$variables) {
 }
 
 /**
- * Implements hook_preprocess_fieldset__media_library_widget();
+ * Implements hook_preprocess_fieldset__media_library_widget().
  */
 function origins_media_preprocess_fieldset__media_library_widget(array &$variables) {
   // Hide the 'Show media item weights' link.
@@ -221,8 +253,9 @@ function origins_media_preprocess_media(array &$variables) {
 
     $mimetype = $file->getMimeType();
 
-    // There shouldn't be an image file here, but just in case, screen for it as if
-    // it's genuine it likely has its own thumbnail so we would want to keep that.
+    // There shouldn't be an image file here, but just in case, screen for it
+    // as if it's genuine it likely has its own thumbnail so we would want to
+    // keep that.
     if (preg_match('/jpeg|jpg|gif|png/', $mimetype)) {
       return;
     }
@@ -230,7 +263,8 @@ function origins_media_preprocess_media(array &$variables) {
     $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
     $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
 
-    // Replace the original image_style render element with a bespoke HTML element.
+    // Replace the original image_style render element with a bespoke HTML
+    // element.
     $variables['content']['thumbnail'] = [
       '#type' => 'html_tag',
       '#tag' => 'div',
@@ -238,7 +272,7 @@ function origins_media_preprocess_media(array &$variables) {
         'class' => [
           'file--media-library-preview',
           'file--ico',
-          'file--ico__' . $simple_mimetypes[$mimetype]
+          'file--ico__' . $simple_mimetypes[$mimetype],
         ],
         'aria-label' => $pretty_mimetypes[$mimetype],
       ],
@@ -262,24 +296,28 @@ function origins_media_preprocess_image_formatter(array &$variables) {
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
     // Get the underlying file associated with this document entity.
     $file = $file_storage->load($media_entity->field_media_file->target_id);
-    $mimetype = $file->getMimeType();
-    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
-    $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
 
-    // Replace the original image_style render element with a bespoke HTML element
-    // with our custom CSS attached to render the file icon as background CSS.
-    $variables['image'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => [
-          'file--media-library-preview',
-          'file--ico',
-          'file--ico__' . $simple_mimetypes[$mimetype]
+    if ($file instanceof FileInterface) {
+      $mimetype = $file->getMimeType();
+      $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
+      $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
+
+      // Replace the original image_style render element with a bespoke HTML
+      // element with our custom CSS attached to render the file icon as
+      // background CSS.
+      $variables['image'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'div',
+        '#attributes' => [
+          'class' => [
+            'file--media-library-preview',
+            'file--ico',
+            'file--ico__' . $simple_mimetypes[$mimetype],
+          ],
+          'aria-label' => $pretty_mimetypes[$mimetype],
         ],
-        'aria-label' => $pretty_mimetypes[$mimetype],
-      ],
-    ];
+      ];
+    }
   }
 }
 
@@ -314,8 +352,8 @@ function origins_media_preprocess_media_oembed_iframe(&$variables) {
   // and rel=0 parameter... add a rel=0 query parameter to the HTML
   // to show related videos from the same channel as the video, not videos
   // based on the viewer's recommendations from their own viewing history.
-
-  // Based on implementation from Core's media_test_oembed_preprocess_media_oembed_iframe().
+  // Based on implementation from Core's
+  // media_test_oembed_preprocess_media_oembed_iframe().
   if ($variables['resource']->getProvider()->getName() === 'YouTube') {
     $variables['media'] = str_replace('?feature=oembed', '?rel=0&feature=oembed', (string) $variables['media']);
   }

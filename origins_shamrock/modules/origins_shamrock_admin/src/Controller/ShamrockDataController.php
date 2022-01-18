@@ -9,7 +9,7 @@ use Drupal\origins_shamrock_admin\Form\ShamrockAdminForm;
 use Drupal\Core\Render\RendererInterface;
 
 /**
- * Class ShamrockDataController.
+ * Provides a JSON response containing Operation Shamrock data.
  */
 class ShamrockDataController extends ControllerBase {
 

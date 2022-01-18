@@ -5,9 +5,60 @@
  * Contains origins_term_delete.module.
  */
 
+use Drupal\taxonomy\TermInterface;
+
 /**
- * Implements hook_entity_type_alter().
+ * Implements hook_form_FORM_ID_alter().
  */
-function origins_term_delete_entity_type_alter(array &$entity_types) {
-  $entity_types['taxonomy_term']->setFormClass('delete', 'Drupal\origins_term_delete\Form\TermDeleteForm');
+function origins_term_delete_form_taxonomy_term_global_topics_delete_form_alter(&$form, &$form_state, $form_id) {
+  $term = \Drupal::routeMatch()->getParameter('taxonomy_term');
+
+  if ($term instanceof TermInterface === FALSE) {
+    return;
+  }
+
+  $view = \Drupal::entityTypeManager()
+    ->getStorage('view')
+    ->load('taxonomy_term')
+    ->getExecutable();
+
+  $display_id = 'content_by_tid';
+
+  $view->setDisplay($display_id);
+  $view->initHandlers();
+  $view->setArguments([$term->id()]);
+  $view->preExecute();
+  $view->execute();
+
+  $form['preamble'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'p',
+    '#value' => t('Please ensure that you move any content associated with this term to
+              a new term before deleting it.'),
+  ];
+
+  // Show a list of content that relates to this taxonomy term.
+  $form['content_table'] = $view->buildRenderable($display_id);
+
+  $form['description']['#prefix'] = '<h3>';
+  $form['description']['#suffix'] = '</h3>';
+
+  if (!empty($view->result) && \Drupal::currentUser()->hasPermission('administer taxonomy') === FALSE) {
+    $form['preamble_warning'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h3',
+      '#value' => t('This term cannot be deleted as the content above is still associated with it.'),
+    ];
+
+    $form['actions']['submit']['#access'] = FALSE;
+    $form['actions']['cancel']['#title'] = t('Back');
+  }
+  else {
+    $form['preamble_warning'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h3',
+      '#value' => t('This action cannot be undone or reversed.'),
+    ];
+  }
+  return $form;
 }

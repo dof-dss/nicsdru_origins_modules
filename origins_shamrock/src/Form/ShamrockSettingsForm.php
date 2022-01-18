@@ -7,7 +7,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ShamrockSettingsForm.
+ * Provides Operation Shamrock settings form.
  */
 class ShamrockSettingsForm extends ConfigFormBase {
   const SETTINGS = 'origins_shamrock.settings';

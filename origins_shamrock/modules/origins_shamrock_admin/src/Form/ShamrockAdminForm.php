@@ -7,7 +7,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class ShamrockAdminForm.
+ * Provides Operation Shamrock admin settings form.
  */
 class ShamrockAdminForm extends ConfigFormBase {
   const SETTINGS = 'origins_shamrock.admin.settings';

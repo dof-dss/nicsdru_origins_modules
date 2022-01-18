@@ -15,7 +15,7 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
   color: #000; /* better contrast with th background */
 }
 #edit-node-revisions-table .revision-draft {
-  background-color: #FFB3B3; /* pink */
+  background-color: #ffb3b3; /* pink */
 }
 #edit-node-revisions-table .revision-needs_review {
   background-color: #ffeeaa; /* yellow */
@@ -27,10 +27,6 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
   background-color: #dfdfdf; /* light grey */
 }
 #edit-node-revisions-table a:not(.dropbutton a) {
-  color: #00558A; /* darken link color for better contrast */
+  color: #00558a; /* darken link color for better contrast */
   text-decoration: underline;
 }
-
-
-
-
