@@ -434,7 +434,7 @@ function _audit_link($field, $dt, $nid) {
       if ($link_object) {
         // Return rendered link.
         $link_rendered = $link_object->toRenderable();
-        \Drupal::service('renderer')->renderRoot($link_rendered);
+        \Drupal::service('renderer')->render($link_rendered, FALSE);
         return $link_rendered['#markup'];
       }
       else {
