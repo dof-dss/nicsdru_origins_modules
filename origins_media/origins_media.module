@@ -161,6 +161,20 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function origins_media_file_delete(EntityInterface $entity) {
+  // Purge file URL from Fastly.
+  $url = $entity->createFileUrl($relative = FALSE);
+  if (!empty(\Drupal::hasService('fastly.api'))) {
+    $fastly = Drupal::service('fastly.api');
+    if (!empty($url)) {
+      $fastly->purgeUrl($url);
+    }
+  }
+}
+
+/**
  * Implements hook_preprocess_views_view_field().
  *
  * Injects the usage value of a media item into the table display.
