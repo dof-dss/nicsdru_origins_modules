@@ -174,6 +174,7 @@ class AuditSettingsForm extends ConfigFormBase {
     if (!empty($field)) {
       // See if there is any data in this field.
       $ids = $this->entityTypeManager->getStorage('node')->getQuery()
+        ->accessCheck(TRUE)
         ->condition('type', $type)
         ->exists('field_next_audit_due')
         ->execute();
