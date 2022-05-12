@@ -9,3 +9,6 @@
 .form--inline .form-actions {
   flex: 100% 0 0;
 }
+.cke_combopanel.cke_combopanel__styles {
+  width: auto;
+}
