@@ -688,6 +688,9 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       }
     }
   }
+  else {
+    hide($build['actions']['secondary']['entityqueue.entities:entity.node.entityqueue']);
+  }
 }
 
 /**
