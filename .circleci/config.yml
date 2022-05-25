@@ -43,7 +43,7 @@ jobs:
           name: Fetch latest Drupal version
           command: |
             cd /home/circleci
-            composer create-project drupal/recommended-project:9.3.0 /home/circleci/project --no-interaction
+            composer create-project drupal-composer/drupal-project:9.x-dev /home/circleci/project --no-interaction
       - run:
           name: Download dependent contrib modules.
           command: |
