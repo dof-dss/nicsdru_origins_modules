@@ -29,34 +29,18 @@ jobs:
   deprecated_code:
     docker:
       - image: circleci/php:8.0-apache-browsers
-    steps:
-      - checkout:
-          path: /home/circleci/origins_modules
-      - run:
-          name: Add OS and PHP extensions/config
-          command: |
-            sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
-            sudo apt --allow-releaseinfo-change update
-            sudo apt install -y libpng-dev
-            sudo docker-php-ext-install gd
-      - run:
-          name: Fetch latest Drupal version
-          command: |
-            cd /home/circleci
-            composer create-project drupal-composer/drupal-project:9.x-dev /home/circleci/project --no-interaction
-      - run:
-          name: Download dependent contrib modules.
-          command: |
-            cd /home/circleci/project
-            composer require drupal/entity_embed mglaman/drupal-check --no-interaction
-      - run:
-          name: Move custom code into position
-          command: mv /home/circleci/origins_modules /home/circleci/project/web/modules/origins
-      - run:
-          name: Deprecated code check
-          command: |
-            cd /home/circleci/project/web
-            ../vendor/bin/drupal-check modules/origins -e "*/tests/*"
+    environment:
+      PROJECT_ROOT: "/home/circleci/origins_modules"
+      steps:
+        - attach_workspace:
+            at: ./
+        - run: sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
+        - run:
+            name: Deprecated code check
+            command: |
+              cd /home/circleci/project
+              CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/web/modules/origins"
+              vendor/bin/drupal-check $CHECK_DIRS
 
 workflows:
   version: 2
