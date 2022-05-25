@@ -11,7 +11,7 @@ A collection of modules for use across DOF-DSS Drupal sites
 
 ## Usage
 
-You can include this package into your project using composer:
+You can include this  package into your project using composer:
 ```
 composer require dof-dss/nicsdru_origins_modules
 ```
