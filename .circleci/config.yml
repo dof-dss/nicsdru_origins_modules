@@ -1,7 +1,7 @@
 # PHP CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-php/ for more details
-version: 2
+version: 2.1
 
 jobs:
   # Test that coding standards fit drupal.org definitions.
@@ -30,7 +30,7 @@ jobs:
     docker:
       - image: circleci/php:8.0-apache-browsers
     environment:
-      PROJECT_ROOT: "/home/circleci/origins_modules"
+      PROJECT_ROOT: "/home/circleci"
       steps:
         - attach_workspace:
             at: ./
@@ -38,9 +38,9 @@ jobs:
         - run:
             name: Deprecated code check
             command: |
-              cd /home/circleci/project
-              CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/web/modules/origins"
-              vendor/bin/drupal-check $CHECK_DIRS
+              cd /home/circleci/project/web
+              CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/origins_modules"
+              ../vendor/bin/drupal-check $CHECK_DIRS
 
 workflows:
   version: 2
