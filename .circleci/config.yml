@@ -39,7 +39,7 @@ jobs:
             name: Deprecated code check
             command: |
               cd /home/circleci/project/web
-              CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/origins_modules"
+              CHECK_DIRS="${PROJECT_ROOT}/origins_modules"
               ../vendor/bin/drupal-check $CHECK_DIRS
 
 workflows:
