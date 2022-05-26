@@ -48,7 +48,7 @@ jobs:
           name: Download dependent contrib modules.
           command: |
             cd /home/circleci/project
-            composer require drupal/entity_embed mglaman/drupal-check --no-interaction
+            composer require drupal/entity_embed mglaman/drupal-check:1.3.0 composer/xdebug-handler:2.0.1 --no-interaction
       - run:
           name: Move custom code into position
           command: mv /home/circleci/origins_modules /home/circleci/project/web/modules/origins
