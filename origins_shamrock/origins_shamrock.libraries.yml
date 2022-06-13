@@ -7,3 +7,4 @@ shamrock_banner:
   dependencies:
     - core/jquery
     - core/drupal
+    - core/drupalSettings
