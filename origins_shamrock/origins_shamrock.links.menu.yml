@@ -1,6 +1,11 @@
-origins_shamrock.settings:
-  title: 'Shamrock Settings'
+origins_shamrock.configuration:
+  title: 'Operation Shamrock'
   route_name: origins.shamrock.settings_form
   description: 'Configure Operation Shamrock settings'
   parent: origins.admin_config
-  weight: 10
+origins_shamrock.settings:
+  title: 'Settings'
+  route_name: origins.shamrock.settings_form
+  description: 'Configure Operation Shamrock settings'
+  parent: origins_shamrock.configuration
+  weight: 1
