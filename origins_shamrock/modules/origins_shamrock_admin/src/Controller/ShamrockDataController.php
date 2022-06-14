@@ -62,6 +62,7 @@ class ShamrockDataController extends ControllerBase {
         json_encode([
           'enabled' => $config->get('published'),
           'banner' => $this->renderer->render($build),
+          'styling' => $config->get('styles'),
         ])
       );
     }
