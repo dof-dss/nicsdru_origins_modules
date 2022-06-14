@@ -49,6 +49,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Service domain'),
       '#description' => $this->t('Domain to query for the Shamrock data.'),
       '#default_value' => $config->get('service_url'),
+      '#required' => TRUE,
       '#weight' => '1',
     ];
 
