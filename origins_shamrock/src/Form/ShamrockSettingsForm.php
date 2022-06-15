@@ -3,14 +3,39 @@
 namespace Drupal\origins_shamrock\Form;
 
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides Operation Shamrock settings form.
  */
 class ShamrockSettingsForm extends ConfigFormBase {
   const SETTINGS = 'origins_shamrock.settings';
+
+  /**
+   * Module handler service.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
+   * Constructs a new BlockListSettings object.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
+    parent::__construct($config_factory);
+    $this->moduleHandler = $module_handler;
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('module_handler')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -71,10 +96,8 @@ class ShamrockSettingsForm extends ConfigFormBase {
       ->set('service_url', $form_state->getValue('service_url'))
       ->save();
 
-    $moduleHandler = \Drupal::service('module_handler');
-
     // If the Content Security Policy module is enabled, add service url.
-    if ($moduleHandler->moduleExists('csp')) {
+    if ($this->moduleHandler->moduleExists('csp')) {
       $csp_config = $this->configFactory->getEditable('csp.settings');
       $report_only = $csp_config->get('report-only');
       $service_url = $form_state->getValue('service_url');
