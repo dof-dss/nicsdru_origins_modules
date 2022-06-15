@@ -71,6 +71,23 @@ class ShamrockSettingsForm extends ConfigFormBase {
       ->set('service_url', $form_state->getValue('service_url'))
       ->save();
 
+    $moduleHandler = \Drupal::service('module_handler');
+
+    // If the Content Security Policy module is enabled, add service url.
+    if ($moduleHandler->moduleExists('csp')) {
+      $csp_config = $this->configFactory->getEditable('csp.settings');
+      $report_only = $csp_config->get('report-only');
+      $service_url = $form_state->getValue('service_url');
+      $service_domain = substr($service_url, 0, strpos($service_url, '/', 8));
+
+      if (!in_array($service_domain, $report_only['directives']['script-src']['sources'])) {
+        $report_only['directives']['script-src']['sources'][] = $service_domain;
+        $csp_config->set('report-only', $report_only);
+        $csp_config->save();
+        $this->messenger()->addMessage($this->t('Added %domain to Content Security Policy', ['%domain' => $service_domain]));
+      }
+    }
+
     Cache::invalidateTags(['origins:operation_shamrock']);
     parent::submitForm($form, $form_state);
   }
