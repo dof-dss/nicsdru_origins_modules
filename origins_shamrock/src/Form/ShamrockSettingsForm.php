@@ -33,7 +33,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
     $config = $this->config(static::SETTINGS);
 
     $form['introduction'] = [
-      '#markup' => 'Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this admin page gives a site editor the option as to whether to render the banner on the front page of the site. It is turned by default for some domains',
+      '#markup' => 'Operation Shamrock is the NI arrangements for a cabinet office lead directive known as London Bridge. Should this be triggered, this admin page gives a site editor the option as to whether to render the banner on the front page of the site. It is turned off by default for some domains',
     ];
 
     $form['show_the_banner'] = [
@@ -43,9 +43,20 @@ class ShamrockSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('show_banner'),
       '#weight' => '0',
     ];
+
+    $form['service_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Service domain'),
+      '#description' => $this->t('Domain to query for the Shamrock data.'),
+      '#default_value' => $config->get('service_url'),
+      '#required' => TRUE,
+      '#weight' => '1',
+    ];
+
     $form['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Submit'),
+      '#weight' => '10',
     ];
 
     return $form;
@@ -57,6 +68,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory->getEditable(static::SETTINGS)
       ->set('show_banner', (bool) $form_state->getValue('show_the_banner'))
+      ->set('service_url', $form_state->getValue('service_url'))
       ->save();
 
     Cache::invalidateTags(['origins:operation_shamrock']);

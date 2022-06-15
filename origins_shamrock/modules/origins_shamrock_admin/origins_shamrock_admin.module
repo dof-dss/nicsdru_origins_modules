@@ -35,6 +35,7 @@ function origins_shamrock_admin_theme() {
         'title' => NULL,
         'body' => NULL,
         'url' => NULL,
+        'styles' => NULL,
       ],
     ],
   ];

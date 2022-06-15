@@ -69,12 +69,18 @@ class ShamrockAdminForm extends ConfigFormBase {
       '#size' => 64,
       '#weight' => '3',
     ];
+    $form['shamrock']['styles'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('CSS styles'),
+      '#default_value' => $config->get('styles'),
+      '#weight' => '4',
+    ];
 
     $form['published'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Publish the banner.'),
       '#default_value' => $config->get('published'),
-      '#weight' => '4',
+      '#weight' => '5',
     ];
     $form['submit'] = [
       '#type' => 'submit',
@@ -93,6 +99,7 @@ class ShamrockAdminForm extends ConfigFormBase {
       ->set('title', $form_state->getValue('title'))
       ->set('body', $form_state->getValue('body'))
       ->set('url', $form_state->getValue('url'))
+      ->set('styles', $form_state->getValue('styles'))
       ->set('published', (bool) $form_state->getValue('published'))
       ->set('modified', time())
       ->save();

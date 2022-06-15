@@ -1,0 +1,11 @@
+<?php
+
+/**
+ * Add service_url configuration.
+ */
+function origins_shamrock_update_8001() {
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('origins_shamrock.settings');
+  $config->set('service_url', 'https://www.nidirect.gov.uk/services/operation-shamrock.json');
+  $config->save(TRUE);
+}
