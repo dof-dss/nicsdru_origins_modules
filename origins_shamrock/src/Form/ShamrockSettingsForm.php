@@ -30,6 +30,9 @@ class ShamrockSettingsForm extends ConfigFormBase {
     $this->moduleHandler = $module_handler;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
