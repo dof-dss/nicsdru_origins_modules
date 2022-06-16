@@ -3,3 +3,5 @@ type: module
 description: 'Operation Shamrock Admin'
 core_version_requirement: ^8.8 || ^9
 package: 'Origins'
+dependencies:
+  - origins_shamrock

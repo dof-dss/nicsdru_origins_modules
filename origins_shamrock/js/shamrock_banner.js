@@ -1,14 +1,15 @@
-(function ($, Drupal) {
+(function ($, Drupal, drupalSettings) {
   Drupal.behaviors.operationShamrock = {
     attach: function attach (context) {
       $('body', context).once('shamrock').each(function () {
-        $.getJSON('/services/operation-shamrock.json', function (data) {
+        $.getJSON(drupalSettings.origins_shamrock.service_url, function (data) {
           if (data.enabled) {
-            $('body').prepend(data.banner);
+            $('head').append(data.styling);
+            $('body').prepend(data.banner_html);
           }
         });
       });
     }
   };
-})(jQuery, Drupal);
+})(jQuery, Drupal, drupalSettings);
 
