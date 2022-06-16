@@ -237,7 +237,7 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
     $flags = $flag_service->getEntityFlagCounts($entity);
 
     // Check if the entity has the disable_toc flag set.
-    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] === 1) {
+    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] == 1) {
       return $build;
     }
 
