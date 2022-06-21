@@ -1,0 +1,7 @@
+origins_qa.manager.list:
+  path: '/admin/origins/qa/list'
+  defaults:
+    _title: 'List Quality Assurance accounts'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::list'
+  requirements:
+    _permission: 'access content'
