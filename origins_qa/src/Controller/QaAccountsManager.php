@@ -23,6 +23,8 @@ class QaAccountsManager extends ControllerBase {
                     'roles' => 'qa'
                   ]);
 
+    ksm($accounts);
+
     $header = [
       'username' => $this->t('Username'),
       'status' => $this->t('Status'),
@@ -59,6 +61,27 @@ class QaAccountsManager extends ControllerBase {
     ];
 
     return $build;
+  }
+
+  /**
+   * Sets all QA accounts state to active.
+   */
+  public function enableAll() {
+    $accounts = $this->entityTypeManager()
+      ->getListBuilder('user')
+      ->getStorage()
+      ->loadByProperties([
+        'roles' => 'qa'
+      ]);
+
+    foreach ($accounts as $account) {
+      $account->activate();
+      $account->save();
+    }
+
+    $this->messenger()->addMessage('Activated all QA accounts');
+
+    return $this->redirect('origins_qa.manager.list');
   }
 
 }
