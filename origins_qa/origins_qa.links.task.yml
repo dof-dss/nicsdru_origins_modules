@@ -1,0 +1,5 @@
+origins_qa.manager.list:
+  title: 'QA accounts'
+  route_name: origins_qa.manager.list
+  base_route: entity.user.collection
+  weight: 15
