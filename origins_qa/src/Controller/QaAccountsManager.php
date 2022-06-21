@@ -23,8 +23,6 @@ class QaAccountsManager extends ControllerBase {
                     'roles' => 'qa'
                   ]);
 
-    ksm($accounts);
-
     $header = [
       'username' => $this->t('Username'),
       'status' => $this->t('Status'),
@@ -79,7 +77,28 @@ class QaAccountsManager extends ControllerBase {
       $account->save();
     }
 
-    $this->messenger()->addMessage('Activated all QA accounts');
+    $this->messenger()->addMessage('Activated all QA accounts.');
+
+    return $this->redirect('origins_qa.manager.list');
+  }
+
+  /**
+   * Sets all QA accounts state to blocked.
+   */
+  public function disableAll() {
+    $accounts = $this->entityTypeManager()
+      ->getListBuilder('user')
+      ->getStorage()
+      ->loadByProperties([
+        'roles' => 'qa'
+      ]);
+
+    foreach ($accounts as $account) {
+      $account->block();
+      $account->save();
+    }
+
+    $this->messenger()->addMessage('Disabled all QA accounts.');
 
     return $this->redirect('origins_qa.manager.list');
   }
