@@ -62,9 +62,9 @@ class QaAccountsManager extends ControllerBase {
   }
 
   /**
-   * Sets all QA accounts state to active.
+   * Toggles all QA accounts to either active or blocked.
    */
-  public function enableAll() {
+  public function toggleAll($action) {
     $accounts = $this->entityTypeManager()
       ->getListBuilder('user')
       ->getStorage()
@@ -73,32 +73,22 @@ class QaAccountsManager extends ControllerBase {
       ]);
 
     foreach ($accounts as $account) {
-      $account->activate();
-      $account->save();
+
+      if ($action === 'enable') {
+        if (!$account->isActive()) {
+          $account->activate();
+          $account->save();
+        }
+      }
+      else {
+        if ($account->isActive()) {
+          $account->block();
+          $account->save();
+        }
+      }
     }
 
-    $this->messenger()->addMessage('Activated all QA accounts.');
-
-    return $this->redirect('origins_qa.manager.list');
-  }
-
-  /**
-   * Sets all QA accounts state to blocked.
-   */
-  public function disableAll() {
-    $accounts = $this->entityTypeManager()
-      ->getListBuilder('user')
-      ->getStorage()
-      ->loadByProperties([
-        'roles' => 'qa'
-      ]);
-
-    foreach ($accounts as $account) {
-      $account->block();
-      $account->save();
-    }
-
-    $this->messenger()->addMessage('Disabled all QA accounts.');
+    $this->messenger()->addMessage('Updated all QA accounts.');
 
     return $this->redirect('origins_qa.manager.list');
   }

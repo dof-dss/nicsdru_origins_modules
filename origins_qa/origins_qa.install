@@ -1,0 +1,7 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function origins_qa_install() {
+}

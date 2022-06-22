@@ -5,17 +5,3 @@ origins_qa.manager.list:
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::list'
   requirements:
     _permission: 'access content'
-origins_qa.manager.enable_all:
-  path: '/admin/origins/qa/enable-all'
-  defaults:
-    _title: 'Enable all Quality Assurance accounts'
-    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::enableAll'
-  requirements:
-    _permission: 'access content'
-origins_qa.manager.disable_all:
-  path: '/admin/origins/qa/disable-all'
-  defaults:
-    _title: 'Disable all Quality Assurance accounts'
-    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::disableAll'
-  requirements:
-    _permission: 'access content'
