@@ -35,8 +35,8 @@ class QaAccountsManager extends ControllerBase {
     foreach ($accounts as $account) {
       $rows[] = [
         $account->label(),
-        $account->isActive(),
-        date('d F Y', $account->getLastAccessedTime()),
+        ($account->isActive()) ? 'Enabled' : 'Disabled',
+        ($account->getLastAccessedTime() == 0) ? 'Never' : date('d F Y', $account->getLastAccessedTime()),
         [
           'data' => [
             '#type' => 'dropbutton',
