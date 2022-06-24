@@ -56,6 +56,7 @@ class QaAccountsManager extends ControllerBase {
       '#type' => 'table',
       '#header' => $header,
       '#rows' => $rows,
+      '#empty' => $this->t("There are no accounts on this site associated with the 'qa' (Quality Assurance) role. You will need to assign test accounts to that role for them to show up in this table."),
     ];
 
     return $build;
