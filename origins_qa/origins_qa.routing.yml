@@ -5,3 +5,14 @@ origins_qa.manager.list:
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::list'
   requirements:
     _permission: 'access content'
+origins_qa.manager.toggleAll:
+  path: '/admin/origins/qa/toggle-all/{action}'
+  defaults:
+    _title: 'Enable / disable all QA accounts'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::toggleAll'
+  requirements:
+    _permission: 'access content'
+  options:
+    parameters:
+      action:
+        type: string
