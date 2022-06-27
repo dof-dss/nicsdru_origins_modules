@@ -66,20 +66,6 @@ class QaAccountsManager extends ControllerBase {
       'operations' => $this->t('Operations'),
     ];
 
-    if (!empty($accounts)) {
-      $build['open_modal'] = [
-        '#type' => 'link',
-        '#title' => $this->t('Set passwords for all QA accounts'),
-        '#url' => Url::fromRoute('origins_qa.manager.password_form_modal'),
-        '#attributes' => [
-          'class' => [
-            'use-ajax',
-            'button',
-          ],
-        ],
-      ];
-    }
-
     $rows = [];
 
     foreach ($accounts as $account) {
@@ -109,7 +95,23 @@ class QaAccountsManager extends ControllerBase {
       '#empty' => $this->t("There are no accounts on this site associated with the 'qa' (Quality Assurance) role. You will need to assign test accounts to that role for them to show up in this table."),
     ];
 
-    $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
+    if (!empty($accounts)) {
+      $build['open_modal'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Set passwords for all QA accounts'),
+        '#url' => Url::fromRoute('origins_qa.manager.password_form_modal'),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+            'button-action',
+            'button--primary'
+          ],
+        ],
+      ];
+
+      $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
+    }
 
 
     return $build;

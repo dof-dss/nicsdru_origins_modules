@@ -50,7 +50,7 @@ class QaPasswordSetForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $form['pass'] = [
+    $form['password'] = [
       '#type' => 'password',
       '#title' => $this->t('Password'),
       '#required' => TRUE,
@@ -70,19 +70,9 @@ class QaPasswordSetForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
-    if (mb_strlen($form_state->getValue('password')) < 10) {
-
-      $form_state->setErrorByName('password', $this->t('Password should be least 10 characters.'));
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
-    $password = $form_state->get('password');
+    $password = $form_state->getValue('password');
 
     $accounts = $this->entityTypeManager
       ->getListBuilder('user')
