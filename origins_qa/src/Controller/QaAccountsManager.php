@@ -52,6 +52,7 @@ class QaAccountsManager extends ControllerBase {
   public function list() {
     $build = [];
 
+    // Fetch all the accounts belonging to the 'qa' role.
     $accounts = $this->entityTypeManager()
                   ->getListBuilder('user')
                   ->getStorage()
@@ -113,7 +114,6 @@ class QaAccountsManager extends ControllerBase {
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 
-
     return $build;
   }
 
@@ -154,7 +154,7 @@ class QaAccountsManager extends ControllerBase {
     $response = new AjaxResponse();
 
     $modal_form = $this->formBuilder->getForm('Drupal\origins_qa\Form\QaPasswordSetForm');
-    $response->addCommand(new OpenModalDialogCommand('QA Password form', $modal_form, ['width' => '800']));
+    $response->addCommand(new OpenModalDialogCommand('QA Password form', $modal_form, ['width' => '300']));
 
     return $response;
   }
