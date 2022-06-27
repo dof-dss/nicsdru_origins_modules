@@ -45,7 +45,6 @@ class QaAccountsManager extends ControllerBase {
     );
   }
 
-
   /**
    * Returns a list of QA accounts.
    */
@@ -54,11 +53,11 @@ class QaAccountsManager extends ControllerBase {
 
     // Fetch all the accounts belonging to the 'qa' role.
     $accounts = $this->entityTypeManager()
-                  ->getListBuilder('user')
-                  ->getStorage()
-                  ->loadByProperties([
-                    'roles' => 'qa'
-                  ]);
+      ->getListBuilder('user')
+      ->getStorage()
+      ->loadByProperties([
+        'roles' => 'qa'
+      ]);
 
     $header = [
       'username' => $this->t('Username'),
@@ -149,7 +148,9 @@ class QaAccountsManager extends ControllerBase {
     return $this->redirect('origins_qa.manager.list');
   }
 
-
+  /**
+   * Ajax callback for displaying the password form.
+   */
   public function displayPasswordForm() {
     $response = new AjaxResponse();
 
@@ -158,4 +159,5 @@ class QaAccountsManager extends ControllerBase {
 
     return $response;
   }
+
 }
