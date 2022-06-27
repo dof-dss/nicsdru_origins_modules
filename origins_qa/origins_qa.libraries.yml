@@ -1,0 +1,7 @@
+origins_qa:
+  js:
+    js/origins_qa.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.dialog.ajax
+    - core/jquery.form

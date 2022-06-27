@@ -16,3 +16,12 @@ origins_qa.manager.toggleAll:
     parameters:
       action:
         type: string
+origins_qa.manager.password_form_modal:
+  path: '/admin/origins/qa/password-set-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayPasswordForm'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE
