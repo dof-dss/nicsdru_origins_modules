@@ -1,0 +1,4 @@
+manage qa accounts:
+  description: 'View the QA account list and bulk manage QA accounts.'
+  title: 'Manage QA accounts'
+  restrict access: TRUE

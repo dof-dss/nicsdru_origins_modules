@@ -1,0 +1,8 @@
+name: 'Origins Quality Assurance'
+type: module
+description: 'Tools for QA/testing teams'
+core_version_requirement: ^8 || ^9
+package: 'Origins'
+dependencies:
+  - drupal:user
+
