@@ -38,4 +38,3 @@ function origins_shamrock_preprocess_page(&$variables) {
     $variables['#attached']['library'][] = 'origins_shamrock/shamrock_banner';
   }
 }
-
