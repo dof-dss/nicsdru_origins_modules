@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Update public Key for Google repo
-          comamnd: |
+          command: |
             # Fix for the 'No public key availaible' warning.
             wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
       - run:
@@ -40,7 +40,7 @@ jobs:
           path: /home/circleci/origins_modules
       - run:
           name: Update public Key for Google repo
-          comamnd: |
+          command: |
             # Fix for the 'No public key availaible' warning.
             wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
       - run:
