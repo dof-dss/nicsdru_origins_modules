@@ -7,7 +7,7 @@ jobs:
   # Test that coding standards fit drupal.org definitions.
   coding_standards:
     docker:
-      - image: cimg/php:8.0-apache-browsers
+      - image: circleci/php:8.0-apache-browsers
     steps:
       - checkout
       - run:
@@ -34,7 +34,7 @@ jobs:
 
   deprecated_code:
     docker:
-      - image: cimg/php:8.0-apache-browsers
+      - image: circleci/php:8.0-apache-browsers
     steps:
       - checkout:
           path: /home/circleci/origins_modules
