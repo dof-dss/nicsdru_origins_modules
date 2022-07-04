@@ -7,7 +7,7 @@ jobs:
   # Test that coding standards fit drupal.org definitions.
   coding_standards:
     docker:
-      - image: cimg/php:8.0-browsers
+      - image: cimg/php:8.0-apache-browsers
     steps:
       - checkout
       - run:
@@ -34,7 +34,7 @@ jobs:
 
   deprecated_code:
     docker:
-      - image: cimg/php:8.0-browsers
+      - image: cimg/php:8.0-apache-browsers
     steps:
       - checkout:
           path: /home/circleci/origins_modules
@@ -48,7 +48,6 @@ jobs:
           command: |
             sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
             sudo apt-get update
-            sudo apt-get install libfreetype-dev libfreetype6 libfreetype6-dev
             sudo apt-get install -y apache2
             sudo apt-get install -y libpng-dev
             sudo docker-php-ext-install gd
