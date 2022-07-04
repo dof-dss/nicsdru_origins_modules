@@ -48,7 +48,6 @@ jobs:
           command: |
             sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
             sudo apt-get update
-            sudo apt-get install -y apache2
             sudo apt-get install -y libpng-dev
             sudo docker-php-ext-install gd
       - run:
