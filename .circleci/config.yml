@@ -11,6 +11,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update public Key for Google repo
+          comamnd: |
+            # Fix for the 'No public key availaible' warning.
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+      - run:
           name: Fetch phpcs and dependencies
           command: |
             composer require drupal/coder --prefer-stable --no-interaction --optimize-autoloader
@@ -33,6 +38,11 @@ jobs:
     steps:
       - checkout:
           path: /home/circleci/origins_modules
+      - run:
+          name: Update public Key for Google repo
+          comamnd: |
+            # Fix for the 'No public key availaible' warning.
+            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
       - run:
           name: Add OS and PHP extensions/config
           command: |
