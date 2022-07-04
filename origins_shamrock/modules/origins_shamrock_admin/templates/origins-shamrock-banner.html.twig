@@ -1,21 +1,22 @@
-{%
-
-  set result_classes = [
-  passed ? 'info-notice info-notice--success' : 'info-notice info-notice--error'
-]
-%}
-
-<div{{ attributes.addClass('opsh--banner').setAttribute('role', 'presentation') }}>
-  <a{{ attributes.addClass('opsh__link') }} href="{{ url }}">
-    <span{{ attributes.addClass('opsh__title') }}>
+{% set attributes = attributes.addClass('opsh-banner') %}
+{% set attributes = attributes.setAttribute('id','opsh-banner')
+                              .setAttribute('role', 'region')
+                              .setAttribute('aria-roledescription', 'Important message from U K Government')
+                              .setAttribute('aria-live', 'polite')
+                              .setAttribute('aria-atomic', 'region') %}
+<div{{ attributes }}>
+  <a class="opsh-banner__content" href="{{ url }}">
+    <h1 class="opsh-banner__title">
       {{ title }}
-    </span>
-    <span{{ attributes.addClass('opsh__msg') }}>
+    </h1>
+    <p class="opsh-banner__body">
       {{ body }}
-    </span>
-    <span{{ attributes.addClass('opsh__read-more') }}>
-      {{ 'Read more'|t }}
-    </span>
+    </p>
+    <p>
+      <span class="opsh-banner__faux-link" }}>
+        {{ 'Read about the arrangements following The Queen\'s death'|t }}
+      </span>
+    </p>
   </a>
 </div>
 

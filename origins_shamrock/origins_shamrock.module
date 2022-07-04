@@ -30,7 +30,7 @@ function origins_shamrock_help($route_name, RouteMatchInterface $route_match) {
 function origins_shamrock_preprocess_page(&$variables) {
   $variables['#cache']['tags'][] = 'origins:operation_shamrock';
 
-  if (\Drupal::config('origins_shamrock.settings')->get('show_banner') && \Drupal::service('path.matcher')->isFrontPage()) {
+  if (\Drupal::config('origins_shamrock.settings')->get('show_banner')) {
     $config_factory = \Drupal::configFactory();
     $config = $config_factory->get('origins_shamrock.settings');
 
