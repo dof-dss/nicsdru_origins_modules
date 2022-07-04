@@ -37,8 +37,9 @@ jobs:
           name: Add OS and PHP extensions/config
           command: |
             sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
-            sudo apt --allow-releaseinfo-change update
-            sudo apt install -y libpng-dev
+            sudo apt-get update
+            sudo apt-get install -y apache2
+            sudo apt-get install -y libpng-dev
             sudo docker-php-ext-install gd
       - run:
           name: Fetch latest Drupal version
