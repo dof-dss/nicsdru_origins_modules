@@ -5,7 +5,7 @@
         $.getJSON(drupalSettings.origins_shamrock.service_url, function (data) {
           if (data.enabled) {
             let css_extra = '';
-            if (drupalSettings.origins_shamrock.banner_extra_css) {
+            if ('banner_extra_css' in drupalSettings.origins_shamrock) {
               css_extra = drupalSettings.origins_shamrock.banner_extra_css;
             }
             $('head').append('<style>' + data.styling + css_extra + '</style>');
