@@ -10,7 +10,7 @@
 
   width: 100%;
   clear: both;
-  padding: 1.5em;
+  padding: 1.5em 1em;
   margin: 0;
 
   background: #000;
@@ -19,7 +19,7 @@
 
 @media screen and (min-width: 768px) {
   #opsh-banner {
-    padding: 2em;
+    padding: 2em 1em;
     font-size: 18px;
   }
 }
@@ -27,7 +27,7 @@
 #opsh-banner .opsh-banner__content {
   display: block;
   width: 100%;
-  max-width: 960px;
+  max-width: 940px;
   margin: 0 auto;
 }
 
@@ -52,7 +52,7 @@
   color: #fff;
   background-color: transparent;
   font-size: 1.5em;
-  line-height: 1.25;
+  line-height: 1.1667;
   margin: 0;
   padding: 0;
 }
@@ -60,6 +60,7 @@
 @media screen and (min-width: 600px) {
   #opsh-banner .opsh-banner__title {
     font-size: 2em;
+    line-height: 1.25;
   }
 }
 
@@ -68,15 +69,15 @@
 }
 
 #opsh-banner .opsh-banner__body {
-  font-size: 1.8rem;
-  line-height: 2.8rem;
+  font-size: 1.125em;
+  line-height: 1.5556;
   margin: 0;
 }
 
 @media screen and (min-width: 768px) {
   #opsh-banner .opsh-banner__body {
-    font-size: 2rem;
-    line-height: 3rem;
+    font-size: 1.1112em;
+    line-height: 1.5;
   }
 }
 
