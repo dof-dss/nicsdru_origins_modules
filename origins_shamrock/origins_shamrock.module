@@ -35,6 +35,7 @@ function origins_shamrock_preprocess_page(&$variables) {
     $config = $config_factory->get('origins_shamrock.settings');
 
     $variables['#attached']['drupalSettings']['origins_shamrock']['service_url'] = $config->get('service_url');
+    $variables['#attached']['drupalSettings']['origins_shamrock']['banner_extra_css'] = $config->get('banner_extra_css');
     $variables['#attached']['library'][] = 'origins_shamrock/shamrock_banner';
   }
 }
