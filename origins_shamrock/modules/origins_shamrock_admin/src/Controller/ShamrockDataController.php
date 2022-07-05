@@ -46,9 +46,15 @@ class ShamrockDataController extends ControllerBase {
     $config = $this->config(ShamrockAdminForm::SETTINGS);
 
     $response = new JsonResponse();
-    $response->headers->set('Access-Control-Allow-Headers', ['x-csrf-token','content-type','accept','origin','x-requested-with']);
-    $response->headers->set('Access-Control-Allow-Origin', ['*']);
+    $response->headers->set('Access-Control-Allow-Headers', [
+      'x-csrf-token',
+      'content-type',
+      'accept',
+      'origin',
+      'x-requested-with'
+    ]);
     $response->headers->set('Access-Control-Allow-Methods', ['GET']);
+    $response->headers->set('Access-Control-Allow-Origin', ['*']);
 
     // If the Shamrock config has data build the banner, otherwise return
     // that it is not enabled.
