@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function origins_qa_install() {
+  $qa_role = \Drupal::entityTypeManager()->getStorage('user_role')->load('qa');
+
+  // Create a new 'qa' role as one wasn't found.
+  if (empty($qa_role)) {
+    $qa_role = \Drupal\user\Entity\Role::create([
+      'id' => 'qa',
+      'label' => 'Quality Assurance',
+    ]);
+
+    $qa_role->save();
+  }
+}
+
+use Drupal\Core\Link;
+
+/**
+ * Implements hook_requirements().
+ */
+function origins_qa_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'runtime') {
+    $accounts = \Drupal::entityTypeManager()
+      ->getListBuilder('user')
+      ->getStorage()
+      ->loadByProperties([
+        'roles' => 'qa'
+      ]);
+
+    if (!empty($accounts)) {
+      $active = 0;
+      foreach ($accounts as $account) {
+        ($account->isActive()) ? $active++ : NULL;
+      }
+
+      $summary = t('@active active of @total QA accounts.', [
+        '@active' => $active,
+        '@total' => count($accounts),
+      ]);
+
+      $description = [
+        '#markup' => t('These should be removed or disabled on production sites. @link', [
+          '@link' => Link::createFromRoute('QA account list', 'origins_qa.manager.list')->toString()
+        ])
+      ];
+
+      $requirements['origins_qa'] = [
+        'title' => t('Origins QA accounts'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $summary,
+        'description' => $description,
+      ];
+    }
+  }
+
+  return $requirements;
+}

@@ -1,0 +1,27 @@
+origins_qa.manager.list:
+  path: '/admin/origins/qa/list'
+  defaults:
+    _title: 'Quality Assurance accounts'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::list'
+  requirements:
+    _permission: 'manage qa accounts'
+origins_qa.manager.toggleAll:
+  path: '/admin/origins/qa/toggle-all/{action}'
+  defaults:
+    _title: 'Enable / disable all QA accounts'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::toggleAll'
+  requirements:
+    _permission: 'manage qa accounts'
+  options:
+    parameters:
+      action:
+        type: string
+origins_qa.manager.password_form_modal:
+  path: '/admin/origins/qa/password-set-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayPasswordForm'
+  requirements:
+    _permission: 'manage qa accounts'
+  options:
+    _admin_route: TRUE

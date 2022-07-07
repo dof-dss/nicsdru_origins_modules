@@ -30,11 +30,12 @@ function origins_shamrock_help($route_name, RouteMatchInterface $route_match) {
 function origins_shamrock_preprocess_page(&$variables) {
   $variables['#cache']['tags'][] = 'origins:operation_shamrock';
 
-  if (\Drupal::config('origins_shamrock.settings')->get('show_banner') && \Drupal::service('path.matcher')->isFrontPage()) {
+  if (\Drupal::config('origins_shamrock.settings')->get('show_banner') && \Drupal::currentUser()->isAnonymous()) {
     $config_factory = \Drupal::configFactory();
     $config = $config_factory->get('origins_shamrock.settings');
 
     $variables['#attached']['drupalSettings']['origins_shamrock']['service_url'] = $config->get('service_url');
+    $variables['#attached']['drupalSettings']['origins_shamrock']['banner_extra_css'] = $config->get('banner_extra_css');
     $variables['#attached']['library'][] = 'origins_shamrock/shamrock_banner';
   }
 }

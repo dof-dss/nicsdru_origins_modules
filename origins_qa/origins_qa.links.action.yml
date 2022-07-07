@@ -1,0 +1,14 @@
+origins_qa.manager.enable_all:
+  title: 'Enable all'
+  route_name: origins_qa.manager.toggleAll
+  route_parameters:
+    action: 'enable'
+  appears_on:
+    - origins_qa.manager.list
+origins_qa.manager.disable_all:
+  title: 'Disable all'
+  route_name: origins_qa.manager.toggleAll
+  route_parameters:
+    action: 'disable'
+  appears_on:
+    - origins_qa.manager.list

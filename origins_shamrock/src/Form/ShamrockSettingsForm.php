@@ -72,13 +72,21 @@ class ShamrockSettingsForm extends ConfigFormBase {
       '#weight' => '0',
     ];
 
+    $form['banner_extra_css'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Banner additional CSS'),
+      '#description' => $this->t('If necessary, add additional CSS style rules to customise the banner for this website.'),
+      '#default_value' => $config->get('banner_extra_css'),
+      '#weight' => '1',
+    ];
+
     $form['service_url'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Service domain'),
       '#description' => $this->t('Domain to query for the Shamrock data.'),
       '#default_value' => $config->get('service_url'),
       '#required' => TRUE,
-      '#weight' => '1',
+      '#weight' => '2',
     ];
 
     $form['submit'] = [
@@ -97,6 +105,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
     $this->configFactory->getEditable(static::SETTINGS)
       ->set('show_banner', (bool) $form_state->getValue('show_the_banner'))
       ->set('service_url', $form_state->getValue('service_url'))
+      ->set('banner_extra_css', $form_state->getValue('banner_extra_css'))
       ->save();
 
     // If the Content Security Policy module is enabled, add service url.
