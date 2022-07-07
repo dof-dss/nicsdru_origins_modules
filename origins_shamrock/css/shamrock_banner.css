@@ -32,7 +32,7 @@
 }
 
 #opsh-banner a.opsh-banner__content,
-#opsh-banner a.oposh-banner__content:link,
+#opsh-banner a.opsh-banner__content:link,
 #opsh-banner a.opsh-banner__content:visited,
 #opsh-banner a.opsh-banner__content:focus,
 #opsh-banner a.opsh-banner__content:hover,
@@ -66,6 +66,7 @@
 
 #opsh-banner p {
   margin: .5em 0 0;
+  color: #fff;
 }
 
 #opsh-banner .opsh-banner__body {
@@ -81,9 +82,11 @@
   }
 }
 
-#opsh-banner a.opsh-banner__content .opsh-banner__faux-link {
+#opsh-banner a.opsh-banner__content .opsh-banner__faux-link,
+#opsh-banner a.opsh-banner__content:link .opsh-banner__faux-link {
   text-decoration: 1px underline;
   text-underline-offset: 1px;
+  color: #fff;
 }
 
 #opsh-banner a.opsh-banner__content:visited .opsh-banner__faux-link {
@@ -92,6 +95,7 @@
 
 #opsh-banner a.opsh-banner__content:hover .opsh-banner__faux-link {
   text-decoration: 2px underline;
+  color: #fff;
 }
 
 #opsh-banner a.opsh-banner__content:focus .opsh-banner__faux-link {
