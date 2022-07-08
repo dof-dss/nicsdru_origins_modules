@@ -55,17 +55,26 @@ class ShamrockAdminForm extends ConfigFormBase {
       '#type' => 'textfield',
       '#title' => $this->t('The body text of the banner'),
       '#description' => $this->t('Generates the body text for the banner.'),
-      '#maxlength' => 64,
+      '#maxlength' => 255,
       '#default_value' => $config->get('body'),
       '#size' => 64,
       '#weight' => '2',
     ];
-    $form['shamrock']['url'] = [
+    $form['shamrock']['link_url'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Banner URL'),
-      '#description' => $this->t('Enter the url which the banner should point to.'),
-      '#maxlength' => 64,
-      '#default_value' => $config->get('url'),
+      '#title' => $this->t('Banner link URL'),
+      '#description' => $this->t('Enter the url the banner should link to.'),
+      '#maxlength' => 255,
+      '#default_value' => $config->get('link_url'),
+      '#size' => 64,
+      '#weight' => '3',
+    ];
+    $form['shamrock']['link_text'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Banner link text'),
+      '#description' => $this->t('Enter the link text for the banner link.'),
+      '#maxlength' => 255,
+      '#default_value' => $config->get('link_text'),
       '#size' => 64,
       '#weight' => '3',
     ];
@@ -98,7 +107,8 @@ class ShamrockAdminForm extends ConfigFormBase {
     $this->configFactory->getEditable(static::SETTINGS)
       ->set('title', $form_state->getValue('title'))
       ->set('body', $form_state->getValue('body'))
-      ->set('url', $form_state->getValue('url'))
+      ->set('link_url', $form_state->getValue('link_url'))
+      ->set('link_text', $form_state->getValue('link_text'))
       ->set('styles', $form_state->getValue('styles'))
       ->set('published', (bool) $form_state->getValue('published'))
       ->set('modified', time())
