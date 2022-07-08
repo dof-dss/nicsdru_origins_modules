@@ -5,7 +5,7 @@
                               .setAttribute('aria-live', 'polite')
                               .setAttribute('aria-atomic', 'region') %}
 <div{{ attributes }}>
-  <a class="opsh-banner__content" href="{{ url }}">
+  <a class="opsh-banner__content" href="{{ link_url }}">
     <h1 class="opsh-banner__title">
       {{ title }}
     </h1>
@@ -14,7 +14,7 @@
     </p>
     <p>
       <span class="opsh-banner__faux-link" }}>
-        {{ 'Read about the arrangements following The Queen\'s death'|t }}
+        {{ link_text }}
       </span>
     </p>
   </a>

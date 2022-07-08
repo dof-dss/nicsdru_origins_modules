@@ -34,7 +34,8 @@ function origins_shamrock_admin_theme() {
       'variables' => [
         'title' => NULL,
         'body' => NULL,
-        'url' => NULL,
+        'link_url' => NULL,
+        'link_text' => NULL,
         'styles' => NULL,
       ],
     ],
