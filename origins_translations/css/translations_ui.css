@@ -1,7 +1,30 @@
-input[type=submit].origins-translation-button {
-  background-image: none !important;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  font-weight: normal !important;
+
+
+.block-origins-translations-block {
+  margin-left: 288px;
+  background: #4478b8;
+  margin-right: 288px;
+  max-width: 1024px;
+  padding: 0;
+  margin: 0 auto;
 }
+
+.block-origins-translations-block h2 {
+  color: #fff;
+  background: #4478b8;
+  border: none;
+  font-weight: normal;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  font-family: inherit;
+  font-size: inherit;
+  -moz-osx-font-smoothing: grayscale;
+  padding: .5em 20px;
+  margin-bottom: auto;
+}
+
+
+#edit-translations-button {
+  display: none;
+}
+
