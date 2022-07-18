@@ -69,6 +69,7 @@ class QaAccountsManager extends ControllerBase {
     $rows = [];
 
     foreach ($accounts as $account) {
+      /** @var \Drupal\user\UserInterface $account */
       $rows[] = [
         $account->label(),
         ($account->isActive()) ? 'Enabled' : 'Disabled',
@@ -128,7 +129,7 @@ class QaAccountsManager extends ControllerBase {
       ]);
 
     foreach ($accounts as $account) {
-
+      /** @var \Drupal\user\UserInterface $account */
       if ($action === 'enable') {
         if (!$account->isActive()) {
           $account->activate();

@@ -36,6 +36,7 @@ function origins_qa_requirements($phase) {
     if (!empty($accounts)) {
       $active = 0;
       foreach ($accounts as $account) {
+        /** @var \Drupal\user\UserInterface $account */
         ($account->isActive()) ? $active++ : NULL;
       }
 

@@ -6,6 +6,8 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\content_moderation\Entity\ContentModerationStateInterface;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -39,7 +41,7 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
   $audit_types = $config->get('audit_content_types');
 
   // This will fire when nodes are created or edited.
-  if ($entity->getEntityTypeId() == 'node') {
+  if ($entity instanceof NodeInterface) {
     if (isset($audit_types[$entity->bundle()]) && ($audit_types[$entity->bundle()] == $entity->bundle())) {
       // We have just published a node type that is subject to auditing.
       if ($entity->isPublished() && $entity->hasField('field_next_audit_due')) {
@@ -58,12 +60,10 @@ function origins_workflow_entity_presave(EntityInterface $entity) {
     $msgobj = $entity->getRevisionLogMessage();
     if (!empty($msgobj)) {
       $thismsg = ($msgobj instanceof TranslatableMarkup) ? $msgobj->getUntranslatedString() : $msgobj;
-      if (!empty($thismsg)) {
-        if (preg_match('/^Copy of the revision from/', $thismsg)) {
-          $entity->setRevisionLogMessage(t('Copy of revision @rev', [
-            '@rev' => $source_revision_id,
-          ]));
-        }
+      if (preg_match('/^Copy of the revision from/', $thismsg)) {
+        $entity->setRevisionLogMessage(t('Copy of revision @rev', [
+          '@rev' => $source_revision_id,
+        ]));
       }
     }
   }
@@ -155,21 +155,32 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   // re-creates the alias, and the code in here deletes it !
   // We want the alias deletion to run last so that it really
   // is deleted.
-  if (isset($entity->moderation_state)) {
-    if (($entity->moderation_state->value == 'archived')
-      && ($entity->original->moderation_state->value == 'published')) {
-      // This node is being archived, so we need to delete the alias (which
-      // will enable us to create redirects if we want to).
-      if (!empty($entity->nid->value)) {
-        // Get all aliases attached to this node.
-        $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
-        $alias_objects = $path_alias_storage->loadByProperties([
-          'path' => '/node/' . $entity->nid->value,
-          'langcode' => $entity->language()->getId(),
-        ]);
-        // Delete all aliases for this node.
-        $path_alias_storage->delete($alias_objects);
-      }
+
+  /** @var ContentModerationStateInterface $entity_mod_state */
+  $entity_mod_state = $entity->moderation_state ?? '';
+
+  /** @var ContentEntityBase $original_entity */
+  $original_entity = $entity->original ?? '';
+
+  if (empty($entity->moderation_state) || !$original_entity instanceof ContentEntityBase) {
+    return;
+  }
+
+  /** @var ContentModerationStateInterface $original_mod_state */
+  $original_mod_state = $original_entity->moderation_state;
+
+  if ($entity_mod_state->value === 'archived' && $original_mod_state->value === 'published') {
+    // This node is being archived, so we need to delete the alias (which
+    // will enable us to create redirects if we want to).
+    if (!empty($entity->nid->value)) {
+      // Get all aliases attached to this node.
+      $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+      $alias_objects = $path_alias_storage->loadByProperties([
+        'path' => '/node/' . $entity->nid->value,
+        'langcode' => $entity->language()->getId(),
+      ]);
+      // Delete all aliases for this node.
+      $path_alias_storage->delete($alias_objects);
     }
   }
   // Now add processing for moderation sidebar.
@@ -630,6 +641,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       $build, ['actions', 'primary', 'quick_draft_form', 'draft_of_published']
     );
 
+    /** @var \Drupal\Core\Entity\RevisionableInterface $entity  */
     if ($entity->isLatestRevision() && $dop_link_exists) {
       // Entity is published, but we have no forward revisions so hide the
       // draft of published option.
@@ -748,12 +760,15 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     $revision_id = \Drupal::entityTypeManager()
       ->getStorage('node')
       ->getLatestRevisionId($entity->id());
-    $revision_moderation_state = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->loadRevision($revision_id)
-      ->moderation_state->value;
 
-    $node_moderation_state = $entity->moderation_state->value;
+    /** @var NodeInterface $revision */
+    $revision = \Drupal::entityTypeManager()
+      ->getStorage('node')
+      ->loadRevision($revision_id);
+
+    $revision_moderation_state = $revision->get('moderation_state')->value;
+    /** @var NodeInterface $entity */
+    $node_moderation_state = $entity->get('moderation_state')->value;
 
     if ($revision_moderation_state === 'published') {
       unset($transitions['quick_publish']);

@@ -82,6 +82,7 @@ class QaPasswordSetForm extends FormBase {
       ]);
 
     foreach ($accounts as $account) {
+      /** @var \Drupal\user\UserInterface $account */
       $account->setPassword($password);
       $account->save();
     }
