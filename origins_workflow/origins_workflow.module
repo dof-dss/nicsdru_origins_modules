@@ -156,17 +156,17 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   // We want the alias deletion to run last so that it really
   // is deleted.
 
-  /** @var ContentModerationStateInterface $entity_mod_state */
+  /** @var \Drupal\content_moderation\Entity\ContentModerationStateInterface $entity_mod_state */
   $entity_mod_state = $entity->moderation_state ?? '';
 
-  /** @var ContentEntityBase $original_entity */
+  /** @var \Drupal\Core\Entity\ContentEntityBase $original_entity */
   $original_entity = $entity->original ?? '';
 
   if (empty($entity->moderation_state) || !$original_entity instanceof ContentEntityBase) {
     return;
   }
 
-  /** @var ContentModerationStateInterface $original_mod_state */
+  /** @var \Drupal\content_moderation\Entity\ContentModerationStateInterface $original_mod_state */
   $original_mod_state = $original_entity->moderation_state;
 
   if ($entity_mod_state->value === 'archived' && $original_mod_state->value === 'published') {
@@ -761,13 +761,13 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
       ->getStorage('node')
       ->getLatestRevisionId($entity->id());
 
-    /** @var NodeInterface $revision */
+    /** @var \Drupal\node\NodeInterface $revision */
     $revision = \Drupal::entityTypeManager()
       ->getStorage('node')
       ->loadRevision($revision_id);
 
     $revision_moderation_state = $revision->get('moderation_state')->value;
-    /** @var NodeInterface $entity */
+    /** @var \Drupal\node\NodeInterface $entity */
     $node_moderation_state = $entity->get('moderation_state')->value;
 
     if ($revision_moderation_state === 'published') {

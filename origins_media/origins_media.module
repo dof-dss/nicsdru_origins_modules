@@ -165,7 +165,7 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
  */
 function origins_media_file_delete(EntityInterface $entity) {
   // Purge file URL from Fastly.
-  /** @var FileInterface $entity */
+  /** @var \Drupal\file\FileInterface $entity */
   $url = $entity->createFileUrl($relative = FALSE);
   if (!empty(\Drupal::hasService('fastly.api'))) {
     $fastly = Drupal::service('fastly.api');

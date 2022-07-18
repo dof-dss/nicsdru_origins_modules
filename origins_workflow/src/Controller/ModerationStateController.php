@@ -6,8 +6,6 @@ use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\RevisionLogInterface;
-use Drupal\Core\Entity\TranslatableRevisionableInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\StateInterface;
@@ -117,18 +115,18 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         // https://www.drupal.org/project/drupal/issues/2746541 but the answer
         // seems to be to set it to '1' across the board to solve the problem
         // of revisions not appearing on the revisions tab.
-        /** @var TranslatableRevisionableInterface $entity */
+        /** @var \Drupal\Core\Entity\TranslatableRevisionableInterface $entity */
         $entity->setRevisionTranslationAffected(1);
         // Set the owner of the new revision to be the current user
         // and set an appropriate revision log message.
-        /** @var RevisionLogInterface $entity */
+        /** @var \Drupal\Core\Entity\RevisionLogInterface $entity */
         $entity->setRevisionUserId($this->currentUser()->id());
         $revision_log_message = t('Used quick transition to change state to @new_state', [
           '@new_state' => $new_state,
         ]);
         $entity->setRevisionLogMessage($revision_log_message);
         // Request the state change.
-        /** @var NodeInterface $entity */
+        /** @var \Drupal\node\NodeInterface $entity */
         $entity->set('moderation_state', $new_state);
         $entity->save();
         // Log it.
@@ -175,7 +173,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       $revision_ids = $this->entityTypeManager->getStorage('node')->revisionIds($entity);
       $last_revision_id = end($revision_ids);
       // Load the revision.
-      /** @var NodeInterface $last_revision */
+      /** @var \Drupal\node\NodeInterface $last_revision */
       $last_revision = $this->entityTypeManager->getStorage('node')->loadRevision($last_revision_id);
       $current_state = $last_revision->moderation_state->value;
     }
