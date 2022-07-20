@@ -65,7 +65,8 @@ class ShamrockDataController extends ControllerBase {
         '#theme' => 'origins_shamrock_banner',
         '#title' => $config->get('title'),
         '#body' => $config->get('body'),
-        '#url' => $config->get('url'),
+        '#link_url' => $config->get('link_url'),
+        '#link_text' => $config->get('link_text'),
       ];
 
       $response->setContent(
