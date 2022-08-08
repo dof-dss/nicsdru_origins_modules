@@ -23,7 +23,7 @@ class AuditTest extends BrowserTestBase {
   /**
    * Use install profile so that we have all content types, modules etc.
    *
-   * @var installprofile
+   * @var string
    */
   protected $profile = 'test_profile';
 
@@ -46,6 +46,20 @@ class AuditTest extends BrowserTestBase {
   protected $entityTypeManager;
 
   /**
+   * Logger channel service object.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
+   */
+  protected $logger;
+
+  /**
+   * User account service object.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $account;
+
+  /**
    * Set to TRUE to strict check all configuration saved.
    *
    * Need to set to FALSE here because some contrib modules have a schema in
@@ -59,7 +73,7 @@ class AuditTest extends BrowserTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     $this->entityTypeManager = $this->container->get('entity_type.manager');

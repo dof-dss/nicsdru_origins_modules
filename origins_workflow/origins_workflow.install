@@ -6,6 +6,7 @@
  */
 
 use Drupal\user\Entity\User;
+use Drupal\user\UserInterface;
 
 /**
  * Implements hook_install().
@@ -80,7 +81,8 @@ function origins_workflow_uninstall() {
     $prefix = getenv('NW_TEST_USER_PREFIX');
     $name = $prefix . $name;
     $user = user_load_by_name($name);
-    if (!empty($user)) {
+
+    if ($user instanceof UserInterface) {
       \Drupal::logger('origins_workflow')->notice(t('Deleting user @name', ['@name' => $name]));
       $user->delete();
     }

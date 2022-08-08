@@ -56,7 +56,7 @@ function origins_translations_token_info() {
  */
 function origins_translations_tokens($type, $tokens, array $data, array $options, BubbleableMetadata $bubbleable_metadata) {
   $replacements = [];
-  /** @var Drupal\Core\Render\Renderer $renderer */
+  /** @var \Drupal\Core\Render\Renderer $renderer */
   $renderer = \Drupal::service('renderer');
 
   if ($type === 'origins') {
