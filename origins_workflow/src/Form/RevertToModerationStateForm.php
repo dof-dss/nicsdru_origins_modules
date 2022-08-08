@@ -126,6 +126,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
+    /** @var \Drupal\node\NodeInterface $this */
     return t('Are you sure you want to revert the revision @vid as @new_state?', [
       '@vid' => $this->vid,
       '@new_state' => $this->new_state,
@@ -136,6 +137,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
+    /** @var \Drupal\node\NodeInterface $this */
     return new Url('entity.node.version_history', ['node' => $this->nid]);
   }
 
@@ -157,6 +159,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $nid = NULL, $vid = NULL, $new_state = 'draft') {
+    /** @var \Drupal\node\NodeInterface $this */
     $this->nid = $nid;
     $this->vid = $vid;
     $this->new_state = $new_state;
@@ -169,15 +172,19 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $node_revision = $this->vid ?? 0;
+    $node_id = $this->nid ?? 0;
+    $new_state = $this->new_state ?? '';
 
     // Load the node revision we are reverting.
-    $node = $this->entityTypeManager->getStorage('node')->loadRevision($this->vid);
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = $this->entityTypeManager->getStorage('node')->loadRevision($node_revision);
 
     // Get the moderation state entity.
     $newStateEntity = $this->moderationInformation
       ->getWorkflowForEntity($node)
       ->getTypePlugin()
-      ->getState($this->new_state);
+      ->getState($new_state);
 
     // Revert the node revision if its valid node and we are reverting to a
     // valid state.
@@ -188,7 +195,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
       $old_timestamp = $node->getRevisionCreationTime();
 
       // Create new revision in the desired state only if user is allowed.
-      if ($this->transitionAllowed($old_state, $this->new_state)) {
+      if ($this->transitionAllowed($old_state, $new_state)) {
 
         // Create a new revision.
         $node->setNewRevision();
@@ -214,7 +221,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
         // Set revision log message.
         $revision_log_message = t('Copy of revision @vid', [
-          '@vid' => $this->vid,
+          '@vid' => $node_revision,
         ]);
         $node->setRevisionLogMessage($revision_log_message);
 
@@ -224,28 +231,28 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
         // Log it.
         $message = t('Revision @vid of %title (node:@nid) reverted from %old_state to %new_state by %user', [
-          '@vid' => $this->vid,
+          '@vid' => $node_revision,
           '%title' => $node->getTitle(),
-          '@nid' => $this->nid,
+          '@nid' => $node_id,
           '%old_state' => $old_state,
-          '%new_state' => $this->new_state,
+          '%new_state' => $new_state,
           '%user' => $this->currentUser()->getAccountName(),
         ]);
         $this->logger->notice($message);
 
         // Show a status message.
         $this->messenger->addStatus($this->t('Reverted revision %vid from %old_timestamp as %new_state', [
-          '%vid' => $this->vid,
+          '%vid' => $node_revision,
           '%old_timestamp' => $this->dateFormatter->format($old_timestamp),
-          '%new_state' => $this->new_state,
+          '%new_state' => $new_state,
         ]));
       }
       else {
         $message = t('Revert revision @vid of @title (nid @nid) to @new_state denied to @user', [
-          '@vid' => $this->vid,
+          '@vid' => $node_revision,
           '@title' => $node->getTitle(),
-          '@nid' => $this->nid,
-          '@new_state' => $this->new_state,
+          '@nid' => $node_id,
+          '@new_state' => $new_state,
           '@user' => $this->currentUser()->getAccountName(),
         ]);
         $this->logger->error($message);
@@ -255,7 +262,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
     // Take the user back to the node revisions overview.
     $form_state->setRedirect(
       'entity.node.version_history',
-      ['node' => $this->nid]
+      ['node' => $node_id]
     );
   }
 
