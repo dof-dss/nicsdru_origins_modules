@@ -1,0 +1,10 @@
+/**
+ * CKEditor CSS customisations / overrides.
+ */
+
+.cke_combopanel.cke_combopanel__styles {
+  /* Fix issue where styles drop-down is not wide enough */
+  width: auto;
+  /* Fix issue where styles drop-down is zero width when ckeditor is maximised */
+  min-width: max-content;
+}
