@@ -2,3 +2,4 @@ adminimal:
   css:
     theme:
       css/origins-common-adminimal.css: {}
+      css/origins-common-ckeditor.css: {}
