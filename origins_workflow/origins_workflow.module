@@ -98,7 +98,7 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
  */
 function origins_workflow_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Add an extra validator to the node edit form.
-  array_unshift($form['#validate'], ' origins_workflow_validate_path_alias');
+  array_unshift($form['#validate'], 'origins_workflow_validate_path_alias');
 }
 
 /**
