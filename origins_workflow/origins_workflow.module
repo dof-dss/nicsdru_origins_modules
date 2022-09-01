@@ -125,13 +125,13 @@ function origins_workflow_validate_path_alias(&$form, FormStateInterface $form_s
  */
 function origins_workflow_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Add an extra validator to the term edit form.
-  array_unshift($form['#validate'], '_origins_workflow_validate_term_path_alias');
+  array_unshift($form['#validate'], 'origins_workflow_validate_term_path_alias');
 }
 
 /**
  * Provide extra validation for taxonomy term edit form.
  */
-function _origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
+function origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
   // If this term is unpublished then make sure
   // that 'generate automatic alias' is un-checked and that the 'URL alias'
   // field is empty. This will make sure that there is no alias and hence
@@ -184,13 +184,13 @@ function origins_workflow_entity_update(EntityInterface $entity) {
     }
   }
   // Now add processing for moderation sidebar.
-  _origins_workflow_menu_creation_check($entity);
+  origins_workflow_menu_creation_check($entity);
 }
 
 /**
  * Check for menu creation.
  */
-function _origins_workflow_menu_creation_check(EntityInterface $entity) {
+function origins_workflow_menu_creation_check(EntityInterface $entity) {
   // If a node is published using the moderation sidebar it is possible
   // that menu creation might be overlooked. Code added here to rectify
   // this bug.
