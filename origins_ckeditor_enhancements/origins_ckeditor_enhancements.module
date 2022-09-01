@@ -11,7 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
  * Implements hook_element_info_alter().
  */
 function origins_ckeditor_enhancements_element_info_alter(array &$types) {
-  $types['text_format']['#process'][] = 'remove_format_help_process_text_format_element';
+  $types['text_format']['#process'][] = 'origins_ckeditor_enhancements_remove_format_help_process_text_format_element';
 }
 
 /**
@@ -19,7 +19,7 @@ function origins_ckeditor_enhancements_element_info_alter(array &$types) {
  *
  * Removes the filter-help 'About text formats' text.
  */
-function remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
+function origins_ckeditor_enhancements_remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
   // Only remove the filter help if the user doesn't have permission
   // to use the 'Full HTML' text format.
   if (!\Drupal::currentUser()->hasPermission('use text format full_html')) {

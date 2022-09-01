@@ -1,73 +1,57 @@
-# PHP CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-php/ for more details
 version: 2.1
+
+default_docker_image: &docker_image
+  docker:
+    - image: thecodingmachine/php:8.1-v4-apache-node12
+      environment:
+        PROJECT_ROOT: "/home/docker/project"
+        PHP_EXTENSION_GD: 1
+        PHP_INI_MEMORY_LIMIT: 1g
 
 jobs:
   # Test that coding standards fit drupal.org definitions.
   coding_standards:
-    docker:
-      - image: circleci/php:8.0-apache-browsers
+    <<: *docker_image
     steps:
       - checkout
       - run:
-          name: Update public Key for Google repo
-          command: |
-            # Fix for the 'No public key availaible' warning.
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-      - run:
           name: Fetch phpcs and dependencies
           command: |
-            composer require drupal/coder --prefer-stable --no-interaction --optimize-autoloader
-            # Commenting out this dependency due to version constraint issues.
-            # composer require slevomat/coding-standard --prefer-stable --no-interaction --optimize-autoloader
+            composer require drupal/coder
             # Move vendor directory up a level as we don't want to code-check all of that.
             mv vendor ../
       - run:
           name: Fetch phpcs convenience script
           command: |
-            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/development/phpcs.sh -o /home/circleci/project/phpcs.sh
-            chmod +x /home/circleci/project/phpcs.sh
+            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/development/phpcs.sh -o $PROJECT_ROOT/phpcs.sh
+            chmod +x $PROJECT_ROOT/phpcs.sh
       - run:
           name: PHPCS analysis
-          command: /home/circleci/project/phpcs.sh /home/circleci "/home/circleci/project"
+          command: $PROJECT_ROOT/phpcs.sh ~/ "${PROJECT_ROOT}"
 
   deprecated_code:
-    docker:
-      - image: circleci/php:8.0-apache-browsers
+    <<: *docker_image
     steps:
       - checkout:
-          path: /home/circleci/origins_modules
-      - run:
-          name: Update public Key for Google repo
-          command: |
-            # Fix for the 'No public key availaible' warning.
-            wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-      - run:
-          name: Add OS and PHP extensions/config
-          command: |
-            sudo cp /home/circleci/origins_modules/.circleci/docker-php-circleci.ini /usr/local/etc/php/conf.d/
-            sudo apt-get update
-            sudo apt-get install -y libpng-dev
-            sudo docker-php-ext-install gd
+          path: ~/nicsdru_origins_modules
       - run:
           name: Fetch latest Drupal version
           command: |
-            cd /home/circleci
-            composer create-project drupal-composer/drupal-project:9.x-dev /home/circleci/project --no-interaction
+            cd $PROJECT_ROOT
+            composer create-project drupal-composer/drupal-project:9.x-dev $PROJECT_ROOT --no-interaction
       - run:
           name: Download dependent contrib modules.
           command: |
-            cd /home/circleci/project
-            composer require drupal/entity_embed mglaman/drupal-check:1.3.0 composer/xdebug-handler:2.0.1 --no-interaction
+            cd $PROJECT_ROOT
+            composer require drupal/entity_embed mglaman/drupal-check drupal/flag
       - run:
           name: Move custom code into position
-          command: mv /home/circleci/origins_modules /home/circleci/project/web/modules/origins
+          command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
       - run:
           name: Deprecated code check
           command: |
-            cd /home/circleci/project/web
-            ../vendor/bin/drupal-check modules/origins -e "*/tests/*"
+            cd $PROJECT_ROOT/web
+            ../vendor/bin/drupal-check modules/origins
 
 workflows:
   version: 2

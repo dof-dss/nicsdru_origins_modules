@@ -98,13 +98,13 @@ function origins_workflow_form_alter(&$form, FormStateInterface $form_state, $fo
  */
 function origins_workflow_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Add an extra validator to the node edit form.
-  array_unshift($form['#validate'], '_origins_workflow_validate_path_alias');
+  array_unshift($form['#validate'], 'origins_workflow_validate_path_alias');
 }
 
 /**
  * Provide extra validation for node edit form.
  */
-function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_state) {
+function origins_workflow_validate_path_alias(&$form, FormStateInterface $form_state) {
   // If this node has its moderation state set to 'archived' then make sure
   // that 'generate automatic alias' is un-checked and that the 'URL alias'
   // field is empty. This will make sure that there is no alias and hence
@@ -125,13 +125,13 @@ function _origins_workflow_validate_path_alias(&$form, FormStateInterface $form_
  */
 function origins_workflow_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   // Add an extra validator to the term edit form.
-  array_unshift($form['#validate'], '_origins_workflow_validate_term_path_alias');
+  array_unshift($form['#validate'], 'origins_workflow_validate_term_path_alias');
 }
 
 /**
  * Provide extra validation for taxonomy term edit form.
  */
-function _origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
+function origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
   // If this term is unpublished then make sure
   // that 'generate automatic alias' is un-checked and that the 'URL alias'
   // field is empty. This will make sure that there is no alias and hence
@@ -184,13 +184,13 @@ function origins_workflow_entity_update(EntityInterface $entity) {
     }
   }
   // Now add processing for moderation sidebar.
-  _origins_workflow_menu_creation_check($entity);
+  origins_workflow_menu_creation_check($entity);
 }
 
 /**
  * Check for menu creation.
  */
-function _origins_workflow_menu_creation_check(EntityInterface $entity) {
+function origins_workflow_menu_creation_check(EntityInterface $entity) {
   // If a node is published using the moderation sidebar it is possible
   // that menu creation might be overlooked. Code added here to rectify
   // this bug.
@@ -364,7 +364,7 @@ function origins_workflow_preprocess_field(&$variables) {
     $audit_types = $config->get('audit_content_types');
     $msg = NULL;
     if (in_array($content_type, $audit_types)) {
-      $msg = _build_audit_link($variables);
+      $msg = origins_workflow_build_audit_link($variables);
     }
     if ($msg) {
       // Send out 'needs audit' link as a Drupal warning message.
@@ -384,7 +384,7 @@ function origins_workflow_preprocess_field(&$variables) {
 /**
  * Top level function to build audit links.
  */
-function _build_audit_link(&$variables) {
+function origins_workflow_build_audit_link(&$variables) {
   // Get the current node.
   $node = Drupal::routeMatch()->getParameter('node');
   if (!empty($node)) {
@@ -398,10 +398,10 @@ function _build_audit_link(&$variables) {
     }
     if (!empty($nid)) {
       if ($node->hasField('field_next_audit_due')) {
-        return _audit_link('field_next_audit_due', $node->get('field_next_audit_due')->value, $nid);
+        return origins_workflow_audit_link('field_next_audit_due', $node->get('field_next_audit_due')->value, $nid);
       }
       elseif ($node->hasField('field_next_review_date')) {
-        return _audit_link('field_next_review_date', $node->get('field_next_review_date')->value, $nid);
+        return origins_workflow_audit_link('field_next_review_date', $node->get('field_next_review_date')->value, $nid);
       }
     }
   }
@@ -410,7 +410,7 @@ function _build_audit_link(&$variables) {
 /**
  * Utility function to build the audit link html.
  */
-function _audit_link($field, $dt, $nid) {
+function origins_workflow_audit_link($field, $dt, $nid) {
   if (!empty($dt) && (strtotime($dt) < Drupal::time()->getCurrentTime())) {
     // Next review date is in the past,
     // so this node is due for audit - display node edit link
@@ -575,7 +575,7 @@ function origins_workflow_preprocess_table(&$variables) {
         $row['attributes']->addClass('revision-' . $node->get('moderation_state')->getValue()[0]['value']);
 
         // Create a "Create Draft of Published" link.
-        _create_draft_link_for_revision($variables, $node, $idx, $row);
+        origins_workflow_create_draft_link_for_revision($variables, $node, $idx, $row);
       }
 
       // Insert revision number column at the beginning.
@@ -588,7 +588,7 @@ function origins_workflow_preprocess_table(&$variables) {
 /**
  * Add a 'Create Draft of Published' link.
  */
-function _create_draft_link_for_revision(&$variables, $node, $idx, $row) {
+function origins_workflow_create_draft_link_for_revision(&$variables, $node, $idx, $row) {
   // Does this user have permission to create drafts of published ?
   if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
     // Now change the 'Current Revision' markup to a
