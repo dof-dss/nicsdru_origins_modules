@@ -8,7 +8,7 @@ use Drupal\origins_qa\Controller\QaAccountsManager;
 /**
  * Drush custom commands.
  */
-class OriginsQaCommands extends DrushCommands {
+class OriginsQACommands extends DrushCommands {
 
   /**
    * Drush command to enable or dsable all QA accounts.
