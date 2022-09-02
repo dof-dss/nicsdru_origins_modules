@@ -3,6 +3,7 @@
 namespace Drupal\origins_qa\Commands;
 
 use Drush\Commands\DrushCommands;
+use Drupal\origins_qa\Controller\QaAccountsManager;
 
 /**
 * Drush custom commands.
@@ -18,6 +19,8 @@ class OriginsQACommands extends DrushCommands {
   */
   public function bulk_update_qa_accounts($option = 'disable')
   {
-    $this->io()->write("Option is " . $option, TRUE);
+    // Use QaAccountsManager to enable or disable all QA accounts.
+    $qac = new QaAccountsManager();
+    $qac->toggleAll($option);
   }
 }
