@@ -1,5 +1,5 @@
 services:
   origins_qa.commands:
-    class: \Drupal\origins_qa\Commands\OriginsQACommands
+    class: \Drupal\origins_qa\Commands\OriginsQaCommands
     tags:
       - { name: drush.command }
