@@ -27,7 +27,8 @@ class QaAccountsManager extends ControllerBase {
    * @param \Drupal\Core\Form\FormBuilder $formBuilder
    *   The form builder.
    */
-  public function __construct(FormBuilder $formBuilder) {
+  public function __construct(FormBuilder $formBuilder = NULL) {
+    // Note that $formBuilder will be NULL if calling from drush.
     $this->formBuilder = $formBuilder;
   }
 
