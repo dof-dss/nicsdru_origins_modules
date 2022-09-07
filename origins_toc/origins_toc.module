@@ -52,6 +52,9 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
   $form_object = $form_state->getFormObject();
   /** @var \Drupal\node\NodeInterface $node */
   $node = $form_object->getEntity();
+  if (empty($node->id())) {
+    return;
+  }
   $node_type = NodeType::load($node->id());
 
   $form['toc'] = [
