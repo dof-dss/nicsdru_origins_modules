@@ -55,7 +55,7 @@ class ShamrockDataController extends ControllerBase {
     ]);
     $response->headers->set('Access-Control-Allow-Methods', ['GET']);
     $response->headers->set('Access-Control-Allow-Origin', ['*']);
-    $response->headers->set('Surrogate-Control', ['max-age=300']);
+    $response->headers->set('Surrogate-Control', ['max-age=300'], TRUE);
 
     // If the Shamrock config has data build the banner, otherwise return
     // that it is not enabled.
