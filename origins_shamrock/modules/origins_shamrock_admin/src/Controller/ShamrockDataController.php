@@ -88,6 +88,7 @@ class ShamrockDataController extends ControllerBase {
 
     $response->setLastModified(new \DateTime('@' . $modified));
     $response->setClientTtl(300);
+    $response->setEtag(sha1($modified));
     $response->setPublic();
 
     return $response;
