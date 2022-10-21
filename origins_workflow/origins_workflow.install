@@ -51,7 +51,7 @@ function origins_workflow_install() {
         'mail' => $name . '@localhost',
         'status' => 1,
         'pass' => $password,
-        'roles' => [$role, 'authenticated'],
+        'roles' => [$role, 'authenticated', 'qa'],
       ]);
       $user->save();
     }
