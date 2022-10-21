@@ -12,8 +12,3 @@ origins_qa.manager.disable_all:
     action: 'disable'
   appears_on:
     - origins_qa.manager.list
-origins_qa.manager.create_qa:
-  title: 'Create QA Accounts'
-  route_name: origins_qa.manager.createQaAccounts
-  appears_on:
-    - origins_qa.manager.list

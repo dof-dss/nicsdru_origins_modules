@@ -16,18 +16,20 @@ origins_qa.manager.toggleAll:
     parameters:
       action:
         type: string
-origins_qa.manager.createQaAccounts:
-  path: '/admin/origins/qa/createQaAccounts'
-  defaults:
-    _title: 'Create QA Accounts'
-    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::createQaAccounts'
-  requirements:
-    _permission: 'manage qa accounts'
 origins_qa.manager.password_form_modal:
   path: '/admin/origins/qa/password-set-modal'
   defaults:
     _title: 'Modal Form'
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayPasswordForm'
+  requirements:
+    _permission: 'manage qa accounts'
+  options:
+    _admin_route: TRUE
+origins_qa.manager.qa_account_create_form_modal:
+  path: '/admin/origins/qa/qa-account-create-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayAccountCreationForm'
   requirements:
     _permission: 'manage qa accounts'
   options:

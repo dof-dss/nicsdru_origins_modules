@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\user\Entity\User;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for Origins QA.
@@ -114,6 +115,22 @@ class QaAccountsManager extends ControllerBase {
       ];
 
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
+    } else {
+      $build['open_modal'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Create QA accounts'),
+        '#url' => Url::fromRoute('origins_qa.manager.qa_account_create_form_modal'),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+            'button-action',
+            'button--primary'
+          ],
+        ],
+      ];
+
+      $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 
     return $build;
@@ -159,6 +176,18 @@ class QaAccountsManager extends ControllerBase {
 
     $modal_form = $this->formBuilder->getForm('Drupal\origins_qa\Form\QaPasswordSetForm');
     $response->addCommand(new OpenModalDialogCommand('QA Password form', $modal_form, ['width' => '300']));
+
+    return $response;
+  }
+
+  /**
+   * Ajax callback for displaying the user creation form.
+   */
+  public function displayAccountCreationForm() {
+    $response = new AjaxResponse();
+
+    $modal_form = $this->formBuilder->getForm('Drupal\origins_qa\Form\CreateQaAccountsForm');
+    $response->addCommand(new OpenModalDialogCommand('QA Account creation form', $modal_form, ['width' => '300']));
 
     return $response;
   }
