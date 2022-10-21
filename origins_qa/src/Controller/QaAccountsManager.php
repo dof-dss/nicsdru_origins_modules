@@ -8,6 +8,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\user\Entity\User;
 
 /**
  * Controller for Origins QA.
@@ -160,6 +161,59 @@ class QaAccountsManager extends ControllerBase {
     $response->addCommand(new OpenModalDialogCommand('QA Password form', $modal_form, ['width' => '300']));
 
     return $response;
+  }
+
+  /**
+   * Creates QA accounts if they don't already exist.
+   */
+  public function createQaAccounts() {
+    // Assign user 1 the "administrator" role.
+    $user = User::load(1);
+    $user->roles[] = 'administrator';
+    $user->save();
+
+    // Create some test users for the Nightwatch tests that will come along later.
+    $name_list = [
+      '_author' => 'author_user',
+      '_authenticated' => '',
+      '_super' => 'supervisor_user',
+      '_editor' => 'editor_user',
+      '_admin' => 'admin_user',
+    ];
+    foreach ($name_list as $name => $role) {
+      // Add prefix from environment var.
+      $prefix = getenv('NW_TEST_USER_PREFIX');
+      $password = getenv('TEST_PASS');
+      // If prefix not set, do not create users.
+      if (empty($prefix) || empty($password)) {
+        $msg = "No test users created, prefix and password environment vars must be set.";
+        \Drupal::logger('origins_workflow')->notice(
+          $msg);
+        $this->messenger()->addMessage($msg);
+        return;
+      }
+      $name = strtolower($prefix) . $name;
+      $user = user_load_by_name($name);
+      if (empty($user)) {
+        \Drupal::logger('origins_qa')->notice(t('Creating user @name', ['@name' => $name]));
+        $user = User::create([
+          'name' => $name,
+          'mail' => $name . '@localhost',
+          'status' => 1,
+          'pass' => $password,
+          'roles' => [$role, 'authenticated', 'qa'],
+        ]);
+        $user->save();
+      }
+      else {
+        $msg = 'Did not create user @name as already exists.';
+        \Drupal::logger('origins_qa')->notice(
+          $msg, ['@name' => $name]);
+        $this->messenger()->addMessage($msg);
+      }
+    }
+    $this->messenger()->addMessage('QA users successfully created');
+    return $this->redirect('origins_qa.manager.list');
   }
 
 }
