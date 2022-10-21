@@ -190,7 +190,7 @@ class QaAccountsManager extends ControllerBase {
         \Drupal::logger('origins_workflow')->notice(
           $msg);
         $this->messenger()->addMessage($msg);
-        return;
+        return $this->redirect('origins_qa.manager.list');
       }
       $name = strtolower($prefix) . $name;
       $user = user_load_by_name($name);
@@ -209,7 +209,7 @@ class QaAccountsManager extends ControllerBase {
         $msg = 'Did not create user @name as already exists.';
         \Drupal::logger('origins_qa')->notice(
           $msg, ['@name' => $name]);
-        $this->messenger()->addMessage($msg);
+        $this->messenger()->addMessage(t($msg, ['@name' => $name]));
       }
     }
     $this->messenger()->addMessage('QA users successfully created');
