@@ -178,7 +178,7 @@ class QaAccountsManager extends ControllerBase {
       '_authenticated' => '',
       '_super' => 'supervisor_user',
       '_editor' => 'editor_user',
-      '_admin' => 'admin_user',
+      '_admin' => 'administrator',
     ];
     foreach ($name_list as $name => $role) {
       // Add prefix from environment var.
