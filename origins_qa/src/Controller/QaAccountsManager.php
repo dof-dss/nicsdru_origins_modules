@@ -115,8 +115,10 @@ class QaAccountsManager extends ControllerBase {
       ];
 
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
-    } else {
-      $build['open_modal'] = [
+    }
+
+    if (count($accounts) < 5) {
+      $build['open_modal_2'] = [
         '#type' => 'link',
         '#title' => $this->t('Create QA accounts'),
         '#url' => Url::fromRoute('origins_qa.manager.qa_account_create_form_modal'),
