@@ -99,6 +99,7 @@ class QaAccountsManager extends ControllerBase {
       '#empty' => $this->t("There are no accounts on this site associated with the 'qa' (Quality Assurance) role. You will need to assign test accounts to that role for them to show up in this table."),
     ];
 
+    // If there are some QA accounts then allow bulk password change.
     if (!empty($accounts)) {
       $build['open_modal'] = [
         '#type' => 'link',
@@ -113,10 +114,10 @@ class QaAccountsManager extends ControllerBase {
           ],
         ],
       ];
-
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 
+    // If not all QA accounts have been created then allow creation.
     if (count($accounts) < 5) {
       $build['open_modal_2'] = [
         '#type' => 'link',
@@ -131,7 +132,6 @@ class QaAccountsManager extends ControllerBase {
           ],
         ],
       ];
-
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 

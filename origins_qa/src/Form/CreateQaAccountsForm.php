@@ -9,7 +9,7 @@ use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Set all QA account passwords.
+ * Create QA accounts.
  */
 class CreateQaAccountsForm extends FormBase {
 
