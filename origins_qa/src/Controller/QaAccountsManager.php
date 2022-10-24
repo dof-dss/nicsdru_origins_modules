@@ -8,6 +8,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\user\Entity\User;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for Origins QA.
@@ -97,6 +99,7 @@ class QaAccountsManager extends ControllerBase {
       '#empty' => $this->t("There are no accounts on this site associated with the 'qa' (Quality Assurance) role. You will need to assign test accounts to that role for them to show up in this table."),
     ];
 
+    // If there are some QA accounts then allow bulk password change.
     if (!empty($accounts)) {
       $build['open_modal'] = [
         '#type' => 'link',
@@ -111,7 +114,24 @@ class QaAccountsManager extends ControllerBase {
           ],
         ],
       ];
+      $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
+    }
 
+    // If not all QA accounts have been created then allow creation.
+    if (count($accounts) < 5) {
+      $build['open_modal_2'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Create QA accounts'),
+        '#url' => Url::fromRoute('origins_qa.manager.qa_account_create_form_modal'),
+        '#attributes' => [
+          'class' => [
+            'use-ajax',
+            'button',
+            'button-action',
+            'button--primary'
+          ],
+        ],
+      ];
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 
@@ -158,6 +178,18 @@ class QaAccountsManager extends ControllerBase {
 
     $modal_form = $this->formBuilder->getForm('Drupal\origins_qa\Form\QaPasswordSetForm');
     $response->addCommand(new OpenModalDialogCommand('QA Password form', $modal_form, ['width' => '300']));
+
+    return $response;
+  }
+
+  /**
+   * Ajax callback for displaying the user creation form.
+   */
+  public function displayAccountCreationForm() {
+    $response = new AjaxResponse();
+
+    $modal_form = $this->formBuilder->getForm('Drupal\origins_qa\Form\CreateQaAccountsForm');
+    $response->addCommand(new OpenModalDialogCommand('QA Account creation form', $modal_form, ['width' => '300']));
 
     return $response;
   }

@@ -25,3 +25,12 @@ origins_qa.manager.password_form_modal:
     _permission: 'manage qa accounts'
   options:
     _admin_route: TRUE
+origins_qa.manager.qa_account_create_form_modal:
+  path: '/admin/origins/qa/qa-account-create-modal'
+  defaults:
+    _title: 'Modal Form'
+    _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayAccountCreationForm'
+  requirements:
+    _permission: 'manage qa accounts'
+  options:
+    _admin_route: TRUE
