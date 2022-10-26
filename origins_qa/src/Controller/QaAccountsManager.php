@@ -117,23 +117,21 @@ class QaAccountsManager extends ControllerBase {
       $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
     }
 
-    // If not all QA accounts have been created then allow creation.
-    if (count($accounts) < 5) {
-      $build['open_modal_2'] = [
-        '#type' => 'link',
-        '#title' => $this->t('Create QA accounts'),
-        '#url' => Url::fromRoute('origins_qa.manager.qa_account_create_form_modal'),
-        '#attributes' => [
-          'class' => [
-            'use-ajax',
-            'button',
-            'button-action',
-            'button--primary'
-          ],
+    // Always allow QA account creation.
+    $build['open_modal_2'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Create QA accounts'),
+      '#url' => Url::fromRoute('origins_qa.manager.qa_account_create_form_modal'),
+      '#attributes' => [
+        'class' => [
+          'use-ajax',
+          'button',
+          'button-action',
+          'button--primary'
         ],
-      ];
-      $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
-    }
+      ],
+    ];
+    $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
     return $build;
   }
