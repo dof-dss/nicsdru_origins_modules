@@ -51,6 +51,11 @@ class CreateQaAccountsForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $form['info'] = [
+      '#type' => 'item',
+      '#title' => $this->t('(Existing QA accounts will not be affected)'),
+    ];
+
     $form['prefix'] = [
       '#type' => 'textfield',
       '#title' => $this->t('User prefix'),
