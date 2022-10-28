@@ -38,7 +38,7 @@ class OriginsQaCommands extends DrushCommands {
     // Use QaAccountsManager to create QA accounts.
     $qac = new QaAccountsManager();
     $accounts_created = $qac->createQaAccounts($prefix, $password, TRUE);
-    $msg = t("@cnt QA accounts created",['@cnt' => $accounts_created]);
+    $msg = t("@cnt QA accounts created", ['@cnt' => $accounts_created]);
     $this->io()->write($msg, TRUE);
   }
 
