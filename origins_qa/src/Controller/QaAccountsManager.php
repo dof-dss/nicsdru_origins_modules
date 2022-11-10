@@ -169,6 +169,49 @@ class QaAccountsManager extends ControllerBase {
   }
 
   /**
+   * Creates QA accounts.
+   */
+  public function createQaAccounts($prefix, $password, $called_from_drush) {
+    // Create test users.
+    $name_list = [
+      '_author' => 'author_user',
+      '_authenticated' => '',
+      '_super' => 'supervisor_user',
+      '_editor' => 'editor_user',
+      '_admin' => 'administrator',
+    ];
+    $successes = 0;
+    foreach ($name_list as $name => $role) {
+      $name = strtolower($prefix) . $name;
+      $user = user_load_by_name($name);
+      if (empty($user)) {
+        $msg = t('Creating user @name', ['@name' => $name]);
+        \Drupal::logger('origins_qa')->notice($msg);
+        if (!$called_from_drush) {
+          $this->messenger()->addMessage($msg);
+        }
+        $user = User::create([
+          'name' => $name,
+          'mail' => $name . '@localhost',
+          'status' => 1,
+          'pass' => $password,
+          'roles' => [$role, 'authenticated', 'qa'],
+        ]);
+        $user->save();
+        $successes++;
+      }
+      else {
+        $msg = t('Did not create user @name as already exists.', ['@name' => $name]);
+        \Drupal::logger('origins_qa')->error($msg);
+        if (!$called_from_drush) {
+          $this->messenger()->addMessage($msg);
+        }
+      }
+    }
+    return $successes;
+  }
+
+  /**
    * Ajax callback for displaying the password form.
    */
   public function displayPasswordForm() {
