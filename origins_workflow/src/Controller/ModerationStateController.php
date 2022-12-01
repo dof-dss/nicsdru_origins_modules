@@ -212,6 +212,11 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         $transition_allowed = TRUE;
       }
     }
+    elseif (($current_state == 'needs_review') && ($new_state == 'archived')) {
+      if ($current_user->hasPermission('use nics_editorial_workflow transition archive')) {
+        $transition_allowed = TRUE;
+      }
+    }
     elseif (($current_state == 'published') && ($new_state == 'needs_review')) {
       if ($current_user->hasPermission('unpublish')) {
         $transition_allowed = TRUE;
