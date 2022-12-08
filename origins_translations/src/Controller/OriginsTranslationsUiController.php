@@ -4,6 +4,7 @@ namespace Drupal\origins_translations\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\origins_translations\Utilities;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -50,11 +51,20 @@ class OriginsTranslationsUiController extends ControllerBase {
     $code = strtolower($request->get('code'));
 
     if (array_key_exists($code, $languages)) {
-      return $response->setContent($languages[$code][2]);
+      return $response->setContent($languages[$code][3]);
     }
     else {
       return $response->setContent('Translate this page');
     }
+  }
+
+  /**
+   * Returns active languages in a JSON response.
+   */
+  public function languages(Request $request) {
+    $languages = $this->utilities->getActiveLanguages();
+
+    return new JsonResponse($languages, 200, [], FALSE);
   }
 
 }
