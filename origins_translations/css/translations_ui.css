@@ -1,27 +1,146 @@
-.block-origins-translations-block {
-  background: #4478b8;
-  margin-right: 288px;
-  max-width: 1024px;
-  padding: 0;
-  margin: auto !important;
-}
-
-.block-origins-translations-block h2 {
-  color: #fff;
-  background: #4478b8;
-  border: none;
-  font-weight: normal;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  font-family: inherit;
-  font-size: inherit;
-  -moz-osx-font-smoothing: grayscale;
-  padding: .5em 20px;
-  margin-bottom: auto;
-}
-
-
-#edit-translations-button {
+.user-logged-in .origins-translation-container {
   display: none;
+}
+
+.origins-translation-container {
+  position: absolute;
+  z-index: 101;
+  top: 0;
+  right: 0;
+  width: 300px;
+  overflow-x: hidden;
+}
+
+.origins-translation-container .origins-translation-button {
+  display: block;
+  position: relative;
+  top: 0;
+  left: 250px;
+  width: calc(100% + 5rem);
+  height: 5rem;
+  padding: .5em 5rem;
+  margin: 0;
+  text-align: left;
+  background-color: #076cba;
+  color: #fff;
+  border: 0;
+  transition: left 0.3s ease;
+}
+
+.origins-translation-container .origins-translation-button::before,
+.origins-translation-container .origins-translation-button::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 5rem;
+  height: 5rem;
+  background: transparent center center / 2.4rem no-repeat;
+}
+
+.origins-translation-container .origins-translation-button::before {
+  left: 0;
+  background-image: url('../images/translate_48px.svg');
+  background-size: 2.4rem;
+}
+
+.origins-translation-container .origins-translation-button::after {
+  right: 0;
+  background-image: url('../images/arrow_back_white.svg');
+  transform: rotate(0);
+  transition: transform .5s ease-in-out;
+}
+
+.origins-translation-container .origins-translation-button[aria-expanded="false"] {
+  left: 250px;
+  transition: left .3s ease;
+  transition-delay: .5s;
+}
+
+.origins-translation-container .origins-translation-button:hover,
+.origins-translation-container .origins-translation-button:focus-visible,
+.origins-translation-container .origins-translation-button[aria-expanded="true"] {
+  left: 0;
+  background-color: #041e34;
+}
+
+.origins-translation-container .origins-translation-button[aria-expanded="true"]::after {
+  background-image: url('../images/ex.svg');
+  transform: rotate(360deg);
+}
+
+.origins-translation-container .origins-translation-button:focus {
+  outline: none;
+}
+
+.origins-translation-container .origins-translation-button:focus::after {
+  outline: .3rem solid #fff;
+  outline-offset: -.9rem;
+}
+
+.origins-translation-container .origins-translation-menu,
+.origins-translation-container .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+  display: none;
+  visibility: hidden;
+  opacity: 0;
+  position: relative;
+  right: -300px;
+  width: 300px;
+  margin: 0;
+  padding: 0;
+  background: #076cba;
+  transition: right 0.5s ease;
+}
+
+.origins-translation-container .origins-translation-menu > h2,
+.origins-translation-container .origins-translation-menu > h3 {
+  padding: .5em 1em;
+  margin: 0;
+  font-size: 1em;
+  line-height: 1.5;
+  color: #fff;
+  background-color: transparent;
+}
+
+.origins-translation-container .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+  right: 0;
+  padding-bottom: 1em;
+}
+
+.origins-translation-container .origins-translation-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.origins-translation-container .origins-translation-list li {
+  color: #fff;
+  display: block;
+  padding: .5em 1em;
+  margin: 0;
+  position: relative;
+  text-decoration: none;
+  transition-duration: 0.5s;
+}
+
+.origins-translation-container .origins-translation-list li a {
+  color: #fff;
+  outline-color: #fff;
+  outline-offset: 6px;
+  text-decoration: solid underline #fff;
+}
+
+.origins-translation-container .origins-translation-list li a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 6px;
+  text-decoration: none;
+}
+
+.origins-translation-container .origins-translation-list li ul li {
+  clear: both;
+  width: 100%;
 }
 
