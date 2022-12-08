@@ -52,6 +52,7 @@ class OriginsTranslationsAdminController extends ControllerBase {
       '#header' => [
         $this->t('Operations'),
         $this->t('Language'),
+        $this->t('Native name'),
         $this->t('Enabled'),
         $this->t('Translate this page'),
         $this->t('Select a language'),
@@ -76,9 +77,10 @@ class OriginsTranslationsAdminController extends ControllerBase {
           ],
         ],
         $language['0'],
-        ($language['1']) ? $this->t('True') : $this->t('False'),
-        $language['2'],
+        $language['1'],
+        ($language['2']) ? $this->t('True') : $this->t('False'),
         $language['3'],
+        $language['4'],
       ];
     }
 
@@ -93,7 +95,7 @@ class OriginsTranslationsAdminController extends ControllerBase {
 
     $languages = $this->config('origins_translations.languages')->getRawData();
 
-    $languages[$lang_code][1] = !$languages[$lang_code][1];
+    $languages[$lang_code][2] = !$languages[$lang_code][2];
 
     $this->configFactory->getEditable('origins_translations.languages')->setData($languages)->save();
 
