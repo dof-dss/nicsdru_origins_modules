@@ -41,18 +41,25 @@ class LanguageEditForm extends ConfigFormBase {
       '#value' => $this->t("Translations for @language", ['@language' => $language[0]]),
     ];
 
+    $form['title_native'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Native translation of "@language"', ['@language' => $language[0]]),
+      '#description' => $this->t('Translate via <a href="@google-translate">Google translate</a>', ['@google-translate' => 'https://translate.google.co.uk']),
+      '#default_value' => $language[1],
+    ];
+
     $form['translation_this_page'] = [
       '#type' => 'textfield',
       '#title' => $this->t('"Translate this page"'),
       '#description' => $this->t('Translate via <a href="@google-translate">Google translate</a>', ['@google-translate' => 'https://translate.google.co.uk']),
-      '#default_value' => $language[2],
+      '#default_value' => $language[3],
     ];
 
     $form['translation_select'] = [
       '#type' => 'textfield',
       '#title' => $this->t('"Select a language"'),
       '#description' => $this->t('Translate via <a href="@google-translate">Google translate</a>', ['@google-translate' => 'https://translate.google.co.uk']),
-      '#default_value' => $language[3],
+      '#default_value' => $language[4],
     ];
 
     return parent::buildForm($form, $form_state);
@@ -66,6 +73,7 @@ class LanguageEditForm extends ConfigFormBase {
     $lang_code = $this->getRouteMatch()->getParameter('code');
     $languages = $this->config('origins_translations.languages')->getRawData();
 
+    $languages[$lang_code][1] = trim($values['title_native']);
     $languages[$lang_code][2] = trim($values['translation_this_page']);
     $languages[$lang_code][3] = trim($values['translation_select']);
 
