@@ -6,6 +6,14 @@ origins_translations.translation-link-ui.title:
   requirements:
     _permission: 'access content'
 
+origins_translations.translation-ui.languages:
+  path: '/origins-translations/translation-ui/languages'
+  defaults:
+    _title: 'Translation UI languages'
+    _controller: '\Drupal\origins_translations\Controller\OriginsTranslationsUiController::languages'
+  requirements:
+    _permission: 'access content'
+
 origins_translations.translations-page:
   path: 'translations'
   defaults:
