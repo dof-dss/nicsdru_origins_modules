@@ -67,7 +67,7 @@
         url: '/origins-translations/translation-ui/languages',
       }).done(function(data) {
         if (data) {
-          $button.val(data[lang_code][3]);
+          $button.text(data[lang_code][3]);
           $langListHeading.text(data[lang_code][4]);
         }
       });
