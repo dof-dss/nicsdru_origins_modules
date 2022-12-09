@@ -5,6 +5,7 @@ namespace Drupal\origins_translations\Plugin\Block;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Form\FormBuilder;
+use Drupal\Core\Link;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
@@ -107,14 +108,16 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
     $translation_links = [];
     foreach ($languages as $code => $language) {
       $link_text = Markup::create($language[0] . ' &mdash; <span lang="' . $code . '" dir="' . $language[5] . '">' . $language[1] . '</span>');
-      $link_url = Url::fromUri('https://translate.google.com/translate', ['query' => [
-        'hl' => 'en',
-        'tab' => 'TT',
-        'sl' => 'auto',
-        'tl' => $code,
-        'u' => $url,
-      ]]);
-      $translation_links[] = \Drupal\Core\Link::fromTextAndUrl($link_text, $link_url);
+      $link_url = Url::fromUri('https://translate.google.com/translate', [
+        'query' => [
+          'hl' => 'en',
+          'tab' => 'TT',
+          'sl' => 'auto',
+          'tl' => $code,
+          'u' => $url,
+        ],
+      ]);
+      $translation_links[] = Link::fromTextAndUrl($link_text, $link_url);
     }
 
     $build = [];
