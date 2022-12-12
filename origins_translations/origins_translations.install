@@ -12,3 +12,48 @@ function origins_translations_uninstall() {
   // Remove the Google Cloud API key.
   \Drupal::state()->delete('origins_translations.settings.apikey');
 }
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * Update origins languages config to add native translation and text
+ * direction for each language.
+ */
+function origins_translations_update_8001() {
+
+  $language_config_changes = [
+    'ar' => ['عربي', 'rtl'],
+    'zh-cn' => ['中文简体', 'ltr'],
+    'zh-tw' => ['中文繁體', 'ltr'],
+    'nl' => ['Nederlands', 'ltr'],
+    'tl' => ['Filipino', 'ltr'],
+    'fr' => ['Français', 'ltr'],
+    'de' => ['Deutsch', 'ltr'],
+    'hu' => ['Magyar', 'ltr'],
+    'ga' => ['Gaeilge', 'ltr'],
+    'it' => ['Italiano', 'ltr'],
+    'lv' => ['Latviešu', 'ltr'],
+    'lt' => ['Lietuvių kalba', 'ltr'],
+    'pl' => ['Polski', 'ltr'],
+    'pt' => ['Português', 'ltr'],
+    'ro' => ['Română', 'ltr'],
+    'ru' => ['Русский', 'ltr'],
+    'sk' => ['Slovenčina', 'ltr'],
+    'es' => ['Español', 'ltr'],
+    'uk' => ['Українська', 'ltr'],
+  ];
+
+  $config_factory = \Drupal::configFactory();
+  $config = $config_factory->getEditable('origins_translations.languages');
+  foreach($language_config_changes as $language => $changes) {
+    if ($lang_config = $config->get($language)) {
+      $lang_config_updated = array_splice($lang_config, 1, 0, $changes[0]);
+      $lang_config_updated[] = $changes[1];
+      $config->set($language, $lang_config_updated);
+    }
+  }
+
+  $config->save(TRUE);
+}
