@@ -32,7 +32,6 @@
 
     return null;
   };
-  console.log(preferredLanguage());
 
   // Disable the non-javascript link.
   function disableLinkUi(i, elm) {
@@ -54,21 +53,24 @@
       });
 
     let $langListHeading = $(elm).find('h3');
-    let lang_code = preferredLanguage();
+    let lang_code = preferredLanguage().toLowerCase();
 
-    if (lang_code !== 'en') {
-      // Allow for Simplified (zh-cn) and Traditional (zh-tw) Chinese.
+    if (lang_code.substring(0,2) !== 'en') {
+
       if (lang_code === 'zh') {
-        lang_code = navigator.language;
+        // Assume simplified chinese.
+        lang_code = 'zh-cn';
       }
 
       // Lookup the translation for the UI title.
       $.getJSON({
         url: '/origins-translations/translation-ui/languages',
       }).done(function(data) {
-        if (data) {
-          $button.text(data[lang_code][3]);
-          $langListHeading.text(data[lang_code][4]);
+        if (data && data[lang_code]) {
+          let buttonText = (data[lang_code][3])?? 'Translate this page';
+          let langListLabel = (data[lang_code][4])?? 'Select a language';
+          $button.text(buttonText);
+          $langListHeading.text(langListLabel);
         }
       });
     }
