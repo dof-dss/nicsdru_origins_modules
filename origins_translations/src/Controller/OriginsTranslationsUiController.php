@@ -51,7 +51,7 @@ class OriginsTranslationsUiController extends ControllerBase {
     $code = strtolower($request->get('code'));
 
     if (array_key_exists($code, $languages)) {
-      return $response->setContent($languages[$code][3]);
+      return $response->setContent($languages[$code][2]);
     }
     else {
       return $response->setContent('Translate this page');

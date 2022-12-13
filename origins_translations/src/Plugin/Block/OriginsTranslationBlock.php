@@ -106,14 +106,26 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
 
     // Create links to Google Translate.
     $translation_links = [];
-    foreach ($languages as $code => $language) {
-      $link_text = Markup::create($language[0] . ' &mdash; <span lang="' . $code . '" dir="' . $language[5] . '">' . $language[1] . '</span>');
+
+    foreach ($languages as $lang_code => $language) {
+      $lang_name = $language[0];
+      $lang_native_name = $language[4] ?? '';
+      $lang_dir = $language[5] ?? 'ltr';
+
+      // Add native translation of language name.
+      // Set lang and dir attributes to inform assistive
+      // technologies of the language change.
+      if (!empty($lang_native_name)) {
+        $lang_name = $lang_name . ' &mdash; <span lang="' . $lang_code . '" dir="' . $lang_dir . '">' . $lang_native_name . '</span>';
+      }
+
+      $link_text = Markup::create($lang_name);
       $link_url = Url::fromUri('https://translate.google.com/translate', [
         'query' => [
           'hl' => 'en',
           'tab' => 'TT',
           'sl' => 'auto',
-          'tl' => $code,
+          'tl' => $lang_code,
           'u' => $url,
         ],
       ]);
@@ -122,9 +134,12 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
 
     $build = [];
 
+    $translation_container_id = Html::getUniqueId('origins-translation-container');
+
     $build['translations-container'] = [
       '#type' => 'container',
       '#attributes' => [
+        'id' => $translation_container_id,
         'class' => ['origins-translation-container'],
       ],
       '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],

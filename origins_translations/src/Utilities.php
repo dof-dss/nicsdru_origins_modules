@@ -35,7 +35,7 @@ class Utilities {
     $languages = $config->getRawData();
     unset($languages['_core']);
 
-    return array_filter($languages, static fn($language) => $language['2'] === TRUE);
+    return array_filter($languages, static fn($language) => $language['1'] === TRUE);
   }
 
 }
