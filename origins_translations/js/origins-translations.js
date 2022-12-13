@@ -67,8 +67,8 @@
         url: '/origins-translations/translation-ui/languages',
       }).done(function(data) {
         if (data && data[lang_code]) {
-          let buttonText = (data[lang_code][3])?? 'Translate this page';
-          let langListLabel = (data[lang_code][4])?? 'Select a language';
+          let buttonText = (data[lang_code][2])?? 'Translate this page';
+          let langListLabel = (data[lang_code][3])?? 'Select a language';
           $button.text(buttonText);
           $langListHeading.text(langListLabel);
         }
