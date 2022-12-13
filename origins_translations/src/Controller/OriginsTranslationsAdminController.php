@@ -55,6 +55,8 @@ class OriginsTranslationsAdminController extends ControllerBase {
         $this->t('Enabled'),
         $this->t('Translate this page'),
         $this->t('Select a language'),
+        $this->t('Native name'),
+        $this->t('Text direction'),
       ],
     ];
 
@@ -79,6 +81,8 @@ class OriginsTranslationsAdminController extends ControllerBase {
         ($language['1']) ? $this->t('True') : $this->t('False'),
         $language['2'],
         $language['3'],
+        $language['4'],
+        $language['5'],
       ];
     }
 
