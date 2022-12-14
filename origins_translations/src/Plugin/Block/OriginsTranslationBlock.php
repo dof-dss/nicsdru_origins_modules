@@ -132,7 +132,9 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $translation_links[] = Link::fromTextAndUrl($link_text, $link_url);
     }
 
-    $build = [];
+    $build = [
+      '#title' => 'Translation help',
+    ];
 
     $translation_container_id = Html::getUniqueId('origins-translation-container');
 
