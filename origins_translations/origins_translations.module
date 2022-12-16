@@ -95,3 +95,15 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
   }
   return $replacements;
 }
+
+/**
+ * Implements hook_theme().
+ */
+function origins_translations_theme() {
+  return [
+    'block__origins_translations' => [
+      'template' => 'block--origins-translations-block',
+      'base hook' => 'block',
+    ],
+  ];
+}

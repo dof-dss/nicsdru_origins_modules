@@ -132,15 +132,23 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       $translation_links[] = Link::fromTextAndUrl($link_text, $link_url);
     }
 
-    $build = [];
+    $build = [
+      '#title' => 'Translation help',
+    ];
 
     $translation_container_id = Html::getUniqueId('origins-translation-container');
+    $translation_container_classes = ['origins-translation-container'];
+    $translation_container_position = $this->config->get('ui-position') ?? NULL;
+
+    if ($translation_container_position) {
+      $translation_container_classes[] = $translation_container_position;
+    }
 
     $build['translations-container'] = [
       '#type' => 'container',
       '#attributes' => [
         'id' => $translation_container_id,
-        'class' => ['origins-translation-container'],
+        'class' => $translation_container_classes,
       ],
       '#attached' => ['library' => ['origins_translations/origins_translations.link_ui']],
     ];
@@ -185,7 +193,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#items' => $translation_links,
       '#attributes' => [
         'id' => $translation_list_id,
-        'class' => ['origins-translation-list'],
+        'class' => ['origins-translation-menu'],
         'aria-label' => 'submenu',
       ],
     ];

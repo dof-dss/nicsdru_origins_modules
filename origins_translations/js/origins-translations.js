@@ -38,11 +38,12 @@
     $(elm).addClass('hidden');
   }
 
-  // Enable the AJAX button and update title.
-  function translateUi(i, elm) {
+  function enableMenuUi(i, elm) {
+    // Enable the button for toggling the menu
+    let $button = $('.origins-translation-button', elm);
 
-    let $button = $('.origins-translation-button');
-
+    // Aria-expanded attribute on the button is used as
+    // CSS hook to show/hide the menu.
     $button
       .attr('aria-expanded', false)
       .removeClass('hidden')
@@ -52,6 +53,15 @@
         $(this).attr('aria-expanded', !expanded);
       });
 
+    // If focus leaves the translation menu, it should close.
+    $(elm).focusout(function () {
+      if ($(this).is(':focus-within') !== true) {
+        // Close it via the button.
+        $button.attr('aria-expanded', false);
+      }
+    });
+
+    // Translate bits of UI into user's preferred language.
     let $langListHeading = $(elm).find('h3');
     let lang_code = preferredLanguage().toLowerCase();
 
@@ -90,8 +100,8 @@
   Drupal.behaviors.originsTranslate = {
     attach: function (context, settings) {
       $('.origins-translation-link', context).once('origins-translation').each(disableLinkUi);
-      $('.origins-translation-container', context).once('origins-translation').each(translateUi);
-      $('.origins-translation-list', context).once('origins-translation').each(updateLinksUi);
+      $('.origins-translation-container', context).once('origins-translation').each(enableMenuUi);
+      $('.origins-translation-menu', context).once('origins-translation').each(updateLinksUi);
     }
   };
 
