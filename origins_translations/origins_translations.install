@@ -12,3 +12,15 @@ function origins_translations_uninstall() {
   // Remove the Google Cloud API key.
   \Drupal::state()->delete('origins_translations.settings.apikey');
 }
+
+/**
+ * Implementations of hook_update_N().
+ */
+
+/**
+ * Re-install origins_translations default config
+ */
+function origins_translations_update_8002() {
+  \Drupal::service('config.installer')->installDefaultConfig('module', 'origins_translations');
+  return t('Origins Translations configuration has been updated. Run drush config-export to export changes to the config directory');
+}

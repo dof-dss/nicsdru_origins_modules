@@ -90,12 +90,20 @@ function origins_translations_tokens($type, $tokens, array $data, array $options
 
           $replacements[$original] = $renderer->render($output);
           break;
-
-        case 'translations_languages_select':
-          $output = \Drupal::formBuilder()->getForm(LanguageSelectorForm::class);
-          $replacements[$original] = $renderer->render($output);
       }
     }
   }
   return $replacements;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function origins_translations_theme() {
+  return [
+    'block__origins_translations' => [
+      'template' => 'block--origins-translations-block',
+      'base hook' => 'block',
+    ],
+  ];
 }

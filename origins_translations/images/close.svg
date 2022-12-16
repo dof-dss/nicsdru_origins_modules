@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <path d="M0,0h24v24H0V0z" fill="none"/>
+  </g>
+  <g style="" transform="matrix(0.811887, 0, 0, 0.811887, 2.257356, 2.257356)">
+    <g>
+      <polygon points="10.23 3.77 12 2 22 12 12 22 10.23 20.23 18.46 12" transform="matrix(-1, 0, 0, -1, 32.23, 24)"/>
+      <polygon points="2 3.77 3.77 2 13.77 12 3.77 22 2 20.23 10.23 12"/>
+    </g>
+  </g>
+</svg>
