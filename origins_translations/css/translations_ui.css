@@ -16,21 +16,19 @@
 #origins-translation-container.ot-br {
   position: fixed;
   top: 0;
-  z-index: 100000;
+  z-index: 1;
   width: 300px;
   height: 100%;
 }
 
 #origins-translation-container.ot-tl,
 #origins-translation-container.ot-bl {
-  text-align: left;
-  left: 0;
+  left: -300px;
 }
 
 #origins-translation-container.ot-tr,
 #origins-translation-container.ot-br {
-  text-align: right;
-  right: 0;
+  right: -300px;
 }
 
 #origins-translation-container.origins-translation-container button.origins-translation-button {
@@ -52,7 +50,7 @@
   box-shadow: none;
   text-align: center;
   text-shadow: none;
-  transition: left .3s ease, right .3s ease;
+  transition: transform .3s ease-in-out;
   transition-delay: .3s;
 }
 
@@ -64,12 +62,12 @@
 
 #origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button,
 #origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button {
-  left: -250px;
+  transform: translate(50px, 0);
 }
 
 #origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button,
 #origins-translation-container.origins-translation-container.ot-br button.origins-translation-button {
-  right: -250px;
+  transform: translate(-50px, 0);
 }
 
 #origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button:hover,
@@ -78,7 +76,7 @@
 #origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button:hover,
 #origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button:focus-visible,
 #origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button[aria-expanded="true"]{
-  left: 0;
+  transform: translate(300px, 0);
 }
 
 #origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button:hover,
@@ -87,7 +85,7 @@
 #origins-translation-container.origins-translation-container.ot-br button.origins-translation-button:hover,
 #origins-translation-container.origins-translation-container.ot-br button.origins-translation-button:focus-visible,
 #origins-translation-container.origins-translation-container.ot-br button.origins-translation-button[aria-expanded="true"]{
-  right: 0;
+  transform: translate(-300px, 0);
 }
 
 #origins-translation-container.origins-translation-container .origins-translation-button:hover,
@@ -165,36 +163,10 @@
   color: #fff;
   overflow: auto;
   text-align: left;
-  transition: opacity 0.5s ease;
-}
-
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar {
-  display: none;
-  width: 12px;
-}
-
-#origins-translation-container.origins-translation-container .origins-translation-menu:hover::-webkit-scrollbar {
-  display: block;
-}
-
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-track {
-  background: #ace;
-}
-
-/* Handle */
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, .8);
-  border: 2px solid #ace;
-  border-radius: 6px;
-}
-
-/* Handle on hover */
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb:hover {
-  background: #076cba;
+  transition: opacity .3s ease;
 }
 
 #origins-translation-container.origins-translation-container .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
-  display: none;
   position: absolute;
   visibility: hidden;
   opacity: 0;
@@ -218,6 +190,39 @@
 #origins-translation-container.origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
 #origins-translation-container.origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
   top: 0;
+}
+
+#origins-translation-container.origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+  transform: translate(300px, 0);
+}
+
+#origins-translation-container.origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+  transform: translate(-300px, 0);
+}
+
+#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar {
+  display: none;
+  width: 12px;
+}
+
+#origins-translation-container.origins-translation-container .origins-translation-menu:hover::-webkit-scrollbar {
+  display: block;
+}
+
+#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-track {
+  background: #ace;
+}
+
+#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, .8);
+  border: 2px solid #ace;
+  border-radius: 6px;
+}
+
+#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb:hover {
+  background: #076cba;
 }
 
 #origins-translation-container.origins-translation-container .origins-translation-menu > h2,
