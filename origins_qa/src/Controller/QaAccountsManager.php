@@ -177,7 +177,6 @@ class QaAccountsManager extends ControllerBase {
       '_author' => 'author_user',
       '_authenticated' => '',
       '_super' => 'supervisor_user',
-      '_editor' => 'editor_user',
       '_admin' => 'administrator',
     ];
     $successes = 0;
