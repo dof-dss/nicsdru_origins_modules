@@ -29,7 +29,6 @@ function origins_workflow_install() {
     '_author' => 'author_user',
     '_authenticated' => '',
     '_super' => 'supervisor_user',
-    '_editor' => 'editor_user',
     '_admin' => 'administrator',
   ];
   foreach ($name_list as $name => $role) {
