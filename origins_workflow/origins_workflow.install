@@ -41,7 +41,7 @@ function origins_workflow_install() {
         'No test users created, prefix and password environment vars must be set.');
       return;
     }
-    $name = $prefix . $name;
+    $name = strtolower($prefix) . $name;
     $user = user_load_by_name($name);
     if (empty($user)) {
       \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
