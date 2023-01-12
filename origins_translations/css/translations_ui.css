@@ -10,15 +10,25 @@
   clear: both;
 }
 
+#origins-translation-container * {
+  font-size: 1.6rem;
+}
+
+@media screen and (min-width: 768px) {
+  #origins-translation-container * {
+    font-size: 1.8rem;
+  }
+}
+
 #origins-translation-container.ot-tl,
 #origins-translation-container.ot-tr,
 #origins-translation-container.ot-bl,
 #origins-translation-container.ot-br {
   position: fixed;
   top: 0;
+  bottom: 0;
   z-index: 1;
   width: 300px;
-  height: 100%;
 }
 
 #origins-translation-container.ot-tl,
@@ -31,16 +41,15 @@
   right: -300px;
 }
 
-#origins-translation-container.origins-translation-container button.origins-translation-button {
-  appearance: none;
-  display: inline-block;
-  position: absolute;
-  top: 0;
+#origins-translation-container button.origins-translation-button {
+  position: relative;
+  display: block;
   width: 300px;
   height: 5rem;
   overflow: hidden;
   padding: .5em 5rem;
   margin: 0;
+  appearance: none;
   font-size: 1em;
   line-height: 1.5;
   font-weight: normal;
@@ -50,53 +59,65 @@
   box-shadow: none;
   text-align: center;
   text-shadow: none;
-  transition: transform .3s ease-in-out;
-  transition-delay: .3s;
+  transition: left .2s ease, right .2s ease;
 }
 
-#origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button,
-#origins-translation-container.origins-translation-container.ot-br button.origins-translation-button {
+#origins-translation-container.ot-bl button.origins-translation-button,
+#origins-translation-container.ot-br button.origins-translation-button {
+  position: absolute;
   bottom: 0;
-  top: unset;
 }
 
-#origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button,
-#origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button {
-  transform: translate(50px, 0);
+#origins-translation-container.ot-tl button.origins-translation-button,
+#origins-translation-container.ot-tr button.origins-translation-button {
+  position: absolute;
+  top: 0;
 }
 
-#origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button,
-#origins-translation-container.origins-translation-container.ot-br button.origins-translation-button {
-  transform: translate(-50px, 0);
+#origins-translation-container.ot-tl button.origins-translation-button,
+#origins-translation-container.ot-bl button.origins-translation-button {
+  left: 50px;
 }
 
-#origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button:hover,
-#origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button:focus-visible,
-#origins-translation-container.origins-translation-container.ot-tl button.origins-translation-button[aria-expanded="true"],
-#origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button:hover,
-#origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button:focus-visible,
-#origins-translation-container.origins-translation-container.ot-bl button.origins-translation-button[aria-expanded="true"]{
-  transform: translate(300px, 0);
+#origins-translation-container.ot-tr button.origins-translation-button,
+#origins-translation-container.ot-br button.origins-translation-button {
+  right: 50px;
 }
 
-#origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button:hover,
-#origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button:focus-visible,
-#origins-translation-container.origins-translation-container.ot-tr button.origins-translation-button[aria-expanded="true"],
-#origins-translation-container.origins-translation-container.ot-br button.origins-translation-button:hover,
-#origins-translation-container.origins-translation-container.ot-br button.origins-translation-button:focus-visible,
-#origins-translation-container.origins-translation-container.ot-br button.origins-translation-button[aria-expanded="true"]{
-  transform: translate(-300px, 0);
+@media(hover: hover) and (pointer: fine) {
+  #origins-translation-container.ot-tl button.origins-translation-button:hover,
+  #origins-translation-container.ot-bl button.origins-translation-button:hover {
+    left: 300px;
+  }
+
+  #origins-translation-container.ot-tr button.origins-translation-button:hover,
+  #origins-translation-container.ot-br button.origins-translation-button:hover {
+    right: 300px;
+  }
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button:hover,
-#origins-translation-container.origins-translation-container .origins-translation-button:focus-visible,
-#origins-translation-container.origins-translation-container .origins-translation-button[aria-expanded="true"] {
+#origins-translation-container.ot-tl button.origins-translation-button:focus-visible,
+#origins-translation-container.ot-tl button.origins-translation-button[aria-expanded="true"],
+#origins-translation-container.ot-bl button.origins-translation-button:focus-visible,
+#origins-translation-container.ot-bl button.origins-translation-button[aria-expanded="true"]{
+  left: 300px;
+}
+
+#origins-translation-container.ot-tr button.origins-translation-button:focus-visible,
+#origins-translation-container.ot-tr button.origins-translation-button[aria-expanded="true"],
+#origins-translation-container.ot-br button.origins-translation-button:focus-visible,
+#origins-translation-container.ot-br button.origins-translation-button[aria-expanded="true"]{
+  right: 300px;
+}
+
+#origins-translation-container .origins-translation-button:focus-visible,
+#origins-translation-container .origins-translation-button[aria-expanded="true"] {
   background-color: #041e34;
   color: #fff;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button::before,
-#origins-translation-container.origins-translation-container .origins-translation-button::after {
+#origins-translation-container .origins-translation-button::before,
+#origins-translation-container .origins-translation-button::after {
   content: '';
   display: inline-block;
   position: absolute;
@@ -106,56 +127,67 @@
   background: transparent center center / 2rem no-repeat;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button::before {
+#origins-translation-container .origins-translation-button::before {
   left: 1rem;
   background-image: url('../images/translate_48px.svg');
   background-color: #076cba;
   border: 1px solid #fff;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button::after {
+#origins-translation-container .origins-translation-button::after {
   right: 1rem;
   background-image: url('../images/arrow_back_white.svg');
   transform: rotate(-90deg);
-  transition: transform .5s ease-in-out;
+  transition: transform .3s ease-in-out;
+  transition-delay: .2s;
 }
 
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button::after,
-#origins-translation-container.origins-translation-container.ot-br .origins-translation-button::after {
+#origins-translation-container .origins-translation-button[aria-expanded="true"]::after {
   transform: rotate(90deg);
 }
 
-#origins-translation-container.origins-translation-container.ot-tl .origins-translation-button::before,
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button::before {
+#origins-translation-container.ot-tr .origins-translation-button::after,
+#origins-translation-container.ot-br .origins-translation-button::after {
+  transform: rotate(0deg);
+}
+
+#origins-translation-container.ot-tr .origins-translation-button[aria-expanded="true"]::after,
+#origins-translation-container.ot-br .origins-translation-button[aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button::after,
+#origins-translation-container.ot-bl .origins-translation-button::after {
+  transform: rotate(180deg);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button[aria-expanded="true"]::after,
+#origins-translation-container.ot-bl .origins-translation-button[aria-expanded="true"]::after {
+  transform: rotate(0deg);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button::before,
+#origins-translation-container.ot-bl .origins-translation-button::before {
   right: 1rem;
   left: unset;
 }
 
-#origins-translation-container.origins-translation-container.ot-tl .origins-translation-button::after,
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button::after {
+#origins-translation-container.ot-tl .origins-translation-button::after,
+#origins-translation-container.ot-bl .origins-translation-button::after {
   left: 1rem;
   right: unset;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button[aria-expanded="true"]::after {
-  transform: rotate(90deg);
-}
-
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button[aria-expanded="true"]::after,
-#origins-translation-container.origins-translation-container.ot-br .origins-translation-button[aria-expanded="true"]::after {
-  transform: rotate(-90deg);
-}
-
-#origins-translation-container.origins-translation-container .origins-translation-button:focus {
+#origins-translation-container .origins-translation-button:focus {
   outline: none;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button:focus::after {
+#origins-translation-container .origins-translation-button:focus::after {
   outline: .2rem solid #fff;
   outline-offset: -.2rem;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu {
+#origins-translation-container .origins-translation-menu {
   width: 100%;
   margin: 0;
   padding: .5em 1rem;
@@ -163,70 +195,92 @@
   color: #fff;
   overflow: auto;
   text-align: left;
-  transition: opacity .3s ease;
+  transition: left .3s ease, right .3s ease;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+#origins-translation-container .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
   position: absolute;
-  visibility: hidden;
-  opacity: 0;
   height: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
-  display: block;
+#origins-translation-container .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
   position: relative;
-  visibility: visible;
-  opacity: 100%;
-  height: calc(100% - 5rem);
-  overflow-x: hidden;
+  overflow: auto;
 }
 
-#origins-translation-container.origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translation-container.ot-tl .origins-translation-menu,
+#origins-translation-container.ot-bl .origins-translation-menu,
+#origins-translation-container.ot-bl .origins-translation-menu{
+  position: absolute;
+  left: 0;
+  height: calc(100% - 5rem);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu,
+#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+  position: absolute;
+  left: 0;
+  height: calc(100% - 5rem);
+}
+
+#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu,
+#origins-translation-container.ot-br .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+  position: absolute;
+  right: 0;
+  height: calc(100% - 5rem);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+  position: absolute;
+  left: 300px;
+  height: calc(100% - 5rem);
+}
+
+#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+  position: absolute;
+  right: 300px;
+  height: calc(100% - 5rem);
+}
+
+#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
   top: 5rem;
 }
 
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
+#origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
   top: 0;
 }
 
-#origins-translation-container.origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
-  transform: translate(300px, 0);
-}
-
-#origins-translation-container.origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
-  transform: translate(-300px, 0);
-}
-
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar {
+#origins-translation-container .origins-translation-menu::-webkit-scrollbar {
   display: none;
   width: 12px;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu:hover::-webkit-scrollbar {
+#origins-translation-container .origins-translation-menu:hover::-webkit-scrollbar {
   display: block;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-track {
+#origins-translation-container .origins-translation-menu::-webkit-scrollbar-track {
   background: #ace;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb {
+#origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, .8);
   border: 2px solid #ace;
   border-radius: 6px;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb:hover {
+#origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb:hover {
   background: #076cba;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu > h2,
-#origins-translation-container.origins-translation-container .origins-translation-menu > h3 {
+#origins-translation-container .origins-translation-menu > h2,
+#origins-translation-container .origins-translation-menu > h3 {
   display: block;
   padding: .5em 0;
   margin: 0;
@@ -238,7 +292,7 @@
   border: 0;
 }
 
-#origins-translation-container.origins-translation-container ul.origins-translation-menu {
+#origins-translation-container ul.origins-translation-menu {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
@@ -257,7 +311,7 @@
   width: 275px; /* allow for scroll bar to right */
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu li {
+#origins-translation-container .origins-translation-menu li {
   color: #fff;
   display: block;
   padding: 0;
@@ -267,9 +321,9 @@
   transition-duration: 0.5s;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu li a,
-#origins-translation-container.origins-translation-container .origins-translation-menu li a:link,
-#origins-translation-container.origins-translation-container .origins-translation-menu li a:visited {
+#origins-translation-container .origins-translation-menu li a,
+#origins-translation-container .origins-translation-menu li a:link,
+#origins-translation-container .origins-translation-menu li a:visited {
   display: block;
   padding: .5em;
   color: #fff;
@@ -280,15 +334,15 @@
   border: 0;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu li a:hover,
-#origins-translation-container.origins-translation-container .origins-translation-menu li a:active,
-#origins-translation-container.origins-translation-container .origins-translation-menu li a:focus {
+#origins-translation-container .origins-translation-menu li a:hover,
+#origins-translation-container .origins-translation-menu li a:active,
+#origins-translation-container .origins-translation-menu li a:focus {
   color: #076cba;
   background-color: #fff;
   outline: none;
   text-decoration: none;
 }
 
-#origins-translation-container.origins-translation-container .origins-translation-menu li a span {
+#origins-translation-container .origins-translation-menu li a span {
   white-space: nowrap;
 }
