@@ -77,7 +77,7 @@ function origins_workflow_uninstall() {
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.
     $prefix = getenv('NW_TEST_USER_PREFIX');
-    $name = $prefix . $name;
+    $name = strtolower($prefix) . $name;
     $user = user_load_by_name($name);
 
     if ($user instanceof UserInterface) {
