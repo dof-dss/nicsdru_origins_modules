@@ -29,7 +29,6 @@ function origins_workflow_install() {
     '_author' => 'author_user',
     '_authenticated' => '',
     '_super' => 'supervisor_user',
-    '_editor' => 'editor_user',
     '_admin' => 'administrator',
   ];
   foreach ($name_list as $name => $role) {
@@ -42,7 +41,7 @@ function origins_workflow_install() {
         'No test users created, prefix and password environment vars must be set.');
       return;
     }
-    $name = $prefix . $name;
+    $name = strtolower($prefix) . $name;
     $user = user_load_by_name($name);
     if (empty($user)) {
       \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
@@ -73,13 +72,12 @@ function origins_workflow_uninstall() {
     '_author' => 'author_user',
     '_authenticated' => '',
     '_super' => 'supervisor_user',
-    '_editor' => 'editor_user',
     '_admin' => 'admin_user',
   ];
   foreach ($name_list as $name => $role) {
     // Add prefix from environment var.
     $prefix = getenv('NW_TEST_USER_PREFIX');
-    $name = $prefix . $name;
+    $name = strtolower($prefix) . $name;
     $user = user_load_by_name($name);
 
     if ($user instanceof UserInterface) {
