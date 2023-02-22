@@ -182,7 +182,7 @@ class QaAccountsManager extends ControllerBase {
       '_gp_author' => 'gp_author_user',
       '_gp_super' => 'gp_supervisor_user',
       '_news_super' => 'news_supervisor',
-      '_admin' => 'admin_user',
+      '_admin_user' => 'admin_user',
       '_apps' => 'apps_user',
       '_hc_author' => 'health_condition_author_user',
       '_hc_super' => 'health_condition_supervisor_user'
@@ -197,7 +197,7 @@ class QaAccountsManager extends ControllerBase {
     foreach ($name_list as $name => $role) {
       // Don't try to create user unless role exists.
       if (!in_array($role, $role_name_list) && !empty($role)) {
-        break;
+        continue;
       }
       $name = strtolower($prefix) . $name;
       $user = user_load_by_name($name);

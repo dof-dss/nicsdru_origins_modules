@@ -48,7 +48,7 @@ function origins_workflow_install() {
   foreach ($name_list as $name => $role) {
     // Don't try to create user unless role exists.
     if (!in_array($role, $role_name_list) && !empty($role)) {
-      break;
+      continue;
     }
     // Add prefix from environment var.
     $prefix = getenv('NW_TEST_USER_PREFIX');
