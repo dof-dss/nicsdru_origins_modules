@@ -187,6 +187,7 @@ class QaAccountsManager extends ControllerBase {
       '_hc_author' => 'health_condition_author_user',
       '_hc_super' => 'health_condition_supervisor_user'
     ];
+    // Get a list of current roles in Drupal.
     $roles = $this->entityTypeManager()->getStorage('user_role')->loadMultiple();
     $role_name_list = [];
     foreach ($roles as $thisrole) {
@@ -194,6 +195,7 @@ class QaAccountsManager extends ControllerBase {
     }
     $successes = 0;
     foreach ($name_list as $name => $role) {
+      // Don't try to create user unless role exists.
       if (!in_array($role, $role_name_list) && !empty($role)) {
         break;
       }
