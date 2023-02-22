@@ -40,7 +40,7 @@ function origins_workflow_install() {
     '_hc_super' => 'health_condition_supervisor_user'
   ];
   // Get a list of current roles in Drupal.
-  $roles = $this->entityTypeManager()->getStorage('user_role')->loadMultiple();
+  $roles = \Drupal::entityTypeManager()->getStorage('user_role')->loadMultiple();
   $role_name_list = [];
   foreach ($roles as $thisrole) {
     $role_name_list[] = strtolower(str_replace(' ','_',$thisrole->label()));
