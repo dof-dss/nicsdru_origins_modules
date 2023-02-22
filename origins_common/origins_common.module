@@ -5,10 +5,12 @@
  * Contains origins_common.module.
  */
 
+use Drupal\block\Entity\Block;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\facets\FacetInterface;
 use Drupal\node\Entity\Node;
 
 /**
@@ -112,5 +114,43 @@ function origins_common_preprocess_page(&$variables) {
   if ($theme->getName() === 'adminimal_theme') {
     $variables['#attached']['library'][] = 'origins_common/adminimal';
   }
+}
 
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_common_form_block_admin_display_form_alter(&$form) {
+  foreach ($form['blocks'] as $block_id => $block_info) {
+    if (preg_match('/^#/', $block_id)) {
+      // It's a render attribute so skip it.
+      continue;
+    }
+
+    $type = $block_info['type']['#markup'] ?? '';
+
+    if (preg_match('/facets/i', $type)) {
+      /** @var \Drupal\block\BlockInterface $block */
+      $block = Block::load($block_id);
+      $settings = $block->get('settings');
+
+      if (empty($settings)) {
+        return;
+      }
+
+      $facet_id = str_replace('facet_block:', '', $settings['id']);
+      /** @var \Drupal\facets\Entity\Facet $facet */
+      $facet = \Drupal::entityTypeManager()->getStorage('facets_facet')->load($facet_id);
+
+      if ($facet instanceof FacetInterface) {
+        /** @var \Drupal\facets\Plugin\facets\facet_source\SearchApiDisplay $source */
+        $source = $facet->getFacetSource();
+
+        $view_title = $source->getViewsDisplay()->getTitle();
+        // It's a facet block so we can adjust the title string.
+        $existing_text = $form['blocks'][$block_id]['info']['#plain_text'];
+        $form['blocks'][$block_id]['info']['#markup'] = "<em>(Facet view: ${view_title})</em> ${existing_text}";
+        unset($form['blocks'][$block_id]['info']['#plain_text']);
+      }
+    }
+  }
 }
