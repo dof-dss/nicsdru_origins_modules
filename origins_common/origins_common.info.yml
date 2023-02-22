@@ -6,3 +6,4 @@ package: 'NICS: Origins'
 dependencies:
   - drupal:help
   - drupal:block
+  - drupal:facets

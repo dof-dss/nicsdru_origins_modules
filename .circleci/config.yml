@@ -43,7 +43,7 @@ jobs:
           name: Download dependent contrib modules.
           command: |
             cd $PROJECT_ROOT
-            composer require drupal/entity_embed mglaman/drupal-check drupal/flag drupal/geolocation
+            composer require drupal/entity_embed mglaman/drupal-check drupal/flag drupal/geolocation drupal/facets
       - run:
           name: Move custom code into position
           command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
