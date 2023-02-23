@@ -191,7 +191,7 @@ class QaAccountsManager extends ControllerBase {
     $roles = $this->entityTypeManager()->getStorage('user_role')->loadMultiple();
     $role_name_list = [];
     foreach ($roles as $thisrole) {
-      $role_name_list[] = strtolower(str_replace(' ','_',$thisrole->label()));
+      $role_name_list[] = strtolower(str_replace(' ', '_', $thisrole->label()));
     }
     $successes = 0;
     foreach ($name_list as $name => $role) {
