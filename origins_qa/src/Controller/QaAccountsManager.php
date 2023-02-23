@@ -178,9 +178,27 @@ class QaAccountsManager extends ControllerBase {
       '_authenticated' => '',
       '_super' => 'supervisor_user',
       '_admin' => 'administrator',
+      '_editor' => 'editor_user',
+      '_gp_author' => 'gp_author_user',
+      '_gp_super' => 'gp_supervisor_user',
+      '_news_super' => 'news_supervisor',
+      '_admin_user' => 'admin_user',
+      '_apps' => 'apps_user',
+      '_hc_author' => 'health_condition_author_user',
+      '_hc_super' => 'health_condition_supervisor_user'
     ];
+    // Get a list of current roles in Drupal.
+    $roles = $this->entityTypeManager()->getStorage('user_role')->loadMultiple();
+    $role_name_list = [];
+    foreach ($roles as $thisrole) {
+      $role_name_list[] = strtolower(str_replace(' ', '_', $thisrole->label()));
+    }
     $successes = 0;
     foreach ($name_list as $name => $role) {
+      // Don't try to create user unless role exists.
+      if (!in_array($role, $role_name_list) && !empty($role)) {
+        continue;
+      }
       $name = strtolower($prefix) . $name;
       $user = user_load_by_name($name);
       if (empty($user)) {
