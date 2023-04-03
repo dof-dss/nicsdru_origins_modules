@@ -92,7 +92,7 @@
 
     $(elm).find('a').each(function () {
       let $link = new URL( $(this).attr('href') );
-      $link.searchParams.set('u', encodeURIComponent(pageUrl));
+      $link.searchParams.set('u', pageUrl);
       $(this).attr('href', $link.href);
     });
   }
