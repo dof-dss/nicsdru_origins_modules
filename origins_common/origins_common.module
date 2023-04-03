@@ -162,4 +162,3 @@ function origins_common_form_user_login_form_alter(&$form) {
   // Disable inline form errors on the login form (to rectify penetration test issues).
   $form['#disable_inline_form_errors'] = TRUE;
 }
-
