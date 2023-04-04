@@ -109,8 +109,7 @@
   // (as it won't work).
   Drupal.behaviors.enableTranslationButton = {
     attach: function (context, settings) {
-      const pageUrl = location.href;
-      if (pageUrl.indexOf("translate") >= 0) {
+      if (location.hostname.indexOf("translate") >= 0) {
         $('#block-originstranslation').hide();
       }
     }
