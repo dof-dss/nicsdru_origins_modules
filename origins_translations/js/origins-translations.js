@@ -92,7 +92,7 @@
 
     $(elm).find('a').each(function () {
       let $link = new URL( $(this).attr('href') );
-      $link.searchParams.set('u', encodeURIComponent(pageUrl));
+      $link.searchParams.set('u', pageUrl);
       $(this).attr('href', $link.href);
     });
   }
@@ -104,5 +104,15 @@
       $('.origins-translation-menu', context).once('origins-translation').each(updateLinksUi);
     }
   };
+
+  // Hide the translations button if we're on a translated page
+  // (as it won't work).
+  Drupal.behaviors.enableTranslationButton = {
+    attach: function (context, settings) {
+      if (location.hostname.indexOf("translate") >= 0) {
+        $('#block-originstranslation').hide();
+      }
+    }
+  }
 
 })(jQuery, Drupal, drupalSettings);
