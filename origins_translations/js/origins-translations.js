@@ -105,4 +105,14 @@
     }
   };
 
+  // Hide the translations button if we're on a translated page
+  // (as it won't work).
+  Drupal.behaviors.enableTranslationButton = {
+    attach: function (context, settings) {
+      if (location.hostname.indexOf("translate") >= 0) {
+        $('#block-originstranslation').hide();
+      }
+    }
+  }
+
 })(jQuery, Drupal, drupalSettings);
