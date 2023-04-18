@@ -147,18 +147,29 @@ class QaAccountsManager extends ControllerBase {
         'roles' => 'qa'
       ]);
 
+    $success = TRUE;
     foreach ($accounts as $account) {
       /** @var \Drupal\user\UserInterface $account */
       if ($action === 'enable') {
         if (!$account->isActive()) {
-          $account->activate();
-          $account->save();
+          try {
+            $account->activate();
+            $account->save();
+          }
+          catch (\Throwable $error) {
+            \Drupal::logger('origins_qa')->error("Error when enabling QA Accounts - " . $error);
+          }
         }
       }
       else {
         if ($account->isActive()) {
-          $account->block();
-          $account->save();
+          try {
+            $account->block();
+            $account->save();
+          }
+          catch (\Throwable $error) {
+            \Drupal::logger('origins_qa')->error("Error when disabling QA Accounts - " . $error);
+          }
         }
       }
     }

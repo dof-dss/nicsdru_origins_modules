@@ -39,18 +39,21 @@
   }
 
   function enableMenuUi(i, elm) {
-    // Enable the button for toggling the menu
     let $button = $('.origins-translation-button', elm);
+    let $menu = $('.origins-translation-menu', elm);
 
     // Aria-expanded attribute on the button is used as
-    // CSS hook to show/hide the menu.
+    // CSS hook to show/hide the menu and enable/disable
+    // keyboard focus on menu links.
     $button
       .attr('aria-expanded', false)
       .removeClass('hidden')
       .click(function (e) {
         e.preventDefault();
         let expanded = $(this).attr('aria-expanded') === 'true' || false;
+        let tabindex = expanded ? '-1' : '0';
         $(this).attr('aria-expanded', !expanded);
+        $menu.find('a').attr('tabindex', tabindex);
       });
 
     // If focus leaves the translation menu, it should close.
@@ -58,6 +61,8 @@
       if ($(this).is(':focus-within') !== true) {
         // Close it via the button.
         $button.attr('aria-expanded', false);
+        // Ensure menu links cannot receive keyboard focus.
+        $menu.find('a').attr('tabindex', '-1');
       }
     });
 
