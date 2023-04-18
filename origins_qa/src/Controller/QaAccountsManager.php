@@ -155,7 +155,8 @@ class QaAccountsManager extends ControllerBase {
           try {
             $account->activate();
             $account->save();
-          } catch (\Throwable $error) {
+          } catch (\Throwable $error)
+          {
             \Drupal::logger('origins_qa')->error("Error when enabling QA Accounts - " . $error);
           }
         }
@@ -165,7 +166,8 @@ class QaAccountsManager extends ControllerBase {
           try {
             $account->block();
             $account->save();
-          } catch (\Throwable $error) {
+          } catch (\Throwable $error)
+          {
             \Drupal::logger('origins_qa')->error("Error when disabling QA Accounts - " . $error);
           }
         }
