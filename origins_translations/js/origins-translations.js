@@ -42,6 +42,10 @@
     let $button = $('.origins-translation-button', elm);
     let $menu = $('.origins-translation-menu', elm);
 
+    // Initially menu is hidden, so ensure menu links are not
+    // keyboard focusable.
+    $menu.find('a').attr('tabindex', '-1');
+
     // Aria-expanded attribute on the button is used as
     // CSS hook to show/hide the menu and enable/disable
     // keyboard focus on menu links.
