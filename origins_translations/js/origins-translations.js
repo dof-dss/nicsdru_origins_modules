@@ -54,6 +54,7 @@
       .removeClass('hidden')
       .click(function (e) {
         e.preventDefault();
+        $(this).parent('#origins-translation-container').toggleClass('top');
         let expanded = $(this).attr('aria-expanded') === 'true' || false;
         let tabindex = expanded ? '-1' : '0';
         $(this).attr('aria-expanded', !expanded);

@@ -25,10 +25,16 @@
 #origins-translation-container.ot-bl,
 #origins-translation-container.ot-br {
   position: fixed;
-  top: 0;
   bottom: 0;
   z-index: 1;
   width: 300px;
+}
+
+#origins-translation-container.ot-tl.top,
+#origins-translation-container.ot-tr.top,
+#origins-translation-container.ot-bl.top,
+#origins-translation-container.ot-br.top {
+  top: 0;
 }
 
 #origins-translation-container.ot-tl,
