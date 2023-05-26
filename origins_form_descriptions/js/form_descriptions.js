@@ -12,12 +12,7 @@
         // we do at least have a common prefix. Filter selects are fiddly,
         // because they share almost the exact same label attribute values
         // but we can use jQuery to only use the first label to avoid duplicates.
-        // if (!$(this).parents().is('fieldset')) {
-        if (!$(this).parent().is('.fieldset-wrapper') && !$(this).is('#edit-field-featured-content--description'))
-        // if (!$(this).is('#edit-field-consultation-dates-0--description')
-        //   && !$(this).is('#edit-field-featured-content--description')
-        //   && !$(this).is('#edit-field-last-updated-0--description'))
-        {
+        if (!$(this).parent().is('.fieldset-wrapper') && !$(this).is('#edit-field-featured-content--description')) {
           $('label[for^="' + labelFor + '"]').first().after($(this));
         } else if ($(this).is('#edit-field-featured-content--description')) {
           const desc = $(this).html();
