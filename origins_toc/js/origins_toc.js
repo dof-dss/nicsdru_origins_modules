@@ -63,17 +63,21 @@
 
         var $tocLocationElement = $(tocSettings.toc_location);
         var $tocMenu = $('<nav class="sub-menu toc-menu" aria-labelledby="toc-menu-heading" />');
+        var $tocMenuSkip = '<a id="toc-menu-skip" href="#toc-menu-skip-target" class="skip-link visually-hidden focusable" aria-label="' + $skipTocText + '">' + $skipTocText + '</a>';
+        var $tocMenuSkipTargetId = 'toc-menu-skip-target';
 
-        $tocMenu.prepend('<h2 id="toc-menu-heading" class="menu-title">' + $headingText + '</h2>',
-          '<a href="#toc-main-skip" class="skip-link visually-hidden focusable" aria-label="' + $skipTocText + '">' +
-          $skipTocText +
-          '</a>',
-          $tocLinkItems);
+        $tocMenu.prepend(
+          '<h2 id="toc-menu-heading" class="menu-title">' + $headingText + '</h2>',
+          $tocMenuSkip,
+          $tocLinkItems
+        );
 
         if (tocSettings.toc_insert == 'before') {
-          $tocLocationElement.before($tocMenu, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
+          $tocLocationElement.before($tocMenu);
+          $tocLocationElement.nextAll().wrapAll('<div id="' + $tocMenuSkipTargetId + '" tabindex="0" />');
         } else {
-          $tocLocationElement.after($tocMenu, '<a id="toc-main-skip" tabindex="-1" class="visually-hidden" aria-hidden="true"></a>');
+          $tocLocationElement.after($tocMenu);
+          $tocMenu.nextAll().wrapAll('<div id="' + $tocMenuSkipTargetId + '" tabindex="0" />');
         }
       }
 
