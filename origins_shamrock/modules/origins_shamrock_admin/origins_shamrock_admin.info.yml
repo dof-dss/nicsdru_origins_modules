@@ -1,7 +1,7 @@
 name: 'Origins Shamrock Admin'
 type: module
 description: 'Operation Shamrock Admin'
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^8.8 || ^9 || ^10
 package: 'Origins'
 dependencies:
   - origins_shamrock
