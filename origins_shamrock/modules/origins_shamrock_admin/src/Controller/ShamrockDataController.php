@@ -3,9 +3,9 @@
 namespace Drupal\origins_shamrock_admin\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\RendererInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\Core\Render\RendererInterface;
 use Drupal\origins_shamrock_admin\Form\ShamrockAdminForm;
 
 /**
