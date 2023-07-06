@@ -12,9 +12,9 @@ use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\media\MediaInterface;
 use Drupal\origins_media\Element\ManagedFileTrustedCallback;
+use Drupal\origins_media\GeoLocationFormElementRenderer;
 use Drupal\views\Render\ViewsRenderPipelineMarkup;
 use Drupal\views\ViewExecutable;
-use Drupal\origins_media\GeoLocationFormElementRenderer;
 
 /**
  * Implements hook_element_info_alter().
