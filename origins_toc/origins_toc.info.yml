@@ -1,7 +1,7 @@
 name: 'Origins: Table of Contents'
 type: module
 description: 'Provides Table of Contents display options'
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^8.8 || ^9 || ^10
 package: 'NICS: Origins'
 dependencies:
   - drupal:help

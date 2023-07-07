@@ -2,9 +2,9 @@
 
 namespace Drupal\Tests\origins_workflow\Functional;
 
+use Drupal\node\Entity\Node;
 use Drupal\origins_workflow\Controller\AuditController;
 use Drupal\Tests\BrowserTestBase;
-use Drupal\node\Entity\Node;
 
 /**
  * Tests audit workflow.
