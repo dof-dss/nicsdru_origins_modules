@@ -2,8 +2,8 @@
 
 namespace Drupal\origins_qa\Commands;
 
-use Drush\Commands\DrushCommands;
 use Drupal\origins_qa\Controller\QaAccountsManager;
+use Drush\Commands\DrushCommands;
 
 /**
  * Drush custom commands.

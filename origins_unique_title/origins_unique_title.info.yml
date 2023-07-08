@@ -1,5 +1,5 @@
 name: 'Origins: Unique Title'
 type: module
 description: 'Warns editors when a content title already exists'
-core_version_requirement: ^8.8 || ^9
+core_version_requirement: ^8.8 || ^9 || ^10
 package: 'NICS: Origins'
