@@ -58,7 +58,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   /**
    * The Event Dispatcher service.
    *
-   * @var Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
+   * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
    */
   protected $eventDispatcher;
 
@@ -75,7 +75,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *   Request stack object.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
-   * @param Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
    *   The logger interface.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, ContainerAwareEventDispatcher $event_dispatcher) {
