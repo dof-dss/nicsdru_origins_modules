@@ -6,6 +6,8 @@ use Drupal\Component\EventDispatcher\Event;
 
 class ModerationStateChangeEvent extends Event {
 
+  const CHANGE = 'moderation_state.change';
+
   /**
    * The entity for ehich moderation state has changed.
    *

@@ -2,12 +2,14 @@
 
 namespace Drupal\origins_workflow\Controller;
 
+use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
 use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\node\NodeInterface;
+use Drupal\origins_workflow\Event\ModerationStateChangeEvent;
 use Drupal\workflows\StateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -54,6 +56,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   protected $logger;
 
   /**
+   * The Event Dispatcher service.
+   *
+   * @var Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
+   */
+  protected $eventDispatcher;
+
+  /**
    * Creates a new ModerationStateConstraintValidator instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -66,13 +75,16 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *   Request stack object.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
+   * @param Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   *   The logger interface.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, ContainerAwareEventDispatcher $event_dispatcher) {
     $this->entityTypeManager = $entity_type_manager;
     $this->moderationInformation = $moderation_information;
     $this->messenger = $messenger;
     $this->request = $request;
     $this->logger = $logger;
+    $this->eventDispatcher = $event_dispatcher;
   }
 
   /**
@@ -84,7 +96,8 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       $container->get('content_moderation.moderation_information'),
       $container->get('messenger'),
       $container->get('request_stack'),
-      $container->get('logger.factory')->get('origins_workflow')
+      $container->get('logger.factory')->get('origins_workflow'),
+      $container->get('event_dispatcher')
     );
   }
 
@@ -105,11 +118,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     if ($entity instanceof NodeInterface && $new_state_entity instanceof StateInterface) {
       // See if this state change is allowed.
       if ($this->transitionAllowed($entity, $new_state)) {
+
         // Get the latest revision (this is necessary as loading the entity
         // will have given us the latest 'default' revision, which is not
         // what we want if there is a draft of published).
         $vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($nid);
         $entity = $this->entityTypeManager->getStorage('node')->loadRevision($vid);
+
         // The 'revision_translation_affected' field is poorly documented (and
         // understood) in Drupal core. There is much discussion at
         // https://www.drupal.org/project/drupal/issues/2746541 but the answer
@@ -117,6 +132,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         // of revisions not appearing on the revisions tab.
         /** @var \Drupal\Core\Entity\TranslatableRevisionableInterface $entity */
         $entity->setRevisionTranslationAffected(1);
+
         // Set the owner of the new revision to be the current user
         // and set an appropriate revision log message.
         /** @var \Drupal\Core\Entity\RevisionLogInterface $entity */
@@ -125,10 +141,15 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
           '@new_state' => $new_state,
         ]);
         $entity->setRevisionLogMessage($revision_log_message);
+
         // Request the state change.
         /** @var \Drupal\node\NodeInterface $entity */
         $entity->set('moderation_state', $new_state);
         $entity->save();
+
+        $moderation_event = new ModerationStateChangeEvent($entity, $new_state);
+        $this->eventDispatcher->dispatch($moderation_event::CHANGE, $moderation_event);
+
         // Log it.
         $message = t('State of @title (nid @nid) changed to @new_state by @user', [
           '@title' => $entity->getTitle(),
