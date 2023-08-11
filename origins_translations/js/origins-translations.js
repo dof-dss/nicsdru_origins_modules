@@ -109,9 +109,9 @@
 
   Drupal.behaviors.originsTranslate = {
     attach: function (context, settings) {
-      $('.origins-translation-link', context).once('origins-translation').each(disableLinkUi);
-      $('.origins-translation-container', context).once('origins-translation').each(enableMenuUi);
-      $('.origins-translation-menu', context).once('origins-translation').each(updateLinksUi);
+      $(once('origins-translation', '.origins-translation-link', context)).each(disableLinkUi);
+      $(once('origins-translation', '.origins-translation-container', context).each(enableMenuUi);
+      $(once('origins-translation', '.origins-translation-menu', context).each(updateLinksUi);
     }
   };
 

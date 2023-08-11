@@ -9,4 +9,4 @@ origins_translations.link_ui:
     - core/drupal.ajax
     - core/drupal.url
     - core/jquery
-    - core/jquery.once
+    - core/once

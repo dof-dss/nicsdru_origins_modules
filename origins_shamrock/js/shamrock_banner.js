@@ -1,7 +1,7 @@
 (function ($, Drupal, drupalSettings) {
   Drupal.behaviors.operationShamrock = {
     attach: function attach (context) {
-      $('body', context).once('shamrock').each(function () {
+      $(once('shamrock', 'body', context)).each(function () {
         $.getJSON(drupalSettings.origins_shamrock.service_url, function (data) {
           if (data.enabled) {
             let css_extra = '';

@@ -1,7 +1,6 @@
 langcode: en
 status: true
 dependencies:
-  config:
   module:
     - content_moderation
 id: nics_editorial_workflow
