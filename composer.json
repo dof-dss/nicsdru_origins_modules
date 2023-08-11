@@ -4,7 +4,7 @@
   "type": "drupal-module",
   "license": "MIT",
   "require": {
-    "composer/installers": "^2.0"
+    "composer/installers": "^1.6"
   },
   "config": {
     "allow-plugins": {
