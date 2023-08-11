@@ -4,4 +4,4 @@ toc:
   dependencies:
     - core/drupal
     - core/jquery
-    - core/jquery.once
+    - core/once

@@ -26,7 +26,7 @@
 
       // Select all of the requested Heading elements within the source container which have content but excluding
       // those from the toc_exclusions query.
-      var tocHeadings = $(tocSettings.toc_source_container + ' ' + tocSettings.toc_element + ':not(:empty)').not(tocSettings.toc_exclusions).once('attachToC');
+      var tocHeadings = $(once('attachToC', $(tocSettings.toc_source_container + ' ' + tocSettings.toc_element + ':not(:empty)').not(tocSettings.toc_exclusions)));
 
       // Display the ToC if the content area is longer or equal to the minimum screen depth and contains more than 2
       // heading elements.
@@ -36,7 +36,7 @@
         var $skipTocText = Drupal.t('Skip table of contents');
 
         // Iterate each element, append an anchor id and append link to block list.
-        $(tocHeadings, context).once('toc').each(function(index) {
+        $(once('toc', tocHeadings, context)).each(function(index) {
           var $linkText = $(this).text();
 
           // Ignore visually hidden elements.
