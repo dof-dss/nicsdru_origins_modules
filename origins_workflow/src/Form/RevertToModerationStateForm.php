@@ -73,6 +73,13 @@ class RevertToModerationStateForm extends ConfirmFormBase {
   protected $time;
 
   /**
+   * Node storage service object.
+   *
+   * @var \Drupal\node\NodeStorageInterface|\Drupal\Core\Entity\RevisionableStorageInterface
+   */
+  protected $nodeStorage;
+
+  /**
    * Constructs a new NodeRevisionRevertForm.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -98,6 +105,8 @@ class RevertToModerationStateForm extends ConfirmFormBase {
     $this->logger = $logger;
     $this->dateFormatter = $date_formatter;
     $this->time = $time;
+
+    $this->nodeStorage = $this->entityTypeManager->getStorage('node');
   }
 
   /**
@@ -178,7 +187,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
     // Load the node revision we are reverting.
     /** @var \Drupal\node\NodeInterface $node */
-    $node = $this->entityTypeManager->getStorage('node')->loadRevision($node_revision);
+    $node = $this->nodeStorage->loadRevision($node_revision);
 
     // Get the moderation state entity.
     $newStateEntity = $this->moderationInformation
