@@ -179,7 +179,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     $current_state = $entity->moderation_state->value;
     // Check that we are looking at the latest revision.
     if (!$entity->isLatestRevision()) {
-      /** @phpstan-ignore-next-line */
+      // @phpstan-ignore-next-line
       $revision_ids = $this->nodeStorage->revisionIds($entity);
       $last_revision_id = end($revision_ids);
       // Load the revision.
