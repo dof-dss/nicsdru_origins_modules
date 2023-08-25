@@ -92,7 +92,7 @@ display:
           info:
             changed:
               sortable: false
-              default_sort_order: asc
+              default_sort_order: desc
               align: ''
               separator: ''
               empty_column: false
