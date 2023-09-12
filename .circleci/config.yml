@@ -38,7 +38,7 @@ jobs:
           name: Fetch latest Drupal version
           command: |
             cd $PROJECT_ROOT
-            composer create-project drupal-composer/drupal-project:9.x-dev $PROJECT_ROOT --no-interaction
+            composer create-project drupal/recommended-project:9.5.x-dev $PROJECT_ROOT --no-interaction
       - run:
           name: Download dependent contrib modules.
           command: |
