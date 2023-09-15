@@ -748,7 +748,6 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
   // moderation states.
   if (\Drupal::currentUser()->hasPermission('create ' . $entity->bundle() . ' content')) {
     $node_storage = \Drupal::entityTypeManager()->getStorage('node');
-
     // Use the core service to fetch the permissable transitions based
     // on underlying configuration and active user object.
     $transitions = \Drupal::service('content_moderation.state_transition_validation')
@@ -761,6 +760,7 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     // publish an already published piece of content.
     /** @var \Drupal\Core\Entity\RevisionableStorageInterface $node_storage */
     $revision_id = $node_storage->getLatestRevisionId($entity->id());
+
     /** @var \Drupal\node\NodeInterface $revision */
     $revision = $node_storage->loadRevision($revision_id);
 

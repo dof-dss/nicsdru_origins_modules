@@ -105,7 +105,6 @@ class RevertToModerationStateForm extends ConfirmFormBase {
     $this->logger = $logger;
     $this->dateFormatter = $date_formatter;
     $this->time = $time;
-
     $this->nodeStorage = $this->entityTypeManager->getStorage('node');
   }
 
