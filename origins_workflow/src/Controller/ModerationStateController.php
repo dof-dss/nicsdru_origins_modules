@@ -131,6 +131,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         // will have given us the latest 'default' revision, which is not
         // what we want if there is a draft of published).
         $vid = $this->nodeStorage->getLatestRevisionId($nid);
+        // @phpstan-ignore-next-line
         $entity = $this->nodeStorage->loadRevision($vid);
 
         // The 'revision_translation_affected' field is poorly documented (and
@@ -156,7 +157,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         $entity->save();
 
         $moderation_event = new ModerationStateChangeEvent($entity, $new_state);
-        $this->eventDispatcher->dispatch($moderation_event::CHANGE, $moderation_event);
+        $this->eventDispatcher->dispatch($moderation_event, $moderation_event::CHANGE);
 
         // Log it.
         $message = t('State of @title (nid @nid) changed to @new_state by @user', [
@@ -204,6 +205,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       $last_revision_id = end($revision_ids);
       // Load the revision.
       /** @var \Drupal\node\NodeInterface $last_revision */
+      // @phpstan-ignore-next-line
       $last_revision = $this->nodeStorage->loadRevision($last_revision_id);
       $current_state = $last_revision->moderation_state->value;
     }

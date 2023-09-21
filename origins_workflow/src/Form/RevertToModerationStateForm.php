@@ -186,6 +186,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
     // Load the node revision we are reverting.
     /** @var \Drupal\node\NodeInterface $node */
+    // @phpstan-ignore-next-line
     $node = $this->nodeStorage->loadRevision($node_revision);
 
     // Get the moderation state entity.
