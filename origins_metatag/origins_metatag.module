@@ -45,15 +45,15 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
     }
 
     // Advanced: robots element only.
-      if (isset($form['field_meta_tags']['widget'][0]['advanced'])) {
-          foreach ($form['field_meta_tags']['widget'][0]['advanced'] as $key => &$item) {
-              if (preg_match('/^#/', $key) || in_array(['advanced']) || $key == 'robots') {
-                  continue;
-              }
+  if (isset($form['field_meta_tags']['widget'][0]['advanced'])) {
+    foreach ($form['field_meta_tags']['widget'][0]['advanced'] as $key => &$item) {
+     if (preg_match('/^#/', $key) || $key == 'robots') {
+       continue;
+        }
 
-              $item['#access'] = FALSE;
-          }
-      }
+            $item['#access'] = FALSE;
+        }
+    }
 
     // Hide non-essential groups.
     foreach ($form['field_meta_tags']['widget'][0] as $key => &$item) {
