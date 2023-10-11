@@ -44,5 +44,7 @@ function origins_form_descriptions_theme_registry_alter(&$theme_registry) {
 function origins_form_descriptions_preprocess_fieldset(&$variables) {
   $variables['description_display'] = 'before';
   $desc = $variables['description_display'];
-  $variables['description']['attributes']['class'] = $desc;
+  if (!empty($variables['description']) && !empty($variables['description']['attributes'])) {
+    $variables['description']['attributes']->addClass($desc);
+  }
 }
