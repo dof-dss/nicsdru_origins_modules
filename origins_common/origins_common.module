@@ -162,3 +162,20 @@ function origins_common_form_user_login_form_alter(&$form) {
   // Disable inline form errors on the login form (to rectify penetration test issues).
   $form['#disable_inline_form_errors'] = TRUE;
 }
+
+/**
+ * Implements hook_preprocess_status_messages().
+ */
+function origins_common_preprocess_status_messages(&$variables) {
+  // Add additional explanation to the oEmbed resource not found message.
+  if (isset($variables['message_list']['error'])) {
+    $error_messages = $variables['message_list']['error'];
+
+    foreach ($error_messages as $index => $message) {
+      if ($message == 'Could not retrieve the oEmbed resource.') {
+        $message .= t("This may be due to media being inaccessible or set to private.");
+        $variables['message_list']['error'][$index] = $message;
+      }
+    }
+  }
+}
