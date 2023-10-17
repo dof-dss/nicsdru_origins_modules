@@ -17,9 +17,10 @@ jobs:
       - run:
           name: Fetch phpcs and dependencies
           command: |
-            composer require drupal/coder
-            # Move vendor directory up a level as we don't want to code-check all of that.
+            composer require drupal/coder --prefer-stable --no-interaction --optimize-autoloader
+            # Move vendor and core directories up a level, out of the way, as we don't want to code-check all of that.
             mv vendor ../
+            mv core ../
       - run:
           name: Fetch phpcs convenience script
           command: |
@@ -38,7 +39,7 @@ jobs:
           name: Fetch latest Drupal version
           command: |
             cd $PROJECT_ROOT
-            composer create-project drupal/recommended-project:9.5.x-dev $PROJECT_ROOT --no-interaction
+            composer create-project drupal/recommended-project:10.1.x-dev $PROJECT_ROOT --no-interaction
       - run:
           name: Download dependent contrib modules.
           command: |

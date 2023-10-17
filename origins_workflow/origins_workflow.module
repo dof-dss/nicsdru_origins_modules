@@ -747,6 +747,8 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
   // administer this node type before we try and build custom links to toggle
   // moderation states.
   if (\Drupal::currentUser()->hasPermission('create ' . $entity->bundle() . ' content')) {
+    /** @var \Drupal\Core\Entity\RevisionableStorageInterface $node_storage */
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
     // Use the core service to fetch the permissable transitions based
     // on underlying configuration and active user object.
     $transitions = \Drupal::service('content_moderation.state_transition_validation')
@@ -757,14 +759,12 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     // Quick publish isn't detected as an equivalent operation/status as
     // published so we prune it off here for now as it makes no sense ot quick
     // publish an already published piece of content.
-    $revision_id = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->getLatestRevisionId($entity->id());
+
+    $revision_id = $node_storage->getLatestRevisionId($entity->id());
 
     /** @var \Drupal\node\NodeInterface $revision */
-    $revision = \Drupal::entityTypeManager()
-      ->getStorage('node')
-      ->loadRevision($revision_id);
+    // @phpstan-ignore-next-line
+    $revision = $node_storage->loadRevision($revision_id);
 
     $revision_moderation_state = $revision->get('moderation_state')->value;
     /** @var \Drupal\node\NodeInterface $entity */
