@@ -36,7 +36,7 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
   if (\Drupal::currentUser()->hasPermission('edit basic meta tags')) {
     // Only show:
     // Basic: keywords + description elements.
-    if (isset($form['field_meta_tags']['widget'][0]['basic'] )) {
+    if (isset($form['field_meta_tags']['widget'][0]['basic'])) {
       foreach ($form['field_meta_tags']['widget'][0]['basic'] as $k => &$item) {
         if (preg_match('/^#/', $k) || in_array($k, ['keywords', 'description'])) {
           continue;
@@ -47,7 +47,7 @@ function origins_metatag_form_node_form_alter(&$form, FormStateInterface $form_s
     }
 
     // Advanced: robots element only.
-    if (isset($form['field_meta_tags']['widget'][0]['advanced'] )) {
+    if (isset($form['field_meta_tags']['widget'][0]['advanced'])) {
       foreach ($form['field_meta_tags']['widget'][0]['advanced'] as $key => &$item) {
         if (preg_match('/^#/', $key) || $key == 'robots') {
           continue;
