@@ -56,6 +56,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   protected $logger;
 
   /**
+   * Node storage service object.
+   *
+   * @var \Drupal\node\NodeStorageInterface|\Drupal\Core\Entity\RevisionableStorageInterface
+   */
+  protected $nodeStorage;
+
+  /**
    * The Event Dispatcher service.
    *
    * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
@@ -85,6 +92,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     $this->request = $request;
     $this->logger = $logger;
     $this->eventDispatcher = $event_dispatcher;
+    $this->nodeStorage = $this->entityTypeManager->getStorage('node');
   }
 
   /**
@@ -107,7 +115,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   public function changeState($nid, $new_state) {
     // Load the entity.
     /** @var \Drupal\node\NodeInterface $entity */
-    $entity = $this->entityTypeManager->getStorage('node')->load($nid);
+    $entity = $this->nodeStorage->load($nid);
 
     /** @var \Drupal\workflows\StateInterface $new_state_entity */
     $new_state_entity = $this->moderationInformation
@@ -122,8 +130,9 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         // Get the latest revision (this is necessary as loading the entity
         // will have given us the latest 'default' revision, which is not
         // what we want if there is a draft of published).
-        $vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($nid);
-        $entity = $this->entityTypeManager->getStorage('node')->loadRevision($vid);
+        $vid = $this->nodeStorage->getLatestRevisionId($nid);
+        // @phpstan-ignore-next-line
+        $entity = $this->nodeStorage->loadRevision($vid);
 
         // The 'revision_translation_affected' field is poorly documented (and
         // understood) in Drupal core. There is much discussion at
@@ -148,7 +157,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         $entity->save();
 
         $moderation_event = new ModerationStateChangeEvent($entity, $new_state);
-        $this->eventDispatcher->dispatch($moderation_event::CHANGE, $moderation_event);
+        $this->eventDispatcher->dispatch($moderation_event, $moderation_event::CHANGE);
 
         // Log it.
         $message = t('State of @title (nid @nid) changed to @new_state by @user', [
@@ -191,11 +200,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     $current_state = $entity->moderation_state->value;
     // Check that we are looking at the latest revision.
     if (!$entity->isLatestRevision()) {
-      $revision_ids = $this->entityTypeManager->getStorage('node')->revisionIds($entity);
+      // @phpstan-ignore-next-line
+      $revision_ids = $this->nodeStorage->revisionIds($entity);
       $last_revision_id = end($revision_ids);
       // Load the revision.
       /** @var \Drupal\node\NodeInterface $last_revision */
-      $last_revision = $this->entityTypeManager->getStorage('node')->loadRevision($last_revision_id);
+      // @phpstan-ignore-next-line
+      $last_revision = $this->nodeStorage->loadRevision($last_revision_id);
       $current_state = $last_revision->moderation_state->value;
     }
     // Check permissions of current user.
