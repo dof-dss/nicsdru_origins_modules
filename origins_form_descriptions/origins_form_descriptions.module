@@ -38,4 +38,3 @@ function origins_form_descriptions_preprocess_fieldset(&$variables) {
     $variables['description']['attributes']->addClass($desc);
   }
 }
-
