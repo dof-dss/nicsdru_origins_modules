@@ -1,7 +1,8 @@
 (function ($, Drupal) {
   Drupal.behaviors.formDescriptions = {
     attach: function attach (context) {
-      $('.form-item [class$=description]').each(function(){
+      $(once('origins-form-descriptions', '.form-item [class$=description]',
+        context)).each(function(){
         // Find parent field ID, derive from the description id attribute.
         const descId = $(this).attr('id');
 
@@ -25,11 +26,14 @@
           // because they share almost the exact same label attribute values,
           // but we can use jQuery to only use the first label to avoid duplicates.
 
-          if (!$(this).parent().is('.fieldset-wrapper') && !$(this).is('#edit-field-featured-content--description')) {
+          if (!$(this).parent().is('.fieldset-wrapper')
+            && !$(this).is('#edit-field-featured-content--description')) {
             $('label[for^="' + labelFor + '"]').first().after($(this));
           } else if ($(this).is('#edit-field-featured-content--description')) {
             const desc = $(this).html();
-            $(this).prev().children('tbody').children('tr').first().before("<tr><td id='#edit-field-featured-content--description' class='form-item__description' colspan='2'>" + desc + "</td></tr>");
+            $(this).prev().children('tbody').children('tr').first()
+              .before("<tr><td id='#edit-field-featured-content--description' " +
+                "class='form-item__description' colspan='2'>" + desc + "</td></tr>");
             $(this).remove();
           }
         }
