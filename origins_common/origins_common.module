@@ -197,3 +197,13 @@ function origins_common_editor_js_settings_alter(array &$settings) {
     }
   }
 }
+
+/**
+ * Implements hook_form_alter().
+ */
+function origins_common_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add Claro fixes on entity queue page and also on all node edit forms.
+  if (($form['#id'] == 'entity-subqueue-slideshow-edit-form') || (preg_match('/-edit-form$/', $form['#id']))) {
+    $form['#attached']['library'][] = 'origins_common/origins_common_claro_fixes';
+  }
+}

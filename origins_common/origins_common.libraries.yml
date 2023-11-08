@@ -9,3 +9,7 @@ gmaps_lazy_load:
   dependencies:
     - core/drupal
     - core/jquery
+origins_common_claro_fixes:
+  css:
+    theme:
+      css/claro.overrides.css: {}
