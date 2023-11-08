@@ -1,0 +1,8 @@
+/* Overrides for Claro admin theme. */
+.entity-subqueue-slideshow-edit-form .js-form-item-items-add-more-new-item-target-id {
+  margin-top: 0;
+}
+/* Ensure that table borders shown in CKEditor 5 in Firefox */
+.ck .ck-content .table td {
+  position: static;
+}
