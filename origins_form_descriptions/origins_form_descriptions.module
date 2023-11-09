@@ -29,16 +29,6 @@ function origins_form_descriptions_form_media_form_alter(&$form, FormStateInterf
 }
 
 /**
- * Implements hook_theme_registry_alter().
- */
-function origins_form_descriptions_theme_registry_alter(&$theme_registry) {
-  if (\Drupal::service('router.admin_context')->isAdminRoute()) {
-    $theme_registry['fieldset__media_library_widget']['path'] = \Drupal::service('extension.list.module')->getPath('origins_form_descriptions') . '/templates/media-library';
-    $theme_registry['datetime_wrapper']['path'] = \Drupal::service('extension.list.module')->getPath('origins_form_descriptions') . '/templates/form';
-  }
-}
-
-/**
  * Implements hook_preprocess_fieldset().
  */
 function origins_form_descriptions_preprocess_fieldset(&$variables) {

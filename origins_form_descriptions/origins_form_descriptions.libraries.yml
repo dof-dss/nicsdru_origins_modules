@@ -6,4 +6,5 @@ form_descriptions:
     js/form_descriptions.js: {}
   dependencies:
     - core/jquery
+    - core/once
     - core/drupal
