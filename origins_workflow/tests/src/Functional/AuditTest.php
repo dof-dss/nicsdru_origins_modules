@@ -18,7 +18,7 @@ class AuditTest extends BrowserTestBase {
    *
    * @var array
    */
-  public static $modules = ['origins_workflow', 'node'];
+  protected static $modules = ['origins_workflow', 'node'];
 
   /**
    * Use install profile so that we have all content types, modules etc.
