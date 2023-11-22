@@ -34,3 +34,14 @@ origins_qa.manager.qa_account_create_form_modal:
     _permission: 'manage qa accounts'
   options:
     _admin_route: TRUE
+
+origins_qa.endpoint.users_enable:
+  path: '/origins-qa/endpoint/users/enable'
+  defaults:
+    _title: 'Enable QA users'
+    _controller: '\Drupal\origins_qa\Controller\QaEndpointController::qa_users_enable'
+origins_qa.endpoint.users_disable:
+  path: '/origins-qa/endpoint/users/disable'
+  defaults:
+    _title: 'Disable QA users'
+    _controller: '\Drupal\origins_qa\Controller\QaEndpointController::qa_users_disable'
