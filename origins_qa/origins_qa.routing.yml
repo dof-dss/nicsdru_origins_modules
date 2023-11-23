@@ -41,9 +41,15 @@ origins_qa.api.users_enable:
     _title: 'Enable QA users'
     _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'enable'
+    methods: [GET]
+  options:
+    no_cache: TRUE
 origins_qa.api.users_disable:
   path: '/origins-qa/api/users/disable/{token}'
   defaults:
     _title: 'Disable QA users'
     _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'disable'
+    methods: [GET]
+  options:
+    no_cache: TRUE

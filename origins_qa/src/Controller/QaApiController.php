@@ -67,6 +67,12 @@ final class QaApiController extends ControllerBase {
    * Enable QA accounts.
    */
   public function setQaUsersStatus($status, $token) {
+    // If we're on the production environment reject the request.
+    if (getenv('PLATFORM_BRANCH') === 'main') {
+      $this->logger->warning("Origins QA module is enabled and should NOT be for production environments.");
+      return new JsonResponse(NULL, 405);
+    }
+
     // Check if the token is in the invalid list.
     if (file_exists($this->invalidTokensFilepath)) {
       $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
@@ -94,11 +100,6 @@ final class QaApiController extends ControllerBase {
       }
 
       return new JsonResponse(NULL, 400);
-    }
-
-    // If we're on the production environment reject the request.
-    if (getenv('PLATFORM_BRANCH') === 'main') {
-      return new JsonResponse(NULL, 405);
     }
 
     // Reject if the token is incorrect.
