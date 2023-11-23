@@ -35,15 +35,15 @@ origins_qa.manager.qa_account_create_form_modal:
   options:
     _admin_route: TRUE
 
-origins_qa.endpoint.users_enable:
-  path: '/origins-qa/endpoint/users/enable/{token}'
+origins_qa.api.users_enable:
+  path: '/origins-qa/api/users/enable/{token}'
   defaults:
     _title: 'Enable QA users'
-    _controller: '\Drupal\origins_qa\Controller\QaEndpointController::qa_users_status'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::set_qa_users_status'
     status: 'enable'
-origins_qa.endpoint.users_disable:
-  path: '/origins-qa/endpoint/users/disable/{token}'
+origins_qa.api.users_disable:
+  path: '/origins-qa/api/users/disable/{token}'
   defaults:
     _title: 'Disable QA users'
-    _controller: '\Drupal\origins_qa\Controller\QaEndpointController::qa_users_status'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::set_qa_users_status'
     status: 'disable'

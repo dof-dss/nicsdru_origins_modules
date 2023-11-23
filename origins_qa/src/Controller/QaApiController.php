@@ -10,16 +10,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Returns responses for Origins Quality Assurance routes.
+ * Provides endpoints for the QA API service.
  */
-final class QaEndpointController extends ControllerBase {
+final class QaApiController extends ControllerBase {
 
   /**
    * The filepath to the invalid token list.
    *
    * @var string
    */
-  protected $invalid_tokens_file;
+  protected $invalidTokensFilepath;
 
   /**
    * The current request.
@@ -42,7 +42,7 @@ final class QaEndpointController extends ControllerBase {
   public function __construct(Request $request, FileSystemInterface $file_system) {
     $this->request = $request;
     $this->fileSystem = $file_system;
-    $this->invalid_tokens_file = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
+    $this->invalidTokensFilepath = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
   }
 
   /**
@@ -58,9 +58,10 @@ final class QaEndpointController extends ControllerBase {
   /**
    * Enable QA accounts.
    */
-  public function qa_users_status($status, $token) {
-    if (file_exists($this->invalid_tokens_file)) {
-      $invalid_tokens = str_getcsv(file_get_contents($this->invalid_tokens_file));
+  public function set_qa_users_status($status, $token) {
+    // Check if the token is in the invalid list.
+    if (file_exists($this->invalidTokensFilepath)) {
+      $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
 
       if (in_array($token, $invalid_tokens)) {
         return new JsonResponse(null, 403);
@@ -68,17 +69,18 @@ final class QaEndpointController extends ControllerBase {
     }
 
     // Check we have an HTTPS connection.
-    // TODO: invalidate the token if it's sent using HTTP.
     if (!$this->request->isSecure()) {
-      if (file_exists($this->invalid_tokens_file)) {
-        $invalid_tokens = str_getcsv(file_get_contents($this->invalid_tokens_file));
+      // Add the token to the invalid list if it was passed via
+      // an unencrypted HTTP connection.
+      if (file_exists($this->invalidTokensFilepath)) {
+        $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
         $invalid_tokens[] = $token;
       } else {
         $invalid_tokens = [$token];
       }
 
       $file_data = implode(',', $invalid_tokens);
-      file_put_contents($this->invalid_tokens_file, $file_data);
+      file_put_contents($this->invalidTokensFilepath, $file_data);
 
       return new JsonResponse(null, 400);
     }
