@@ -87,7 +87,7 @@ final class QaApiController extends ControllerBase {
     }
 
     // Reject if the token is incorrect.
-    if ($token != getenv('QA_ENDPOINT_TOKEN')) {
+    if ($token != getenv('ORIGINS_QA_API_TOKEN')) {
       return new JsonResponse(NULL, 401);
     }
 
