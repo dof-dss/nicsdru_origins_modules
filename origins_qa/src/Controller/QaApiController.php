@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Drupal\origins_qa\Controller;
 
@@ -29,19 +31,13 @@ final class QaApiController extends ControllerBase {
   protected $request;
 
   /**
-   * @var \Drupal\Core\File\FileSystemInterface
-   */
-  protected $fileSystem;
-
-  /**
    * Constructs a QaEndpointController object.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
    */
-  public function __construct(Request $request, FileSystemInterface $file_system) {
+  public function __construct(Request $request) {
     $this->request = $request;
-    $this->fileSystem = $file_system;
     $this->invalidTokensFilepath = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
   }
 
@@ -51,20 +47,19 @@ final class QaApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('request_stack')->getCurrentRequest(),
-      $container->get('file_system'),
     );
   }
 
   /**
    * Enable QA accounts.
    */
-  public function set_qa_users_status($status, $token) {
+  public function setQaUsersStatus($status, $token) {
     // Check if the token is in the invalid list.
     if (file_exists($this->invalidTokensFilepath)) {
       $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
 
       if (in_array($token, $invalid_tokens)) {
-        return new JsonResponse(null, 403);
+        return new JsonResponse(NULL, 403);
       }
     }
 
@@ -75,24 +70,25 @@ final class QaApiController extends ControllerBase {
       if (file_exists($this->invalidTokensFilepath)) {
         $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
         $invalid_tokens[] = $token;
-      } else {
+      }
+      else {
         $invalid_tokens = [$token];
       }
 
       $file_data = implode(',', $invalid_tokens);
       file_put_contents($this->invalidTokensFilepath, $file_data);
 
-      return new JsonResponse(null, 400);
+      return new JsonResponse(NULL, 400);
     }
 
     // If we're on the production environment reject the request.
     if (getenv('PLATFORM_BRANCH') === 'main') {
-      return new JsonResponse(null, 405);
+      return new JsonResponse(NULL, 405);
     }
 
     // Reject if the token is incorrect.
     if ($token != getenv('QA_ENDPOINT_TOKEN')) {
-      return new JsonResponse(null, 401);
+      return new JsonResponse(NULL, 401);
     }
 
     $response = new JsonResponse();
@@ -101,9 +97,11 @@ final class QaApiController extends ControllerBase {
     if ($status === 'enable') {
       $qac->toggleAll('enable');
       return $response->setStatusCode(200);
-    } else {
+    }
+    else {
       $qac->toggleAll('disable');
       return $response->setStatusCode(200);
     }
   }
+
 }

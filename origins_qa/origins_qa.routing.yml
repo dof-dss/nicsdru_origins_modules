@@ -39,11 +39,11 @@ origins_qa.api.users_enable:
   path: '/origins-qa/api/users/enable/{token}'
   defaults:
     _title: 'Enable QA users'
-    _controller: '\Drupal\origins_qa\Controller\QaApiController::set_qa_users_status'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'enable'
 origins_qa.api.users_disable:
   path: '/origins-qa/api/users/disable/{token}'
   defaults:
     _title: 'Disable QA users'
-    _controller: '\Drupal\origins_qa\Controller\QaApiController::set_qa_users_status'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'disable'
