@@ -6,6 +6,7 @@ namespace Drupal\origins_qa\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -31,13 +32,24 @@ final class QaApiController extends ControllerBase {
   protected $request;
 
   /**
+   * The logger channel.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannel
+   */
+  protected $logger;
+
+  /**
    * Constructs a QaEndpointController object.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
+   *
+   * @param \Drupal\Core\Logger\LoggerChannelFactory $logger
+   *   The logger channel factory service.
    */
-  public function __construct(Request $request) {
+  public function __construct(Request $request, LoggerChannelFactory $logger) {
     $this->request = $request;
+    $this->logger = $logger->get('origins_qa');
     $this->invalidTokensFilepath = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
   }
 
@@ -47,6 +59,7 @@ final class QaApiController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('request_stack')->getCurrentRequest(),
+      $container->get('logger.factory'),
     );
   }
 
@@ -76,7 +89,9 @@ final class QaApiController extends ControllerBase {
       }
 
       $file_data = implode(',', $invalid_tokens);
-      file_put_contents($this->invalidTokensFilepath, $file_data);
+      if (file_put_contents($this->invalidTokensFilepath, $file_data) === FALSE) {
+        $this->logger->warning("Unable to write QA API invalid tokens file. Check filesystem permissions.");
+      }
 
       return new JsonResponse(NULL, 400);
     }
