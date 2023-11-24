@@ -4,3 +4,58 @@
  * @file
  * Primary module hooks for Origins Add content module.
  */
+
+use Drupal\Core\Entity\ContentEntityType;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_theme().
+ */
+function origins_add_content_theme() {
+  return [
+    'content_add_list' => [
+      'variables' => ['content' => NULL],
+    ],
+  ];
+}
+
+/**
+ * Prepares variables for list of available node type templates.
+ *
+ * Default template: node-add-list.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - content: An array of content types.
+ *
+ * @see \Drupal\node\Controller\NodeController::addPage()
+ */
+function origins_add_content_preprocess_content_add_list(&$variables) {
+  $variables['types'] = [];
+  if (!empty($variables['content'])) {
+    foreach ($variables['content'] as $type) {
+
+      if ($type instanceof NodeType) {
+        $variables['types'][$type->id()] = [
+          'type' => $type->id(),
+          'add_link' => Link::fromTextAndUrl($type->label(), Url::fromRoute('node.add', ['node_type' => $type->id()]))->toString(),
+          'description' => [
+            '#markup' => $type->getDescription(),
+          ],
+        ];
+      }
+      elseif ($type instanceof ContentEntityType) {
+        $variables['types'][$type->id()] = [
+          'type' => $type->id(),
+          'add_link' => Link::fromTextAndUrl($type->getLabel(), Url::fromUserInput($type->get('links')['add-form'])),
+          'description' => [
+            '#markup' => t('Add new @type content.', ['@type' => strtolower($type->getLabel())]),
+          ],
+        ];
+      }
+
+    }
+  }
+}

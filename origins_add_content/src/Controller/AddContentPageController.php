@@ -55,8 +55,8 @@ final class AddContentPageController extends ControllerBase {
     $entity = $this->entityTypeManager->getDefinition('gp');
     $build['#content'][$entity->id()] = $entity;
 
-    $entity = $this->entityTypeManager->getDefinition('sitewide_alert');
-    $build['#content'][$entity->id()] = $entity;
+//    $entity = $this->entityTypeManager->getDefinition('sitewide_alert');
+//    $build['#content'][$entity->id()] = $entity;
 
 
     $build['#theme'] = 'content_add_list';
