@@ -1,0 +1,11 @@
+# Schema for the configuration files of the Origins Add content module.
+origins_add_content.settings:
+  type: config_object
+  label: 'Origins Add content settings'
+  mapping:
+    add_content_page_entities:
+      type: sequence
+      label: 'Entities to add to the Add content page'
+      sequence:
+        type: string
+

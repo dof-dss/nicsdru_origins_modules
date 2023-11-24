@@ -1,0 +1,7 @@
+origins_add_content.add_content_page_settings:
+  path: '/admin/config/origins_add_content/add-content-page-settings'
+  defaults:
+    _title: 'Add content page settings'
+    _form: 'Drupal\origins_add_content\Form\AddContentPageSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
