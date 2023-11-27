@@ -62,15 +62,15 @@ final class AddContentPageController extends ControllerBase {
    * Builds a list of content types to add.
    */
   public function addContentList(): array {
-
     $config = $this->configFactory->get('origins_add_content.settings');
-    $entities = $config->get('entities');
 
+    // Call the Core node/add route controller method to generate the initial list.
     $request = new Request([], [], ['_controller' => '\Drupal\node\Controller\NodeController::addPage']);
     $node_controller = $this->controllerResolver->getController($request);
-
     $build = call_user_func_array($node_controller, []);
 
+    // Add the configured entities but only if the current user has the create permission.
+    $entities = $config->get('entities');
     foreach ($entities as $entity_id) {
       $access_handler = $this->entityTypeManager->getAccessControlHandler($entity_id);
 
@@ -80,6 +80,7 @@ final class AddContentPageController extends ControllerBase {
       }
     }
 
+    // Add our theme definition based on Core node_add_list.
     $build['#theme'] = 'content_add_list';
 
     return $build;

@@ -60,11 +60,18 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
     $config = $this->config('origins_add_content.settings');
     $entities = $this->entityTypeManager->getDefinitions();
     $options = [];
+    $unavailable = [];
 
     foreach ($entities as $entity_type) {
 
       if ($entity_type instanceof ContentEntityTypeInterface) {
-        $options[$entity_type->id()] = $entity_type->getLabel();
+        $links = $entity_type->get('links');
+        if (!array_key_exists('add-form',$links)) {
+          $unavailable[] = $entity_type->getLabel();
+        }
+        else {
+          $options[$entity_type->id()] = $entity_type->getLabel();
+        }
       }
     }
 
@@ -74,6 +81,13 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
       '#options' => $options,
       '#default_value' => $config->get('entities') ?: [],
       '#description' => $this->t('Selected entities will have a link added to the @add_content_link (node/add) admin page.', ['@add_content_link' => Link::createFromRoute('Add content', 'node.add_page')->toString()])
+    ];
+
+    $form['unavailable'] = [
+      '#theme' => 'item_list',
+      '#list_type' => 'ul',
+      '#title' => $this->t("Unavailable because they do not define the 'add-form' entity attribute"),
+      '#items' => $unavailable,
     ];
 
     return parent::buildForm($form, $form_state);

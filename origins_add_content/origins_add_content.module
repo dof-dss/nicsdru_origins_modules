@@ -65,13 +65,18 @@ function origins_add_content_preprocess_content_add_list(&$variables) {
         ];
       }
       elseif ($type instanceof ContentEntityType) {
-        $variables['types'][$type->id()] = [
-          'type' => $type->id(),
-          'add_link' => Link::fromTextAndUrl($type->getLabel(), Url::fromUserInput($type->get('links')['add-form'])),
-          'description' => [
-            '#markup' => t('Add new @type content.', ['@type' => strtolower($type->getLabel())]),
-          ],
-        ];
+
+        $entity_links = $type->get('links');
+
+        if (array_key_exists('add-form', $entity_links)) {
+          $variables['types'][$type->id()] = [
+            'type' => $type->id(),
+            'add_link' => Link::fromTextAndUrl($type->getLabel(), Url::fromUserInput($entity_links['add-form'])),
+            'description' => [
+              '#markup' => t('Add new @type content.', ['@type' => strtolower($type->getLabel())]),
+            ],
+          ];
+        }
       }
     }
   }
