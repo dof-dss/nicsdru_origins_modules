@@ -6,6 +6,7 @@ namespace Drupal\origins_add_content\Controller;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,8 +71,13 @@ final class AddContentPageController extends ControllerBase {
 
     $build = call_user_func_array($node_controller, []);
 
-    foreach ($entities as $entity) {
-      $build['#content'][$entity] = $this->entityTypeManager->getDefinition($entity);
+    foreach ($entities as $entity_id) {
+      $access_handler = $this->entityTypeManager->getAccessControlHandler($entity_id);
+
+      if ($access_handler->createAccess()) {
+        $entity = $this->entityTypeManager->getDefinition($entity_id);
+        $build['#content'][$entity_id] = $entity;
+      }
     }
 
     $build['#theme'] = 'content_add_list';
