@@ -2,6 +2,8 @@
 
 namespace Drupal\origins_add_content\Controller;
 
+use Drupal\Core\Config\ConfigFactory;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -23,11 +25,19 @@ final class AddContentPageController extends ControllerBase {
   protected $entityTypeManager;
 
   /**
+   * The config factory service.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * The controller constructor.
    */
-  public function __construct(ControllerResolverInterface $controllerResolver, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(ControllerResolverInterface $controllerResolver, EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_service) {
     $this->controllerResolver = $controllerResolver;
     $this->entityTypeManager = $entity_type_manager;
+    $this->configFactory = $config_service;
   }
 
   /**
@@ -37,6 +47,7 @@ final class AddContentPageController extends ControllerBase {
     return new self(
       $container->get('controller_resolver'),
       $container->get('entity_type.manager'),
+      $container->get('config.factory'),
     );
   }
 
@@ -45,19 +56,17 @@ final class AddContentPageController extends ControllerBase {
    */
   public function addContentList(): array {
 
+    $config = $this->configFactory->get('origins_add_content.settings');
+    $entities = $config->get('entities');
+
     $request = new Request([], [], ['_controller' => '\Drupal\node\Controller\NodeController::addPage']);
     $node_controller = $this->controllerResolver->getController($request);
 
     $build = call_user_func_array($node_controller, []);
 
-    $entities = $this->entityTypeManager->getDefinitions();
-
-    $entity = $this->entityTypeManager->getDefinition('gp');
-    $build['#content'][$entity->id()] = $entity;
-
-//    $entity = $this->entityTypeManager->getDefinition('sitewide_alert');
-//    $build['#content'][$entity->id()] = $entity;
-
+    foreach ($entities as $entity) {
+      $build['#content'][$entity] = $this->entityTypeManager->getDefinition($entity);
+    }
 
     $build['#theme'] = 'content_add_list';
 

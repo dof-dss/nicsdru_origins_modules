@@ -65,11 +65,11 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
       }
     }
 
-    $form['add_content_page_entities'] = [
+    $form['entities'] = [
       '#type' => 'checkboxes',
       '#title' => $this->t('Content Entity types links'),
       '#options' => $options,
-      '#default_value' => $config->get('add_content_page_entities') ?: [],
+      '#default_value' => $config->get('entities') ?: [],
       '#description' => $this->t('Selected entities will have a link added to the Add content (node/add) admin page.')
     ];
 
@@ -81,10 +81,10 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $values = $form_state->getValues();
-    $entity_types = array_keys(array_filter($values['add_content_page_entities']));
+    $entity_types = array_keys(array_filter($values['entities']));
 
     $this->config('origins_add_content.settings')
-      ->set('add_content_page_entities', $entity_types)
+      ->set('entities', $entity_types)
       ->save();
 
     parent::submitForm($form, $form_state);
