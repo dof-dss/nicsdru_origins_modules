@@ -1,4 +1,4 @@
-origins_add_content.add_content_page_settings:
+origins_add_content.settings:
   path: '/admin/config/origins_add_content/add-content-page-settings'
   defaults:
     _title: 'Add content page settings'
