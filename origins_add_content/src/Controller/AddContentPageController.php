@@ -1,8 +1,9 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Drupal\origins_add_content\Controller;
 
-use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -15,6 +16,11 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
  */
 final class AddContentPageController extends ControllerBase {
 
+  /**
+   * The controller resolver.
+   *
+   * @var \Symfony\Component\HttpKernel\Controller\ControllerResolverInterface
+   */
   protected ControllerResolverInterface $controllerResolver;
 
   /**

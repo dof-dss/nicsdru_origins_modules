@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Drupal\origins_add_content\Form;
 
@@ -6,6 +8,7 @@ use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -67,10 +70,10 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
 
     $form['entities'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Content Entity types links'),
+      '#title' => $this->t('Entities to create links for'),
       '#options' => $options,
       '#default_value' => $config->get('entities') ?: [],
-      '#description' => $this->t('Selected entities will have a link added to the Add content (node/add) admin page.')
+      '#description' => $this->t('Selected entities will have a link added to the @add_content_link (node/add) admin page.', ['@add_content_link' => Link::createFromRoute('Add content', 'node.add_page')->toString()])
     ];
 
     return parent::buildForm($form, $form_state);
