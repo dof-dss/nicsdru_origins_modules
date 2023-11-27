@@ -62,11 +62,13 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
     $options = [];
     $unavailable = [];
 
-    foreach ($entities as $entity_type) {
+    // Ignore some entities that have well-defined entries within the admin.
+    $ignore = ['media'];
 
+    foreach ($entities as $entity_type) {
       if ($entity_type instanceof ContentEntityTypeInterface) {
         $links = $entity_type->get('links');
-        if (!array_key_exists('add-form',$links)) {
+        if (!array_key_exists('add-form', $links) || in_array($entity_type->id(), $ignore)) {
           $unavailable[] = $entity_type->getLabel();
         }
         else {
@@ -83,10 +85,21 @@ final class AddContentPageSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Selected entities will have a link added to the @add_content_link (node/add) admin page.', ['@add_content_link' => Link::createFromRoute('Add content', 'node.add_page')->toString()])
     ];
 
+    $form['unavailable_intro_heading'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'h3',
+      '#value' => $this->t("Unavailable"),
+    ];
+
+    $form['unavailable_intro_body'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $this->t("The following entities are unavailable because they do not define the 'add-form' entity attribute or they are part of the ignore list (e.g. Media)."),
+    ];
+
     $form['unavailable'] = [
       '#theme' => 'item_list',
       '#list_type' => 'ul',
-      '#title' => $this->t("Unavailable because they do not define the 'add-form' entity attribute"),
       '#items' => $unavailable,
     ];
 
