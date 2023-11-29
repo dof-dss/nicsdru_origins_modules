@@ -72,11 +72,13 @@ final class AddContentPageController extends ControllerBase {
     // Add the configured entities but only if the current user has the create permission.
     $entities = $config->get('entities');
     foreach ($entities as $entity_id) {
-      $access_handler = $this->entityTypeManager->getAccessControlHandler($entity_id);
+      if ($this->entityTypeManager->hasDefinition($entity_id)) {
+        $access_handler = $this->entityTypeManager->getAccessControlHandler($entity_id);
 
-      if ($access_handler->createAccess()) {
-        $entity = $this->entityTypeManager->getDefinition($entity_id);
-        $build['#content'][$entity_id] = $entity;
+        if ($access_handler->createAccess()) {
+          $entity = $this->entityTypeManager->getDefinition($entity_id);
+          $build['#content'][$entity_id] = $entity;
+        }
       }
     }
 
