@@ -1,0 +1,5 @@
+origins_add_content.settings:
+  title: Add content page settings
+  parent: origins.admin_config
+  route_name: origins_add_content.settings
+  weight: 10
