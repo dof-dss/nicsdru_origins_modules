@@ -1,0 +1,7 @@
+name: 'Origins Add content'
+type: module
+description: 'Allows the addition of links to content entities from the node/add &#039;Add Content&#039; page.'
+package: 'NICS: Origins'
+core_version_requirement: ^10
+dependencies:
+  - drupal:node

@@ -1,0 +1,6 @@
+services:
+  origins_add_content.route_subscriber:
+    class: Drupal\origins_add_content\EventSubscriber\ContentAddRouteSubscriber
+    arguments: ['@controller_resolver']
+    tags:
+      - { name: event_subscriber }
