@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the origins workflow module.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 
@@ -111,4 +112,16 @@ function origins_workflow_uninstall() {
       $user->delete();
     }
   }
+}
+
+
+/**
+ * Update View to include link to latest draft.
+ */
+function origins_workflow_update_91001() {
+  $config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/optional';
+  $active_storage = \Drupal::service('config.storage');
+
+  $source = new FileStorage($config_path);
+  $active_storage->write('views.view.workflow_moderation', $source->read('views.view.workflow_moderation'));
 }
