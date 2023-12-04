@@ -817,3 +817,24 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
   }
   return $operations;
 }
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ */
+function origins_workflow_preprocess_views_view_field(&$variables) {
+  $view = $variables['view'];
+  $field = $variables['field'];
+  $workflow_view_displays = ['my_drafts', 'all_drafts', 'needs_review'];
+
+  // Add a 'redirects' icon if we are processing the first title field.
+  if (in_array($view->current_display, $workflow_view_displays) && $field->field === 'title' && $field->position === 1) {
+    $redirects = \Drupal::service('redirect.repository')->findMatchingRedirect($variables["row"]->_entity->toUrl()->toString());
+
+    if ($redirects) {
+      $icon_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/images/shuffle.png';
+      $variables['output'] = [
+        '#markup' => $variables['output']->__toString() . ' <img src="/' . $icon_path . '" title="This content redirects to another page" />',
+      ];
+    }
+  }
+}
