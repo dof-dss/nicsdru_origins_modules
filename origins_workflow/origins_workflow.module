@@ -823,17 +823,18 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
  */
 function origins_workflow_preprocess_views_view_field(&$variables) {
   $view = $variables['view'];
+  $field = $variables['field'];
   $workflow_view_displays = ['my_drafts', 'all_drafts', 'needs_review'];
 
-  if (in_array($view->current_display, $workflow_view_displays) && $variables['field']->field === 'title') {
-    $mod_state = $variables["row"]->_entity->get('moderation_state')->getString();
-    if ($mod_state === 'draft' || $mod_state === 'needs_review') {
-      // Rewrite the title link to point to the page for that revision.
-      $url = Url::fromRoute('entity.node.revision', [
-        'node' => $variables['row']->_entity->id(),
-        'node_revision' => $variables["row"]->node_field_data_node_field_revision_nid
-      ]);
-      $variables['output'] = Link::fromTextAndUrl($variables['row']->_entity->label(), $url);
+  // Add a 'redirects' icon if we are processing the first title field.
+  if (in_array($view->current_display, $workflow_view_displays) && $field->field === 'title' && $field->position === 1) {
+    $redirects = \Drupal::service('redirect.repository')->findMatchingRedirect($variables["row"]->_entity->toUrl()->toString());
+
+    if ($redirects) {
+      $icon_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/images/shuffle.png';
+      $variables['output'] = [
+        '#markup' => $variables['output']->__toString() . ' <img src="/' . $icon_path . '" title="This content redirects to another page" />',
+      ];
     }
   }
 }
