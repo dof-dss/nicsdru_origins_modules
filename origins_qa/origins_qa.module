@@ -16,6 +16,8 @@ function origins_qa_help($route_name, RouteMatchInterface $route_match) {
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t("This module provides management operations for QA accounts. User accounts must be assigned the role 'qa' (Quality Assurance) to appear on the 'QA Accounts' section under 'People'.") . '</p>';
+      $output .= '<h2>' . t('API') . '</h2>';
+      $output .= '<p>' . t("The API provides commands to activate or deactivate QA accounts on non-production environments. The API requires that a token called 'ORIGINS_QA_API_TOKEN' is set within the Platform SH environment variables.") . '</p>';
       return $output;
   }
 }
