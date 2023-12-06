@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
 
@@ -61,13 +62,19 @@ final class AddContentPageController extends ControllerBase {
   /**
    * Builds a list of content types to add.
    */
-  public function addContentList(): array {
+  public function addContentList(): array|RedirectResponse {
     $config = $this->configFactory->get('origins_add_content.settings');
 
     // Call the Core node/add route controller method to generate the initial list.
     $request = new Request([], [], ['_controller' => '\Drupal\node\Controller\NodeController::addPage']);
     $node_controller = $this->controllerResolver->getController($request);
     $build = call_user_func_array($node_controller, []);
+
+    // Some limited roles only have access to 1 content type and Drupal will automatically
+    // redirect to that node/add/type page by returning a redirect response.
+    if ($build instanceof RedirectResponse) {
+      return $build;
+    }
 
     // Add the configured entities but only if the current user has the create permission.
     $entities = $config->get('entities');
