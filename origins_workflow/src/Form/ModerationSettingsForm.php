@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types = 1);
 
 namespace Drupal\origins_workflow\Form;
 
@@ -36,16 +38,14 @@ final class ModerationSettingsForm extends ConfigFormBase {
     unset($displays['default']);
 
     foreach ($displays as $display => $data) {
-      ksm($data);
-      $form[$display] = array(
+      $form[$display] = [
         '#type' => 'details',
         '#title' => $data['display_title'],
-      );
+      ];
     }
 
     return parent::buildForm($form, $form_state);
   }
-
 
   /**
    * {@inheritdoc}
