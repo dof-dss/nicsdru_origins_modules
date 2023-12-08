@@ -4,3 +4,10 @@ origins_workflow.audit_settings_form:
   description: 'Configure audit settings and messages'
   parent: origins.admin_config
   weight: 99
+
+origins_workflow.moderation_settings:
+  title: Moderation settings
+  description: Configure Moderation displays and content filtering.
+  route_name: origins_workflow.moderation_settings
+  parent: origins.admin_config
+  weight: 10

@@ -52,3 +52,11 @@ origins_workflow.audit_settings_form:
     _role: 'administrator'
   options:
     _admin_route: TRUE
+
+origins_workflow.moderation_settings:
+  path: '/admin/config/system/origins/moderation/settings'
+  defaults:
+    _title: 'Origins Moderation settings'
+    _form: 'Drupal\origins_workflow\Form\ModerationSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
