@@ -346,6 +346,18 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
   if (isset($data['tabs'][1]) && isset($data['tabs'][1]['content_moderation.moderated_content'])) {
     unset($data['tabs'][1]['content_moderation.moderated_content']);
   }
+
+  // Remove the Audit View if we don't have any node types set for auditing.
+  $audit_content_types = Drupal::configFactory()->get('origins_workflow.auditsettings')->get('audit_content_types');
+
+  // Note: The cache will need to be cleared if the Origins Audit config form is updated.
+  if (!empty($audit_content_types)) {
+    $audit_content_types = array_filter($audit_content_types, 'is_string');
+    if (empty($audit_content_types)) {
+      unset($data["tabs"][1]["origins_workflow.needs_audit_tab"]);
+    }
+  }
+
 }
 
 /**
