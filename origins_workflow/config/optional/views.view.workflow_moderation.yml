@@ -581,7 +581,12 @@ display:
       cache:
         type: tag
         options: {  }
-      empty: {  }
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          plugin_id: text_custom
       sorts: {  }
       arguments: {  }
       filters:
@@ -1393,6 +1398,18 @@ display:
         type: perm
         options:
           perm: 'view any unpublished content'
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No drafts to display.'
+          tokenize: false
       filters:
         moderation_state:
           id: moderation_state
@@ -1669,6 +1686,7 @@ display:
         groups:
           1: AND
       defaults:
+        empty: false
         access: false
         title: false
         fields: false
@@ -2154,6 +2172,18 @@ display:
         type: perm
         options:
           perm: 'view own unpublished content'
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'You currently have no draft content to display.'
+          tokenize: false
       filters:
         moderation_state:
           id: moderation_state
@@ -2469,6 +2499,7 @@ display:
         groups:
           1: AND
       defaults:
+        empty: false
         access: false
         title: false
         fields: false
@@ -2953,6 +2984,18 @@ display:
         type: perm
         options:
           perm: 'audit content'
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: 'No content currently requires auditing.'
+          tokenize: false
       sorts:
         revision_timestamp:
           id: revision_timestamp
@@ -3244,6 +3287,7 @@ display:
         groups:
           1: AND
       defaults:
+        empty: false
         access: false
         title: false
         relationships: false
@@ -3816,6 +3860,18 @@ display:
         type: perm
         options:
           perm: 'use nics_editorial_workflow transition publish'
+      empty:
+        area_text_custom:
+          id: area_text_custom
+          table: views
+          field: area_text_custom
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: text_custom
+          empty: true
+          content: "No content is currently marked as 'Needs Review'."
+          tokenize: false
       filters:
         moderation_state:
           id: moderation_state
@@ -4045,6 +4101,7 @@ display:
         groups:
           1: AND
       defaults:
+        empty: false
         access: false
         fields: false
         filters: false
