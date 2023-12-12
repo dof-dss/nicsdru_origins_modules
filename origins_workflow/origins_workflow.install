@@ -116,6 +116,19 @@ function origins_workflow_uninstall() {
 
 
 /**
+ * Helper function to be called from an update hook
+ * when the workflow View config requires updating.
+ */
+function origins_workflow_update_view() {
+  $config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/optional';
+  $active_storage = \Drupal::service('config.storage');
+
+  $source = new FileStorage($config_path);
+  $workflow_view = $source->read('views.view.workflow_moderation');
+  $active_storage->write('views.view.workflow_moderation', $workflow_view);
+}
+
+/**
  * Update View to include link to latest draft.
  */
 function origins_workflow_update_91001() {
