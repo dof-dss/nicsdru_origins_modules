@@ -4,6 +4,10 @@ services:
     arguments: ['@entity_type.manager', '%breadcrumb.revert.matches%', '@request_stack']
     tags:
       - { name: breadcrumb_builder, priority: 100 }
+  origins_workflow.config_override:
+    class: Drupal\origins_workflow\Config\WorkflowOverride
+    tags:
+      - { name: config.factory.override, priority: 5 }
 
 parameters:
   breadcrumb.revert.matches:
