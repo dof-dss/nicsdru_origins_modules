@@ -6,13 +6,14 @@ namespace Drupal\origins_workflow\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\views\Entity\View;
 use Drupal\views\Views;
 
 /**
  * Configure Origins: Moderation settings for this site.
  */
 final class ModerationSettingsForm extends ConfigFormBase {
+
+  const SETTINGS = 'origins_workflow.moderation.settings';
 
   /**
    * {@inheritdoc}
@@ -25,7 +26,7 @@ final class ModerationSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames(): array {
-    return ['origins_workflow.settings'];
+    return [ModerationSettingsForm::SETTINGS];
   }
 
   /**
@@ -42,6 +43,8 @@ final class ModerationSettingsForm extends ConfigFormBase {
     foreach ($node_types as $node_type) {
       $types[$node_type->id()] = $node_type->label();
     }
+
+    $view_overrides = $this->config('origins_workflow.moderation.settings')->get('view_overrides');
 
     $form['views'] = [
       '#type' => 'vertical_tabs',
@@ -60,14 +63,20 @@ final class ModerationSettingsForm extends ConfigFormBase {
         '#title' => $this->t(''),
       ];
 
-      $form[$display]['node_type_filter']['node_type'] = [
+      $form[$display]['node_type_filter'][$display . '_node_types'] = [
         '#type' => 'checkboxes',
         '#title' => $this->t("Display Content types for the '@title' View.", ['@title' => $data['display_title']]),
         '#description' => $this->t('Unselect all to display all content types.'),
+        '#default_value' => array_filter($view_overrides[$display]['filtered_node_types'] ?? [], 'is_string'),
         '#options' => $types,
       ];
 
     }
+
+    $form['view_displays'] = [
+      '#type' => 'hidden',
+      '#value' => implode(',', array_keys($displays))
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -76,9 +85,17 @@ final class ModerationSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
-    $this->config('origins_workflow.settings')
-      ->set('example', $form_state->getValue('example'))
+    $displays = explode(',', $form_state->getValue('view_displays'));
+    $settings = [];
+
+    foreach ($displays as $display) {
+      $settings[$display]['filtered_node_types'] = $form_state->getValue($display . '_node_types');
+    }
+
+    $this->config(ModerationSettingsForm::SETTINGS)
+      ->set('view_overrides', $settings)
       ->save();
+
     parent::submitForm($form, $form_state);
   }
 
