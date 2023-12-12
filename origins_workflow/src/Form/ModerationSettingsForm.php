@@ -37,11 +37,36 @@ final class ModerationSettingsForm extends ConfigFormBase {
     $displays = $view->storage->get('display');
     unset($displays['default']);
 
+    $types = [];
+    $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+    foreach ($node_types as $node_type) {
+      $types[$node_type->id()] = $node_type->label();
+    }
+
+    $form['views'] = [
+      '#type' => 'vertical_tabs',
+      '#title' => $this->t('Moderation Displays'),
+    ];
+
     foreach ($displays as $display => $data) {
       $form[$display] = [
         '#type' => 'details',
         '#title' => $data['display_title'],
+        '#group' => 'views',
       ];
+
+      $form[$display]['node_type_filter'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t(''),
+      ];
+
+      $form[$display]['node_type_filter']['node_type'] = [
+        '#type' => 'checkboxes',
+        '#title' => $this->t("Display Content types for the '@title' View.", ['@title' => $data['display_title']]),
+        '#description' => $this->t('Unselect all to display all content types.'),
+        '#options' => $types,
+      ];
+
     }
 
     return parent::buildForm($form, $form_state);
