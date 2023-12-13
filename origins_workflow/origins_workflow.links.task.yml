@@ -18,3 +18,9 @@ origins_workflow.needs_audit_tab:
   route_name: view.workflow_moderation.needs_audit
   parent_id: system.admin_content
   weight: 4
+origins_workflow.archived_tab:
+  title: 'Archived'
+  route_name: view.workflow_moderation.archived
+  parent_id: system.admin_content
+  weight: 5
+
