@@ -6,6 +6,8 @@ namespace Drupal\origins_workflow\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\views\Views;
 
 /**
@@ -33,6 +35,16 @@ final class ModerationSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
+
+    $moderated_content_view = Views::getView('moderated_content');
+
+    if ($moderated_content_view->storage->status()) {
+      \Drupal::messenger()->addWarning(
+        $this->t("Core 'Moderated content' View is enabled. We recommend disabling this on the @link and exporting site configuration.", [
+          '@link' => Link::createFromRoute('Views admin page', 'entity.view.collection')->toString()
+        ])
+      );
+    }
 
     $view = Views::getView('workflow_moderation');
     $displays = $view->storage->get('display');

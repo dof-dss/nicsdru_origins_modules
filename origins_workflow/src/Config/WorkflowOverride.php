@@ -20,11 +20,12 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
 
       foreach ($config['view_overrides'] as $display => $data) {
 
+        // Override the Content Types filter if we have local configuration.
         $filtered_content_types = array_filter($data['filtered_node_types'] ?? [], 'is_string');
 
         if (!empty($filtered_content_types)) {
           $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['value'] = $filtered_content_types;
-          $overrides['views.view.workflow_moderation']['display']['all_drafts']['display_options']['filters']['type']['expose']['reduce'] = true;
+          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['expose']['reduce'] = true;
         }
       }
     }
