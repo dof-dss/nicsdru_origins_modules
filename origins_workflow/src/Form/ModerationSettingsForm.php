@@ -72,7 +72,13 @@ final class ModerationSettingsForm extends ConfigFormBase {
 
       $form[$display]['node_type_filter'] = [
         '#type' => 'fieldset',
-        '#title' => $this->t(''),
+      ];
+
+      $form[$display][$display . '_disable'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Disable this display.'),
+        '#default_value' => $view_overrides[$display]['disable'] ?? false,
+        '#weight' => -10,
       ];
 
       $form[$display]['node_type_filter'][$display . '_node_types'] = [
@@ -102,6 +108,7 @@ final class ModerationSettingsForm extends ConfigFormBase {
 
     foreach ($displays as $display) {
       $settings[$display]['filtered_node_types'] = $form_state->getValue($display . '_node_types');
+      $settings[$display]['disable'] = $form_state->getValue($display . '_disable');
     }
 
     $this->config(ModerationSettingsForm::SETTINGS)

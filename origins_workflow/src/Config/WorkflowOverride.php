@@ -27,6 +27,11 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
           $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['value'] = $filtered_content_types;
           $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['expose']['reduce'] = true;
         }
+
+        if ($data['disable']) {
+          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['enabled'] = false;
+        }
+
       }
     }
     return $overrides;

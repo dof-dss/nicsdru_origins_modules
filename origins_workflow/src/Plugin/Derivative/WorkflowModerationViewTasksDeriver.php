@@ -8,6 +8,7 @@ use Drupal\views\Views;
 class WorkflowModerationViewTasksDeriver extends DeriverBase {
 
   /**
+  /**
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
@@ -17,11 +18,13 @@ class WorkflowModerationViewTasksDeriver extends DeriverBase {
     unset($displays['default']);
 
     foreach ($displays as $display => $data) {
-      $this->derivatives['origins_workflow.' . $display . '_tab'] = $base_plugin_definition;
-      $this->derivatives['origins_workflow.' . $display . '_tab']['title'] = $data['display_title'];
-      $this->derivatives['origins_workflow.' . $display . '_tab']['route_name'] = 'view.workflow_moderation.' . $display;
-      $this->derivatives['origins_workflow.' . $display . '_tab']['parent_id'] = 'system.admin_content';
-      $this->derivatives['origins_workflow.' . $display . '_tab']['weight'] = $data['position'];
+      if ($data["display_options"]['enabled'] ?? true) {
+        $this->derivatives['origins_workflow.' . $display . '_tab'] = $base_plugin_definition;
+        $this->derivatives['origins_workflow.' . $display . '_tab']['title'] = $data['display_title'];
+        $this->derivatives['origins_workflow.' . $display . '_tab']['route_name'] = 'view.workflow_moderation.' . $display;
+        $this->derivatives['origins_workflow.' . $display . '_tab']['parent_id'] = 'system.admin_content';
+        $this->derivatives['origins_workflow.' . $display . '_tab']['weight'] = $data['position'];
+      }
     }
 
     return parent::getDerivativeDefinitions($base_plugin_definition);
