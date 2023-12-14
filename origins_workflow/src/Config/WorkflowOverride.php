@@ -25,11 +25,11 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
 
         if (!empty($filtered_content_types)) {
           $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['value'] = $filtered_content_types;
-          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['expose']['reduce'] = true;
+          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['filters']['type']['expose']['reduce'] = TRUE;
         }
 
         if ($data['disable']) {
-          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['enabled'] = false;
+          $overrides['views.view.workflow_moderation']['display'][$display]['display_options']['enabled'] = FALSE;
         }
 
       }
@@ -57,4 +57,5 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
   public function createConfigObject($name, $collection = StorageInterface::DEFAULT_COLLECTION) {
     return NULL;
   }
+
 }

@@ -8,7 +8,6 @@ use Drupal\views\Views;
 class WorkflowModerationViewTasksDeriver extends DeriverBase {
 
   /**
-  /**
    * {@inheritdoc}
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
@@ -18,7 +17,7 @@ class WorkflowModerationViewTasksDeriver extends DeriverBase {
     unset($displays['default']);
 
     foreach ($displays as $display => $data) {
-      if ($data["display_options"]['enabled'] ?? true) {
+      if ($data["display_options"]['enabled'] ?? TRUE) {
         $this->derivatives['origins_workflow.' . $display . '_tab'] = $base_plugin_definition;
         $this->derivatives['origins_workflow.' . $display . '_tab']['title'] = $data['display_title'];
         $this->derivatives['origins_workflow.' . $display . '_tab']['route_name'] = 'view.workflow_moderation.' . $display;

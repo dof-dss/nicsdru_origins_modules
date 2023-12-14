@@ -77,7 +77,7 @@ final class ModerationSettingsForm extends ConfigFormBase {
       $form[$display][$display . '_disable'] = [
         '#type' => 'checkbox',
         '#title' => $this->t('Disable this display.'),
-        '#default_value' => $view_overrides[$display]['disable'] ?? false,
+        '#default_value' => $view_overrides[$display]['disable'] ?? FALSE,
         '#weight' => -10,
       ];
 
