@@ -1,0 +1,10 @@
+name: 'Origins: Migration'
+type: module
+description: 'Utilities for migrating from Drupal 7'
+core_version_requirement: ^8.8 || ^9 || ^10
+package: 'NICS: Origins'
+dependencies:
+  - drupal:migrate
+  - drupal:migrate_plus
+  - drupal:migrate_tools
+  - drupal:migrate_drupal
