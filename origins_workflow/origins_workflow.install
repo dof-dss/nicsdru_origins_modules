@@ -138,3 +138,10 @@ function origins_workflow_update_91001() {
   $source = new FileStorage($config_path);
   $active_storage->write('views.view.workflow_moderation', $source->read('views.view.workflow_moderation'));
 }
+
+/**
+ * Update View to include link to latest draft.
+ */
+function origins_workflow_update_91002() {
+  origins_workflow_update_view();
+}
