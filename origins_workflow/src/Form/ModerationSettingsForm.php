@@ -4,18 +4,53 @@ declare(strict_types = 1);
 
 namespace Drupal\origins_workflow\Form;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Url;
+use Drupal\Core\Menu\LocalTaskManagerInterface;
 use Drupal\views\Views;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure Origins: Moderation settings for this site.
  */
-final class ModerationSettingsForm extends ConfigFormBase {
+final class ModerationSettingsForm  extends ConfigFormBase implements ContainerInjectionInterface{
 
   const SETTINGS = 'origins_workflow.moderation.settings';
+
+  /**
+   * The Entity Type Manager service.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * Constructor.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   Entity type manager service.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
+    parent::__construct($config_factory);
+    $this->entityTypeManager = $entity_type_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('entity_type.manager'),
+    );
+  }
+
 
   /**
    * {@inheritdoc}
@@ -51,7 +86,7 @@ final class ModerationSettingsForm extends ConfigFormBase {
     unset($displays['default']);
 
     $types = [];
-    $node_types = \Drupal::entityTypeManager()->getStorage('node_type')->loadMultiple();
+    $node_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
     foreach ($node_types as $node_type) {
       $types[$node_type->id()] = $node_type->label();
     }
@@ -95,6 +130,9 @@ final class ModerationSettingsForm extends ConfigFormBase {
       '#type' => 'hidden',
       '#value' => implode(',', array_keys($displays))
     ];
+
+    // Flush all caches as we need to clear menu, views and render.
+    drupal_flush_all_caches();
 
     return parent::buildForm($form, $form_state);
   }
