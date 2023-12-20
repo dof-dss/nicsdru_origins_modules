@@ -15,6 +15,8 @@ class WorkflowModerationViewTasksDeriver extends DeriverBase {
     $displays = $view->storage->get('display');
     unset($displays['default']);
 
+    // Don't create the local task for the View Display if it has been disabled in the
+    // Moderation Settings form.
     foreach ($displays as $display => $data) {
       if ($data["display_options"]['enabled'] ?? TRUE) {
         $this->derivatives['origins_workflow.' . $display . '_tab'] = $base_plugin_definition;

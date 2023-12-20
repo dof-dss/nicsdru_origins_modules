@@ -17,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Configure Origins: Moderation settings for this site.
  */
-final class ModerationSettingsForm  extends ConfigFormBase implements ContainerInjectionInterface{
+final class ModerationSettingsForm extends ConfigFormBase implements ContainerInjectionInterface {
 
   const SETTINGS = 'origins_workflow.moderation.settings';
 
@@ -50,7 +50,6 @@ final class ModerationSettingsForm  extends ConfigFormBase implements ContainerI
       $container->get('entity_type.manager'),
     );
   }
-
 
   /**
    * {@inheritdoc}
@@ -126,6 +125,7 @@ final class ModerationSettingsForm  extends ConfigFormBase implements ContainerI
 
     }
 
+    // Hidden list of the View displays for use the submit handler.
     $form['view_displays'] = [
       '#type' => 'hidden',
       '#value' => implode(',', array_keys($displays))
