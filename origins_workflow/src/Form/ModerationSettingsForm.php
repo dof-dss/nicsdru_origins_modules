@@ -74,9 +74,7 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
 
     if ($moderated_content_view->storage->status()) {
       \Drupal::messenger()->addWarning(
-        $this->t("Core 'Moderated content' View is enabled. We recommend disabling this on the @link and exporting site configuration.", [
-          '@link' => Link::createFromRoute('Views admin page', 'entity.view.collection')->toString()
-        ])
+        $this->t("Core 'Moderated content' View is enabled. We recommend disabling this from the Views UI and removing it from the site configuration.")
       );
     }
 
