@@ -828,11 +828,11 @@ display:
             nid: nid
             title: title
             type: type
-            field_next_audit_due: field_next_audit_due
-            name: name
+            moderation_state: moderation_state
             changed: changed
+            name: name
             operations: operations
-          default: field_next_audit_due
+          default: changed
           info:
             nid:
               sortable: false
@@ -855,7 +855,14 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            field_next_audit_due:
+            moderation_state:
+              sortable: false
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            changed:
               sortable: true
               default_sort_order: asc
               align: ''
@@ -863,13 +870,6 @@ display:
               empty_column: false
               responsive: ''
             name:
-              sortable: true
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: false
-              responsive: ''
-            changed:
               sortable: true
               default_sort_order: asc
               align: ''
