@@ -72,7 +72,7 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
 
     $moderated_content_view = Views::getView('moderated_content');
 
-    if ($moderated_content_view->storage->status()) {
+    if (!empty($moderated_content_view) && $moderated_content_view->storage->status()) {
       \Drupal::messenger()->addWarning(
         $this->t("Core 'Moderated content' View is enabled. We recommend disabling this from the Views UI and removing it from the site configuration.")
       );
