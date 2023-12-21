@@ -37,13 +37,13 @@ class OriginsDrushCommands extends DrushCommands
   public function delete_redirects()
   {
     // Retrieve all redirects
-    $redirect_storage = \Drupal::entityTypeManager()->getStorage('redirect');
+    $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
     foreach ($redirects as $redirect) {
       $redirectpath = $redirect->getSource()['path'];
 
       // Load alias against redirects to look for duplicates
-      $path_alias_storage = \Drupal::entityTypeManager()->getStorage('path_alias');
+      $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
       $alias_objects = $path_alias_storage->loadByProperties([
         'alias' => '/' . $redirectpath
       ]);
