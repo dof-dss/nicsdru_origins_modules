@@ -828,9 +828,10 @@ display:
             nid: nid
             title: title
             type: type
-            moderation_state: moderation_state
-            changed: changed
             name: name
+            changed: changed
+            moderation_state: moderation_state
+            title_1: title_1
             operations: operations
           default: changed
           info:
@@ -855,8 +856,8 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            moderation_state:
-              sortable: false
+            name:
+              sortable: true
               default_sort_order: asc
               align: ''
               separator: ''
@@ -864,13 +865,20 @@ display:
               responsive: ''
             changed:
               sortable: true
+              default_sort_order: desc
+              align: ''
+              separator: ''
+              empty_column: false
+              responsive: ''
+            moderation_state:
+              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
               empty_column: false
               responsive: ''
-            name:
-              sortable: true
+            title_1:
+              sortable: false
               default_sort_order: asc
               align: ''
               separator: ''
