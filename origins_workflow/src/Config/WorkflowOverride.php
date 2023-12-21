@@ -18,7 +18,13 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
 
       $config = \Drupal::configFactory()->get(ModerationSettingsForm::SETTINGS)->getRawData();
 
-      foreach ($config['view_overrides'] as $display => $data) {
+      if (!array_key_exists('view_overrides', $config)) {
+        return $overrides;
+      }
+
+      $view_overrides = $config['view_overrides'] ?? [];
+
+      foreach ($view_overrides as $display => $data) {
 
         // Override the Content Types filter if we have local configuration.
         $filtered_content_types = array_filter($data['filtered_node_types'] ?? [], 'is_string');
