@@ -1,0 +1,6 @@
+services:
+  origins_common.commands:
+    class: \Drupal\origins_common\Commands\OriginsDrushCommands
+    tags:
+      - { name: drush.command }
+
