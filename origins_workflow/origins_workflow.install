@@ -126,6 +126,8 @@ function origins_workflow_update_view() {
   $source = new FileStorage($config_path);
   $workflow_view = $source->read('views.view.workflow_moderation');
   $active_storage->write('views.view.workflow_moderation', $workflow_view);
+
+  \Drupal::logger('origins_workflow')->notice(t("Origins Workflow View was updated. Do a config export and include 'views.view.workflow_moderation.yml' as part of the commit."));
 }
 
 /**
