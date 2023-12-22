@@ -48,3 +48,22 @@ function origins_ckeditor_enhancements_editor_js_settings_alter(array &$settings
     }
   }
 }
+
+/**
+ * Implements hook_ckeditor5_plugin_info_alter().
+ */
+function origins_ckeditor_enhancements_ckeditor5_plugin_info_alter(array &$plugin_definitions) : void {
+  assert($plugin_definitions['ckeditor5_heading'] instanceof CKEditor5PluginDefinition);
+  $heading_plugin_definition = $plugin_definitions['ckeditor5_heading']->toArray();
+
+  $options =& $heading_plugin_definition['ckeditor5']['config']['heading']['options'];
+  $options[] = [
+    'model' => 'address',
+    'view' => [
+      'name' => 'address',
+    ],
+    'title' => t('Address'),
+    'class' => 'ck-address',
+  ];
+  $plugin_definitions['ckeditor5_heading'] = new CKEditor5PluginDefinition($heading_plugin_definition);
+}
