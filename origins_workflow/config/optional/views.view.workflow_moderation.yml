@@ -104,7 +104,7 @@ display:
           entity_type: node
           entity_field: title
           plugin_id: field
-          label: 'Title (Published version)'
+          label: 'Title'
           exclude: false
           alter:
             alter_text: false
@@ -2503,7 +2503,7 @@ display:
           entity_type: node
           entity_field: title
           plugin_id: field
-          label: 'Title (Published version)'
+          label: 'Title'
           exclude: false
           alter:
             alter_text: false
