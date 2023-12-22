@@ -4,6 +4,7 @@ namespace Drupal\origins_common\Commands;
 
 use Drupal\structure_sync\StructureSyncHelper;
 use Drush\Commands\DrushCommands;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Drush custom commands.
@@ -19,12 +20,13 @@ class OriginsDrushCommands extends DrushCommands
   protected $entityTypeManager;
 
   /**
-   * Class constructor.
+   * Creates a new OriginsDrushCommands instance.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct()
-  {
-    parent::__construct();
-    $this->entityTypeManager = \Drupal::entityTypeManager();
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -49,15 +51,12 @@ class OriginsDrushCommands extends DrushCommands
       ]);
 
       // Output messages and delete any duplicate entries
-
       if (count($alias_objects) >= 1) {
         $redirect_storage->delete([$redirect]);
 
         // Logging the details
-        \Drupal::logger('delete_redirects')->notice(
-          'Deleted redirect @path',
-          ['@path' => $redirect->getSource()['path']]
-        );
+        $msg = t('Deleted redirect @path', ['@path' => $redirect->getSource()['path']]);
+        $this->logger()->notice($msg);
       }
     }
 
