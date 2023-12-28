@@ -8,8 +8,7 @@ use Drush\Commands\DrushCommands;
 /**
  * Drush custom commands.
  */
-class OriginsDrushCommands extends DrushCommands
-{
+class OriginsDrushCommands extends DrushCommands {
   /**
    * Core EntityTypeManager instance.
    *
@@ -23,8 +22,7 @@ class OriginsDrushCommands extends DrushCommands
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager)
-  {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
     $this->entityTypeManager = $entity_type_manager;
   }
 
@@ -34,8 +32,7 @@ class OriginsDrushCommands extends DrushCommands
    *
    * @command delete-redirects
    */
-  public function deleteRedirects()
-  {
+  public function deleteRedirects() {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
@@ -64,4 +61,3 @@ class OriginsDrushCommands extends DrushCommands
   }
 
 }
-
