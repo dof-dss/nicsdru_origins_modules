@@ -3,6 +3,8 @@
 namespace Drupal\origins_common\OriginsDrushCommands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\structure_sync\StructureSyncHelper;
+use Drupal\media\MediaInterface;
 use Drush\Commands\DrushCommands;
 
 /**
