@@ -2,7 +2,6 @@
 
 namespace Drupal\origins_common\Commands;
 
-use Drupal\structure_sync\StructureSyncHelper;
 use Drush\Commands\DrushCommands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
@@ -11,7 +10,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  */
 class OriginsDrushCommands extends DrushCommands
 {
-
   /**
    * Core EntityTypeManager instance.
    *
@@ -35,9 +33,7 @@ class OriginsDrushCommands extends DrushCommands
    *
    * @command delete-redirects
    */
-
-  public function delete_redirects()
-  {
+  public function delete_redirects() {
     // Retrieve all redirects
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
