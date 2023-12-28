@@ -2,13 +2,13 @@
 
 namespace Drupal\origins_common\Commands;
 
-use Drush\Commands\DrushCommands;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drush\Commands\DrushCommands;
 
 /**
  * Drush custom commands.
  */
-class originsDrushCommands extends DrushCommands {
+class OriginsDrushCommands extends DrushCommands {
   /**
    * Core EntityTypeManager instance.
    *
@@ -58,6 +58,6 @@ class originsDrushCommands extends DrushCommands {
     // Clear cache message and command.
     $this->output()->writeln('Clearing all caches...');
     drupal_flush_all_caches();
-
   }
 }
+
