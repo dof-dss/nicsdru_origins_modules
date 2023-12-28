@@ -34,7 +34,7 @@ class OriginsDrushCommands extends DrushCommands
    *
    * @command delete-redirects
    */
-  public function delete_Redirects()
+  public function deleteRedirects()
   {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
@@ -64,3 +64,4 @@ class OriginsDrushCommands extends DrushCommands
   }
 
 }
+
