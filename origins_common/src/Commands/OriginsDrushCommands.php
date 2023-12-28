@@ -8,8 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 /**
  * Drush custom commands.
  */
-class OriginsDrushCommands extends DrushCommands
-{
+class originsDrushCommands extends DrushCommands {
   /**
    * Core EntityTypeManager instance.
    *
@@ -18,7 +17,7 @@ class OriginsDrushCommands extends DrushCommands
   protected $entityTypeManager;
 
   /**
-   * Creates a new OriginsDrushCommands instance.
+   * Creates a new originsDrushCommands instance.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -34,30 +33,31 @@ class OriginsDrushCommands extends DrushCommands
    * @command delete-redirects
    */
   public function delete_redirects() {
-    // Retrieve all redirects
+    // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
     foreach ($redirects as $redirect) {
       $redirectpath = $redirect->getSource()['path'];
 
-      // Load alias against redirects to look for duplicates
+      // Load alias against redirects to look for duplicates.
       $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
       $alias_objects = $path_alias_storage->loadByProperties([
         'alias' => '/' . $redirectpath
       ]);
 
-      // Output messages and delete any duplicate entries
+      // Output messages and delete any duplicate entries.
       if (count($alias_objects) >= 1) {
         $redirect_storage->delete([$redirect]);
 
-        // Logging the details
+        // Logging the details.
         $msg = t('Deleted redirect @path', ['@path' => $redirect->getSource()['path']]);
         $this->logger()->notice($msg);
       }
     }
 
-    // Clear cache message and command
+    // Clear cache message and command.
     $this->output()->writeln('Clearing all caches...');
     drupal_flush_all_caches();
+
   }
 }
