@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_common\Commands;
+namespace Drupal\origins_common\OriginsDrushCommands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drush\Commands\DrushCommands;
@@ -60,4 +60,3 @@ class OriginsDrushCommands extends DrushCommands {
     drupal_flush_all_caches();
   }
 }
-
