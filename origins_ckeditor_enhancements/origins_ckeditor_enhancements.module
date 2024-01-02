@@ -5,6 +5,7 @@
  * Contains origins_ckeditor_enhancements.module.
  */
 
+use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
