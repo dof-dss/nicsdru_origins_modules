@@ -1,0 +1,7 @@
+services:
+  origins_common.commands:
+    class: \Drupal\origins_common\Commands\OriginsDrushCommands
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: drush.command }
+
