@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_common\OriginsDrushCommands;
+namespace Drupal\origins_common\Commands;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drush\Commands\DrushCommands;
