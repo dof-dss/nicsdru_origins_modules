@@ -37,6 +37,7 @@ class OriginsDrushCommands extends DrushCommands {
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
     foreach ($redirects as $redirect) {
+      // @phpstan-ignore-next-line
       $redirectpath = $redirect->getSource()['path'];
 
       // Load alias against redirects to look for duplicates.
@@ -50,6 +51,7 @@ class OriginsDrushCommands extends DrushCommands {
         $redirect_storage->delete([$redirect]);
 
         // Logging the details.
+        // @phpstan-ignore-next-line
         $msg = t('Deleted redirect @path', ['@path' => $redirect->getSource()['path']]);
         $this->logger()->notice($msg);
       }
