@@ -4,4 +4,4 @@ description: 'Extends CKEditor toolbar'
 core_version_requirement: ^8.8 || ^9 || ^10
 package: 'NICS: Origins'
 dependencies:
-  - ckeditor
+  - ckeditor5
