@@ -12,6 +12,11 @@ class WorkflowModerationViewTasksDeriver extends DeriverBase {
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
     $view = Views::getView('workflow_moderation');
+
+    if (empty($view)) {
+      return parent::getDerivativeDefinitions($base_plugin_definition);
+    }
+
     $displays = $view->storage->get('display');
     unset($displays['default']);
 
