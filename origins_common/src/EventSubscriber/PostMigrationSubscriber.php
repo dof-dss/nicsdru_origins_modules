@@ -67,6 +67,37 @@ class PostMigrationSubscriber implements EventSubscriberInterface
     // Only process nodes, nothing else.
     if ($event_id === 'upgrade_d7_path_redirect') {
       $this->logger->notice('Post migration event called successfully !');
+      $this->processRedirects();
     }
+  }
+
+  protected function processRedirects() {
+    // Retrieve all redirects.
+    $redirect_storage = $this->entityTypeManager->getStorage('redirect');
+    $redirects = $redirect_storage->loadMultiple();
+    foreach ($redirects as $redirect) {
+      // @phpstan-ignore-next-line
+      $redirectpath = $redirect->getSource()['path'];
+
+      // Load alias against redirects to look for duplicates.
+      $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
+      $alias_objects = $path_alias_storage->loadByProperties([
+        'alias' => '/' . $redirectpath
+      ]);
+
+      // Output messages and delete any duplicate entries.
+      if (count($alias_objects) >= 1) {
+        $redirect_storage->delete([$redirect]);
+
+        // Logging the details.
+        // @phpstan-ignore-next-line
+        $msg = t('Deleted redirect @path', ['@path' => $redirect->getSource()['path']]);
+        $this->logger->notice($msg);
+      }
+    }
+
+    // Clear cache message and command.
+    $this->logger->notice('Clearing all caches...');
+    drupal_flush_all_caches();
   }
 }
