@@ -49,8 +49,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
    *
    * @inheritdoc
    */
-  public static function getSubscribedEvents()
-  {
+  public static function getSubscribedEvents() {
     $events[MigrateEvents::POST_IMPORT][] = ['onMigratePostImport'];
     return $events;
   }
@@ -61,8 +60,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
    * @param \Drupal\migrate\Event\MigrateImportEvent $event
    *   The import event object.
    */
-  public function onMigratePostImport(MigrateImportEvent $event)
-  {
+  public function onMigratePostImport(MigrateImportEvent $event) {
     $event_id = $event->getMigration()->getBaseId();
 
     // Only process nodes, nothing else.
@@ -71,8 +69,11 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
     }
   }
 
-  protected function processRedirects()
-  {
+  /**
+   * Delete duplicate re-directs.
+   */
+
+  protected function processRedirects() {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
@@ -83,10 +84,9 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
       // Load alias against redirects to look for duplicates.
       $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
       $alias_objects = $path_alias_storage->loadByProperties([
-        'alias' => '/' . $redirectpath
-      ]);
+        'alias' => '/' . $redirectpath]);
 
-      // Output messages and delete any duplicate entries.
+      // Delete any duplicate entries.
       if (count($alias_objects) >= 1) {
         $redirect_storage->delete([$redirect]);
       }
