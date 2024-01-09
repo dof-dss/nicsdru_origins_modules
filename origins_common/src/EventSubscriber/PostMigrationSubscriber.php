@@ -75,7 +75,6 @@ class PostMigrationSubscriber implements EventSubscriberInterface
 
   protected function processRedirects()
   {
-
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
