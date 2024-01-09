@@ -92,5 +92,4 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
       }
     }
   }
-  
 }
