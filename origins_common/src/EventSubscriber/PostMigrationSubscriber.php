@@ -72,7 +72,6 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
   /**
    * Delete duplicate re-directs.
    */
-
   protected function processRedirects() {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
@@ -84,7 +83,8 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
       // Load alias against redirects to look for duplicates.
       $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
       $alias_objects = $path_alias_storage->loadByProperties([
-        'alias' => '/' . $redirectpath]);
+        'alias' => '/' . $redirectpath
+      ]);
 
       // Delete any duplicate entries.
       if (count($alias_objects) >= 1) {
@@ -92,4 +92,5 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
       }
     }
   }
+  
 }
