@@ -14,8 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * Post Migrate processes.
  */
-class PostMigrationSubscriber implements EventSubscriberInterface
-{
+class PostMigrationSubscriber implements EventSubscriberInterface {
 
   /**
    * Drupal\Core\Logger\LoggerChannel definition.
@@ -40,8 +39,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface
    *   Drupal logger.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager,
-                              LoggerChannelFactory       $logger)
-  {
+                              LoggerChannelFactory $logger) {
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger->get('origins_common');
   }
