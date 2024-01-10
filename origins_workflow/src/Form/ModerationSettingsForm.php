@@ -78,6 +78,30 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
       );
     }
 
+    $admin_content_links_settings = $this->config('origins_workflow.moderation.settings')->get('admin_content_links');
+
+    $form['admin_content_links'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Admin Content menu links'),
+    ];
+
+    $form['admin_content_links']['moderated_content_disable'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t("Disable 'Moderated Content'."),
+      '#description' => $this->t("Remove the local menu task under admin/content for the 'Moderated Content' View."),
+      '#default_value' => $admin_content_links_settings['moderated_content_disable'] ?? TRUE,
+      '#weight' => -10,
+    ];
+
+    $form['admin_content_links']['scheduled_content_disable'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t("Disable 'Scheduled Content'."),
+      '#description' => $this->t("Remove the local menu task under admin/content for the 'Scheduled Content' View."),
+      '#default_value' => $admin_content_links_settings['scheduled_content_disable'] ?? TRUE,
+      '#weight' => -5,
+    ];
+
+    // Workflow Moderation View displays configuration.
     $view = Views::getView('workflow_moderation');
     $displays = $view->storage->get('display');
     unset($displays['default']);
@@ -92,7 +116,7 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
 
     $form['views'] = [
       '#type' => 'vertical_tabs',
-      '#title' => $this->t('Moderation Displays'),
+      '#title' => $this->t('Moderation View Displays'),
     ];
 
     foreach ($displays as $display => $data) {
@@ -139,6 +163,14 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $settings = [];
+    $settings['moderated_content_disable'] = $form_state->getValue('moderated_content_disable');
+    $settings['scheduled_content_disable'] = $form_state->getValue('scheduled_content_disable');
+
+    $this->config(ModerationSettingsForm::SETTINGS)
+      ->set('admin_content_links', $settings)
+      ->save();
+
     $displays = explode(',', $form_state->getValue('view_displays'));
     $settings = [];
 
