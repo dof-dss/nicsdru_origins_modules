@@ -349,12 +349,14 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
   $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
   $admin_content_links['scheduled_content_disable'] = $admin_content_links['scheduled_content_disable'] ?? TRUE;
 
-  if ($admin_content_links['moderated_content_disable'] && isset($data['tabs'][1]) && array_key_exists('content_moderation.workflows:content_moderation.moderated_content', $data['tabs'][1])) {
-    unset($data['tabs'][1]['content_moderation.workflows:content_moderation.moderated_content']);
-  }
+  if (isset($data['tabs'][1])) {
+    if ($admin_content_links['moderated_content_disable'] && array_key_exists('content_moderation.workflows:content_moderation.moderated_content', $data['tabs'][1])) {
+      unset($data['tabs'][1]['content_moderation.workflows:content_moderation.moderated_content']);
+    }
 
-  if ($admin_content_links['scheduled_content_disable'] && isset($data['tabs'][1]) && array_key_exists('scheduler.scheduled_content', $data['tabs'][1])) {
-    unset($data['tabs'][1]['scheduler.scheduled_content']);
+    if ($admin_content_links['scheduled_content_disable'] && array_key_exists('scheduler.scheduled_content', $data['tabs'][1])) {
+      unset($data['tabs'][1]['scheduler.scheduled_content']);
+    }
   }
 
   // Remove the Audit View if we don't have any node types set for auditing.
