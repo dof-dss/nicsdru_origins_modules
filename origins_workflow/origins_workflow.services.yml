@@ -8,7 +8,6 @@ services:
     class: Drupal\origins_workflow\Config\WorkflowOverride
     tags:
       - { name: config.factory.override, priority: 5 }
-
 parameters:
   breadcrumb.revert.matches:
     - origins_workflow.moderation_state_controller_revert_to_state
