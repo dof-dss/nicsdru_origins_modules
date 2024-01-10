@@ -343,11 +343,15 @@ function origins_workflow_hide_moderation_field(&$view) {
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  if (isset($data['tabs'][1]) && array_key_exists('content_moderation.workflows:content_moderation.moderated_content', $data['tabs'][1])) {
+  $admin_content_links = Drupal::configFactory()->get('origins_workflow.moderation.settings')->get('admin_content_links');
+  $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
+  $admin_content_links['scheduled_content_disable'] = $admin_content_links['scheduled_content_disable'] ?? TRUE;
+
+  if ($admin_content_links['moderated_content_disable'] && isset($data['tabs'][1]) && array_key_exists('content_moderation.workflows:content_moderation.moderated_content', $data['tabs'][1])) {
     unset($data['tabs'][1]['content_moderation.workflows:content_moderation.moderated_content']);
   }
 
-  if (isset($data['tabs'][1]) && array_key_exists('scheduler.scheduled_content', $data['tabs'][1])) {
+  if ($admin_content_links['scheduled_content_disable'] && isset($data['tabs'][1]) && array_key_exists('scheduler.scheduled_content', $data['tabs'][1])) {
     unset($data['tabs'][1]['scheduler.scheduled_content']);
   }
 
