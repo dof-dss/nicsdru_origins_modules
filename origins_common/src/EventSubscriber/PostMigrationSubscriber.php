@@ -63,7 +63,6 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
   public function onMigratePostImport(MigrateImportEvent $event) {
     $event_id = $event->getMigration()->getBaseId();
 
-    // Only process nodes, nothing else.
     if ($event_id === 'upgrade_d7_path_redirect') {
       $this->processRedirects();
     }
@@ -76,12 +75,13 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
     $redirects = $redirect_storage->loadMultiple();
+    $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
+
     foreach ($redirects as $redirect) {
       // @phpstan-ignore-next-line
       $redirectpath = $redirect->getSource()['path'];
 
       // Load alias against redirects to look for duplicates.
-      $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
       $alias_objects = $path_alias_storage->loadByProperties([
         'alias' => '/' . $redirectpath
       ]);
@@ -89,6 +89,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
       // Delete any duplicate entries.
       if (count($alias_objects) >= 1) {
         $redirect_storage->delete([$redirect]);
+        $this->logger->notice('Duplicate redirect deleted!');
       }
     }
   }
