@@ -116,6 +116,25 @@ function origins_workflow_uninstall() {
 
 
 /**
+ * Helper function to be called from an update hook
+ * when the workflow View config requires updating.
+ */
+function origins_workflow_update_view() {
+  $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/optional';
+  $active_storage = \Drupal::service('config.storage');
+  $file_storage = \Drupal::service('config.storage.sync');
+
+  $source = new FileStorage($module_config_path);
+  $workflow_view = $source->read('views.view.workflow_moderation');
+
+  // Update the current active config.
+  $active_storage->write('views.view.workflow_moderation', $workflow_view);
+
+  // Update the local config in the sync directory.
+  $file_storage->write('views.view.workflow_moderation', $workflow_view);
+}
+
+/**
  * Update View to include link to latest draft.
  */
 function origins_workflow_update_91001() {
@@ -124,4 +143,11 @@ function origins_workflow_update_91001() {
 
   $source = new FileStorage($config_path);
   $active_storage->write('views.view.workflow_moderation', $source->read('views.view.workflow_moderation'));
+}
+
+/**
+ * Update View to include link to latest draft.
+ */
+function origins_workflow_update_91002() {
+  origins_workflow_update_view();
 }

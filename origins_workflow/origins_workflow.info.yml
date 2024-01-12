@@ -9,4 +9,5 @@ dependencies:
   - drupal:node
   - drupal:user
   - drupal:menu_ui
+  - drupal:views
   - origins_common
