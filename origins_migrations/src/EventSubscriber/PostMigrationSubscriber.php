@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\origins_common\EventSubscriber;
+namespace Drupal\origins_migrations\EventSubscriber;
 
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -41,7 +41,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
   public function __construct(EntityTypeManagerInterface $entity_type_manager,
                               LoggerChannelFactory $logger) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->logger = $logger->get('origins_common');
+    $this->logger = $logger->get('origins_migrations');
   }
 
   /**
