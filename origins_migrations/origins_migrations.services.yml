@@ -1,0 +1,6 @@
+services:
+  origins_migrations.eventsubscriber.post:
+    class: Drupal\origins_migrations\EventSubscriber\PostMigrationSubscriber
+    arguments: [ '@entity_type.manager', '@logger.factory' ]
+    tags:
+      - { name: event_subscriber }
