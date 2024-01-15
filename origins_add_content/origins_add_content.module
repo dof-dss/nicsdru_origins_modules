@@ -58,7 +58,7 @@ function origins_add_content_preprocess_content_add_list(&$variables) {
       if ($type instanceof NodeType) {
         $variables['types'][$type->id()] = [
           'type' => $type->id(),
-          'add_link' => Link::fromTextAndUrl($type->label(), Url::fromRoute('node.add', ['node_type' => $type->id()]))->toString(),
+          'add_link' => Link::fromTextAndUrl($type->label(), Url::fromRoute('node.add', ['node_type' => $type->id()], ['attributes' => ['class' => 'admin-item__link']]))->toString(),
           'description' => [
             '#markup' => $type->getDescription(),
           ],
@@ -71,7 +71,7 @@ function origins_add_content_preprocess_content_add_list(&$variables) {
         if (array_key_exists('add-form', $entity_links)) {
           $variables['types'][$type->id()] = [
             'type' => $type->id(),
-            'add_link' => Link::fromTextAndUrl($type->getLabel(), Url::fromUserInput($entity_links['add-form'])),
+            'add_link' => Link::fromTextAndUrl($type->getLabel(), Url::fromUserInput($entity_links['add-form'], ['attributes' => ['class' => 'admin-item__link']])),
             'description' => [
               '#markup' => t('Add new @type content.', ['@type' => strtolower($type->getLabel())]),
             ],
@@ -80,4 +80,5 @@ function origins_add_content_preprocess_content_add_list(&$variables) {
       }
     }
   }
+  dump($variables);
 }
