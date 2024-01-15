@@ -41,7 +41,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
   public function __construct(EntityTypeManagerInterface $entity_type_manager,
                               LoggerChannelFactory $logger) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->logger = $logger->get('origins');
+    $this->logger = $logger->get('origins_migrations');
   }
 
   /**
