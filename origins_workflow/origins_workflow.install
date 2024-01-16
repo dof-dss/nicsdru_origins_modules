@@ -127,7 +127,7 @@ function origins_workflow_update_view() {
   $source = new FileStorage($module_config_path);
   $workflow_view = $source->read('views.view.workflow_moderation');
 
-  if (isset($workflow_view) && is_array($workflow_view)) {
+  if (is_array($workflow_view)) {
     // Update the current active config.
     $active_storage->write('views.view.workflow_moderation', $workflow_view);
 
@@ -145,7 +145,7 @@ function origins_workflow_update_91001() {
 
   $source = new FileStorage($config_path);
   $view_contents = $source->read('views.view.workflow_moderation');
-  if (isset($view_contents) && is_array($view_contents)) {
+  if (is_array($view_contents)) {
     $active_storage->write('views.view.workflow_moderation', $view_contents);
   }
 }
