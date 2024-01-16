@@ -15,11 +15,18 @@
  * @ingroup themeable
  */
 #}
+{%
+  set item_classes = [
+  'admin-item',
+]
+%}
 {% if types is not empty %}
-  <dl>
+  <dl{{ attributes.addClass('node-type-list', 'admin-list') }}>
     {% for type in types %}
-      <dt>{{ type.add_link }}</dt>
-      <dd>{{ type.description }}</dd>
+    <div{{ create_attribute({ class: item_classes }) }}>
+      <dt class="admin-item__title">{{ type.add_link }}</dt>
+      <dd class="admin-item__description">{{ type.description }}</dd>
+    </div>
     {% endfor %}
   </dl>
 {% else %}
