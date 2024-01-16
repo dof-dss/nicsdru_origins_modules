@@ -120,29 +120,34 @@ function origins_workflow_uninstall() {
  * when the workflow View config requires updating.
  */
 function origins_workflow_update_view() {
-  $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/optional';
+  $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
   $active_storage = \Drupal::service('config.storage');
   $file_storage = \Drupal::service('config.storage.sync');
 
   $source = new FileStorage($module_config_path);
   $workflow_view = $source->read('views.view.workflow_moderation');
 
-  // Update the current active config.
-  $active_storage->write('views.view.workflow_moderation', $workflow_view);
+  if (isset($workflow_view) && is_array($workflow_view)) {
+    // Update the current active config.
+    $active_storage->write('views.view.workflow_moderation', $workflow_view);
 
-  // Update the local config in the sync directory.
-  $file_storage->write('views.view.workflow_moderation', $workflow_view);
+    // Update the local config in the sync directory.
+    $file_storage->write('views.view.workflow_moderation', $workflow_view);
+  }
 }
 
 /**
  * Update View to include link to latest draft.
  */
 function origins_workflow_update_91001() {
-  $config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/optional';
+  $config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
   $active_storage = \Drupal::service('config.storage');
 
   $source = new FileStorage($config_path);
-  $active_storage->write('views.view.workflow_moderation', $source->read('views.view.workflow_moderation'));
+  $view_contents = $source->read('views.view.workflow_moderation');
+  if (isset($view_contents) && is_array($view_contents)) {
+    $active_storage->write('views.view.workflow_moderation', $view_contents);
+  }
 }
 
 /**
