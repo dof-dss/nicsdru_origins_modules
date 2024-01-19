@@ -80,5 +80,4 @@ function origins_add_content_preprocess_content_add_list(&$variables) {
       }
     }
   }
-  dump($variables);
 }
