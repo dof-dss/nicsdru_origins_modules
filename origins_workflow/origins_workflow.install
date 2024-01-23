@@ -141,13 +141,24 @@ function origins_workflow_update_view() {
 
       // Check if the current project is Maestro based.
       if (file_exists($app_root . '/project')) {
-        $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
+        $module_path = \Drupal::service('extension.list.module')->getPath('origins_workflow');
+
         $site_config_dirs = scandir($app_root . '/project/config'); // Or any other directory
-        $site_config_dirs = array_diff($site_config_dirs, array('.', '..'));
+
+        $exclusion_list = ['.', '..'];
+        $exclusion_text = file_get_contents($module_path . '/site_exclusions.list');
+        if (!empty($exclusion_text)) {
+          $exclusion_text = trim($exclusion_text);
+          $exclusion_list = array_merge($exclusion_list, explode(',', $exclusion_text));
+        }
+
+        $site_config_dirs = array_diff($site_config_dirs, $exclusion_list);
 
         // Copy the Workflow View config into each Maestro site config directory.
         foreach ($site_config_dirs as $site_config_dir) {
-          copy($module_config_path . "/views.view.workflow_moderation.yml",$site_config_dir . "/views.view.workflow_moderation.yml");
+
+          $site_config_path = $app_root . '/project/config/' . $site_config_dir;
+          copy($module_path . "/config/install/views.view.workflow_moderation.yml",$site_config_path . "/config/views.view.workflow_moderation.yml");
         }
       }
     }
