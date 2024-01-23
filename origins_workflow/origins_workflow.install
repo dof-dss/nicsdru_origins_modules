@@ -123,19 +123,14 @@ function origins_workflow_update_view() {
   $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
   $active_storage = \Drupal::service('config.storage');
   $file_storage = \Drupal::service('config.storage.sync');
+  $exclusion_list = NULL;
 
   $source = new FileStorage($module_config_path);
   $workflow_view = $source->read('views.view.workflow_moderation');
 
   if (is_array($workflow_view)) {
-    // Update the current active config.
-    $active_storage->write('views.view.workflow_moderation', $workflow_view);
-
     // Only update filesystem config on non-platformsh instances due to the locked FS.
     if (empty(getenv('PLATFORM_BRANCH'))) {
-      // Update the local config in the sync directory.
-      $file_storage->write('views.view.workflow_moderation', $workflow_view);
-
       $app_root = \Drupal::getContainer()->getParameter('app.root');
       $app_root = substr($app_root, 0, (strlen($app_root) - 4));
 
@@ -156,11 +151,20 @@ function origins_workflow_update_view() {
 
         // Copy the Workflow View config into each Maestro site config directory.
         foreach ($site_config_dirs as $site_config_dir) {
-
           $site_config_path = $app_root . '/project/config/' . $site_config_dir;
           copy($module_path . "/config/install/views.view.workflow_moderation.yml",$site_config_path . "/config/views.view.workflow_moderation.yml");
         }
+      } else {
+        // Update the local config in the sync directory.
+        $file_storage->write('views.view.workflow_moderation', $workflow_view);
       }
+    }
+
+    $site_path = \Drupal::getContainer()->getParameter('site.path');
+
+    // Update the current active config if site is not on the excluded list.
+    if (empty($exclusion_list) || !in_array(substr($site_path, 6),$exclusion_list)) {
+      $active_storage->write('views.view.workflow_moderation', $workflow_view);
     }
   }
 }
