@@ -124,6 +124,7 @@ function origins_workflow_update_view() {
   $active_storage = \Drupal::service('config.storage');
   $file_storage = \Drupal::service('config.storage.sync');
   $exclusion_list = NULL;
+  $error_log = [];
 
   $source = new FileStorage($module_config_path);
   $workflow_view = $source->read('views.view.workflow_moderation');
@@ -140,6 +141,7 @@ function origins_workflow_update_view() {
 
         $site_config_dirs = scandir($app_root . '/project/config'); // Or any other directory
 
+        // Remove the linux current and parent directory links returned by scandir.
         $exclusion_list = ['.', '..'];
         $exclusion_text = file_get_contents($module_path . '/site_exclusions.list');
         if (!empty($exclusion_text)) {
@@ -152,9 +154,21 @@ function origins_workflow_update_view() {
         // Copy the Workflow View config into each Maestro site config directory.
         foreach ($site_config_dirs as $site_config_dir) {
           $site_config_path = $app_root . '/project/config/' . $site_config_dir;
-          copy($module_path . "/config/install/views.view.workflow_moderation.yml",$site_config_path . "/config/views.view.workflow_moderation.yml");
+          $site_view_file_path = $site_config_path . "/config/views.view.workflow_moderation.yml";
+
+          $result = copy($module_path . "/config/install/views.view.workflow_moderation.yml", $site_view_file_path);
+
+          if ($result === FALSE) {
+            if (file_exists($site_view_file_path) && !is_writable($site_view_file_path)) {
+              $error_log[] = 'FAILURE: Unable to copy Workflow Config for ' . $site_config_dir . ", file exists but is not writable.";
+            }
+            else {
+              $error_log[] = 'FAILURE: Unable to copy Workflow Config for ' . $site_config_dir . ", unable to copy file.";
+            }
+          }
         }
-      } else {
+      }
+      else {
         // Update the local config in the sync directory.
         $file_storage->write('views.view.workflow_moderation', $workflow_view);
       }
@@ -163,9 +177,19 @@ function origins_workflow_update_view() {
     $site_path = \Drupal::getContainer()->getParameter('site.path');
 
     // Update the current active config if site is not on the excluded list.
-    if (empty($exclusion_list) || !in_array(substr($site_path, 6),$exclusion_list)) {
+    if (empty($exclusion_list) || !in_array(substr($site_path, 6), $exclusion_list)) {
       $active_storage->write('views.view.workflow_moderation', $workflow_view);
     }
+
+    if (!empty($error_log)) {
+      if (PHP_SAPI === 'cli') {
+        return implode(PHP_EOL, $error_log);
+      }
+      else {
+        return implode('<br>', $error_log);
+      }
+    }
+
   }
 }
 
@@ -187,5 +211,5 @@ function origins_workflow_update_91001() {
  * Update View to include link to latest draft.
  */
 function origins_workflow_update_91002() {
-  origins_workflow_update_view();
+  return origins_workflow_update_view();
 }
