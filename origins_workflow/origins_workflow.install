@@ -135,6 +135,21 @@ function origins_workflow_update_view() {
     if (empty(getenv('PLATFORM_BRANCH'))) {
       // Update the local config in the sync directory.
       $file_storage->write('views.view.workflow_moderation', $workflow_view);
+
+      $app_root = \Drupal::getContainer()->getParameter('app.root');
+      $app_root = substr($app_root, 0, (strlen($app_root) - 4));
+
+      // Check if the current project is Maestro based.
+      if (file_exists($app_root . '/project')) {
+        $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
+        $site_config_dirs = scandir($app_root . '/project/config'); // Or any other directory
+        $site_config_dirs = array_diff($site_config_dirs, array('.', '..'));
+
+        // Copy the Workflow View config into each Maestro site config directory.
+        foreach ($site_config_dirs as $site_config_dir) {
+          copy($module_config_path . "/views.view.workflow_moderation.yml",$site_config_dir . "/views.view.workflow_moderation.yml");
+        }
+      }
     }
   }
 }
