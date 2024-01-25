@@ -220,7 +220,7 @@ class QaAccountsManager extends ControllerBase {
         }
         $user = User::create([
           'name' => $name,
-          'mail' => $name . '@localhost',
+          'mail' => $name . '@localhost.com',
           'status' => 1,
           'pass' => $password,
           'roles' => [$role, 'authenticated', 'qa'],
@@ -232,6 +232,37 @@ class QaAccountsManager extends ControllerBase {
         $msg = t('Did not create user @name as already exists.', ['@name' => $name]);
         \Drupal::logger('origins_qa')->error($msg);
         if (!$called_from_drush) {
+          $this->messenger()->addMessage($msg);
+        }
+      }
+    }
+    return $successes;
+  }
+
+  /**
+   * Creates QA accounts for the provided roles.
+   */
+  public function createQaAccountsForRoles(string $prefix, string $password, array $roles) {
+    $successes = 0;
+    foreach ($roles as $role) {
+      $name = strtolower($prefix) . '_' . $role;
+      $user = user_load_by_name($name);
+      if (empty($user)) {
+
+        $user = User::create([
+          'name' => $name,
+          'mail' => $name . '@localhost.com',
+          'status' => 1,
+          'pass' => $password,
+          'roles' => [$role, 'qa'],
+        ]);
+        $user->save();
+        $successes++;
+      }
+      else {
+        $msg = t('Did not create user @name as already exists.', ['@name' => $name]);
+        \Drupal::logger('origins_qa')->error($msg);
+        if (!PHP_SAPI) {
           $this->messenger()->addMessage($msg);
         }
       }
