@@ -245,7 +245,7 @@ class QaAccountsManager extends ControllerBase {
   public function createQaAccountsForRoles(string $prefix, string $password, array $roles) {
     $successes = 0;
     foreach ($roles as $role) {
-      $name = strtolower($prefix) . $role;
+      $name = strtolower($prefix) . '_' . $role;
       $user = user_load_by_name($name);
       if (empty($user)) {
 
