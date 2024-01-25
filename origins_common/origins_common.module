@@ -148,7 +148,7 @@ function origins_common_form_block_admin_display_form_alter(&$form) {
         $view_title = $source->getViewsDisplay()->getTitle();
         // It's a facet block so we can adjust the title string.
         $existing_text = $form['blocks'][$block_id]['info']['#plain_text'];
-        $form['blocks'][$block_id]['info']['#markup'] = "<em>(Facet view: ${view_title})</em> ${existing_text}";
+        $form['blocks'][$block_id]['info']['#markup'] = "<em>(Facet view: " . $view_title . ")</em>" . $existing_text;
         unset($form['blocks'][$block_id]['info']['#plain_text']);
       }
     }
