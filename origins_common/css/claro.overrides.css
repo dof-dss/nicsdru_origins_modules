@@ -6,3 +6,8 @@
 .ck .ck-content .table td {
   position: static;
 }
+/* Make column 1 full width on node edit/add forms */
+#block-claro-content .layout-node-form .layout-region--node-main,
+#block-claro-content .layout-node-form .layout-region--node-footer {
+  width: 100%;
+}
