@@ -213,13 +213,15 @@ function origins_common_form_alter(&$form, FormStateInterface $form_state, $form
  * Implements hook_entity_presave().
  */
 function origins_common_entity_presave(EntityInterface $entity) {
-  if ($entity instanceof Node && $entity->bundle() === 'basic_page') {
-    $body_field = $entity->get('body');
-    $body_value = $body_field->getValue();
-    $html_value = $body_value[0]['value'];
-    // Set new scope
-    $body_value[0]['value'] = "<p>aaaa</p><table><thead><tr><th scope='row'>head 1</th><th scope='row'>head 2</th><th scope='row'>head 3</th></tr></thead><tbody><tr><td>a1</td><td>a2</td><td>a3</td></tr><tr><td>b1</td><td>b2</td><td>b3</td></tr></tbody></table><p>bbnnnnn</p>";
-    $entity->set('body', $body_value);
+  if ($entity instanceof Node) {
+    if ($entity->hasField('body')) {
+      $body_field = $entity->get('body');
+      $body_value = $body_field->getValue();
+      $html_value = $body_value[0]['value'];
+      // Set new scope
+      $body_value[0]['value'] = "<p>aaaa</p><table><thead><tr><th scope='row'>head 1</th><th scope='row'>head 2</th><th scope='row'>head 3</th></tr></thead><tbody><tr><td>a1</td><td>a2</td><td>a3</td></tr><tr><td>b1</td><td>b2</td><td>b3</td></tr></tbody></table><p>bbnnnnn</p>";
+      //$entity->set('body', $body_value);
+    }
   }
 }
 
