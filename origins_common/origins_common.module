@@ -213,24 +213,32 @@ function origins_common_form_alter(&$form, FormStateInterface $form_state, $form
  * Implements hook_entity_presave().
  */
 function origins_common_entity_presave(EntityInterface $entity) {
+  // Allow for the fact that CKEditor 5 does not add the 'scope'
+  // attribute to table header (<th>) tags. This is required for
+  // compliant HTML (and for screenreaders) so we add it here.
   if ($entity instanceof Node) {
     if ($entity->hasField('body')) {
       $body_field = $entity->get('body');
       $body_value = $body_field->getValue();
       $html_value = $body_value[0]['value'];
       if (preg_match('/\<thead\>/', $html_value)) {
-        // Header row.
+        // We have a header row, so assume 'col' scope.
+        // Remove any 'row' scope that is hanging around.
         $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
+        // Add scope attribute to any <th> tags
         $html_value = preg_replace("/\<th\>/", "<th scope='col'>", $html_value);
       } elseif (preg_match('/\<th(.*)\>/', $html_value)) {
-        // Header column.
+        // We do not have a header row, so assume 'row' scope.
+        // Remove any 'col' scope taht is hanging around.
         $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
+        // Add scope attribute to any <th> tags.
         $html_value = preg_replace("/<th[^>]+>/", "<th scope='row'>", $html_value);
         $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
         $body_value[0]['value'] = $html_value;
         $entity->set('body', $body_value);
       } else {
-        // Remove all scope attributes.
+        // Not header row and there are no <th> tags so
+        // remove all scope attributes.
         $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
         $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
       }
