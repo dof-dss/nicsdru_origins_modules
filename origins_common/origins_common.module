@@ -221,6 +221,8 @@ function origins_common_entity_presave(EntityInterface $entity) {
       if (preg_match('/\<thead\>/', $html_value)) {
         // Header row.
         $new_html = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
+        $new_html = preg_replace("/\sscope=\"col\"/", "", $new_html);
+        $new_html = preg_replace("/\sscope='col'/", "", $new_html);
         $body_value[0]['value'] = $new_html;
         $entity->set('body', $body_value);
       } elseif (preg_match('/\<th(.*)\>/', $html_value)) {
