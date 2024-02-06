@@ -248,7 +248,7 @@ function origins_common_entity_presave(EntityInterface $entity) {
 }
 
 /**
- * Adds scope to table headers in HTML..
+ * Adds scope to table headers in HTML.
  */
 function _setTableScope($html_value) {
   // Examine the table to see if we have a <thead> tag.
