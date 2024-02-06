@@ -6,6 +6,7 @@
  */
 
 use Drupal\block\Entity\Block;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -206,4 +207,72 @@ function origins_common_form_alter(&$form, FormStateInterface $form_state, $form
   if (($form['#id'] == 'entity-subqueue-form') || (preg_match('/-edit-form$/', $form['#id']))) {
     $form['#attached']['library'][] = 'origins_common/origins_common_claro_fixes';
   }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_common_entity_presave(EntityInterface $entity) {
+  // Allow for the fact that CKEditor 5 does not add the 'scope'
+  // attribute to table header (<th>) tags. This is required for
+  // compliant HTML (and for screenreaders) so we add it here.
+  if ($entity instanceof Node) {
+    if ($entity->hasField('body')) {
+      $body_field = $entity->get('body');
+      $body_value = $body_field->getValue();
+      $html_value = $body_value[0]['value'];
+      // Break the HTML into chunks so that a table takes up one chunk.
+      $chunks = explode('<table>', $html_value);
+      $first = TRUE;
+      $new_html_value = '';
+      // Loop through the chunk adding scope to table headers.
+      foreach ($chunks as $chunk) {
+        if (!$first) {
+          // Add the <table> delimiter back in and process scope.
+          $chunk = _origins_common_set_table_scope('<table>' . $chunk);
+        }
+        else {
+          $first = FALSE;
+          // Process scope.
+          $chunk = _origins_common_set_table_scope($chunk);
+        }
+        // Build the new HTML string.
+        $new_html_value .= $chunk;
+      }
+      if (empty($new_html_value)) {
+        $new_html_value = $html_value;
+      }
+      $body_value[0]['value'] = $new_html_value;
+      $entity->set('body', $body_value);
+    }
+  }
+}
+
+/**
+ * Adds scope to table headers in HTML.
+ */
+function _origins_common_set_table_scope($html_value) {
+  // Examine the table to see if we have a <thead> tag.
+  if (preg_match('/\<thead\>/', $html_value)) {
+    // We have a header row, so assume 'col' scope.
+    // Remove any 'row' scope that is hanging around.
+    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
+    // Add scope attribute to any <th> tags.
+    $html_value = preg_replace("/\<th\>/", "<th scope='col'>", $html_value);
+  }
+  elseif (preg_match('/\<th(.*)\>/', $html_value)) {
+    // We do not have a header row, so assume 'row' scope.
+    // Remove any 'col' scope taht is hanging around.
+    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
+    // Add scope attribute to any <th> tags.
+    $html_value = preg_replace("/<th[^>]+>/", "<th scope='row'>", $html_value);
+    $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
+  }
+  else {
+    // Not header row and there are no <th> tags so
+    // remove all scope attributes.
+    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
+    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
+  }
+  return $html_value;
 }
