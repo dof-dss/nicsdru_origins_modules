@@ -229,9 +229,9 @@ function origins_common_entity_presave(EntityInterface $entity) {
       foreach ($chunks as $chunk) {
         if (!$first) {
           // Add the <table> delimiter back in and process scope.
-          $chunk = _setTableScope('<table>' . $chunk);
-        } else
-        {
+          $chunk = _origins_common_set_table_scope('<table>' . $chunk);
+        }
+        else {
           $first = FALSE;
           // Process scope.
           $chunk = _origins_common_set_table_scope($chunk);
@@ -276,4 +276,3 @@ function _origins_common_set_table_scope($html_value) {
   }
   return $html_value;
 }
-
