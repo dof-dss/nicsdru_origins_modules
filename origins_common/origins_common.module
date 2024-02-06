@@ -230,10 +230,11 @@ function origins_common_entity_presave(EntityInterface $entity) {
         if (!$first) {
           // Add the <table> delimiter back in and process scope.
           $chunk = _setTableScope('<table>' . $chunk);
-        } else {
+        } else
+        {
           $first = FALSE;
           // Process scope.
-          $chunk = _setTableScope($chunk);
+          $chunk = _origins_common_set_table_scope($chunk);
         }
         // Build the new HTML string.
         $new_html_value .= $chunk;
@@ -250,22 +251,24 @@ function origins_common_entity_presave(EntityInterface $entity) {
 /**
  * Adds scope to table headers in HTML.
  */
-function _setTableScope($html_value) {
+function _origins_common_set_table_scope($html_value) {
   // Examine the table to see if we have a <thead> tag.
   if (preg_match('/\<thead\>/', $html_value)) {
     // We have a header row, so assume 'col' scope.
     // Remove any 'row' scope that is hanging around.
     $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
-    // Add scope attribute to any <th> tags
+    // Add scope attribute to any <th> tags.
     $html_value = preg_replace("/\<th\>/", "<th scope='col'>", $html_value);
-  } elseif (preg_match('/\<th(.*)\>/', $html_value)) {
+  }
+  elseif (preg_match('/\<th(.*)\>/', $html_value)) {
     // We do not have a header row, so assume 'row' scope.
     // Remove any 'col' scope taht is hanging around.
     $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
     // Add scope attribute to any <th> tags.
     $html_value = preg_replace("/<th[^>]+>/", "<th scope='row'>", $html_value);
     $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
-  } else {
+  }
+  else {
     // Not header row and there are no <th> tags so
     // remove all scope attributes.
     $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
