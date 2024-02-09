@@ -1,0 +1,6 @@
+name: 'Origins: Migrations'
+type: module
+description: 'A utility module to delete illegal redirects when migrating path redirects.'
+core_version_requirement: ^8.8 || ^9 || ^10
+package: 'NICS: Origins'
+dependencies:

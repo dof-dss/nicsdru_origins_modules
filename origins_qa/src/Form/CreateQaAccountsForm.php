@@ -5,6 +5,7 @@ namespace Drupal\origins_qa\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\Form;
 use Drupal\origins_qa\Controller\QaAccountsManager;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -52,6 +53,19 @@ class CreateQaAccountsForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
 
+    $roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
+    $role_options = [];
+
+    foreach ($roles as $role) {
+      $role_options[$role->id()] = $role->label();
+    }
+
+    $role_options = array_diff($role_options, [
+      'anonymous' => 'anonymous user',
+      'authenticated' => 'authenticated user',
+      'administrator' => 'Administrator'
+    ]);
+
     $form['info'] = [
       '#type' => 'item',
       '#title' => $this->t('(Existing QA accounts will not be affected)'),
@@ -70,12 +84,32 @@ class CreateQaAccountsForm extends FormBase {
       '#required' => TRUE,
     ];
 
+    $form['roles_only'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Create for selected roles only.'),
+    ];
+
+    $form['roles_container'] = [
+      '#type' => 'fieldset',
+      '#states' => [
+        'visible' => [
+          ':input[name="roles_only"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['roles_container']['roles'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Select roles.'),
+      '#options' => $role_options,
+    ];
+
     $form['actions'] = [
       '#type' => 'actions',
     ];
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Update'),
+      '#value' => $this->t('Create'),
     ];
 
     return $form;
@@ -85,12 +119,21 @@ class CreateQaAccountsForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $values = $form_state->getValues();
 
-    $prefix = $form_state->getValue('prefix');
-    $password = $form_state->getValue('password');
+    $prefix = $values['prefix'];
+    $password = $values['password'];
+    $roles_only = $values['roles_only'];
 
     $qac = new QaAccountsManager();
-    $successes = $qac->createQaAccounts($prefix, $password, FALSE);
+
+    if ($roles_only) {
+      $roles = array_keys(array_filter($values['roles']));
+      $successes = $qac->createQaAccountsForRoles($prefix, $password, $roles);
+    }
+    else {
+      $successes = $qac->createQaAccounts($prefix, $password, FALSE);
+    }
 
     if ($successes > 0) {
       $this->messenger()->addStatus($this->t('@count QA accounts created successfully.', ['@count' => $successes]));

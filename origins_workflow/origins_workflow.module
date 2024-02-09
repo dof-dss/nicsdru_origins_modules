@@ -343,9 +343,33 @@ function origins_workflow_hide_moderation_field(&$view) {
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
-  if (isset($data['tabs'][1]) && isset($data['tabs'][1]['content_moderation.moderated_content'])) {
-    unset($data['tabs'][1]['content_moderation.moderated_content']);
+
+  // Remove some contrib links by default unless specifically enabled in config.
+  $admin_content_links = Drupal::configFactory()->get('origins_workflow.moderation.settings')->get('admin_content_links');
+  $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
+  $admin_content_links['scheduled_content_disable'] = $admin_content_links['scheduled_content_disable'] ?? TRUE;
+
+  if (isset($data['tabs'][1])) {
+    if ($admin_content_links['moderated_content_disable'] && array_key_exists('content_moderation.workflows:content_moderation.moderated_content', $data['tabs'][1])) {
+      unset($data['tabs'][1]['content_moderation.workflows:content_moderation.moderated_content']);
+    }
+
+    if ($admin_content_links['scheduled_content_disable'] && array_key_exists('scheduler.scheduled_content', $data['tabs'][1])) {
+      unset($data['tabs'][1]['scheduler.scheduled_content']);
+    }
   }
+
+  // Remove the Audit View if we don't have any node types set for auditing.
+  $audit_content_types = Drupal::configFactory()->get('origins_workflow.auditsettings')->get('audit_content_types');
+
+  // Note: The cache will need to be cleared if the Origins Audit config form is updated.
+  if (!empty($audit_content_types)) {
+    $audit_content_types = array_filter($audit_content_types, 'is_string');
+    if (isset($data['tabs'][1]) && empty($audit_content_types)) {
+      unset($data["tabs"][1]["origins_workflow.needs_audit_tab"]);
+    }
+  }
+
 }
 
 /**
@@ -816,4 +840,25 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     }
   }
   return $operations;
+}
+
+/**
+ * Implements hook_preprocess_views_view_field().
+ */
+function origins_workflow_preprocess_views_view_field(&$variables) {
+  $view = $variables['view'];
+  $field = $variables['field'];
+  $workflow_view_displays = ['my_drafts', 'all_drafts', 'needs_review'];
+
+  // Add a 'redirects' icon if we are processing the first title field.
+  if (in_array($view->current_display, $workflow_view_displays) && $field->field === 'title' && $field->position === 1) {
+    $redirects = \Drupal::service('redirect.repository')->findMatchingRedirect($variables["row"]->_entity->toUrl()->toString());
+
+    if ($redirects) {
+      $icon_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/images/shuffle.png';
+      $variables['output'] = [
+        '#markup' => $variables['output']->__toString() . ' <img src="/' . $icon_path . '" title="This content redirects to another page" />',
+      ];
+    }
+  }
 }

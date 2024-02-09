@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the origins workflow module.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\user\Entity\User;
 use Drupal\user\UserInterface;
 
@@ -111,4 +112,104 @@ function origins_workflow_uninstall() {
       $user->delete();
     }
   }
+}
+
+
+/**
+ * Helper function to be called from an update hook
+ * when the workflow View config requires updating.
+ */
+function origins_workflow_update_view() {
+  $module_config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
+  $active_storage = \Drupal::service('config.storage');
+  $file_storage = \Drupal::service('config.storage.sync');
+  $exclusion_list = NULL;
+  $error_log = [];
+
+  $source = new FileStorage($module_config_path);
+  $workflow_view = $source->read('views.view.workflow_moderation');
+
+  if (is_array($workflow_view)) {
+    // Only update filesystem config on non-platformsh instances due to the locked FS.
+    if (empty(getenv('PLATFORM_BRANCH'))) {
+      $app_root = \Drupal::getContainer()->getParameter('app.root');
+      $app_root = substr($app_root, 0, (strlen($app_root) - 4));
+
+      // Check if the current project is Maestro based.
+      if (file_exists($app_root . '/project')) {
+        $module_path = \Drupal::service('extension.list.module')->getPath('origins_workflow');
+
+        $site_config_dirs = scandir($app_root . '/project/config'); // Or any other directory
+
+        // Remove the linux current and parent directory links returned by scandir.
+        $exclusion_list = ['.', '..'];
+        $exclusion_text = file_get_contents($module_path . '/site_exclusions.list');
+        if (!empty($exclusion_text)) {
+          $exclusion_text = trim($exclusion_text);
+          $exclusion_list = array_merge($exclusion_list, explode(',', $exclusion_text));
+        }
+
+        $site_config_dirs = array_diff($site_config_dirs, $exclusion_list);
+
+        // Copy the Workflow View config into each Maestro site config directory.
+        foreach ($site_config_dirs as $site_config_dir) {
+          $site_config_path = $app_root . '/project/config/' . $site_config_dir;
+          $site_view_file_path = $site_config_path . "/config/views.view.workflow_moderation.yml";
+
+          $result = copy($module_path . "/config/install/views.view.workflow_moderation.yml", $site_view_file_path);
+
+          if ($result === FALSE) {
+            if (file_exists($site_view_file_path) && !is_writable($site_view_file_path)) {
+              $error_log[] = 'FAILURE: Unable to copy Workflow Config for ' . $site_config_dir . ", file exists but is not writable.";
+            }
+            else {
+              $error_log[] = 'FAILURE: Unable to copy Workflow Config for ' . $site_config_dir . ", unable to copy file.";
+            }
+          }
+        }
+      }
+      else {
+        // Update the local config in the sync directory.
+        $file_storage->write('views.view.workflow_moderation', $workflow_view);
+      }
+    }
+
+    $site_path = \Drupal::getContainer()->getParameter('site.path');
+
+    // Update the current active config if site is not on the excluded list.
+    if (empty($exclusion_list) || !in_array(substr($site_path, 6), $exclusion_list)) {
+      $active_storage->write('views.view.workflow_moderation', $workflow_view);
+    }
+
+    if (!empty($error_log)) {
+      if (PHP_SAPI === 'cli') {
+        return implode(PHP_EOL, $error_log);
+      }
+      else {
+        return implode('<br>', $error_log);
+      }
+    }
+
+  }
+}
+
+/**
+ * Update View to include link to latest draft.
+ */
+function origins_workflow_update_91001() {
+  $config_path = \Drupal::service('extension.list.module')->getPath('origins_workflow') . '/config/install';
+  $active_storage = \Drupal::service('config.storage');
+
+  $source = new FileStorage($config_path);
+  $view_contents = $source->read('views.view.workflow_moderation');
+  if (is_array($view_contents)) {
+    $active_storage->write('views.view.workflow_moderation', $view_contents);
+  }
+}
+
+/**
+ * Update View to include link to latest draft.
+ */
+function origins_workflow_update_91002() {
+  return origins_workflow_update_view();
 }

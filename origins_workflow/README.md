@@ -39,3 +39,18 @@ If you are using Lando, these environment variables may be set in config/local.e
 lando nightwatch ../modules/origins/origins_workflow/tests/src/Nightwatch/Tests/AdminTest.js
 
 (Note that this is just an example test, there are others available in that directory)
+
+# Workflow Views and local overrides.
+
+The Origins Workflow module includes the 'Workflow: Moderation' View which will be enabled when the module is installed.
+This View provides several displays for the Origins Moderation workflow such as 'All Drafts', 'My Drafts', 'Archived' etc.
+and provides a common editorial overview without the need to manually re-create the same View for each site.
+The View can be altered by anyone with 'Administer Views' permission and exported with these changes as part of your site configuration.
+The problem with this is that when the Origins workflow View is updated any local changes to the View will be overwritten.
+
+To work around this issue we introduced local overrides and this is available at Configuration => Origins => Moderation settings.
+The settings applied here are layered on top of the configuration loaded from the config storage.
+
+These override options are hard coded and if you require any additional options take a look at:
+- src/Form/ModerationSettingsForm.php
+- src/Config/WorkflowOverride.php

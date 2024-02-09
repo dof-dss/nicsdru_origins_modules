@@ -1,20 +1,3 @@
-origins_workflow.my_drafts_tab:
-  title: 'My Drafts'
-  route_name: view.workflow_moderation.my_drafts
-  parent_id: system.admin_content
-  weight: 1
-origins_workflow.all_drafts_tab:
-  title: 'All Drafts'
-  route_name: view.workflow_moderation.all_drafts
-  parent_id: system.admin_content
-  weight: 2
-origins_workflow.needs_review_tab:
-  title: 'Needs Review'
-  route_name: view.workflow_moderation.needs_review
-  parent_id: system.admin_content
-  weight: 3
-origins_workflow.needs_audit_tab:
-  title: 'Needs Audit'
-  route_name: view.workflow_moderation.needs_audit
-  parent_id: system.admin_content
-  weight: 4
+origins_workflow.views.local_tasks:
+  deriver: 'Drupal\origins_workflow\Plugin\Derivative\WorkflowModerationViewTasksDeriver'
+  weight: 100
