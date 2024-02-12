@@ -252,27 +252,23 @@ function origins_common_entity_presave(EntityInterface $entity) {
  * Adds scope to table headers in HTML.
  */
 function _origins_common_set_table_scope($html_value) {
+  // Remove any 'row' scope that is hanging around.
+  $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
+  // Remove any 'col' scope that is hanging around.
+  $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
   // Examine the table to see if we have a <thead> tag.
   if (preg_match('/\<thead\>/', $html_value)) {
-    // We have a header row, so assume 'col' scope.
-    // Remove any 'row' scope that is hanging around.
-    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
-    // Add scope attribute to any <th> tags.
-    $html_value = preg_replace("/\<th\>/", "<th scope='col'>", $html_value);
+    // Extract the html between (and including) the <thead> tags
+    if (preg_match('/<thead>(.*)<\/thead>/s', $html_value, $matches)) {
+      if (is_array($matches) && !empty($matches[0])) {
+        $inside_header_html = $matches[0];
+        // Add scope attribute to any <th> tags.
+        $inside_header_html_new = preg_replace("/\<th\>/", "<th scope='col'>", $inside_header_html);
+        $html_value = str_replace($inside_header_html, $inside_header_html_new, $html_value);
+      }
+    }
   }
-  elseif (preg_match('/\<th(.*)\>/', $html_value)) {
-    // We do not have a header row, so assume 'row' scope.
-    // Remove any 'col' scope taht is hanging around.
-    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
-    // Add scope attribute to any <th> tags.
-    $html_value = preg_replace("/<th[^>]+>/", "<th scope='row'>", $html_value);
-    $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
-  }
-  else {
-    // Not header row and there are no <th> tags so
-    // remove all scope attributes.
-    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
-    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
-  }
+  // If there are any <th> tags left then assume 'row' scope.
+  $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
   return $html_value;
 }
