@@ -222,14 +222,14 @@ function origins_common_entity_presave(EntityInterface $entity) {
       $body_value = $body_field->getValue();
       $html_value = $body_value[0]['value'];
       // Break the HTML into chunks so that a table takes up one chunk.
-      $chunks = explode('<table>', $html_value);
+      $chunks = explode('<table', $html_value);
       $first = TRUE;
       $new_html_value = '';
       // Loop through the chunk adding scope to table headers.
       foreach ($chunks as $chunk) {
         if (!$first) {
-          // Add the <table> delimiter back in and process scope.
-          $chunk = _origins_common_set_table_scope('<table>' . $chunk);
+          // Add the <table delimiter back in and process scope.
+          $chunk = _origins_common_set_table_scope('<table' . $chunk);
         }
         else {
           $first = FALSE;
