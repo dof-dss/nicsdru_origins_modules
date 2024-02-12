@@ -262,13 +262,23 @@ function _origins_common_set_table_scope($html_value) {
     if (preg_match('/<thead>(.*)<\/thead>/s', $html_value, $matches)) {
       if (is_array($matches) && !empty($matches[0])) {
         $inside_header_html = $matches[0];
-        // Add scope attribute to any <th> tags.
+        // Add 'col' scope attribute to any <th> tags.
         $inside_header_html_new = preg_replace("/\<th\>/", "<th scope='col'>", $inside_header_html);
         $html_value = str_replace($inside_header_html, $inside_header_html_new, $html_value);
       }
     }
   }
-  // If there are any <th> tags left then assume 'row' scope.
-  $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
+  // Now look for a <tbody> tag.
+  if (preg_match('/\<tbody\>/', $html_value)) {
+    // Extract the html between (and including) the <tbody> tags
+    if (preg_match('/<tbody>(.*)<\/tbody>/s', $html_value, $matches)) {
+      if (is_array($matches) && !empty($matches[0])) {
+        $inside_body_html = $matches[0];
+        // Add 'row' scope attribute to any <th> tags.
+        $inside_body_html_new = preg_replace("/\<th\>/", "<th scope='row'>", $inside_body_html);
+        $html_value = str_replace($inside_body_html, $inside_body_html_new, $html_value);
+      }
+    }
+  }
   return $html_value;
 }
