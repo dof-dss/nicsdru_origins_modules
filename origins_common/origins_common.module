@@ -258,7 +258,7 @@ function _origins_common_set_table_scope($html_value) {
   $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
   // Examine the table to see if we have a <thead> tag.
   if (preg_match('/\<thead\>/', $html_value)) {
-    // Extract the html between (and including) the <thead> tags
+    // Extract the html between (and including) the <thead> tags.
     if (preg_match('/<thead>(.*)<\/thead>/s', $html_value, $matches)) {
       if (is_array($matches) && !empty($matches[0])) {
         $inside_header_html = $matches[0];
@@ -270,7 +270,7 @@ function _origins_common_set_table_scope($html_value) {
   }
   // Now look for a <tbody> tag.
   if (preg_match('/\<tbody\>/', $html_value)) {
-    // Extract the html between (and including) the <tbody> tags
+    // Extract the html between (and including) the <tbody> tags.
     if (preg_match('/<tbody>(.*)<\/tbody>/s', $html_value, $matches)) {
       if (is_array($matches) && !empty($matches[0])) {
         $inside_body_html = $matches[0];
