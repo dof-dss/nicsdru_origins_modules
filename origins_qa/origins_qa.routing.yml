@@ -42,6 +42,8 @@ origins_qa.api.users_enable:
     _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'enable'
     methods: [GET]
+  requirements:
+    _access: 'TRUE'
   options:
     no_cache: TRUE
 origins_qa.api.users_disable:
@@ -51,5 +53,7 @@ origins_qa.api.users_disable:
     _controller: '\Drupal\origins_qa\Controller\QaApiController::setQaUsersStatus'
     status: 'disable'
     methods: [GET]
+  requirements:
+    _access: 'TRUE'
   options:
     no_cache: TRUE
