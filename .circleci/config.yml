@@ -62,10 +62,11 @@ jobs:
       - checkout:
           path: ~/nicsdru_origins_modules
       - run:
-          name: Fetch latest Drupal version
+          name: Fetch latest Drupal core and other misc composer tools.
           command: |
             cd $PROJECT_ROOT
             composer create-project drupal/recommended-project:10.1.x-dev $PROJECT_ROOT --no-interaction
+            composer require --dev phpstan/extension-installer spaze/phpstan-disallowed-calls
       - run:
           name: Move custom code into position
           command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
