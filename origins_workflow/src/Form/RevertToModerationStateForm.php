@@ -36,7 +36,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
   /**
    * @var string
    */
-  protected $new_state;
+  protected $newState;
 
   /**
    * The entity type manager.
@@ -151,7 +151,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
   public function getQuestion() {
     return t('Are you sure you want to revert the revision @vid as @new_state?', [
       '@vid' => $this->vid,
-      '@new_state' => $this->new_state,
+      '@new_state' => $this->newState,
     ]);
   }
 
@@ -182,7 +182,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, $nid = NULL, $vid = NULL, $new_state = 'draft') {
     $this->nid = $nid;
     $this->vid = $vid;
-    $this->new_state = $new_state;
+    $this->newState = $new_state;
     $form = parent::buildForm($form, $form_state);
 
     return $form;
@@ -194,7 +194,7 @@ class RevertToModerationStateForm extends ConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $node_revision = $this->vid ?? 0;
     $node_id = $this->nid ?? 0;
-    $new_state = $this->new_state ?? '';
+    $new_state = $this->newState ?? '';
 
     // Load the node revision we are reverting.
     /** @var \Drupal\node\NodeInterface $node */
