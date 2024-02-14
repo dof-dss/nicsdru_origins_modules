@@ -24,6 +24,21 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class RevertToModerationStateForm extends ConfirmFormBase {
 
   /**
+   * @var int
+   */
+  protected $nid;
+
+  /**
+   * @var int
+   */
+  protected $vid;
+
+  /**
+   * @var string
+   */
+  protected $new_state;
+
+  /**
    * The entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -134,7 +149,6 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    /** @var \Drupal\node\NodeInterface $this */
     return t('Are you sure you want to revert the revision @vid as @new_state?', [
       '@vid' => $this->vid,
       '@new_state' => $this->new_state,
@@ -145,7 +159,6 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    /** @var \Drupal\node\NodeInterface $this */
     return new Url('entity.node.version_history', ['node' => $this->nid]);
   }
 
@@ -167,7 +180,6 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $nid = NULL, $vid = NULL, $new_state = 'draft') {
-    /** @var \Drupal\node\NodeInterface $this */
     $this->nid = $nid;
     $this->vid = $vid;
     $this->new_state = $new_state;
