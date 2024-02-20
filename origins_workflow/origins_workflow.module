@@ -155,21 +155,20 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   // re-creates the alias, and the code in here deletes it !
   // We want the alias deletion to run last so that it really
   // is deleted.
-
-  /** @var \Drupal\content_moderation\Entity\ContentModerationStateInterface $entity_mod_state */
-  $entity_mod_state = $entity->moderation_state ?? '';
+  /** @var \Drupal\node\NodeInterface $entity */
+  $entity_mod_state = $entity->get('moderation_state')->value ?? '';
 
   /** @var \Drupal\Core\Entity\ContentEntityBase $original_entity */
   $original_entity = $entity->original ?? '';
 
-  if (empty($entity->moderation_state) || !$original_entity instanceof ContentEntityBase) {
+  if (empty($entity->get('moderation_state')) || !$original_entity instanceof ContentEntityBase) {
     return;
   }
 
   /** @var \Drupal\content_moderation\Entity\ContentModerationStateInterface $original_mod_state */
-  $original_mod_state = $original_entity->moderation_state;
+  $original_mod_state = $original_entity->get('moderation_state')->value;
 
-  if ($entity_mod_state->value === 'archived' && $original_mod_state->value === 'published') {
+  if ($entity_mod_state === 'archived' && $original_mod_state === 'published') {
     // This node is being archived, so we need to delete the alias (which
     // will enable us to create redirects if we want to).
     if (!empty($entity->nid->value)) {

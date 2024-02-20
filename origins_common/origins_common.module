@@ -149,7 +149,7 @@ function origins_common_form_block_admin_display_form_alter(&$form) {
         $view_title = $source->getViewsDisplay()->getTitle();
         // It's a facet block so we can adjust the title string.
         $existing_text = $form['blocks'][$block_id]['info']['#plain_text'];
-        $form['blocks'][$block_id]['info']['#markup'] = "<em>(Facet view: ${view_title})</em> ${existing_text}";
+        $form['blocks'][$block_id]['info']['#markup'] = "<em>(Facet view: {$view_title})</em> {$existing_text}";
         unset($form['blocks'][$block_id]['info']['#plain_text']);
       }
     }
@@ -222,14 +222,14 @@ function origins_common_entity_presave(EntityInterface $entity) {
       $body_value = $body_field->getValue();
       $html_value = $body_value[0]['value'];
       // Break the HTML into chunks so that a table takes up one chunk.
-      $chunks = explode('<table>', $html_value);
+      $chunks = explode('<table', $html_value);
       $first = TRUE;
       $new_html_value = '';
       // Loop through the chunk adding scope to table headers.
       foreach ($chunks as $chunk) {
         if (!$first) {
-          // Add the <table> delimiter back in and process scope.
-          $chunk = _origins_common_set_table_scope('<table>' . $chunk);
+          // Add the <table delimiter back in and process scope.
+          $chunk = _origins_common_set_table_scope('<table' . $chunk);
         }
         else {
           $first = FALSE;
@@ -252,27 +252,33 @@ function origins_common_entity_presave(EntityInterface $entity) {
  * Adds scope to table headers in HTML.
  */
 function _origins_common_set_table_scope($html_value) {
+  // Remove any 'row' scope that is hanging around.
+  $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
+  // Remove any 'col' scope that is hanging around.
+  $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
   // Examine the table to see if we have a <thead> tag.
   if (preg_match('/\<thead\>/', $html_value)) {
-    // We have a header row, so assume 'col' scope.
-    // Remove any 'row' scope that is hanging around.
-    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
-    // Add scope attribute to any <th> tags.
-    $html_value = preg_replace("/\<th\>/", "<th scope='col'>", $html_value);
+    // Extract the html between (and including) the <thead> tags.
+    if (preg_match('/<thead>(.*)<\/thead>/s', $html_value, $matches)) {
+      if (is_array($matches) && !empty($matches[0])) {
+        $inside_header_html = $matches[0];
+        // Add 'col' scope attribute to any <th> tags.
+        $inside_header_html_new = preg_replace("/\<th\>/", "<th scope='col'>", $inside_header_html);
+        $html_value = str_replace($inside_header_html, $inside_header_html_new, $html_value);
+      }
+    }
   }
-  elseif (preg_match('/\<th(.*)\>/', $html_value)) {
-    // We do not have a header row, so assume 'row' scope.
-    // Remove any 'col' scope taht is hanging around.
-    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
-    // Add scope attribute to any <th> tags.
-    $html_value = preg_replace("/<th[^>]+>/", "<th scope='row'>", $html_value);
-    $html_value = preg_replace("/\<th\>/", "<th scope='row'>", $html_value);
-  }
-  else {
-    // Not header row and there are no <th> tags so
-    // remove all scope attributes.
-    $html_value = preg_replace("/\sscope=[\"']row[\"']/", "", $html_value);
-    $html_value = preg_replace("/\sscope=[\"']col[\"']/", "", $html_value);
+  // Now look for a <tbody> tag.
+  if (preg_match('/\<tbody\>/', $html_value)) {
+    // Extract the html between (and including) the <tbody> tags.
+    if (preg_match('/<tbody>(.*)<\/tbody>/s', $html_value, $matches)) {
+      if (is_array($matches) && !empty($matches[0])) {
+        $inside_body_html = $matches[0];
+        // Add 'row' scope attribute to any <th> tags.
+        $inside_body_html_new = preg_replace("/\<th\>/", "<th scope='row'>", $inside_body_html);
+        $html_value = str_replace($inside_body_html, $inside_body_html_new, $html_value);
+      }
+    }
   }
   return $html_value;
 }

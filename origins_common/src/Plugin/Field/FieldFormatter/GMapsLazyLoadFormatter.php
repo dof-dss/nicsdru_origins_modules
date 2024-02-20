@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\geolocation\MapProviderInterface;
+use Drupal\geolocation_google_maps\GoogleMapsService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -33,6 +34,11 @@ class GMapsLazyLoadFormatter extends FormatterBase implements ContainerFactoryPl
    * @var \Drupal\geolocation\MapProviderInterface
    */
   protected $gmapsProvider;
+
+  /**
+   * @var string
+   */
+  protected $providerUrlBase;
 
   /**
    * The Google Maps configuration.
@@ -67,6 +73,9 @@ class GMapsLazyLoadFormatter extends FormatterBase implements ContainerFactoryPl
     parent::__construct($plugin_id, $plugin_definition, $field_definition, $settings, $label, $view_mode, $third_party_settings);
 
     $this->gmapsProvider = $map_provider;
+    /* @var \Drupal\geolocation_google_maps\GoogleMapsService $map_provider */
+    $url_base = GoogleMapsService::$googleMapsApiUrlBase;
+    $this->providerUrlBase = $url_base;
     $this->gmapsConfiguration = $config->get('geolocation_google_maps.settings');
   }
 
@@ -255,7 +264,7 @@ class GMapsLazyLoadFormatter extends FormatterBase implements ContainerFactoryPl
       // Render placeholder type.
       switch ($formatter_settings['placeholder']) {
         case 'static_map':
-          $gmaps_provider_base = $this->gmapsProvider::$googleMapsApiUrlBase ?? '';
+          $gmaps_provider_base = $this->providerUrlBase;
           $static_url = Url::fromUri($gmaps_provider_base . '/maps/api/staticmap', [
             'query' => [
               'center' => $map_settings['center'],
