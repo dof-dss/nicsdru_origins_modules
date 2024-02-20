@@ -17,6 +17,8 @@ parameters:
       message: 'This is likely not intended to be used outside of local development, please remove it.'
     - function: kint
       message: 'This is likely not intended to be used outside of local development, please remove it.'
+    - function: ksm
+      message: 'This is likely not intended to be used outside of local development, please remove it.'
     - function: die
       message: 'This is likely not intended to be used outside of local development, please remove it.'
     - function: exit
