@@ -197,7 +197,7 @@ function origins_media_preprocess_views_view_field(&$variables) {
 
         if ($media instanceof MediaInterface && $media->bundle() == 'image') {
           // Need to load the file behind it to check what it is.
-          $file = File::load($media->field_media_image->target_id);
+          $file = File::load($media->get('field_media_image')->target_id);
 
           if ($file instanceof FileInterface) {
             $mime_type_key = $file->getMimeType();
@@ -322,7 +322,7 @@ function origins_media_preprocess_image_formatter(array &$variables) {
   if ($media_entity instanceof MediaInterface && $media_entity->bundle() === 'document') {
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
     // Get the underlying file associated with this document entity.
-    $file = $file_storage->load($media_entity->field_media_file->target_id);
+    $file = $file_storage->load($media_entity->get('field_media_file')->target_id);
 
     if ($file instanceof FileInterface) {
       $mimetype = $file->getMimeType();

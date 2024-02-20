@@ -197,7 +197,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    */
   private function transitionAllowed($entity, String $new_state) {
     // Get the current moderation state.
-    $current_state = $entity->moderation_state->value;
+    $current_state = $entity->get('moderation_state')->getString();
     // Check that we are looking at the latest revision.
     if (!$entity->isLatestRevision()) {
       // @phpstan-ignore-next-line
@@ -207,7 +207,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
       /** @var \Drupal\node\NodeInterface $last_revision */
       // @phpstan-ignore-next-line
       $last_revision = $this->nodeStorage->loadRevision($last_revision_id);
-      $current_state = $last_revision->moderation_state->value;
+      $current_state = $last_revision->get('moderation_state')->getString();
     }
     // Check permissions of current user.
     $current_user = $this->currentUser();

@@ -21,7 +21,7 @@ class NewDraftOfPublishedForm extends ConfirmFormBase {
   /**
    * The node revision.
    *
-   * @var \Drupal\node\NodeInterface
+   * @var int
    */
   protected $nid;
 

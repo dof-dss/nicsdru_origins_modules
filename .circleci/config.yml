@@ -2,7 +2,7 @@ version: 2.1
 
 default_docker_image: &docker_image
   docker:
-    - image: thecodingmachine/php:8.1-v4-apache-node12
+    - image: thecodingmachine/php:8.2-v4-apache-node12
       environment:
         PROJECT_ROOT: "/home/docker/project"
         PHP_EXTENSION_GD: 1
@@ -44,7 +44,9 @@ jobs:
           name: Download dependent contrib modules.
           command: |
             cd $PROJECT_ROOT
-            composer require drupal/entity_embed mglaman/drupal-check drupal/flag drupal/geolocation drupal/facets drush/drush
+            composer require drupal/entity_embed mglaman/drupal-check \
+              drupal/flag drupal/geolocation:^4.0 \
+                drupal/facets drush/drush
       - run:
           name: Move custom code into position
           command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
@@ -54,9 +56,30 @@ jobs:
             cd $PROJECT_ROOT/web
             ../vendor/bin/drupal-check modules/origins
 
+  disallowed_functions:
+    <<: *docker_image
+    steps:
+      - checkout:
+          path: ~/nicsdru_origins_modules
+      - run:
+          name: Fetch latest Drupal core and other misc composer tools.
+          command: |
+            cd $PROJECT_ROOT
+            composer create-project drupal/recommended-project:10.1.x-dev $PROJECT_ROOT --no-interaction
+            composer require --dev phpstan/extension-installer spaze/phpstan-disallowed-calls
+      - run:
+          name: Move custom code into position
+          command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
+      - run:
+          name: Check for disallowed function calls
+          command: |
+            CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/web/modules/origins"
+            vendor/bin/phpstan analyse $CHECK_DIRS -c $PROJECT_ROOT/web/modules/origins/.circleci/phpstan.neon
+
 workflows:
   version: 2
   static_analysis:
     jobs:
       - coding_standards
-      - deprecated_code
+      - deprecated_code 
+      - disallowed_functions
