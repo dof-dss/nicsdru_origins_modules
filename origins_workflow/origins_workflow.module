@@ -157,7 +157,7 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   // is deleted.
   /** @var \Drupal\node\NodeInterface $entity */
 
-  if (!$entity->hasField('moderation_state')) {
+  if (!$entity instanceof ContentEntityBase || !$entity->hasField('moderation_state')) {
     return;
   }
 
