@@ -8,9 +8,9 @@
 
   const preferredLanguage = function () {
     let nav = window.navigator,
-      browserLanguagePropertyKeys = ['language', 'browserLanguage', 'systemLanguage', 'userLanguage'],
-      i,
-      language;
+        browserLanguagePropertyKeys = ['language', 'browserLanguage', 'systemLanguage', 'userLanguage'],
+        i,
+        language;
 
     // support for HTML 5.1 "navigator.languages"
     if (Array.isArray(nav.languages)) {
@@ -50,22 +50,22 @@
     // CSS hook to show/hide the menu and enable/disable
     // keyboard focus on menu links.
     $button
-      .attr('aria-expanded', false)
-      .removeClass('hidden')
-      .click(function (e) {
-        e.preventDefault();
-        $(this).parent('#origins-translation-container').toggleClass('top');
-        let expanded = $(this).attr('aria-expanded') === 'true' || false;
-        let tabindex = expanded ? '-1' : '0';
-        $(this).attr('aria-expanded', !expanded);
-        $menu.find('a').attr('tabindex', tabindex);
-      });
+        .attr('aria-expanded', false)
+        .removeClass('hidden')
+        .click(function (e) {
+          e.preventDefault();
+          let expanded = $(this).attr('aria-expanded') === 'true' || false;
+          let tabindex = expanded ? '-1' : '0';
+          $(this).attr('aria-expanded', !expanded);
+          $(this).parent('#origins-translation-container').toggleClass('top', !expanded);
+          $menu.find('a').attr('tabindex', tabindex);
+        });
 
     // If focus leaves the translation menu, it should close.
     $(elm).focusout(function () {
       if ($(this).is(':focus-within') !== true) {
         // Close it via the button.
-        $button.attr('aria-expanded', false);
+        $button.click();
         // Ensure menu links cannot receive keyboard focus.
         $menu.find('a').attr('tabindex', '-1');
       }
@@ -120,7 +120,7 @@
   Drupal.behaviors.enableTranslationButton = {
     attach: function (context, settings) {
       if (location.hostname.indexOf("translate") >= 0) {
-        $('#block-originstranslation').hide();
+        $('.block-origins-translations').hide();
       }
     }
   }
