@@ -6,6 +6,7 @@
  */
 
 use Drupal\block\Entity\Block;
+use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityInterface;
@@ -291,6 +292,15 @@ function origins_common_preprocess_field(&$variables, $hook) {
   $element = $variables['element'];
   if ($element["#field_type"] === 'geolocation') {
 
+    $entity = $variables['element']['#object'];
+    $view_mode = $variables['element']['#view_mode'];
+    $field_name = $variables['element']['#field_name'];
+
+    $entity_display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
+    $field_display = $entity_display->getComponent($field_name);
+
+    $conditional = NestedArray::getValue($field_display, ['settings', 'map_provider_settings', 'conditional_initialization']);
+    ksm($field_display);
   }
 }
 
@@ -299,38 +309,53 @@ function origins_common_field_formatter_third_party_settings_form(FormatterInter
 
   if ($plugin->getPluginId() === 'geolocation_map') {
     $settings = $plugin->getThirdPartySetting('origins_common', 'gmap_lazy_loading');
+    $enabled_element_id = Html::getUniqueId('gmap_lazy_loading_enabled');
+    $placeholder_element_id = Html::getUniqueId('gmap_lazy_loading_placeholder');
 
-    $element['lazy_loader'] = [
+    $element['gmap_lazy_loading'] = [
       '#type' => 'details',
       '#weight' => -1,
       '#title' => t('Lazy loading'),
       '#open' => TRUE,
     ];
 
-    $element['lazy_loader']['enable'] = [
+    $element['gmap_lazy_loading']['enable'] = [
       '#type' => 'checkbox',
       '#weight' => -1,
       '#title' => t('Enable lazy loading'),
       '#description' => t('Will only load the interactive map when it is visible in the browser viewport.'),
+      '#id' => $enabled_element_id,
       '#open' => TRUE,
     ];
 
-    $element['lazy_loader']['placeholder'] = [
+    $element['gmap_lazy_loading']['placeholder'] = [
       '#title' => t('Placeholder'),
       '#type' => 'select',
+      '#id' => $placeholder_element_id,
       '#options' => [
         'empty' => t('Empty'),
         'link' => t('Link to Google map'),
         'static_map' => t('Static map'),
       ],
       '#default_value' => $settings['placeholder'] ?? '',
+      '#states' => [
+        'visible' => [
+          ':input[id="'. $enabled_element_id .'"]' => ['checked' => TRUE],
+        ],
+      ],
     ];
 
     // Specify the text for the link placeholder.
-    $element['lazy_loader']['link_text'] = [
+    $element['gmap_lazy_loading']['link_text'] = [
       '#title' => t('Link text'),
       '#type' => 'textfield',
       '#default_value' => $settings['link_text'] ?? '',
+      '#states' => [
+        'visible' => [
+          ':input[id="'. $enabled_element_id .'"]' => ['checked' => TRUE],
+          ':input[id="'. $placeholder_element_id .'"]' => ['value' => 'link'],
+        ],
+      ],
     ];
 
   }
