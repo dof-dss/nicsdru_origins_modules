@@ -6,7 +6,11 @@
  */
 
 use Drupal\block\Entity\Block;
+use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Field\FormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -281,4 +285,55 @@ function _origins_common_set_table_scope($html_value) {
     }
   }
   return $html_value;
+}
+
+function origins_common_preprocess_field(&$variables, $hook) {
+  $element = $variables['element'];
+  if ($element["#field_type"] === 'geolocation') {
+
+  }
+}
+
+function origins_common_field_formatter_third_party_settings_form(FormatterInterface $plugin, FieldDefinitionInterface $field_definition, $view_mode, array $form, FormStateInterface $form_state) {
+  $element = [];
+
+  if ($plugin->getPluginId() === 'geolocation_map') {
+    $settings = $plugin->getThirdPartySetting('origins_common', 'gmap_lazy_loading');
+
+    $element['lazy_loader'] = [
+      '#type' => 'details',
+      '#weight' => -1,
+      '#title' => t('Lazy loading'),
+      '#open' => TRUE,
+    ];
+
+    $element['lazy_loader']['enable'] = [
+      '#type' => 'checkbox',
+      '#weight' => -1,
+      '#title' => t('Enable lazy loading'),
+      '#description' => t('Will only load the interactive map when it is visible in the browser viewport.'),
+      '#open' => TRUE,
+    ];
+
+    $element['lazy_loader']['placeholder'] = [
+      '#title' => t('Placeholder'),
+      '#type' => 'select',
+      '#options' => [
+        'empty' => t('Empty'),
+        'link' => t('Link to Google map'),
+        'static_map' => t('Static map'),
+      ],
+      '#default_value' => $settings['placeholder'] ?? '',
+    ];
+
+    // Specify the text for the link placeholder.
+    $element['lazy_loader']['link_text'] = [
+      '#title' => t('Link text'),
+      '#type' => 'textfield',
+      '#default_value' => $settings['link_text'] ?? '',
+    ];
+
+  }
+
+  return $element;
 }
