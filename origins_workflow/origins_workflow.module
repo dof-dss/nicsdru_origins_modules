@@ -156,6 +156,11 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   // We want the alias deletion to run last so that it really
   // is deleted.
   /** @var \Drupal\node\NodeInterface $entity */
+
+  if (!$entity instanceof ContentEntityBase || !$entity->hasField('moderation_state')) {
+    return;
+  }
+
   $entity_mod_state = $entity->get('moderation_state')->value ?? '';
 
   /** @var \Drupal\Core\Entity\ContentEntityBase $original_entity */
