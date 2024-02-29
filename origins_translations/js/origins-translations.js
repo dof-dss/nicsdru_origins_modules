@@ -63,7 +63,7 @@
 
     // If focus leaves the translation menu, it should close.
     $(elm).focusout(function () {
-      if ($(this).is(':focus-within') !== true) {
+      if ($(this).is(':focus-within') !== true && $button.attr('aria-expanded') === 'true') {
         // Close it via the button.
         $button.click();
         // Ensure menu links cannot receive keyboard focus.
