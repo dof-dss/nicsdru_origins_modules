@@ -79,7 +79,7 @@ class AuditController extends ControllerBase implements ContainerInjectionInterf
         $audit_confirmation_text = $this->config('origins_workflow.auditsettings')->get('audit_confirmation_text');
         // Show confirmation text to user.
         $render_array['origins_audit_text'] = [
-          '#markup' => $this->t('@message', ['@message' => '$audit_confirmation_text']),
+          '#markup' => $this->t('@message', ['@message' => $audit_confirmation_text]),
           '#prefix' => "<p class='confirmation_text'>",
           '#suffix' => "</p>",
           '#weight' => 0,
