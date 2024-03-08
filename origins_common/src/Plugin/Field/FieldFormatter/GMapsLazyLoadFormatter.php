@@ -74,6 +74,7 @@ class GMapsLazyLoadFormatter extends FormatterBase implements ContainerFactoryPl
 
     $this->gmapsProvider = $map_provider;
     /* @var \Drupal\geolocation_google_maps\GoogleMapsService $map_provider */
+    // @phpstan-ignore-next-line
     $url_base = GoogleMapsService::$googleMapsApiUrlBase;
     $this->providerUrlBase = $url_base;
     $this->gmapsConfiguration = $config->get('geolocation_google_maps.settings');
