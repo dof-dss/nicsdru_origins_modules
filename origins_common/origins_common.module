@@ -220,6 +220,10 @@ function origins_common_entity_presave(EntityInterface $entity) {
     if ($entity->hasField('body')) {
       $body_field = $entity->get('body');
       $body_value = $body_field->getValue();
+
+      if (empty($body_value[0]['value'])) {
+        return;
+      }
       $html_value = $body_value[0]['value'];
       // Break the HTML into chunks so that a table takes up one chunk.
       $chunks = explode('<table', $html_value);
