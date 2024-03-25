@@ -20,15 +20,15 @@ use Drupal\views\ViewExecutable;
  * Implements hook_element_info_alter().
  */
 function origins_media_element_info_alter(array &$info) {
-  if (!array_key_exists('geolocation_input', $info)) {
-    return;
-  }
+  $moduleHandler = \Drupal::service('module_handler');
 
-  // Add a pre-render call to alter the output of the geolocation form element.
-  $info['geolocation_input']['#pre_render'][] = [
-    GeoLocationFormElementRenderer::class,
-    'preRender',
-  ];
+  if ($moduleHandler->moduleExists('geolocation') && array_key_exists('geolocation_input', $info)) {
+    // Add a pre-render call to alter the output of the geolocation form element.
+    $info['geolocation_input']['#pre_render'][] = [
+        GeoLocationFormElementRenderer::class,
+        'preRender',
+    ];
+  }
 }
 
 /**
