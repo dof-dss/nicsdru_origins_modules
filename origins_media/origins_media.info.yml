@@ -6,6 +6,5 @@ package: 'Origins'
 dependencies:
   - entity_embed
   - media
-  - geolocation
   - entity_browser
   - whatlinkshere
