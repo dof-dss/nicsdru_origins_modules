@@ -234,7 +234,9 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
   $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
   $toc_settings = $node_type->getThirdPartySettings('origins_toc');
 
-  if (!empty($toc_settings)) {
+  // If node type has toc settings and node view mode is full, attach
+  // the origins_toc library.
+  if (!empty($toc_settings) && $view_mode === 'full') {
     // Check if ToC's have been disabled at the entity type.
     if (!$toc_settings['toc_enable']) {
       return $build;
