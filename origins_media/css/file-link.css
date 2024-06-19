@@ -1,0 +1,231 @@
+.file-link {
+    font-size: 2.1rem;
+    line-height: 2.7rem;
+    font-weight: 500;
+    display: block;
+}
+
+.file-link--simple {
+    font-size: 1.6rem;
+    line-height: 1.5;
+    margin: 0 0 1.5em;
+}
+
+@media screen and (min-width: 600px) {
+    .file-link--simple {
+        margin: 1.8rem 0 2.7rem;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .file-link--simple {
+        font-size: 1.8rem;
+    }
+}
+
+@media screen and (min-width: 1382px) {
+    .file-link--simple {
+        font-size: 2rem;
+    }
+}
+
+.file-link.file--ico {
+    min-height: 50px;
+    padding-left: 65px;
+    position: relative;
+}
+
+.file-link.file--ico::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.file-link .meta {
+    font-size: 1.4rem;
+    line-height: 2.1rem;
+    display: block;
+}
+
+.file-link:focus {
+    background-color: #0e6bb3;
+    color: #fff;
+    outline: 5px solid #0e6bb3;
+    text-decoration: none;
+}
+
+.file-link:focus .meta {
+    color: #fff;
+}
+
+.file--ico::before {
+    content: '';
+    display: inline-block;
+    width: 35px;
+    height: 50px;
+    margin: 0;
+    background: transparent url('../images/nigov-file-icons.svg') no-repeat;
+    background-position-x: -750px;
+    background-position-y: 0;
+    background-size: 785px 105px;
+}
+
+.file--ico__word::before, .file--ico__doc::before, .file--ico__docx::before, .file--ico__dot::before {
+    background-position-x: 0;
+}
+
+.file--ico__pdf::before {
+    background-position-x: -75px;
+}
+
+.file--ico__excel::before, .file--ico__xls::before, .file--ico__xlsx::before, .file--ico__xlsm::before {
+    background-position-x: -150px;
+}
+
+.file--ico__powerpoint::before, .file--ico__ppt::before, .file--ico__pptx::before, .file--ico__pptm::before {
+    background-position-x: -225px;
+}
+
+.file--ico__opendocument-text::before, .file--ico__odt::before {
+    background-position-x: -300px;
+}
+
+.file--ico__opendocument-spreadsheet::before, .file--ico__ods::before {
+    background-position-x: -375px;
+}
+
+.file--ico__opendocument-presentation::before, .file--ico__odp::before {
+    background-position-x: -450px;
+}
+
+.file--ico__csv::before {
+    background-position-x: -525px;
+}
+
+.file--ico__zip::before {
+    background-position-x: -600px;
+}
+
+.file--ico__html::before {
+    background-position-x: -675px;
+}
+
+.media-library-views-form .file--media-library-preview {
+    text-align: center;
+}
+
+.media-library-views-form .media-library-item--grid .field--name-thumbnail {
+    background-color: #000;
+}
+
+.media-library-views-form .media-library-item--grid .field--name-thumbnail img {
+    height: 110px;
+    -o-object-fit: contain;
+    object-fit: contain;
+    -o-object-position: center center;
+    object-position: center center;
+    margin: 35px 0;
+}
+
+.media-library-views-form .media-library-item--grid .media-remote_video .field--name-thumbnail img {
+    margin: 15px 0;
+    height: 150px;
+}
+
+.media-library-views-form .media-library-item--grid .file--media-library-preview {
+    background-color: #ebebeb;
+    padding: 5px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico::before {
+    content: '';
+    display: inline-block;
+    width: 70px;
+    height: 100px;
+    margin: 35px 0;
+    background: transparent url('../images/nigov-file-icons.svg') no-repeat;
+    background-position-x: -1500px;
+    background-position-y: 0;
+    background-size: 1570px 210px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__word::before, .media-library-views-form .media-library-item--grid .file--ico__doc::before, .media-library-views-form .media-library-item--grid .file--ico__docx::before, .media-library-views-form .media-library-item--grid .file--ico__dot::before {
+    background-position-x: 0;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__pdf::before {
+    background-position-x: -150px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__excel::before, .media-library-views-form .media-library-item--grid .file--ico__xls::before, .media-library-views-form .media-library-item--grid .file--ico__xlsx::before, .media-library-views-form .media-library-item--grid .file--ico__xlsm::before {
+    background-position-x: -300px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__powerpoint::before, .media-library-views-form .media-library-item--grid .file--ico__ppt::before, .media-library-views-form .media-library-item--grid .file--ico__pptx::before, .media-library-views-form .media-library-item--grid .file--ico__pptm::before {
+    background-position-x: -450px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__opendocument-text::before, .media-library-views-form .media-library-item--grid .file--ico__odt::before {
+    background-position-x: -600px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__opendocument-spreadsheet::before, .media-library-views-form .media-library-item--grid .file--ico__ods::before {
+    background-position-x: -750px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__opendocument-presentation::before, .media-library-views-form .media-library-item--grid .file--ico__odp::before {
+    background-position-x: -900px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__csv::before {
+    background-position-x: -1050px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__zip::before {
+    background-position-x: -1200px;
+}
+
+.media-library-views-form .media-library-item--grid .file--ico__html::before {
+    background-position-x: -1350px;
+}
+
+.media-library-views-form .media-library-item--grid .media-library-item__status {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    padding: 0 5px;
+    color: red;
+    background: rgba(255, 255, 255, 0.85);
+    -webkit-box-shadow: 0 3px 9px -3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 9px -3px rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-style: normal;
+    font-weight: bold;
+    width: auto;
+    height: auto;
+    box-sizing: border-box;
+    line-height: 25px;
+    text-align: center;
+    transform: translateX(-50%) translateY(-100%);
+    text-transform: uppercase;
+}
+
+.media-library-views-form .views-field-thumbnail__target-id {
+    text-align: center;
+}
+
+.media-library-views-form .media-remote_video::before {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 40px;
+    height: 40px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, calc(-50% - 17px));
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" viewBox="0 0 24 24" fill="white" width="18px" height="18px"><g><rect fill="none" height="24" width="24"/></g><g><path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M9.5,16.5v-9l7,4.5L9.5,16.5z"/></g></svg>') center center no-repeat;
+    background-size: 40px auto;
+    border-radius: 20px;
+    opacity: .75;
+}
