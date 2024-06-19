@@ -250,9 +250,7 @@ function origins_media_preprocess_fieldset__media_library_widget(array &$variabl
 function origins_media_views_pre_render(ViewExecutable $view) {
   // Attach origins media library styles to media library views.
   if ($view->id() === 'media_library') {
-    if (\Drupal::service('theme_handler')->themeExists('nicsdru_origins_theme')) {
-      $view->element['#attached']['library'][] = 'nicsdru_origins_theme/media_library_styles';
-    }
+    $view->element['#attached']['library'][] = 'origins_media/media_library_styles';
   }
 }
 
