@@ -47,11 +47,16 @@ class OriginsQaCommands extends DrushCommands {
    *
    * Assign the password set in the environment variable.
    *
-   * @command qpassword_qa_accounts
+   * @command password_qa_accounts
    */
   public function assignPasswordToQaAccounts() {
     $entity_type_manager = \Drupal::entityTypeManager();
     $pass = getenv('QA_PASSWORD');
+
+    if (getenv('PLATFORM_ENVIRONMENT_TYPE') === 'production') {
+      $this->io()->error('This command cannot be run on production environments.');
+      return;
+    }
 
     if (empty($pass)) {
       $this->io()->error('QA Password environment variable not set.');
