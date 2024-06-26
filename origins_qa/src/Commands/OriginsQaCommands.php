@@ -69,11 +69,14 @@ class OriginsQaCommands extends DrushCommands {
       $user->setPassword($pass);
 
       try {
-      $user->save();
-
-      } catch (\Exception $e) {
-        $msg = t("Unable to update password for @username error: @error.", ['@username' => $user->label(), '@error' => $e->getMessage()]);
-        $this->io()->error($msg, TRUE);
+        $user->save();
+      }
+      catch (\Exception $e) {
+        $msg = t("Unable to update password for @username error: @error.", [
+          '@username' => $user->label(),
+          '@error' => $e->getMessage()
+        ]);
+        $this->io()->error($msg);
       }
     }
 
