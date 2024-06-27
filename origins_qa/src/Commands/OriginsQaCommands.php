@@ -42,4 +42,46 @@ class OriginsQaCommands extends DrushCommands {
     $this->io()->write($msg, TRUE);
   }
 
+  /**
+   * Drush command set password on QA accounts.
+   *
+   * Assign the password set in the environment variable.
+   *
+   * @command password_qa_accounts
+   */
+  public function assignPasswordToQaAccounts() {
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $pass = getenv('QA_PASSWORD');
+
+    if (getenv('PLATFORM_ENVIRONMENT_TYPE') === 'production') {
+      $this->io()->error('This command cannot be run on production environments.');
+      return;
+    }
+
+    if (empty($pass)) {
+      $this->io()->error('QA Password environment variable not set.');
+      return;
+    }
+
+    $qa_users = $entity_type_manager->getStorage('user')->loadByProperties(['roles' => 'qa']);
+
+    foreach ($qa_users as $user) {
+      $user->setPassword($pass);
+
+      try {
+        $user->save();
+      }
+      catch (\Exception $e) {
+        $msg = t("Unable to update password for @username error: @error.", [
+          '@username' => $user->label(),
+          '@error' => $e->getMessage()
+        ]);
+        $this->io()->error($msg);
+      }
+    }
+
+    $msg = t("Password for @cnt QA accounts updated.", ['@cnt' => count($qa_users)]);
+    $this->io()->write($msg, TRUE);
+  }
+
 }
