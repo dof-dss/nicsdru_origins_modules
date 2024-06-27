@@ -39,7 +39,7 @@ jobs:
           name: Fetch latest Drupal version
           command: |
             cd $PROJECT_ROOT
-            composer create-project drupal/recommended-project:10.1.x-dev $PROJECT_ROOT --no-interaction
+            composer create-project drupal/recommended-project:10.2.x $PROJECT_ROOT --no-interaction
       - run:
           name: Download dependent contrib modules.
           command: |
@@ -81,5 +81,5 @@ workflows:
   static_analysis:
     jobs:
       - coding_standards
-      - deprecated_code 
+      - deprecated_code
       - disallowed_functions
