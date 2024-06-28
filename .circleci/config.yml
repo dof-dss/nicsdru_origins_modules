@@ -45,8 +45,8 @@ jobs:
           command: |
             cd $PROJECT_ROOT
             composer require drupal/entity_embed:^1.6 mglaman/drupal-check \
-              drupal/flag drupal/geolocation:^4.0 \
-                drupal/facets drush/drush
+              drupal/flag:^4.0@beta drupal/geolocation:^4.0 \
+              drupal/facets:^3.0@beta drush/drush
       - run:
           name: Move custom code into position
           command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
