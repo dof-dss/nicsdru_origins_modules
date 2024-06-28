@@ -44,7 +44,7 @@ jobs:
           name: Download dependent contrib modules.
           command: |
             cd $PROJECT_ROOT
-            composer require drupal/entity_embed mglaman/drupal-check \
+            composer require drupal/entity_embed:^1.6 mglaman/drupal-check \
               drupal/flag drupal/geolocation:^4.0 \
                 drupal/facets drush/drush
       - run:
