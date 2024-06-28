@@ -1,3 +1,5 @@
+# Use of custom drupal-recommended-project package to allow the installation of modules with a dev/alpha/beta release.
+# See: https://github.com/dof-dss/drupal-recommended-project
 version: 2.1
 
 default_docker_image: &docker_image
