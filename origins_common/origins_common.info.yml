@@ -7,3 +7,5 @@ dependencies:
   - drupal:help
   - drupal:block
   - drupal:facets
+  - eu_cookie_compliance
+  - google_tag

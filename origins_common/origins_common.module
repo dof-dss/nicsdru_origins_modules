@@ -115,6 +115,10 @@ function origins_common_preprocess_page(&$variables) {
   if ($theme->getName() === 'adminimal_theme') {
     $variables['#attached']['library'][] = 'origins_common/adminimal';
   }
+
+  // EUCC and Google Consent Mode. Add library to handle EUCC consent
+  // preferences and push event(s) to GTM.
+  $variables['#attached']['library'][] = 'origins_common/gtag_eucc_consent';
 }
 
 /**
