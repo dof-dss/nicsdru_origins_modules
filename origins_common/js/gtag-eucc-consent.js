@@ -17,21 +17,12 @@
     (Drupal.eu_cookie_compliance.queue = Drupal.eu_cookie_compliance.queue || []).push(arguments)
   };
 
-  // Handler for EUCC status / preference change events. Push an
-  // event to GTM container to indicate when EUCC preferences have been
-  // loaded or changed.
+  // Handler for EUCC status / preference change events.
   const euccConsentHandler = function(response) {
-
     window.cookieResponse = response;
-    const status = response.currentStatus ? parseInt(response.currentStatus) : null;
-
-    // Push event to indicate cookie choices made.
-    if (status) {
-      window.dataLayer.push({
-        'event': 'eucc_preferences_completed'
-      });
-      console.log('dataLayer push eucc_preferences_completed');
-    }
+    window.dataLayer.push({
+      'event': 'eucc_preferences_completed'
+    });
   }
 
   // Add handler to relevant EUCC events.
