@@ -13,3 +13,9 @@ origins_common_claro_fixes:
   css:
     theme:
       css/claro.overrides.css: {}
+gtag_eucc_consent:
+  js:
+    js/gtag-eucc-consent.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
