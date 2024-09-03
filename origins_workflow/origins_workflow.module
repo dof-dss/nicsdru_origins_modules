@@ -27,7 +27,7 @@ use Drupal\workflows\TransitionInterface;
  */
 function origins_workflow_page_attachments(array &$attachments) {
   // Attach library for dialogs.
-  $attachments['#attached']['library'][] = 'origins_workflow/origins_workflow.dialogs';
+//  $attachments['#attached']['library'][] = 'origins_workflow/origins_workflow.dialogs';
   // Attach extra custom css for admin menu.
   $attachments['#attached']['library'][] = 'origins_workflow/admin.css';
 }
@@ -739,10 +739,10 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
 // function origins_workflow_preprocess_page(&$variables) {
 // // Add js to node view pages to fake a moderation
 // // sidebar 'archive' button that is missing.
-//  $this_route = \Drupal::routeMatch()->getRouteName();
-//  if ($this_route === 'entity.node.canonical') {
-//  $variables['#attached']['library'][] = 'origins_workflow/moderation_sidebar_fix';
-//  }
+// $this_route = \Drupal::routeMatch()->getRouteName();
+// if ($this_route === 'entity.node.canonical') {
+// $variables['#attached']['library'][] = 'origins_workflow/moderation_sidebar_fix';
+// }
 // }
 
 /**
