@@ -27,7 +27,7 @@ use Drupal\workflows\TransitionInterface;
  */
 function origins_workflow_page_attachments(array &$attachments) {
   // Attach library for dialogs.
-//  $attachments['#attached']['library'][] = 'origins_workflow/origins_workflow.dialogs';
+  // $attachments['#attached']['library'][] = 'origins_workflow/origins_workflow.dialogs';
   // Attach extra custom css for admin menu.
   $attachments['#attached']['library'][] = 'origins_workflow/admin.css';
 }
