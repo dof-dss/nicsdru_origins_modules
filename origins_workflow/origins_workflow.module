@@ -737,11 +737,11 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
 // * Implements hook_preprocess_page().
 // */
 // function origins_workflow_preprocess_page(&$variables) {
-//  // Add js to node view pages to fake a moderation
+// // Add js to node view pages to fake a moderation
 //  // sidebar 'archive' button that is missing.
 //  $this_route = \Drupal::routeMatch()->getRouteName();
 //  if ($this_route === 'entity.node.canonical') {
-//    $variables['#attached']['library'][] = 'origins_workflow/moderation_sidebar_fix';
+//  $variables['#attached']['library'][] = 'origins_workflow/moderation_sidebar_fix';
 //  }
 // }
 
