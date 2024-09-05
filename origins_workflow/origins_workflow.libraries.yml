@@ -1,12 +1,4 @@
-origins_workflow.dialogs:
-  dependencies:
-    - core/jquery
-    - core/drupal.dialog.ajax
-    - core/jquery.form
 admin.css:
   css:
     theme:
       css/admin.css: {}
-moderation_sidebar_fix:
-  js:
-    js/moderation_sidebar_fix.js: {}
