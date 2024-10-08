@@ -31,7 +31,7 @@ class ExcludeTitleForm extends ConfigFormBase {
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
     $this->entityTypeManager = $entity_type_manager;
-      $this->messenger = $messenger;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -68,8 +68,6 @@ class ExcludeTitleForm extends ConfigFormBase {
 
     $message_exclude_ids = "If there are any specific node ID's that shouldn't be validated. List them on new lines";
 
-    //    $message_exclude_bundles = "If there are any specific node ID's that shouldn't be validated. List them on new lines";
-
     $form['exclude_ids_list'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Excluded Node IDs'),
@@ -99,8 +97,7 @@ class ExcludeTitleForm extends ConfigFormBase {
       }
     }
     parent::validateForm($form, $form_state);
-
-}
+  }
 
   /**
    * {@inheritdoc}
