@@ -87,7 +87,7 @@ function origins_unique_title_validate_title(array &$form, FormStateInterface $f
   $exclude_id_list = $config->get('exclude_ids_list');
   // Check there are some values in the form list.
   if (!empty($exclude_id_list)) {
-  $exclude_id_list = explode(PHP_EOL, $exclude_id_list);
+    $exclude_id_list = explode(PHP_EOL, $exclude_id_list);
 
     foreach ($exclude_id_list as $id) {
       $id = str_replace(["\n", "\t", "\r"], '', $id);

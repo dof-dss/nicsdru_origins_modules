@@ -29,8 +29,9 @@ class ExcludeTitleForm extends ConfigFormBase {
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
     $this->entityTypeManager = $entity_type_manager;
+      $this->messenger = $messenger;
   }
 
   /**
@@ -39,6 +40,7 @@ class ExcludeTitleForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
+      $container->get('messenger'),
     );
   }
 
@@ -75,23 +77,6 @@ class ExcludeTitleForm extends ConfigFormBase {
       '#default_value' => $config->get('exclude_ids_list'),
     ];
 
-    //    // Get a list of all content types.
-    //    $options = [];
-    //    $all_content_types = $this->entityTypeManager->getStorage('node_type')->loadMultiple();
-    //    foreach ($all_content_types as $machine_name => $content_type) {
-    //      if (!in_array($machine_name, ['mas_rss', 'webform'])) {
-    //        $options[$machine_name] = $content_type->label();
-    //      }
-    //    }
-    //
-    //    $form['exclude_bundles_list'] = [
-    //      '#type' => 'checkboxes',
-    //      '#options' => $options,
-    //      '#title' => $this->t('Excluded node types'),
-    //      '#description' => $this->t($message_exclude_bundles),
-    //      '#default_value' => $config->get('exclude_bundles_list'),
-    //    ];
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -113,7 +98,7 @@ class ExcludeTitleForm extends ConfigFormBase {
         }
       }
     }
-parent::validateForm($form, $form_state);
+    parent::validateForm($form, $form_state);
 
 }
 
@@ -124,7 +109,6 @@ parent::validateForm($form, $form_state);
     parent::submitForm($form, $form_state);
 
     $this->config('origins_unique_title.excludesettings')
-//      ->set('exclude_bundles_list', $form_state->getValue('exclude_bundles_list'))
       ->set('exclude_ids_list', $form_state->getValue('exclude_ids_list'))
       ->save();
   }
