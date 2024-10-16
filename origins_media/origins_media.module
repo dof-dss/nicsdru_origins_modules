@@ -388,27 +388,3 @@ function origins_media_preprocess_media_oembed_iframe(&$variables) {
     $variables['media'] = str_replace('?feature=oembed', '?rel=0&feature=oembed', (string) $variables['media']);
   }
 }
-
-/**
- * Implements hook_field_widget_single_element_form_alter().
- */
-function origins_media_field_widget_single_element_form_alter(array &$element, FormStateInterface $form_state, array $context) {
-  $plugin_id = $context['widget']->getPluginId();
-
-  // Overrides the contrib module render array title which introduced a hidden span link in version 3.0.4.
-  if ($plugin_id == 'media_library_widget') {
-    if (version_compare(InstalledVersions::getPrettyVersion('drupal/media_library_edit'), '3.0.4') >= 0) {
-      $settings = $context['widget']->getThirdPartySettings('media_library_edit');
-      if (isset($settings['show_edit']) && $settings['show_edit']) {
-        if (isset($context['items'])) {
-          foreach ($context['items'] as $key => $item) {
-            $media = $item->entity;
-            if ($media && $media->access('update')) {
-              $element['selection'][$key]['media_edit']['#title'] = t('Edit media item');
-            }
-          }
-        }
-      }
-    }
-  }
-}
