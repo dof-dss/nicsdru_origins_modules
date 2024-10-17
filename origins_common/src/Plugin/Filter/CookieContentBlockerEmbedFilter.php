@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'Cookie Content Blocker Embed Filter' filter.
- *
+ ****
  * @Filter(
  *   id = "origins_media_cookie_content_blocker_embed_filter",
  *   title = @Translation("Cookie Content Blocker Embed Filter"),
