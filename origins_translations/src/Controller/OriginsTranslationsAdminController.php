@@ -77,12 +77,12 @@ class OriginsTranslationsAdminController extends ControllerBase {
             ],
           ],
         ],
-        $language['0'],
+        $language['0'] ?? NULL,
         ($language['1']) ? $this->t('True') : $this->t('False'),
-        $language['2'],
-        $language['3'],
-        $language['4'],
-        $language['5'],
+        $language['2'] ?? NULL,
+        $language['3'] ?? NULL,
+        $language['4'] ?? NULL,
+        $language['5'] ?? NULL,
       ];
     }
 
