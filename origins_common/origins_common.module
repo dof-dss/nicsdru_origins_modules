@@ -7,13 +7,12 @@
 
 use Drupal\block\Entity\Block;
 use Drupal\node\Entity\Node;
+use Drupal\facets\FacetInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
-use Drupal\facets\FacetInterface;
-
 
 /**
  * Implements hook_help().
