@@ -24,7 +24,7 @@ class OriginsEntityEmbedDialog extends EntityEmbedDialog {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, ?EditorInterface $editor = NULL, ?EmbedButtonInterface $embed_button = NULL) {
+  public function buildForm(array $form, FormStateInterface $form_state, EditorInterface|null $editor = NULL, EmbedButtonInterface|null $embed_button = NULL) {
     // Pass in our pre-set form_state into the origin entity embed form builder
     // so we can get the correct form output in the state we need it to be in
     // for location embeds (either new map or replace existing map).

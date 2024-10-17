@@ -5,9 +5,6 @@
  * Contains origins_common.module.
  */
 
-use Drupal\block\Entity\Block;
-use Drupal\node\Entity\Node;
-use Drupal\facets\FacetInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
