@@ -3,13 +3,13 @@
 namespace Drupal\origins_workflow\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
-use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Url;
+use Drupal\content_moderation\ModerationInformationInterface;
 use Drupal\node\NodeInterface;
 use Drupal\workflows\StateInterface;
 use Psr\Log\LoggerInterface;
@@ -109,10 +109,10 @@ class RevertToModerationStateForm extends ConfirmFormBase {
    *   The logger interface.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
+   * @param \Drupal\Component\Datetime\TimeInterface|null $time
    *   The time service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, DateFormatterInterface $date_formatter, TimeInterface $time = NULL) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, DateFormatterInterface $date_formatter, TimeInterface|null $time = NULL) {
     $this->entityTypeManager = $entity_type_manager;
     $this->moderationInformation = $moderation_information;
     $this->messenger = $messenger;

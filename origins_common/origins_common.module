@@ -5,12 +5,12 @@
  * Contains origins_common.module.
  */
 
-use Drupal\block\Entity\Block;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
+use Drupal\block\Entity\Block;
 use Drupal\facets\FacetInterface;
 use Drupal\node\Entity\Node;
 
