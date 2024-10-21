@@ -10,3 +10,10 @@ field.formatter.settings.html_list_formatter:
     display_item_link:
       type: boolean
       label: 'Display item link'
+
+filter_settings.origins_media_cookie_content_blocker_embed_filter:
+  type: mapping
+  mapping:
+    replacement_text:
+      type: string
+      label: 'Replacement text'
