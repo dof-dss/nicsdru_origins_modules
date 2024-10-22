@@ -4,29 +4,11 @@ namespace Drupal\origins_unique_title\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Messenger\MessengerInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements admin form to exclude nodes ID from the unique title check.
  */
 class ExcludeTitleForm extends ConfigFormBase {
-
-  /**
-   * Creates a new ExcludeTitleForm instance.
-   */
-  public function __construct(MessengerInterface $messenger) {
-    $this->messenger = $messenger;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('messenger')
-    );
-  }
 
   /**
    * {@inheritdoc}
