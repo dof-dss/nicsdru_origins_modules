@@ -1,0 +1,9 @@
+origins_unique_title.origins_exclude_title_form:
+  path: '/admin/config/origins_unique_title/origins_exclude_title_form'
+  defaults:
+    _form: '\Drupal\origins_unique_title\Form\ExcludeTitleForm'
+    _title: 'Origins Unique Title'
+  requirements:
+    _role: 'administrator'
+  options:
+    _admin_route: TRUE
