@@ -2,35 +2,20 @@
 
 namespace Drupal\origins_unique_title\Form;
 
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Messenger\MessengerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Implements admin form to allow setting of audit text.
+ * Implements admin form to exclude nodes ID from the unique title check.
  */
 class ExcludeTitleForm extends ConfigFormBase {
 
   /**
-   * The entity type manager.
-   *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * Creates a new ExcludeTitleForm instance.
    */
-  protected $entityTypeManager;
-
-  /**
-   * Creates a new AuditSettingsForm instance.
-   *
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   The entity type manager.
-   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
-   *   The messenger service.
-   */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
-    $this->entityTypeManager = $entity_type_manager;
+  public function __construct(MessengerInterface $messenger) {
     $this->messenger = $messenger;
   }
 
@@ -39,8 +24,7 @@ class ExcludeTitleForm extends ConfigFormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager'),
-      $container->get('messenger'),
+      $container->get('messenger')
     );
   }
 
@@ -66,7 +50,7 @@ class ExcludeTitleForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('origins_unique_title.excludesettings');
 
-    $message_exclude_ids = "If there are any specific node ID's that shouldn't be validated. List them on new lines";
+    $message_exclude_ids = "If there are any specific node's ID that shouldn't be validated. List them on new lines";
 
     $form['exclude_ids_list'] = [
       '#type' => 'textarea',
