@@ -1,0 +1,6 @@
+origins_unique_title.origins_exclude_title_form:
+  title: 'Origins Exclude Form'
+  route_name: origins_unique_title.origins_exclude_title_form
+  description: 'Configure unique title excluded items'
+  parent: origins.admin_config
+  weight: 99
