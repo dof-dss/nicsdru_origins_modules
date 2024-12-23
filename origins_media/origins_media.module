@@ -270,43 +270,54 @@ function origins_media_preprocess_media(array &$variables) {
   $variables["attributes"]['class'][] = 'media-' . $media_entity->bundle();
 
   // Replace generic document icons with a mimetype specific icon.
-  if ($media_entity->bundle() === 'document') {
-
+  if ($media_entity->bundle() === 'document' || $media_entity->bundle() === 'secure_file') {
     $file_storage = \Drupal::entityTypeManager()->getStorage('file');
 
-    // Get the underlying file associated with this document entity.
-    $file = $file_storage->load($media_entity->field_media_file->target_id);
-
-    if ($file instanceof FileInterface === FALSE) {
-      return;
-    }
-
-    $mimetype = $file->getMimeType();
-
-    // There shouldn't be an image file here, but just in case, screen for it
-    // as if it's genuine it likely has its own thumbnail so we would want to
-    // keep that.
-    if (preg_match('/jpeg|jpg|gif|png/', $mimetype)) {
-      return;
-    }
-
-    $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
-    $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
-
-    // Replace the original image_style render element with a bespoke HTML
-    // element.
-    $variables['content']['thumbnail'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'div',
-      '#attributes' => [
-        'class' => [
-          'file--media-library-preview',
-          'file--ico',
-          'file--ico__' . $simple_mimetypes[$mimetype],
-        ],
-        'aria-label' => $pretty_mimetypes[$mimetype],
-      ],
+    $media_fields = [
+      'field_media_file',
+      'field_media_file_1',
+      'field_media_file_2',
     ];
+
+    foreach ($media_fields as $media_field) {
+      if ($media_entity->hasField($media_field)) {
+        // Get the underlying file associated with this document entity.
+        $file = $file_storage->load($media_entity->$media_field->target_id);
+
+        if ($file instanceof FileInterface === FALSE) {
+          return;
+        }
+
+        $mimetype = $file->getMimeType();
+
+        // There shouldn't be an image file here, but just in case, screen for it
+        // as if it's genuine it likely has its own thumbnail so we would want to
+        // keep that.
+        if (preg_match('/jpeg|jpg|gif|png/', $mimetype)) {
+          return;
+        }
+
+        $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')
+          ->getSimpleMimeTypes();
+        $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')
+          ->getMimeTypes();
+
+        // Replace the original image_style render element with a bespoke HTML
+        // element.
+        $variables['content']['thumbnail'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => [
+            'class' => [
+              'file--media-library-preview',
+              'file--ico',
+              'file--ico__' . $simple_mimetypes[$mimetype],
+            ],
+            'aria-label' => $pretty_mimetypes[$mimetype],
+          ],
+        ];
+      }
+    }
   }
 }
 
