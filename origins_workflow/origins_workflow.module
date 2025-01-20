@@ -129,13 +129,25 @@ function origins_workflow_form_taxonomy_term_form_alter(&$form, FormStateInterfa
  * Provide extra validation for taxonomy term edit form.
  */
 function origins_workflow_validate_term_path_alias(&$form, FormStateInterface $form_state) {
-  // If this term is unpublished then make sure
-  // that 'generate automatic alias' is un-checked and that the 'URL alias'
-  // field is empty. This will make sure that there is no alias and hence
-  // it will be possible to create a redirect to a replacement term if
-  // necessary.
-  $moderation_state = $form_state->getValue('moderation_state')[0]['value'];
-  if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
+  // For taxonomies with workflow enabled, check to see if this term's
+  // moderation state is being set to 'archived'.
+  // For taxonomies without workflow enabled, check to see if this term
+  // is being 'unpublished'.
+  // In either of these caeses, make sure that 'generate automatic alias'
+  // is un-checked and that the 'URL alias' field is empty.
+  // This will make sure that there is no alias and hence it will be possible
+  // to create a redirect to a replacement term if necessary.
+  $remove_alias = FALSE;
+  // Is workflow enabled for taxonomy terms ?
+  if (is_array($form_state->getValue('moderation_state'))) {
+    if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
+      $remove_alias = TRUE;
+    }
+  } else if ($form_state->getValue('status')['value'] == 0) {
+    // Workflow is not enabled, just check for 'unpublished'.
+    $remove_alias = TRUE;
+  }
+  if ($remove_alias) {
     $path_alias_settings = $form_state->getValue('path');
     $path_alias_settings[0]['alias'] = '';
     $path_alias_settings[0]['pathauto'] = 0;
