@@ -143,7 +143,8 @@ function origins_workflow_validate_term_path_alias(&$form, FormStateInterface $f
     if ($form_state->getValue('moderation_state')[0]['value'] == 'archived') {
       $remove_alias = TRUE;
     }
-  } else if ($form_state->getValue('status')['value'] == 0) {
+  }
+  elseif ($form_state->getValue('status')['value'] == 0) {
     // Workflow is not enabled, just check for 'unpublished'.
     $remove_alias = TRUE;
   }
