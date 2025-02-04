@@ -298,7 +298,7 @@
   border: 0;
 }
 
-#origins-translation-container ul.origins-translation-menu {
+#origins-translation-container .origins-translation-menu {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
@@ -309,10 +309,10 @@
   overflow: visible;
 }
 
-#origins-translation-container.ot-tl ul.origins-translation-menu,
-#origins-translation-container.ot-tr ul.origins-translation-menu,
-#origins-translation-container.ot-bl ul.origins-translation-menu,
-#origins-translation-container.ot-br ul.origins-translation-menu {
+#origins-translation-container.ot-tl .origins-translation-menu,
+#origins-translation-container.ot-tr .origins-translation-menu,
+#origins-translation-container.ot-bl .origins-translation-menu,
+#origins-translation-container.ot-br .origins-translation-menu {
   flex-flow: column nowrap;
   width: 275px; /* allow for scroll bar to right */
 }
