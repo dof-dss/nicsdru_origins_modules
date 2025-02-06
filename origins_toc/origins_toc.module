@@ -9,10 +9,9 @@ use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\field\Entity\FieldConfig;
-use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\flag\Entity\Flag;
 use Drupal\node\Entity\NodeType;
+use Drupal\taxonomy\Entity\Vocabulary;
 
 /**
  * Implements hook_help().
@@ -174,6 +173,137 @@ function origins_toc_form_node_type_form_alter(&$form, FormStateInterface $form_
 }
 
 /**
+ * Implements hook_form_alter().
+ */
+function origins_toc_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_id === 'taxonomy_vocabulary_form') {
+    /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+    $form_object = $form_state->getFormObject();
+    /** @var Drupal\taxonomy\Entity\Term $term */
+    $term = $form_object->getEntity();
+    if (empty($term->id())) {
+      return;
+    }
+    $term_type = Vocabulary::load($term->id());
+
+    $form['toc'] = [
+      '#type' => 'details',
+      '#title' => t('Table of contents'),
+      '#group' => 'additional_settings',
+    ];
+
+    $form['toc']['toc_enable'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enable table of contents.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_enable', NULL),
+    ];
+
+    $form['toc']['toc_config'] = [
+      '#type' => 'container',
+      '#states' => [
+        'invisible' => [
+          ':input[name="toc_enable"]' => ['checked' => FALSE],
+        ],
+      ],
+    ];
+
+    $form['toc']['toc_config']['toc_title'] = [
+      '#type' => 'textfield',
+      '#title' => t('Title'),
+      '#description' => t('Displayed before the table of contents or blank for no title.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_title', 'Table of contents'),
+    ];
+
+    $form['toc']['toc_config']['toc_location'] = [
+      '#type' => 'textfield',
+      '#title' => t('Location'),
+      '#description' => t('CSS selector of the element where the ToC should be inserted.'),
+      '#size' => 30,
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_location', NULL),
+      '#placeholder' => '#location',
+      '#states' => [
+        'required' => [
+          ':input[name="toc_enable"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['toc']['toc_config']['toc_insert'] = [
+      '#type' => 'select',
+      '#title' => t('Insert'),
+      '#options' => [
+        'after' => 'After',
+        'before' => 'Before',
+      ],
+      '#description' => t('Insert the ToC before or after the location element..'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_insert', NULL),
+    ];
+
+    $form['toc']['toc_config']['toc_source_container'] = [
+      '#type' => 'textfield',
+      '#title' => t('Source container'),
+      '#description' => t('CSS selector of the containing element to generate links for.'),
+      '#size' => 30,
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_source_container', NULL),
+      '#placeholder' => '#content-container',
+      '#states' => [
+        'required' => [
+          ':input[name="toc_enable"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['toc']['toc_config']['toc_element'] = [
+      '#type' => 'select',
+      '#title' => t('Source element'),
+      '#options' => [
+        'h2' => 'H2 - Heading 2',
+        'h3' => 'H3 - Heading 3',
+        'h4' => 'H4 - Heading 4',
+      ],
+      '#description' => t('HTML element to generate the table of contents against.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_element', NULL),
+    ];
+
+    $form['toc']['toc_config']['toc_exclusions'] = [
+      '#type' => 'textfield',
+      '#title' => t('Exclusions'),
+      '#description' => t('Comma separated list of class names to exclude from the table of contents.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_exclusions', NULL),
+    ];
+
+    $form['toc']['toc_config']['toc_screen_depth'] = [
+      '#type' => 'select',
+      '#title' => t('Minimum length of content before ToC display'),
+      '#options' => [
+        '1' => '1 screen',
+        '2' => '2 screens',
+        '3' => '3 screens',
+        '4' => '4 screens',
+        '5' => '5 screens',
+        '6' => '6 screens',
+        '7' => '7 screens',
+        '8' => '8 screens',
+        '9' => '9 screens',
+        '10' => '10 screens',
+        '11' => '11 screens 🤘',
+      ],
+      '#description' => t('The length of content on the current users display before the ToC will be displayed.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_screen_depth', 1),
+    ];
+
+    $form['toc']['toc_config']['toc_debug'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Enable debug'),
+      '#description' => t('Display debugging information in the browser console window.'),
+      '#default_value' => $term_type->getThirdPartySetting('origins_toc', 'toc_debug', 0),
+    ];
+
+    $form['#entity_builders'][] = 'origins_toc_form_node_type_form_builder';
+  }
+}
+
+/**
  * Entity builder for the origins_toc_form_node_type_form_alter().
  */
 function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
@@ -192,7 +322,8 @@ function origins_toc_form_node_type_form_builder($entity_type, $type, &$form, $f
  * Implements hook_entity_presave().
  */
 function origins_toc_entity_presave(EntityInterface $entity) {
-  if ($entity instanceof NodeType) {
+
+  if ($entity instanceof NodeType || $entity instanceof Vocabulary) {
     $toc_enabled = $entity->getThirdPartySetting('origins_toc', 'toc_enable', FALSE);
 
     $disable_toc_flag = Flag::load('disable_toc');
@@ -233,6 +364,40 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
   /** @var \Drupal\node\NodeInterface $entity */
   $node_type = \Drupal::entityTypeManager()->getStorage('node_type')->load($entity->getType());
   $toc_settings = $node_type->getThirdPartySettings('origins_toc');
+
+  // If node type has toc settings and node view mode is full, attach
+  // the origins_toc library.
+  if (!empty($toc_settings) && $view_mode === 'full') {
+    // Check if ToC's have been disabled at the entity type.
+    if (!$toc_settings['toc_enable']) {
+      return $build;
+    }
+
+    $flag_service = Drupal::service('flag.count');
+    $flags = $flag_service->getEntityFlagCounts($entity);
+
+    // Check if the entity has the disable_toc flag set.
+    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] == 1) {
+      return $build;
+    }
+
+    // Adding the toc library if the current entity type has toc enabled and the
+    // current node does not have the disable_toc flag set.
+    $build['#attached']['drupalSettings']['origins_toc']['settings'] = $toc_settings;
+    $build['#attached']['library'][] = 'origins_toc/toc';
+  }
+
+  return $build;
+}
+
+/**
+ * Implements hook_taxonomy_term_view().
+ */
+function origins_toc_taxonomy_term_view(&$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
+  /** @var \Drupal\node\NodeInterface $entity */
+  $vid = $entity->get('vid')->getValue()[0]['target_id'];
+  $vocab = Vocabulary::load($vid);
+  $toc_settings = $vocab->getThirdPartySettings('origins_toc');
 
   // If node type has toc settings and node view mode is full, attach
   // the origins_toc library.
