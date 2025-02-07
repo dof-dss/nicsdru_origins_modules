@@ -57,7 +57,7 @@
           // Build the ToC links.
           $(this).attr('id', 'toc-' + index);
           $tocLinkItems.append(
-            '<li class="nav-item"><a href="#toc-' + index + '">' + $linkText + '</a></li>'
+            '<li class="nav-item"><a href="#toc-' + index + '" aria-label="' + $linkText + ' section">' + $linkText + '</a></li>'
           );
         });
 

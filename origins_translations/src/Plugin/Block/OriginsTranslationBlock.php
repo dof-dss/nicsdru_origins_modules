@@ -170,16 +170,16 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#value' => $this->t('Translate this page'),
       '#attributes' => [
         'class' => ['origins-translation-button', 'hidden'],
-        'aria-haspopup' => 'true',
         'aria-expanded' => 'false',
+        'aria-controls' => 'origins-translations-menu'
       ],
     ];
 
     $build['translations-container']['translations-menu'] = [
       '#type' => 'container',
       '#attributes' => [
+        'id' => 'origins-translation-menu',
         'class' => ['origins-translation-menu'],
-        'role' => 'menu',
       ],
     ];
 
@@ -188,13 +188,12 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
 
     $build['translations-container']['translations-menu']['translation-list'] = [
       '#theme' => 'item_list__origins_translation_list',
-      '#list_type' => 'ul',
+      '#list_type' => 'menu',
       '#title' => 'Select a language',
       '#items' => $translation_links,
       '#attributes' => [
         'id' => $translation_list_id,
         'class' => ['origins-translation-menu'],
-        'aria-label' => 'submenu',
       ],
     ];
 

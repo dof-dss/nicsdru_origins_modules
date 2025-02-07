@@ -15,7 +15,7 @@ function origins_social_sharing_theme() {
     'origins_social_sharing' => [
       'variables' => [
         'fb_link' => NULL,
-        'tw_link' => NULL,
+        'x_link' => NULL,
         'mail_link' => NULL,
       ],
     ],
@@ -38,9 +38,9 @@ function origins_social_sharing_preprocess_block(&$variables) {
     if (!empty($node) && is_object($node)) {
       $title = $node->getTitle();
     }
-    // Build Twitter link.
-    $tw_link = 'https://twitter.com/intent/tweet?text=' . rawurlencode($title . ' ') . rawurlencode($url->toString());
-    $variables['content']['#tw_link'] = $tw_link;
+    // Build X (Twitter) link.
+    $x_link = 'https://x.com/intent/post?text=' . rawurlencode($title . ' ') . rawurlencode($url->toString());
+    $variables['content']['#x_link'] = $x_link;
     // Build mailto link.
     $mail_link = "mailto:?subject=" . rawurlencode(t("Shared from @host", ['@host' => \Drupal::request()->server->get('HTTP_HOST')]));
     $mail_link .= "&body=" . rawurlencode($title . "\n") . rawurlencode($url->toString());
