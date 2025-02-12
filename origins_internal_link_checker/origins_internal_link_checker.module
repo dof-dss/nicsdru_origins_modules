@@ -63,18 +63,7 @@ function origins_internal_link_checker__convert_absolute_link(&$body_text, $orig
   // Get list of urls to replace
   // (these have been added at
   // /admin/config/origins_internal_link_checker/link_checker_form )
-  $config = \Drupal::config('origins_internal_link_checker.linksettings');
   $replace_url_list = origins_internal_link_checker__urls_to_replace();
-  $site_url_list = $config->get('site_url_list');
-  // Allow for null config.
-  if (!empty($site_url_list)) {
-    $replace_url_list .= $site_url_list;
-  }
-  if (strlen($replace_url_list) == 0) {
-    \Drupal::messenger()
-      ->addMessage(t("Please set some URLs at /admin/config/origins_internal_link_checker/link_checker_form"), "error");
-    return $body_text;
-  }
   $replace_url_list = explode(PHP_EOL, $replace_url_list);
   // Remove empty array items.
   $replace_url_list = array_filter($replace_url_list);
@@ -101,34 +90,21 @@ function origins_internal_link_checker__convert_absolute_link(&$body_text, $orig
 function origins_internal_link_checker__urls_to_replace(): string {
   // Get the host name of the site and remove the domain extension.
   $host = \Drupal::request()->getHost();
-  if (preg_match('/\S*?\.(gov.uk|org.uk|co.uk|com(\/|$)|net|eu|org|uk)/', $host, $matches)) {
-    $host = $matches[0];
-  }
   // Strip 'www' from hostname.
   $host = str_replace('www.', '', $host);
   // List all domain protocols and extensions for our platform and local environments.
   $protocols = ['http://', 'http://www.', 'https://', 'https://www.'];
-  $extensions = [
-    '.lndo.site/',
-    '/',
-    // Unity 1 platform environments.
-    '.edge-uhfrady-6tlkpwbr6tndk.uk-1.platformsh.site/',
-    '.uat-nvcvooy-6tlkpwbr6tndk.uk-1.platformsh.site/',
-    '.main-bvxea6i-6tlkpwbr6tndk.uk-1.platformsh.site/',
-    // Unity 2 platform environments.
-    '.edge-uhfrady-kamkoebtv74zm.uk-1.platformsh.site/',
-    '.uat-nvcvooy-kamkoebtv74zm.uk-1.platformsh.site/',
-    '.main-bvxea6i-kamkoebtv74zm.uk-1.platformsh.site/',
-    // Unity 3 platform environments.
-    '.edge-uhfrady-vnetibjd44moa.uk-1.platformsh.site/',
-    '.uat-nvcvooy-vnetibjd44moa.uk-1.platformsh.site/',
-    '.main-bvxea6i-vnetibjd44moa.uk-1.platformsh.site/',
-  ];
+  $config = \Drupal::config('origins_internal_link_checker.linksettings');
+  $domains = $config->get('site_url_list') ?? [];
+  foreach ($domains as $key => $domain) {
+    $domains[$key] = str_replace('www', '', $domain);
+  }
+  $domains[] = $host;
   $urls_to_replace = '';
   // Loop through and add all protocols and extensions to the current site.
   foreach ($protocols as $protocol) {
-    foreach ($extensions as $extension) {
-      $urls_to_replace .= $protocol . $host . $extension . "\r\n";
+    foreach ($domains as $domain) {
+      $urls_to_replace .= $protocol . $domain . "\r\n";
     }
   }
   return $urls_to_replace;
