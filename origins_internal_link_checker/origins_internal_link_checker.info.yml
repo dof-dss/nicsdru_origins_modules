@@ -2,4 +2,4 @@ name: 'Origins Internal Link Checker'
 type: module
 description: 'Origins internal link checking and correction'
 core_version_requirement: ^8.8 || ^9 || ^10 || ^11
-package: 'Unity'
+package: 'NICS: Origins'
