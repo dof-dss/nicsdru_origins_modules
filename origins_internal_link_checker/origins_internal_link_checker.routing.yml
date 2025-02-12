@@ -1,0 +1,9 @@
+origins_internal_link_checker.link_checker_form:
+  path: '/admin/config/origins_internal_link_checker/link_checker_form'
+  defaults:
+    _form: '\Drupal\origins_internal_link_checker\Form\LinkCheckerForm'
+    _title: 'Origins Link Checker'
+  requirements:
+    _role: 'administrator'
+  options:
+    _admin_route: TRUE
