@@ -32,8 +32,8 @@ class LinkCheckerForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('origins_internal_link_checker.linksettings');
 
-    $message = "All environment domains (Local, Edge, UAT, Main) are already being stripped of absolute links and changed to relative for this site.";
-    $message .= "<br/>List any extra domain names here that must be stripped out of absolute links and changed to relative as they are saved.";
+    $message = "The current domain for this site is already being stripped out of absolute links and changed to relative.";
+    $message .= "<br/>List any extra domain names here (possibly UAT or edge domains) that must be stripped out of absolute links and changed to relative as they are saved.";
     $message .= "<br/>For example adding 'http://uregni.gov.uk' here will cause any links starting with that domain name to be saved as relative links instead.";
     $message .= "<br/>You may add as many domain names as you like, along with the appropriate 'http' or 'https' protocol.";
 
