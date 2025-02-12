@@ -20,6 +20,7 @@ function origins_internal_link_checker_entity_presave(EntityInterface $entity) {
   if ($entity instanceof ContentEntityInterface) {
     $text_fields = [];
     $fields = $entity->getFieldDefinitions();
+    // See if there are any text fields in this entity.
     foreach ($fields as $field_name => $field) {
       $type = $field->getType();
       if (preg_match('/text/', $type)) {
@@ -28,14 +29,18 @@ function origins_internal_link_checker_entity_presave(EntityInterface $entity) {
     }
     if (count($text_fields) > 0) {
       foreach ($text_fields as $field) {
+        // Check each text field for internal urls.
         origins_internal_link_checker_process_field($entity, $field);
       }
     }
   }
 }
 
+/**
+ * Utility function to process links in each text field.
+ */
 function origins_internal_link_checker_process_field($entity, $field) {
-  $body = $entity->get($field)->value ?? '';
+  $text = $entity->get($field)->value ?? '';
   $format = $entity->get($field)->format ?? '';
   // Get list of urls to exclude (these have been added at /admin/config/origins_internal_link_checker/link_checker_form).
   $config = \Drupal::config('origins_internal_link_checker.linksettings');
@@ -49,7 +54,7 @@ function origins_internal_link_checker_process_field($entity, $field) {
   }
   $matches = [];
   // Look for all anchors in the body field.
-  if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $body, $matches)) {
+  if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $text, $matches)) {
     if (count($matches) > 1) {
       foreach ($matches[1] as $original_link) {
         // If we have any URL's to exclude then don't convert to a relative URL.
@@ -61,11 +66,11 @@ function origins_internal_link_checker_process_field($entity, $field) {
             preg_match('|https://(.*)|', $original_link, $matches2)) {
             // This is an absolute URL does it match one of the domain names specified
             // at /admin/config/origins_internal_link_checker/link_checker_form ?
-            $body = origins_internal_link_checker__convert_absolute_link($body, $original_link);
+            $text = origins_internal_link_checker__convert_absolute_link($text, $original_link);
           }
         }
       }
-      $entity->set($field, ['value' => $body, 'format' => $format]);
+      $entity->set($field, ['value' => $text, 'format' => $format]);
     }
   }
 }
@@ -125,7 +130,7 @@ function origins_internal_link_checker__urls_to_replace(): string {
     $domains[$key] = $domain;
   }
   $urls_to_replace = '';
-  // Loop through and add all protocols and extensions to all domains.
+  // Loop through and add all domains.
   foreach ($protocols as $protocol) {
     foreach ($domains as $domain) {
       $urls_to_replace .= $protocol . $domain . "\r\n";
