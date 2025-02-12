@@ -90,16 +90,20 @@ function origins_internal_link_checker__convert_absolute_link(&$body_text, $orig
 function origins_internal_link_checker__urls_to_replace(): string {
   // Get the host name of the site and remove the domain extension.
   $host = \Drupal::request()->getHost();
-  // Strip 'www' from hostname.
-  $host = str_replace('www.', '', $host);
   // List all domain protocols and extensions for our platform and local environments.
   $protocols = ['http://', 'http://www.', 'https://', 'https://www.'];
   $config = \Drupal::config('origins_internal_link_checker.linksettings');
   $domains = $config->get('site_url_list') ?? [];
-  foreach ($domains as $key => $domain) {
-    $domains[$key] = str_replace('www', '', $domain);
-  }
+  $domains = explode(PHP_EOL, $domains);
   $domains[] = $host;
+  foreach ($domains as $key => $domain) {
+    // Strip 'www' from hostname.
+    $domain = str_replace('www.', '', $domain);
+    foreach ($protocols as $protocol) {
+      $domain = str_replace($protocol, '', $domain);
+    }
+    $domains[$key] = $domain;
+  }
   $urls_to_replace = '';
   // Loop through and add all protocols and extensions to the current site.
   foreach ($protocols as $protocol) {
