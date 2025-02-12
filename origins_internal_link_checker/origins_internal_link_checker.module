@@ -18,40 +18,54 @@ function origins_internal_link_checker_entity_presave(EntityInterface $entity) {
     return;
   }
   if ($entity instanceof ContentEntityInterface) {
-    if ($entity->hasField('body')) {
-      $body = $entity->get('body')->value ?? '';
-      $format = $entity->get('body')->format ?? '';
-      // Get list of urls to exclude (these have been added at /admin/config/origins_internal_link_checker/link_checker_form).
-      $config = \Drupal::config('origins_internal_link_checker.linksettings');
-      // Make sure the array items are clean.
-      $exclude_list_bare = $config->get('site_url_list_exclude');
-      if (!empty($exclude_list_bare)) {
-        $exclude_url_list = preg_split('/\r\n|\r|\n/', $config->get('site_url_list_exclude'));
+    $text_fields = [];
+    $fields = $entity->getFieldDefinitions();
+    foreach ($fields as $field_name => $field) {
+      $type = $field->getType();
+      if (preg_match('/text/', $type)) {
+        $text_fields[] = $field_name;
       }
-      else {
-        $exclude_url_list = [];
+    }
+    if (count($text_fields) > 0) {
+      foreach ($text_fields as $field) {
+        origins_internal_link_checker_process_field($entity, $field);
       }
-      $matches = [];
-      // Look for all anchors in the body field.
-      if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $body, $matches)) {
-        if (count($matches) > 1) {
-          foreach ($matches[1] as $original_link) {
-            // If we have any URL's to exclude then don't convert to a relative URL.
-            if (!in_array($original_link, $exclude_url_list)) {
-              // So we have an anchor, does it look like a relative link
-              // or an absolute?
-              $matches2 = [];
-              if (preg_match('|http://(.*)|', $original_link, $matches2) ||
-                preg_match('|https://(.*)|', $original_link, $matches2)) {
-                // This is an absolute URL does it match one of the domain names specified
-                // at /admin/config/origins_internal_link_checker/link_checker_form ?
-                $body = origins_internal_link_checker__convert_absolute_link($body, $original_link);
-              }
-            }
+    }
+  }
+}
+
+function origins_internal_link_checker_process_field($entity, $field) {
+  $body = $entity->get($field)->value ?? '';
+  $format = $entity->get($field)->format ?? '';
+  // Get list of urls to exclude (these have been added at /admin/config/origins_internal_link_checker/link_checker_form).
+  $config = \Drupal::config('origins_internal_link_checker.linksettings');
+  // Make sure the array items are clean.
+  $exclude_list_bare = $config->get('site_url_list_exclude');
+  if (!empty($exclude_list_bare)) {
+    $exclude_url_list = preg_split('/\r\n|\r|\n/', $config->get('site_url_list_exclude'));
+  }
+  else {
+    $exclude_url_list = [];
+  }
+  $matches = [];
+  // Look for all anchors in the body field.
+  if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $body, $matches)) {
+    if (count($matches) > 1) {
+      foreach ($matches[1] as $original_link) {
+        // If we have any URL's to exclude then don't convert to a relative URL.
+        if (!in_array($original_link, $exclude_url_list)) {
+          // So we have an anchor, does it look like a relative link
+          // or an absolute?
+          $matches2 = [];
+          if (preg_match('|http://(.*)|', $original_link, $matches2) ||
+            preg_match('|https://(.*)|', $original_link, $matches2)) {
+            // This is an absolute URL does it match one of the domain names specified
+            // at /admin/config/origins_internal_link_checker/link_checker_form ?
+            $body = origins_internal_link_checker__convert_absolute_link($body, $original_link);
           }
-          $entity->set('body', ['value' => $body, 'format' => $format]);
         }
       }
+      $entity->set($field, ['value' => $body, 'format' => $format]);
     }
   }
 }
