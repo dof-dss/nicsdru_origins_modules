@@ -116,7 +116,8 @@ function origins_internal_link_checker__urls_to_replace(): string {
   $domains = $config->get('site_url_list');
   if (empty($domains)) {
     $domains = [];
-  } else {
+  }
+  else {
     $domains = explode(PHP_EOL, $domains);
   }
   $domains[] = $host;
