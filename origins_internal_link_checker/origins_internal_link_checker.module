@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_internal_link_checker.module.
+ */
+
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_internal_link_checker_entity_presave(EntityInterface $entity) {
+  // If this hook has been invoked from a migration, bail out.
+  $page = \Drupal::request()->getRequestUri();
+  if (preg_match('|^\/batch|', $page) || ($page == '/')) {
+    return;
+  }
+  if ($entity instanceof ContentEntityInterface) {
+    $text_fields = [];
+    $fields = $entity->getFieldDefinitions();
+    // See if there are any text fields in this entity.
+    foreach ($fields as $field_name => $field) {
+      $type = $field->getType();
+      if (preg_match('/text/', $type)) {
+        $text_fields[] = $field_name;
+      }
+    }
+    if (count($text_fields) > 0) {
+      foreach ($text_fields as $field) {
+        // Check each text field for internal urls.
+        origins_internal_link_checker_process_field($entity, $field);
+      }
+    }
+  }
+}
+
+/**
+ * Utility function to process links in each text field.
+ */
+function origins_internal_link_checker_process_field($entity, $field) {
+  $text = $entity->get($field)->value ?? '';
+  $format = $entity->get($field)->format ?? '';
+  // Get list of urls to exclude (these have been added at /admin/config/origins_internal_link_checker/link_checker_form).
+  $config = \Drupal::config('origins_internal_link_checker.linksettings');
+  // Make sure the array items are clean.
+  $exclude_list_bare = $config->get('site_url_list_exclude');
+  if (!empty($exclude_list_bare)) {
+    $exclude_url_list = preg_split('/\r\n|\r|\n/', $config->get('site_url_list_exclude'));
+  }
+  else {
+    $exclude_url_list = [];
+  }
+  $matches = [];
+  // Look for all anchors in the body field.
+  if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $text, $matches)) {
+    if (count($matches) > 1) {
+      foreach ($matches[1] as $original_link) {
+        // If we have any URL's to exclude then don't convert to a relative URL.
+        if (!in_array($original_link, $exclude_url_list)) {
+          // So we have an anchor, does it look like a relative link
+          // or an absolute?
+          $matches2 = [];
+          if (preg_match('|http://(.*)|', $original_link, $matches2) ||
+            preg_match('|https://(.*)|', $original_link, $matches2)) {
+            // This is an absolute URL does it match one of the domain names specified
+            // at /admin/config/origins_internal_link_checker/link_checker_form ?
+            $text = origins_internal_link_checker__convert_absolute_link($text, $original_link);
+          }
+        }
+      }
+      $entity->set($field, ['value' => $text, 'format' => $format]);
+    }
+  }
+}
+
+/**
+ * Utility function to convert internal link to relative.
+ */
+function origins_internal_link_checker__convert_absolute_link(&$body_text, $original_link) {
+  // Get list of urls to replace
+  // (these have been added at
+  // /admin/config/origins_internal_link_checker/link_checker_form )
+  $replace_url_list = origins_internal_link_checker__urls_to_replace();
+  $replace_url_list = explode(PHP_EOL, $replace_url_list);
+  // Remove empty array items.
+  $replace_url_list = array_filter($replace_url_list);
+  foreach ($replace_url_list as $replace_url) {
+    // Make sure url is 'clean'.
+    $replace_url = str_replace(["\n", "\t", "\r"], '', $replace_url);
+    // Make sure that there is a trailing slash.
+    if (!preg_match('|\/$|', $replace_url)) {
+      $replace_url .= '/';
+    }
+    // Does the start of this link match one of the
+    // urls that we are looking for ?
+    if (str_contains($original_link, $replace_url)) {
+      // We have a match, change this absolute link to a relative link. Only target href values.
+      $body_text = preg_replace('~href\=[\'"]+' . $replace_url . '~', 'href="/', $body_text, 1);
+    }
+  }
+  return $body_text;
+}
+
+/**
+ * Utility function to add all domains and extensions for the current site.
+ */
+function origins_internal_link_checker__urls_to_replace(): string {
+  // Get the host name of this site.
+  $host = \Drupal::request()->getHost();
+  // List all domain protocols and extensions for our platform and local environments.
+  $protocols = ['http://', 'http://www.', 'https://', 'https://www.'];
+  // Retrieve any extra domain names that have been added on the config form.
+  $config = \Drupal::config('origins_internal_link_checker.linksettings');
+  $domains = $config->get('site_url_list');
+  if (empty($domains)) {
+    $domains = [];
+  }
+  else {
+    $domains = explode(PHP_EOL, $domains);
+  }
+  $domains[] = $host;
+  foreach ($domains as $key => $domain) {
+    // Strip 'www' from hostname.
+    $domain = str_replace('www.', '', $domain);
+    // Strip protocols from hostname.
+    foreach ($protocols as $protocol) {
+      $domain = str_replace($protocol, '', $domain);
+    }
+    $domains[$key] = $domain;
+  }
+  $urls_to_replace = '';
+  // Loop through and add all domains.
+  foreach ($protocols as $protocol) {
+    foreach ($domains as $domain) {
+      $urls_to_replace .= $protocol . $domain . "\r\n";
+    }
+  }
+  return $urls_to_replace;
+}

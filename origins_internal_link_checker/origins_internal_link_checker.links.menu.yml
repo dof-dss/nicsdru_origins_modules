@@ -1,0 +1,6 @@
+link_checker.link_checker_form:
+  title: 'Origins Internal Link Checker'
+  route_name: origins_internal_link_checker.link_checker_form
+  description: 'Configure internal link checking and correction'
+  parent: origins.admin_config
+  weight: 99
