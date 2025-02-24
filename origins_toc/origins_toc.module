@@ -253,7 +253,9 @@ function origins_toc_node_view(&$build, EntityInterface $entity, EntityViewDispl
 
   // If node type has toc settings and node view mode is full, attach
   // the origins_toc library.
-  if (!empty($toc_settings) && $view_mode === 'full') {
+  $is_book_node = !empty($build['book_navigation']);
+
+  if ($is_book_node === FALSE && !empty($toc_settings) && $view_mode === 'full') {
     // Check if ToC's have been disabled at the entity type.
     if (!$toc_settings['toc_enable']) {
       return $build;
