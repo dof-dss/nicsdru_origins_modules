@@ -5,49 +5,49 @@
   clear: both;
 }
 
-#origins-translation-container {
+#origins-translations-container {
   width: 100%;
   clear: both;
 }
 
-#origins-translation-container * {
+#origins-translations-container * {
   font-size: 1.6rem;
 }
 
 @media screen and (min-width: 768px) {
-  #origins-translation-container * {
+  #origins-translations-container * {
     font-size: 1.8rem;
   }
 }
 
-#origins-translation-container.ot-tl,
-#origins-translation-container.ot-tr,
-#origins-translation-container.ot-bl,
-#origins-translation-container.ot-br {
+#origins-translations-container.ot-tl,
+#origins-translations-container.ot-tr,
+#origins-translations-container.ot-bl,
+#origins-translations-container.ot-br {
   position: fixed;
   bottom: 0;
   z-index: 9999;
   width: 300px;
 }
 
-#origins-translation-container.ot-tl.top,
-#origins-translation-container.ot-tr.top,
-#origins-translation-container.ot-bl.top,
-#origins-translation-container.ot-br.top {
+#origins-translations-container.ot-tl.top,
+#origins-translations-container.ot-tr.top,
+#origins-translations-container.ot-bl.top,
+#origins-translations-container.ot-br.top {
   top: 0;
 }
 
-#origins-translation-container.ot-tl,
-#origins-translation-container.ot-bl {
+#origins-translations-container.ot-tl,
+#origins-translations-container.ot-bl {
   left: -300px;
 }
 
-#origins-translation-container.ot-tr,
-#origins-translation-container.ot-br {
+#origins-translations-container.ot-tr,
+#origins-translations-container.ot-br {
   right: -300px;
 }
 
-#origins-translation-container button.origins-translation-button {
+#origins-translations-container button.origins-translations-button {
   position: relative;
   display: block;
   width: 300px;
@@ -68,62 +68,62 @@
   transition: left .2s ease, right .2s ease;
 }
 
-#origins-translation-container.ot-bl button.origins-translation-button,
-#origins-translation-container.ot-br button.origins-translation-button {
+#origins-translations-container.ot-bl button.origins-translations-button,
+#origins-translations-container.ot-br button.origins-translations-button {
   position: absolute;
   bottom: 0;
 }
 
-#origins-translation-container.ot-tl button.origins-translation-button,
-#origins-translation-container.ot-tr button.origins-translation-button {
+#origins-translations-container.ot-tl button.origins-translations-button,
+#origins-translations-container.ot-tr button.origins-translations-button {
   position: absolute;
   top: 0;
 }
 
-#origins-translation-container.ot-tl button.origins-translation-button,
-#origins-translation-container.ot-bl button.origins-translation-button {
+#origins-translations-container.ot-tl button.origins-translations-button,
+#origins-translations-container.ot-bl button.origins-translations-button {
   left: 50px;
 }
 
-#origins-translation-container.ot-tr button.origins-translation-button,
-#origins-translation-container.ot-br button.origins-translation-button {
+#origins-translations-container.ot-tr button.origins-translations-button,
+#origins-translations-container.ot-br button.origins-translations-button {
   right: 50px;
 }
 
 @media(hover: hover) and (pointer: fine) {
-  #origins-translation-container.ot-tl button.origins-translation-button:hover,
-  #origins-translation-container.ot-bl button.origins-translation-button:hover {
+  #origins-translations-container.ot-tl button.origins-translations-button:hover,
+  #origins-translations-container.ot-bl button.origins-translations-button:hover {
     left: 300px;
   }
 
-  #origins-translation-container.ot-tr button.origins-translation-button:hover,
-  #origins-translation-container.ot-br button.origins-translation-button:hover {
+  #origins-translations-container.ot-tr button.origins-translations-button:hover,
+  #origins-translations-container.ot-br button.origins-translations-button:hover {
     right: 300px;
   }
 }
 
-#origins-translation-container.ot-tl button.origins-translation-button:focus-visible,
-#origins-translation-container.ot-tl button.origins-translation-button[aria-expanded="true"],
-#origins-translation-container.ot-bl button.origins-translation-button:focus-visible,
-#origins-translation-container.ot-bl button.origins-translation-button[aria-expanded="true"]{
+#origins-translations-container.ot-tl button.origins-translations-button:focus-visible,
+#origins-translations-container.ot-tl button.origins-translations-button[aria-expanded="true"],
+#origins-translations-container.ot-bl button.origins-translations-button:focus-visible,
+#origins-translations-container.ot-bl button.origins-translations-button[aria-expanded="true"]{
   left: 300px;
 }
 
-#origins-translation-container.ot-tr button.origins-translation-button:focus-visible,
-#origins-translation-container.ot-tr button.origins-translation-button[aria-expanded="true"],
-#origins-translation-container.ot-br button.origins-translation-button:focus-visible,
-#origins-translation-container.ot-br button.origins-translation-button[aria-expanded="true"]{
+#origins-translations-container.ot-tr button.origins-translations-button:focus-visible,
+#origins-translations-container.ot-tr button.origins-translations-button[aria-expanded="true"],
+#origins-translations-container.ot-br button.origins-translations-button:focus-visible,
+#origins-translations-container.ot-br button.origins-translations-button[aria-expanded="true"]{
   right: 300px;
 }
 
-#origins-translation-container .origins-translation-button:focus-visible,
-#origins-translation-container .origins-translation-button[aria-expanded="true"] {
+#origins-translations-container .origins-translations-button:focus-visible,
+#origins-translations-container .origins-translations-button[aria-expanded="true"] {
   background-color: #041e34;
   color: #fff;
 }
 
-#origins-translation-container .origins-translation-button::before,
-#origins-translation-container .origins-translation-button::after {
+#origins-translations-container .origins-translations-button::before,
+#origins-translations-container .origins-translations-button::after {
   content: '';
   display: inline-block;
   position: absolute;
@@ -133,14 +133,14 @@
   background: transparent center center / 2rem no-repeat;
 }
 
-#origins-translation-container .origins-translation-button::before {
+#origins-translations-container .origins-translations-button::before {
   left: 1rem;
   background-image: url('../images/translate_48px.svg');
   background-color: #076cba;
   border: 1px solid #fff;
 }
 
-#origins-translation-container .origins-translation-button::after {
+#origins-translations-container .origins-translations-button::after {
   right: 1rem;
   background-image: url('../images/arrow_back_white.svg');
   transform: rotate(-90deg);
@@ -148,52 +148,52 @@
   transition-delay: .2s;
 }
 
-#origins-translation-container .origins-translation-button[aria-expanded="true"]::after {
+#origins-translations-container .origins-translations-button[aria-expanded="true"]::after {
   transform: rotate(90deg);
 }
 
-#origins-translation-container.ot-tr .origins-translation-button::after,
-#origins-translation-container.ot-br .origins-translation-button::after {
+#origins-translations-container.ot-tr .origins-translations-button::after,
+#origins-translations-container.ot-br .origins-translations-button::after {
   transform: rotate(0deg);
 }
 
-#origins-translation-container.ot-tr .origins-translation-button[aria-expanded="true"]::after,
-#origins-translation-container.ot-br .origins-translation-button[aria-expanded="true"]::after {
+#origins-translations-container.ot-tr .origins-translations-button[aria-expanded="true"]::after,
+#origins-translations-container.ot-br .origins-translations-button[aria-expanded="true"]::after {
   transform: rotate(180deg);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button::after,
-#origins-translation-container.ot-bl .origins-translation-button::after {
+#origins-translations-container.ot-tl .origins-translations-button::after,
+#origins-translations-container.ot-bl .origins-translations-button::after {
   transform: rotate(180deg);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button[aria-expanded="true"]::after,
-#origins-translation-container.ot-bl .origins-translation-button[aria-expanded="true"]::after {
+#origins-translations-container.ot-tl .origins-translations-button[aria-expanded="true"]::after,
+#origins-translations-container.ot-bl .origins-translations-button[aria-expanded="true"]::after {
   transform: rotate(0deg);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button::before,
-#origins-translation-container.ot-bl .origins-translation-button::before {
+#origins-translations-container.ot-tl .origins-translations-button::before,
+#origins-translations-container.ot-bl .origins-translations-button::before {
   right: 1rem;
   left: unset;
 }
 
-#origins-translation-container.ot-tl .origins-translation-button::after,
-#origins-translation-container.ot-bl .origins-translation-button::after {
+#origins-translations-container.ot-tl .origins-translations-button::after,
+#origins-translations-container.ot-bl .origins-translations-button::after {
   left: 1rem;
   right: unset;
 }
 
-#origins-translation-container .origins-translation-button:focus {
+#origins-translations-container .origins-translations-button:focus {
   outline: none;
 }
 
-#origins-translation-container .origins-translation-button:focus::after {
+#origins-translations-container .origins-translations-button:focus::after {
   outline: .2rem solid #fff;
   outline-offset: -.2rem;
 }
 
-#origins-translation-container .origins-translation-menu {
+#origins-translations-container .origins-translations-menu {
   width: 100%;
   margin: 0;
   padding: .5em 1rem;
@@ -204,89 +204,89 @@
   transition: left .3s ease, right .3s ease;
 }
 
-#origins-translation-container .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+#origins-translations-container .origins-translations-button[aria-expanded='false'] ~ .origins-translations-menu {
   position: absolute;
   height: 0;
   padding: 0;
   overflow: hidden;
 }
 
-#origins-translation-container .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translations-container .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu {
   position: relative;
   overflow: hidden scroll;
 }
 
-#origins-translation-container.ot-tl .origins-translation-menu,
-#origins-translation-container.ot-bl .origins-translation-menu,
-#origins-translation-container.ot-bl .origins-translation-menu{
+#origins-translations-container.ot-tl .origins-translations-menu,
+#origins-translations-container.ot-bl .origins-translations-menu,
+#origins-translations-container.ot-bl .origins-translationsmenu{
   position: absolute;
   left: 0;
   height: calc(100% - 5rem);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu,
-#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+#origins-translations-container.ot-tl .origins-translations-button[aria-expanded='false'] ~ .origins-translations-menu,
+#origins-translations-container.ot-bl .origins-translations-button[aria-expanded='false'] ~ .origins-translations-menu {
   position: absolute;
   left: 0;
   height: calc(100% - 5rem);
 }
 
-#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu,
-#origins-translation-container.ot-br .origins-translation-button[aria-expanded='false'] ~ .origins-translation-menu {
+#origins-translations-container.ot-tr .origins-translations-button[aria-expanded='false'] ~ .origins-translations-menu,
+#origins-translations-container.ot-br .origins-translations-button[aria-expanded='false'] ~ .origins-translations-menu {
   position: absolute;
   right: 0;
   height: calc(100% - 5rem);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translations-container.ot-tl .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu,
+#origins-translations-container.ot-bl .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu {
   position: absolute;
   left: 300px;
   height: calc(100% - 5rem);
 }
 
-#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translations-container.ot-tr .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu,
+#origins-translations-container.ot-br .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu {
   position: absolute;
   right: 300px;
   height: calc(100% - 5rem);
 }
 
-#origins-translation-container.ot-tl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.ot-tr .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translations-container.ot-tl .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu,
+#origins-translations-container.ot-tr .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu {
   top: 5rem;
 }
 
-#origins-translation-container.ot-bl .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu,
-#origins-translation-container.ot-br .origins-translation-button[aria-expanded='true'] ~ .origins-translation-menu {
+#origins-translations-container.ot-bl .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu,
+#origins-translations-container.ot-br .origins-translations-button[aria-expanded='true'] ~ .origins-translations-menu {
   top: 0;
 }
 
-#origins-translation-container .origins-translation-menu::-webkit-scrollbar {
+#origins-translations-container .origins-translations-menu::-webkit-scrollbar {
   display: none;
   width: 12px;
 }
 
-#origins-translation-container .origins-translation-menu:hover::-webkit-scrollbar {
+#origins-translations-container .origins-translations-menu:hover::-webkit-scrollbar {
   display: block;
 }
 
-#origins-translation-container .origins-translation-menu::-webkit-scrollbar-track {
+#origins-translations-container .origins-translations-menu::-webkit-scrollbar-track {
   background: #ace;
 }
 
-#origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb {
+#origins-translations-container .origins-translations-menu::-webkit-scrollbar-thumb {
   background: rgba(0, 0, 0, .8);
   border: 2px solid #ace;
   border-radius: 6px;
 }
 
-#origins-translation-container .origins-translation-menu::-webkit-scrollbar-thumb:hover {
+#origins-translations-container .origins-translations-menu::-webkit-scrollbar-thumb:hover {
   background: #076cba;
 }
 
-#origins-translation-container .origins-translation-menu > h2,
-#origins-translation-container .origins-translation-menu > h3 {
+#origins-translations-container .origins-translations-menu > h2,
+#origins-translations-container .origins-translations-menu > h3 {
   display: block;
   padding: .5em 0;
   margin: 0;
@@ -298,7 +298,7 @@
   border: 0;
 }
 
-#origins-translation-container .origins-translation-menu {
+#origins-translations-container .origins-translations-menu {
   display: flex;
   flex-flow: row wrap;
   width: 100%;
@@ -309,15 +309,15 @@
   overflow: visible;
 }
 
-#origins-translation-container.ot-tl .origins-translation-menu,
-#origins-translation-container.ot-tr .origins-translation-menu,
-#origins-translation-container.ot-bl .origins-translation-menu,
-#origins-translation-container.ot-br .origins-translation-menu {
+#origins-translations-container.ot-tl .origins-translations-menu,
+#origins-translations-container.ot-tr .origins-translations-menu,
+#origins-translations-container.ot-bl .origins-translations-menu,
+#origins-translations-container.ot-br .origins-translations-menu {
   flex-flow: column nowrap;
   width: 275px; /* allow for scroll bar to right */
 }
 
-#origins-translation-container .origins-translation-menu li {
+#origins-translations-container .origins-translations-menu li {
   color: #fff;
   display: block;
   padding: 0;
@@ -327,9 +327,9 @@
   transition-duration: 0.5s;
 }
 
-#origins-translation-container .origins-translation-menu li a,
-#origins-translation-container .origins-translation-menu li a:link,
-#origins-translation-container .origins-translation-menu li a:visited {
+#origins-translations-container .origins-translations-menu li a,
+#origins-translations-container .origins-translations-menu li a:link,
+#origins-translations-container .origins-translations-menu li a:visited {
   display: block;
   padding: .5em;
   color: #fff;
@@ -340,15 +340,15 @@
   border: 0;
 }
 
-#origins-translation-container .origins-translation-menu li a:hover,
-#origins-translation-container .origins-translation-menu li a:active,
-#origins-translation-container .origins-translation-menu li a:focus {
+#origins-translations-container .origins-translations-menu li a:hover,
+#origins-translations-container .origins-translations-menu li a:active,
+#origins-translations-container .origins-translations-menu li a:focus {
   color: #076cba;
   background-color: #fff;
   outline: none;
   text-decoration: none;
 }
 
-#origins-translation-container .origins-translation-menu li a span {
+#origins-translations-container .origins-translations-menu li a span {
   white-space: nowrap;
 }
