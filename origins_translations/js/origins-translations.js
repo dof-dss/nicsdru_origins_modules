@@ -39,8 +39,8 @@
   }
 
   function enableMenuUi(i, elm) {
-    let $button = $('.origins-translation-button', elm);
-    let $menu = $('.origins-translation-menu', elm);
+    let $button = $('.origins-translations-button', elm);
+    let $menu = $('.origins-translations-menu', elm);
 
     // Initially menu is hidden, so ensure menu links are not
     // keyboard focusable.
@@ -57,7 +57,7 @@
           let expanded = $(this).attr('aria-expanded') === 'true' || false;
           let tabindex = expanded ? '-1' : '0';
           $(this).attr('aria-expanded', !expanded);
-          $(this).parent('#origins-translation-container').toggleClass('top', !expanded);
+          $(this).parent('#origins-translations-container').toggleClass('top', !expanded);
           $menu.find('a').attr('tabindex', tabindex);
         });
 
@@ -109,9 +109,9 @@
 
   Drupal.behaviors.originsTranslate = {
     attach: function (context, settings) {
-      $(once('origins-translation', '.origins-translation-link', context)).each(disableLinkUi);
-      $(once('origins-translation', '.origins-translation-container', context)).each(enableMenuUi);
-      $(once('origins-translation', '.origins-translation-menu', context)).each(updateLinksUi);
+      $(once('origins-translations', '.origins-translations-link', context)).each(disableLinkUi);
+      $(once('origins-translations', '.origins-translations-container', context)).each(enableMenuUi);
+      $(once('origins-translations', '.origins-translations-menu', context)).each(updateLinksUi);
     }
   };
 

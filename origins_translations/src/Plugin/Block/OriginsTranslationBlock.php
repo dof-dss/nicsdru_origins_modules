@@ -136,8 +136,8 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#title' => 'Translation help',
     ];
 
-    $translation_container_id = Html::getUniqueId('origins-translation-container');
-    $translation_container_classes = ['origins-translation-container'];
+    $translation_container_id = Html::getUniqueId('origins-translations-container');
+    $translation_container_classes = ['origins-translations-container'];
     $translation_container_position = $this->config->get('ui-position') ?? NULL;
 
     if ($translation_container_position) {
@@ -159,7 +159,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#type' => 'link',
       '#title' => $this->t('Translate this page'),
       '#url' => Url::fromRoute('origins_translations.translations-page', ['url' => $url]),
-      '#attributes' => ['class' => ['origins-translation-link']],
+      '#attributes' => ['class' => ['origins-translations-link']],
     ];
 
     // Provide a button to show the list of translation links.
@@ -169,7 +169,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#tag' => 'button',
       '#value' => $this->t('Translate this page'),
       '#attributes' => [
-        'class' => ['origins-translation-button', 'hidden'],
+        'class' => ['origins-translations-button', 'hidden'],
         'aria-expanded' => 'false',
         'aria-controls' => 'origins-translations-menu'
       ],
@@ -178,13 +178,13 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
     $build['translations-container']['translations-menu'] = [
       '#type' => 'container',
       '#attributes' => [
-        'id' => 'origins-translation-menu',
-        'class' => ['origins-translation-menu'],
+        'id' => 'origins-translations-menu',
+        'class' => ['origins-translations-menu'],
       ],
     ];
 
     // List of translation links.
-    $translation_list_id = Html::getUniqueId('origins-translation-links');
+    $translation_list_id = Html::getUniqueId('origins-translations-links');
 
     $build['translations-container']['translations-menu']['translation-list'] = [
       '#theme' => 'item_list__origins_translation_list',
@@ -193,7 +193,7 @@ class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPlugi
       '#items' => $translation_links,
       '#attributes' => [
         'id' => $translation_list_id,
-        'class' => ['origins-translation-menu'],
+        'class' => ['origins-translations-menu'],
       ],
     ];
 
