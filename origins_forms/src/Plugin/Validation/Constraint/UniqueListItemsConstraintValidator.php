@@ -35,7 +35,7 @@ final class UniqueListItemsConstraintValidator extends ConstraintValidator {
           $item_values[] = $value['target_id'];
         }
         else {
-          $item_values[] = $value;
+          $item_values[] = $value['value'];
         }
       }
 
