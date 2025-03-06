@@ -3,5 +3,6 @@ type: module
 description: 'Form plugins and utilities'
 core_version_requirement: ^10
 package: 'NICS: Origins'
+configure: origins_forms.forms_configuration
 dependencies:
   - drupal:field

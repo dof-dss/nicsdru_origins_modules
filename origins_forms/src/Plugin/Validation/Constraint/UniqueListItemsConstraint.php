@@ -15,8 +15,13 @@ use Symfony\Component\Validator\Constraint;
  *   label = @Translation("Unique List Items", context = "Validation"),
  * )
  */
-final class UniqueListItemsConstraint extends Constraint {
+final class UniqueListItemsConstraint extends Constraint  {
 
+  /**
+   * Constraint validation message.
+   *
+   * @var string
+   */
   public string $message = 'Duplicate items detected. The list must contain only unique entries.';
 
 }

@@ -6,26 +6,27 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
-* Implements hook_help().
-*/
+ * Implements hook_help().
+ */
 function origins_forms_help($route_name, RouteMatchInterface $route_match) {
+  $output = '';
   switch ($route_name) {
     case 'help.page.origins_forms':
       $output = '';
+      $output .= '<h3>' . t("Form descriptions") . '</h3>';
+      $output .= '<p>' . t("Moves the description on content, media and taxonomy form fields underneath the title.") . '</p>';
+
       $output .= '<h3>' . t("Field validation plugins") . '</h3>';
       $output .= '<h5>' . t("Unique list items") . '</h5>';
       $output .= '<p>' . t("Ensures uniqueness by enforcing a validation constraint that prevents duplicate entries in an item list-based field.") . '<br/>';
       $output .= t('To implement see: <a href="https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field">https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field</a>') . '</p>';
-      return $output;
-
     default:
   }
+  return $output;
 }
-
-
-use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
@@ -61,6 +62,8 @@ function origins_forms_form_media_form_alter(&$form, FormStateInterface $form_st
  * Implements hook_preprocess_fieldset().
  */
 function origins_forms_preprocess_fieldset(&$variables) {
+
+  // Add form descriptions class to field.
   $config = \Drupal::config('origins_forms.settings');
   if ($config->get('enable_form_descriptions')) {
     $variables['description_display'] = 'before';
@@ -71,8 +74,3 @@ function origins_forms_preprocess_fieldset(&$variables) {
     }
   }
 }
-
-
-
-
-
