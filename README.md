@@ -4,6 +4,7 @@
 
 A collection of modules for use across DOF-DSS Drupal sites
 * **origins_common:** General utilities and functions including tweaks to the adminimal theme.
+* **origins_forms:** Form plugins and utilities.
 * **origins_layouts:** A collection of Layout Builder layouts.
 * **origins_taxonomy_access:** Provides permissions driven, configurable taxonomy access to site roles.
 * **origins_toc:** Provides Table of Contents display options.
@@ -16,3 +17,8 @@ You can include this package into your project using composer:
 composer require dof-dss/nicsdru_origins_modules
 ```
 Details can be found at: https://packagist.org/packages/dof-dss/nicsdru_origins_modules
+
+
+## Deprecated
+
+* Origins Form Descriptions - Install Origins Forms and enable via admin settings.
