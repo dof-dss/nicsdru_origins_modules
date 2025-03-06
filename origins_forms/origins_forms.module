@@ -25,5 +25,54 @@ function origins_forms_help($route_name, RouteMatchInterface $route_match) {
 }
 
 
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_forms_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('origins_forms.settings');
+  if ($config->get('enable_form_descriptions')) {
+    $form['#attached']['library'][] = 'origins_forms/origins_forms.form_descriptions';
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('origins_forms.settings');
+  if ($config->get('enable_form_descriptions')) {
+    $form['#attached']['library'][] = 'origins_forms/origins_forms.form_descriptions';
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_forms_form_media_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('origins_forms.settings');
+  if ($config->get('enable_form_descriptions')) {
+    $form['#attached']['library'][] = 'origins_forms/origins_forms.form_descriptions';
+  }
+}
+
+/**
+ * Implements hook_preprocess_fieldset().
+ */
+function origins_forms_preprocess_fieldset(&$variables) {
+  $config = \Drupal::config('origins_forms.settings');
+  if ($config->get('enable_form_descriptions')) {
+    $variables['description_display'] = 'before';
+    $desc = $variables['description_display'];
+
+    if (!empty($variables['description']) && !empty($variables['description']['attributes'])) {
+      $variables['description']['attributes']->addClass($desc);
+    }
+  }
+}
+
+
+
 
 
