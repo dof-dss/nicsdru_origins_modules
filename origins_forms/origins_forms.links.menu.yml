@@ -1,0 +1,6 @@
+origins_forms.forms_configuration:
+  title: Forms configuration
+  description: General form settings and adjustments.
+  parent: origins.admin_config
+  route_name: origins_forms.forms_configuration
+  weight: 10
