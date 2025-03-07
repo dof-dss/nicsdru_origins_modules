@@ -2,7 +2,7 @@ name: 'Origins Media'
 type: module
 description: 'Origins: media management enhancements'
 core_version_requirement: ^8.8 || ^9 || ^10
-package: 'Origins'
+package: 'NICS: Origins'
 dependencies:
   - entity_embed
   - media

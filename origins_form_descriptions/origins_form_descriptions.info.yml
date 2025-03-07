@@ -2,6 +2,8 @@ name: 'Origins Form Descriptions'
 type: module
 description: 'Moves the description on content form fields underneath the title'
 core_version_requirement: ^8.8 || ^9 || ^10
-package: 'Origins'
+package: 'NICS: Origins'
+lifecycle: deprecated
+lifecycle_link: 'https://github.com/dof-dss/nicsdru_origins_modules/blob/10.x-dev/README.md'
 dependencies:
   - drupal:media_library

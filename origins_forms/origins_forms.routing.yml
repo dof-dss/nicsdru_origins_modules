@@ -1,0 +1,7 @@
+origins_forms.forms_configuration:
+  path: '/admin/config/origins/forms-settings'
+  defaults:
+    _title: 'Forms configuration'
+    _form: 'Drupal\origins_forms\Form\FormsConfigurationForm'
+  requirements:
+    _permission: 'administer site configuration'

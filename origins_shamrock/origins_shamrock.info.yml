@@ -2,6 +2,6 @@ name: 'Origins Shamrock'
 type: module
 description: 'Operation Shamrock'
 core_version_requirement: ^8.8 || ^9 || ^10
-package: 'Origins'
+package: 'NICS: Origins'
 dependencies:
   - origins_common
