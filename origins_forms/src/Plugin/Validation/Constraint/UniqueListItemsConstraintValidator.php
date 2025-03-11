@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\origins_forms\Plugin\Validation\Constraint;
 
+use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItemInterface;
 use Symfony\Component\Validator\Constraint;
@@ -26,23 +27,27 @@ final class UniqueListItemsConstraintValidator extends ConstraintValidator {
     }
 
     if (!$items->isEmpty()) {
-      $item_values = [];
+      $item_values_processed = [];
+
+      if ($items instanceof EntityReferenceFieldItemList) {
+        $key = 'target_id';
+      }
+      else {
+        $key = 'value';
+      }
 
       foreach ($items as $delta => $item) {
         $value = $item->getValue();
-        if ($item instanceof EntityReferenceItemInterface) {
-          $item_values[] = $value['target_id'];
+
+        if (in_array($value[$key], $item_values_processed)) {
+          // @phpstan-ignore-next-line
+          $this->context->buildViolation($constraint->message)
+            ->atPath((string) $delta . '.' . $key)
+            ->addViolation();
         }
         else {
-          $item_values[] = $value['value'];
+          $item_values_processed[] = $value[$key];
         }
-      }
-
-      $item_values = array_unique($item_values);
-
-      if (count($item_values) < count($items)) {
-        // @phpstan-ignore-next-line
-        $this->context->addViolation($constraint->message);
       }
     }
   }
