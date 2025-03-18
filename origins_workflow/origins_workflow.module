@@ -698,11 +698,11 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
         ],
       ];
 
-      $bundle = $entity->getType();
+      $bundle = $entity->bundle();
       // Check if a user has permission to edit the node content before giving them Archive and Draft of Published permission.
       if ($bundle instanceof NodeType) {
         if (\Drupal::currentUser()
-          ->hasPermission('edit any ' . $bundle . ' content')) {
+          ->hasPermission('edit any {$bundle} content')) {
           // Inject an option for 'Draft of published'.
           // This isn't added by the core workflow module as that only responds to
           // publish status rather than that in conjunction with available
