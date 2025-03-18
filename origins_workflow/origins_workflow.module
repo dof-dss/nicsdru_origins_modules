@@ -16,6 +16,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\user\Entity\User;
 use Drupal\views\ViewExecutable;
@@ -698,51 +699,53 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
       ];
 
       $bundle = $entity->getType();
-      // Check if a user has permission to edit the content before giving them Archive and Draft of Published permission.
-      if (\Drupal::currentUser()
-        ->hasPermission('edit any ' . $bundle . ' content')) {
-        // Inject an option for 'Draft of published'.
-        // This isn't added by the core workflow module as that only responds to
-        // publish status rather than that in conjunction with available
-        // revisions.
+      // Check if a user has permission to edit the node content before giving them Archive and Draft of Published permission.
+      if ($bundle instanceof NodeType) {
         if (\Drupal::currentUser()
-          ->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
-          $dop_link = [
-            '#type' => 'link',
-            '#title' => Markup::create(t('Draft of published')),
-            '#url' => Url::fromRoute(
-              'origins_workflow.moderation_state_controller_new_draft_of_published', [
-              'nid' => $entity->id(),
-              'new_state' => 'draft_of_published',
-            ], $options),
-            '#attributes' => [
-              'class' => [
-                'moderation-sidebar-link',
-                'button',
-                'draft-of-published--link',
+          ->hasPermission('edit any ' . $bundle . ' content')) {
+          // Inject an option for 'Draft of published'.
+          // This isn't added by the core workflow module as that only responds to
+          // publish status rather than that in conjunction with available
+          // revisions.
+          if (\Drupal::currentUser()
+            ->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
+            $dop_link = [
+              '#type' => 'link',
+              '#title' => Markup::create(t('Draft of published')),
+              '#url' => Url::fromRoute(
+                'origins_workflow.moderation_state_controller_new_draft_of_published', [
+                'nid' => $entity->id(),
+                'new_state' => 'draft_of_published',
+              ], $options),
+              '#attributes' => [
+                'class' => [
+                  'moderation-sidebar-link',
+                  'button',
+                  'draft-of-published--link',
+                ],
               ],
-            ],
-          ];
+            ];
 
-          $build['actions']['primary']['draft_of_published'] = $dop_link;
-        }
+            $build['actions']['primary']['draft_of_published'] = $dop_link;
+          }
 
-        if (\Drupal::currentUser()
-          ->hasPermission('use nics_editorial_workflow transition archive')) {
-          // Add an 'Archive' button to the moderation sidebar, as
-          // it fails to do this in this case.
-          $build['actions']['primary']['archive'] = [];
-          $build['actions']['primary']['archive']['#title'] = Markup::create(t('Archive'));
-          $build['actions']['primary']['archive']['#type'] = 'link';
+          if (\Drupal::currentUser()
+            ->hasPermission('use nics_editorial_workflow transition archive')) {
+            // Add an 'Archive' button to the moderation sidebar, as
+            // it fails to do this in this case.
+            $build['actions']['primary']['archive'] = [];
+            $build['actions']['primary']['archive']['#title'] = Markup::create(t('Archive'));
+            $build['actions']['primary']['archive']['#type'] = 'link';
 
-          // Build URL to change state.
-          $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
-            ['nid' => $entity->id(), 'new_state' => 'archived'],
-            $options);
-          // Style as a button in the moderation sidebar.
-          $build['actions']['primary']['archive']['#attributes'] = [
-            'class' => ['moderation-sidebar-link', 'button', 'archive--link'],
-          ];
+            // Build URL to change state.
+            $build['actions']['primary']['archive']['#url'] = Url::fromRoute('origins_workflow.moderation_state_controller_change_state',
+              ['nid' => $entity->id(), 'new_state' => 'archived'],
+              $options);
+            // Style as a button in the moderation sidebar.
+            $build['actions']['primary']['archive']['#attributes'] = [
+              'class' => ['moderation-sidebar-link', 'button', 'archive--link'],
+            ];
+          }
         }
       }
     }
