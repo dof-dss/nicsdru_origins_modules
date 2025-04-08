@@ -102,7 +102,7 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $domain = trim($form_state->getValue('domain'));
+    $domain = trim($form_state->getValue('domain') ?? '');
 
     if (!empty($domain) && UrlHelper::isValid($domain) === FALSE) {
       $form_state->setErrorByName('domain', $this->t('Domain must be a valid URL.'));
@@ -116,11 +116,11 @@ class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->configFactory()->getEditable('origins_translations.settings')
-      ->set('domain', trim($form_state->getValue('domain'), ' /'))
+      ->set('domain', trim($form_state->getValue('domain'), ' /') ?? '')
       ->set('ui-position', $form_state->getValue('ui-position'))
       ->save();
 
-    $this->state->set('origins_translations.settings.apikey', trim($form_state->getValue('apikey')));
+    $this->state->set('origins_translations.settings.apikey', trim($form_state->getValue('apikey') ?? ''));
 
     parent::submitForm($form, $form_state);
   }
