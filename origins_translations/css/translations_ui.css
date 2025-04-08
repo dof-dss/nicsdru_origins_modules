@@ -288,7 +288,7 @@
 #origins-translations-container .origins-translations-menu > h2,
 #origins-translations-container .origins-translations-menu > h3 {
   display: block;
-  padding: .5em 0;
+  padding: .5em 1rem;
   margin: 0;
   font-size: 1em;
   line-height: 1.5;
@@ -314,7 +314,8 @@
 #origins-translations-container.ot-bl .origins-translations-menu,
 #origins-translations-container.ot-br .origins-translations-menu {
   flex-flow: column nowrap;
-  width: 275px; /* allow for scroll bar to right */
+  width: 300px; /* allow for scroll bar to right */
+  padding: 1rem !important;
 }
 
 #origins-translations-container .origins-translations-menu li {
