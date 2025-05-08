@@ -36,6 +36,7 @@ class PrettyMimes {
       'image/svg+xml' => 'SVG image',
       'text/csv' => 'Comma-separated values',
       'text/html' => 'HTML (HyperText Markup Language)',
+      'audio/mpeg' => 'Audio MP3',
     ];
 
     return $mimeTypes;
@@ -66,6 +67,7 @@ class PrettyMimes {
       'application/zip' => 'zip',
       'text/csv' => 'csv',
       'text/html' => 'html',
+      'audio/mpeg' => 'mp3',
     ];
 
     return $simpleMimes;
