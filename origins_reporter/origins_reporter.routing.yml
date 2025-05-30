@@ -1,0 +1,7 @@
+entity.origins_reporter_report.settings:
+  path: 'admin/structure/origins-reporter-report'
+  defaults:
+    _form: '\Drupal\origins_reporter\Form\ReportSettingsForm'
+    _title: 'Report'
+  requirements:
+    _permission: 'administer origins_reporter_report'

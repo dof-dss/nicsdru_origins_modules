@@ -1,0 +1,22 @@
+entity.origins_reporter_report.settings:
+  title: 'Settings'
+  route_name: entity.origins_reporter_report.settings
+  base_route: entity.origins_reporter_report.settings
+entity.origins_reporter_report.view:
+  title: 'View'
+  route_name: entity.origins_reporter_report.canonical
+  base_route: entity.origins_reporter_report.canonical
+entity.origins_reporter_report.edit_form:
+  title: 'Edit'
+  route_name: entity.origins_reporter_report.edit_form
+  base_route: entity.origins_reporter_report.canonical
+entity.origins_reporter_report.delete_form:
+  title: 'Delete'
+  route_name: entity.origins_reporter_report.delete_form
+  base_route: entity.origins_reporter_report.canonical
+  weight: 10
+entity.origins_reporter_report.collection:
+  title: 'Reports'
+  route_name: entity.origins_reporter_report.collection
+  base_route: system.admin_content
+  weight: 10

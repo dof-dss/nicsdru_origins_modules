@@ -1,0 +1,5 @@
+origins_reporter_report.add_form:
+  title: 'Add report'
+  route_name: entity.origins_reporter_report.add_form
+  appears_on:
+    - entity.origins_reporter_report.collection

@@ -1,0 +1,17 @@
+administer origins_reporter_report:
+  title: 'Administer reports'
+  restrict access: true
+view origins_reporter_report:
+  title: 'View report'
+edit origins_reporter_report:
+  title: 'Edit report'
+delete origins_reporter_report:
+  title: 'Delete report'
+create origins_reporter_report:
+  title: 'Create report'
+view origins_reporter_report revision:
+  title: 'View report revision'
+revert origins_reporter_report revision:
+  title: 'Revert report revision'
+delete origins_reporter_report revision:
+  title: 'Delete report revision'

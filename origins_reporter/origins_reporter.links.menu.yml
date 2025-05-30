@@ -1,0 +1,11 @@
+entity.origins_reporter_report.settings:
+  title: 'Report'
+  description: 'Configure a Report entity type.'
+  route_name:  entity.origins_reporter_report.settings
+  parent: system.admin_structure
+
+entity.origins_reporter_report.collection:
+  title: 'Reports'
+  description: 'List of reports.'
+  route_name: entity.origins_reporter_report.collection
+  parent: system.admin_content
