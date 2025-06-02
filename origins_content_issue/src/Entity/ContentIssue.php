@@ -135,6 +135,18 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ])
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['content_entity_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Content entity ID'))
+      ->setDescription(t('The ID of the content entity this issue is for.'))
+      ->setRequired(TRUE)
+      ->setRevisionable(TRUE);
+
+    $fields['content_entity_revision_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Content entity revision ID'))
+      ->setDescription(t('The revision ID of the content entity this issue is for.'))
+      ->setRequired(TRUE)
+      ->setRevisionable(TRUE);
+
     $fields['description'] = BaseFieldDefinition::create('text_long')
       ->setRevisionable(TRUE)
       ->setLabel(t('Description'))

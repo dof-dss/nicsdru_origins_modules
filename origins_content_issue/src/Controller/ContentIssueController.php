@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Controller;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Returns responses for Origins reporter routes.
@@ -27,11 +30,27 @@ final class ContentIssueController extends ControllerBase {
     $form['revision']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
-    unset($form['advanced']);
+    $form['actions']['cancel'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Cancel'),
+      '#limit_validation_errors' => [],
+      '#ajax' => [
+        'callback' => '::ajaxCloseForm',
+      ],
+    ];
 
     $build['content'] = $form;
 
     return $build;
+  }
+
+  /**
+   * AJAX callback to close the off-canvas dialog
+   */
+  public function ajaxCloseForm(array&$form, FormStateInterface $form_state) {
+    $response = new AjaxResponse();
+    $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    return $response;
   }
 
 }
