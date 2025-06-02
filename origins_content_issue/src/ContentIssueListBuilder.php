@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_reporter;
+namespace Drupal\origins_content_issue;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 
 /**
- * Provides a list controller for the report entity type.
+ * Provides a list controller for the content issue entity type.
  */
-final class ReportListBuilder extends EntityListBuilder {
+final class ContentIssueListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
@@ -29,7 +29,7 @@ final class ReportListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity): array {
-    /** @var \Drupal\origins_reporter\ReportInterface $entity */
+    /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');

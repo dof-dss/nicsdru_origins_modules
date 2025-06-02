@@ -1,6 +1,0 @@
-report-ui:
-  css:
-    component:
-      css/origins-reporter.css: {}
-  js:
-    js/origins-reporter.js: {}

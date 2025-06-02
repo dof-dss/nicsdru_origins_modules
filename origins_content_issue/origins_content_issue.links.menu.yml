@@ -1,0 +1,11 @@
+entity.content_issue.settings:
+  title: 'Content issue'
+  description: 'Configure a Content issue entity type.'
+  route_name:  entity.content_issue.settings
+  parent: system.admin_structure
+
+entity.content_issue.collection:
+  title: 'Content issues'
+  description: 'List of content issues.'
+  route_name: entity.content_issue.collection
+  parent: system.admin_content

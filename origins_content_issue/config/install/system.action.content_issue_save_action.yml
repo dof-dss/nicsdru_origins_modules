@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - origins_content_issue
+id: content_issue_save_action
+label: 'Save content issues'
+type: content_issue
+plugin: entity:save_action:content_issue
+configuration: {  }

@@ -5,7 +5,7 @@
         $( "body" ).append('<div class="reporter-link"><span>Reporter an issue with this content</span></div>');
         $('.reporter-link').on('click', function() {
           var config = {
-            url: '/origins-reporter/report-form',
+            url: '/origins/content-issue/add',
             dialogRenderer: 'off_canvas',
             dialogType: 'dialog',
             dialog: { width: 400 },

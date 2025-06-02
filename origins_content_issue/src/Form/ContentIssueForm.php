@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_reporter\Form;
+namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Form controller for the report entity edit forms.
+ * Form controller for the content issue entity edit forms.
  */
-final class ReportForm extends ContentEntityForm {
+final class ContentIssueForm extends ContentEntityForm {
 
   /**
    * {@inheritdoc}
@@ -26,13 +26,13 @@ final class ReportForm extends ContentEntityForm {
 
     switch ($result) {
       case SAVED_NEW:
-        $this->messenger()->addStatus($this->t('New report %label has been created.', $message_args));
-        $this->logger('origins_reporter')->notice('New report %label has been created.', $logger_args);
+        $this->messenger()->addStatus($this->t('New content issue %label has been created.', $message_args));
+        $this->logger('origins_content_issue')->notice('New content issue %label has been created.', $logger_args);
         break;
 
       case SAVED_UPDATED:
-        $this->messenger()->addStatus($this->t('The report %label has been updated.', $message_args));
-        $this->logger('origins_reporter')->notice('The report %label has been updated.', $logger_args);
+        $this->messenger()->addStatus($this->t('The content issue %label has been updated.', $message_args));
+        $this->logger('origins_content_issue')->notice('The content issue %label has been updated.', $logger_args);
         break;
 
       default:

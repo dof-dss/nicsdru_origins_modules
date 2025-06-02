@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_reporter\Controller;
+namespace Drupal\origins_content_issue\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 
 /**
  * Returns responses for Origins reporter routes.
  */
-final class OriginsReporterController extends ControllerBase {
+final class ContentIssueController extends ControllerBase {
 
   /**
    * Builds the response.
    */
   public function __invoke(): array {
-    $entity = $this->entityTypeManager()->getStorage('origins_reporter_report')->create([]);
+    $entity = $this->entityTypeManager()->getStorage('content_issue')->create([]);
     $form = \Drupal::service('entity.form_builder')->getForm($entity, 'add');
 
     $form['advanced']['#attributes']['class'][] = 'hidden';

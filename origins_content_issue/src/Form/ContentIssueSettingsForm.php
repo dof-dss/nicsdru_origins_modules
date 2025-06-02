@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_reporter\Form;
+namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Configuration form for a report entity type.
+ * Configuration form for a content issue entity type.
  */
-final class ReportSettingsForm extends FormBase {
+final class ContentIssueSettingsForm extends FormBase {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'origins_reporter_report_settings';
+    return 'content_issue_settings';
   }
 
   /**
@@ -25,7 +25,7 @@ final class ReportSettingsForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
     $form['settings'] = [
-      '#markup' => $this->t('Settings form for a report entity type.'),
+      '#markup' => $this->t('Settings form for a content issue entity type.'),
     ];
 
     $form['actions'] = [

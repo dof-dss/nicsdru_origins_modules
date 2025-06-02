@@ -1,0 +1,15 @@
+entity.content_issue.settings:
+  path: 'admin/structure/content-issue'
+  defaults:
+    _form: '\Drupal\origins_content_issue\Form\ContentIssueSettingsForm'
+    _title: 'Content issue'
+  requirements:
+    _permission: 'administer content issue'
+
+origins_content_issue.issue.add:
+  path: '/origins/content-issue/add'
+  defaults:
+    _title: 'Create content issue'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController'
+  requirements:
+    _permission: 'access content'

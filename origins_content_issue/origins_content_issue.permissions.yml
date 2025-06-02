@@ -1,0 +1,3 @@
+administer content issue:
+  title: 'Administer content issues'
+  restrict access: true

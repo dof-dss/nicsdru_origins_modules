@@ -1,0 +1,5 @@
+content_issue.add_form:
+  title: 'Add content issue'
+  route_name: entity.content_issue.add_form
+  appears_on:
+    - entity.content_issue.collection

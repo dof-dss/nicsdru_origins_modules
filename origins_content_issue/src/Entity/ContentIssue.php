@@ -2,36 +2,35 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_reporter\Entity;
+namespace Drupal\origins_content_issue\Entity;
 
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\origins_reporter\ReportInterface;
+use Drupal\origins_content_issue\ContentIssueInterface;
 use Drupal\user\EntityOwnerTrait;
 
 /**
- * Defines the report entity class.
+ * Defines the content issue entity class.
  *
  * @ContentEntityType(
- *   id = "origins_reporter_report",
- *   label = @Translation("Report"),
- *   label_collection = @Translation("Reports"),
- *   label_singular = @Translation("report"),
- *   label_plural = @Translation("reports"),
+ *   id = "content_issue",
+ *   label = @Translation("Content issue"),
+ *   label_collection = @Translation("Content issues"),
+ *   label_singular = @Translation("content issue"),
+ *   label_plural = @Translation("content issues"),
  *   label_count = @PluralTranslation(
- *     singular = "@count reports",
- *     plural = "@count reports",
+ *     singular = "@count content issues",
+ *     plural = "@count content issues",
  *   ),
  *   handlers = {
- *     "list_builder" = "Drupal\origins_reporter\ReportListBuilder",
+ *     "list_builder" = "Drupal\origins_content_issue\ContentIssueListBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
- *     "access" = "Drupal\origins_reporter\ReportAccessControlHandler",
  *     "form" = {
- *       "add" = "Drupal\origins_reporter\Form\ReportForm",
- *       "edit" = "Drupal\origins_reporter\Form\ReportForm",
+ *       "add" = "Drupal\origins_content_issue\Form\ContentIssueForm",
+ *       "edit" = "Drupal\origins_content_issue\Form\ContentIssueForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "delete-multiple-confirm" = "Drupal\Core\Entity\Form\DeleteMultipleForm",
  *       "revision-delete" = \Drupal\Core\Entity\Form\RevisionDeleteForm::class,
@@ -42,10 +41,10 @@ use Drupal\user\EntityOwnerTrait;
  *       "revision" = \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
  *     },
  *   },
- *   base_table = "origins_reporter_report",
- *   revision_table = "origins_reporter_report_revision",
+ *   base_table = "origins_content_issue",
+ *   revision_table = "origins_content_issue_revision",
  *   show_revision_ui = TRUE,
- *   admin_permission = "administer origins_reporter_report",
+ *   admin_permission = "administer content issue",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
@@ -59,21 +58,21 @@ use Drupal\user\EntityOwnerTrait;
  *     "revision_log_message" = "revision_log",
  *   },
  *   links = {
- *     "collection" = "/admin/content/report",
- *     "add-form" = "/report/add",
- *     "canonical" = "/report/{origins_reporter_report}",
- *     "edit-form" = "/report/{origins_reporter_report}/edit",
- *     "delete-form" = "/report/{origins_reporter_report}/delete",
- *     "delete-multiple-form" = "/admin/content/report/delete-multiple",
- *     "revision" = "/report/{origins_reporter_report}/revision/{origins_reporter_report_revision}/view",
- *     "revision-delete-form" = "/report/{origins_reporter_report}/revision/{origins_reporter_report_revision}/delete",
- *     "revision-revert-form" = "/report/{origins_reporter_report}/revision/{origins_reporter_report_revision}/revert",
- *     "version-history" = "/report/{origins_reporter_report}/revisions",
+ *     "collection" = "/admin/content/content-issue",
+ *     "add-form" = "/content-issue/add",
+ *     "canonical" = "/content-issue/{content_issue}",
+ *     "edit-form" = "/content-issue/{content_issue}/edit",
+ *     "delete-form" = "/content-issue/{content_issue}/delete",
+ *     "delete-multiple-form" = "/admin/content/content-issue/delete-multiple",
+ *     "revision" = "/content-issue/{content_issue}/revision/{content_issue_revision}/view",
+ *     "revision-delete-form" = "/content-issue/{content_issue}/revision/{content_issue_revision}/delete",
+ *     "revision-revert-form" = "/content-issue/{content_issue}/revision/{content_issue_revision}/revert",
+ *     "version-history" = "/content-issue/{content_issue}/revisions",
  *   },
- *   field_ui_base_route = "entity.origins_reporter_report.settings",
+ *   field_ui_base_route = "entity.content_issue.settings",
  * )
  */
-final class Report extends RevisionableContentEntityBase implements ReportInterface {
+final class ContentIssue extends RevisionableContentEntityBase implements ContentIssueInterface {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
@@ -175,7 +174,7 @@ final class Report extends RevisionableContentEntityBase implements ReportInterf
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
-      ->setDescription(t('The time that the report was created.'))
+      ->setDescription(t('The time that the content issue was created.'))
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'timestamp',
@@ -190,7 +189,7 @@ final class Report extends RevisionableContentEntityBase implements ReportInterf
 
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
-      ->setDescription(t('The time that the report was last edited.'));
+      ->setDescription(t('The time that the content issue was last edited.'));
 
     return $fields;
   }

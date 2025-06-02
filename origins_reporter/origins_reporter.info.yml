@@ -1,6 +1,0 @@
-name: 'Origins reporter'
-type: module
-description: 'Allow users to report site issues'
-package: Origins
-core_version_requirement: ^10 || ^11
-dependencies: {}

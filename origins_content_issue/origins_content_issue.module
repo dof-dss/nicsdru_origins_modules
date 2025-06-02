@@ -1,0 +1,171 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Provides a content issue entity type.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\node\Entity\NodeType;
+use Drupal\user\UserInterface;
+
+
+/**
+ * Implements hook_preprocess().
+ */
+function origins_content_issue_preprocess_page(&$variables) {
+  $route = \Drupal::routeMatch();
+  $entity = null;
+  if ($route->getRouteObject()) {
+    foreach ($route->getParameters() as $name => $parameter) {
+      if ($parameter instanceof \Drupal\Core\Entity\EntityInterface) {
+        $entity = $parameter;
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function origins_content_issue_preprocess_node(&$variables) {
+  $route = \Drupal::routeMatch();
+
+  if (!$route->getParameters()->has('node')) {
+    return;
+  }
+
+  $node = $route->getParameters()->get('node');
+  $node_type = NodeType::load($node->getType());
+  $enabled = $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled');
+
+  if ($enabled) {
+    $variables['#attached']['library'][] =  'origins_content_issue/user-interface';
+  }
+
+}
+
+/**
+ * Implements hook_theme().
+ */
+function origins_content_issue_theme(): array {
+  return [
+    'content_issue' => ['render element' => 'elements'],
+  ];
+}
+
+/**
+ * Prepares variables for content issue templates.
+ *
+ * Default template: content-issue.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the content issue information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_content_issue(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function origins_content_issue_user_cancel($edit, UserInterface $account, $method): void {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish content issues.
+      $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+      $content_issue_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        $content_issue->set('status', FALSE)->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize content issues.
+      $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+      $content_issue_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        $content_issue->setOwnerId(0)->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function origins_content_issue_user_predelete(UserInterface $account): void {
+  // Delete content issues that belong to this account.
+  $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+  $content_issue_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  $storage->delete(
+    $storage->loadMultiple($content_issue_ids)
+  );
+  // Delete old revisions.
+  $content_issue_ids = $storage->getQuery()
+    ->allRevisions()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  foreach (array_keys($content_issue_ids) as $revision_id) {
+    $storage->deleteRevision($revision_id);
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_content_issue_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+  $form_object = $form_state->getFormObject();
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $form_object->getEntity();
+  if (empty($node->id())) {
+    return;
+  }
+
+  $node_type = NodeType::load($node->id());
+
+  $form['origins_content_issue'] = [
+    '#type' => 'details',
+    '#title' => t('Content issue'),
+    '#group' => 'additional_settings',
+  ];
+
+  $form['origins_content_issue']['content_issue_enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable content issue creation.'),
+    '#description' => t('Allow users to notify the original content author of any issues they encounter.'),
+    '#default_value' => $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled'),
+  ];
+
+  $form['#entity_builders'][] = 'origins_content_issue_form_node_type_form_builder';
+}
+
+/**
+ * Entity builder for the origins_content_issue_form_node_type_form_alter().
+ */
+function origins_content_issue_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_content_issue', 'content_issue_enabled', $form_state->getValue('content_issue_enabled'));
+}

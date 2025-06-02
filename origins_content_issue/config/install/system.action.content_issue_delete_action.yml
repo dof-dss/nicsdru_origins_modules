@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - origins_content_issue
+id: content_issue_delete_action
+label: 'Delete content issues'
+type: content_issue
+plugin: entity:delete_action:content_issue
+configuration: {  }
