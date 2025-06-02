@@ -7,8 +7,48 @@ declare(strict_types=1);
  * Provides a report entity type.
  */
 
+use Drupal\Core\Entity\ContentEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\node\Entity\NodeType;
+use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_preprocess().
+ */
+function origins_reporter_preprocess_page(&$variables) {
+  $route = \Drupal::routeMatch();
+  $entity = null;
+  if ($route->getRouteObject()) {
+    foreach ($route->getParameters() as $name => $parameter) {
+      if ($parameter instanceof \Drupal\Core\Entity\EntityInterface) {
+        $entity = $parameter;
+        break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function origins_reporter_preprocess_node(&$variables) {
+  $route = \Drupal::routeMatch();
+
+  if (!$route->getParameters()->has('node')) {
+    return;
+  }
+
+  $node = $route->getParameters()->get('node');
+  $node_type = NodeType::load($node->getType());
+  $enabled = $node_type->getThirdPartySetting('origins_reporter', 'enable_reporting');
+
+  if ($enabled) {
+    $variables['#attached']['library'][] =  'origins_reporter/report-ui';
+  }
+
+}
 
 /**
  * Implements hook_theme().
@@ -92,3 +132,68 @@ function origins_reporter_user_predelete(UserInterface $account): void {
     $storage->deleteRevision($revision_id);
   }
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_reporter_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+  $form_object = $form_state->getFormObject();
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $form_object->getEntity();
+  if (empty($node->id())) {
+    return;
+  }
+
+  $node_type = NodeType::load($node->id());
+
+  $form['origins_reporter'] = [
+    '#type' => 'details',
+    '#title' => t('Content reporter'),
+    '#group' => 'additional_settings',
+  ];
+
+  $form['origins_reporter']['origins_reporter_enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable content reporting.'),
+    '#description' => t('Let users notify the content author of any issues they encounter.'),
+    '#default_value' => $node_type->getThirdPartySetting('origins_reporter', 'enable_reporting'),
+  ];
+
+  $form['#entity_builders'][] = 'origins_reporter_form_node_type_form_builder';
+}
+
+/**
+ * Entity builder for the origins_reporter_form_node_type_form_alter().
+ */
+function origins_reporter_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_reporter', 'enable_reporting', $form_state->getValue('origins_reporter_enabled'));
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function origins_reporter_entity_type_alter(array &$entity_types) {
+  // We get all form modes, for all entities, and loop through them.
+  $form_modes = \Drupal::service('entity_display.repository')->getAllFormModes();
+  foreach ($form_modes as $entity_type => $display_modes) {
+    if ($entity_type !== 'node') {
+      // We are only interested in adding a handler to the Node entity.
+      continue;
+    }
+
+    $node_type = $entity_types[$entity_type];
+    foreach ($display_modes as $machine_name => $form_display) {
+      if ($machine_name !== 'create_editors') {
+        // We are only interested in adding this form mode to the definition.
+        continue;
+      }
+      // We get the default handler class. It will be enough for us.
+      $default_handler_class = $node_type->getHandlerClasses()['form']['default'];
+      // We set the form class, keyed by the machine name of our custom form mode.
+      $node_type->setFormClass($machine_name, $default_handler_class);
+    }
+  }
+}
+
