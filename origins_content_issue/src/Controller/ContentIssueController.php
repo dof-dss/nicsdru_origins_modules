@@ -17,7 +17,7 @@ final class ContentIssueController extends ControllerBase {
   /**
    * Builds the response.
    */
-  public function __invoke(): array {
+  public function __invoke(int $entity_id, int|null $revision_id = NULL): array {
     $entity = $this->entityTypeManager()->getStorage('content_issue')->create([]);
     $form = \Drupal::service('entity.form_builder')->getForm($entity, 'add');
 
@@ -29,6 +29,9 @@ final class ContentIssueController extends ControllerBase {
     $form['revision_information']['#attributes']['class'][] = 'hidden';
     $form['revision']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
+
+    $form["content_entity_id"]["#value"] = $entity_id;
+    $form["content_entity_revision_id"]["#value"] = $revision_id;
 
     $form['actions']['cancel'] = [
       '#type' => 'submit',

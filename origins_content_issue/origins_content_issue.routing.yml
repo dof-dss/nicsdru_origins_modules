@@ -7,7 +7,7 @@ entity.content_issue.settings:
     _permission: 'administer content issue'
 
 origins_content_issue.issue.add:
-  path: '/origins/content-issue/add'
+  path: '/origins/content-issue/add/{entity_id}/{revision_id}'
   defaults:
     _title: 'Create content issue'
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController'
