@@ -48,7 +48,14 @@ function origins_content_issue_preprocess_node(&$variables) {
   if ($enabled) {
     $variables['#attached']['library'][] =  'origins_content_issue/user-interface';
     $variables['#attached']['drupalSettings']['origins_content_issue']['entity_id'] = $node->id();
-    $variables['#attached']['drupalSettings']['origins_content_issue']['revision_id'] = $node->getRevisionId();
+
+    if ($route->getParameters()->has('node_revision')) {
+      $node_revision = $route->getParameter('node_revision')->getLoadedRevisionId();
+    } else {
+      $node_revision = $node->getRevisionId();
+    }
+
+    $variables['#attached']['drupalSettings']['origins_content_issue']['revision_id'] = $node_revision;
   }
 
 }

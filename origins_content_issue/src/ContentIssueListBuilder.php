@@ -18,6 +18,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public function buildHeader(): array {
     $header['id'] = $this->t('ID');
     $header['label'] = $this->t('Label');
+    $header['content'] = $this->t('Content');
     $header['status'] = $this->t('Status');
     $header['uid'] = $this->t('Author');
     $header['created'] = $this->t('Created');
@@ -30,8 +31,12 @@ final class ContentIssueListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity): array {
     /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
+    $storage = \Drupal::entityTypeManager()->getStorage('node');
+    $revision_id = $entity->get('content_entity_revision_id')->getString();
+    $node = $storage->loadRevision($revision_id);
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
+    $row['content'] = $node->toLink($node->label(), 'revision', ['node_revision' =>  $entity->get('content_entity_revision_id')->getString()]);
     $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');
     $username_options = [
       'label' => 'hidden',
