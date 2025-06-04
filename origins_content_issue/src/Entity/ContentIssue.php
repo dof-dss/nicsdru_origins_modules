@@ -192,6 +192,21 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['comments'] = BaseFieldDefinition::create('text_long')
+      ->setRevisionable(TRUE)
+      ->setLabel(t('Comments'))
+      ->setDisplayOptions('form', [
+        'type' => 'text_textarea',
+        'weight' => 15,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'type' => 'text_default',
+        'label' => 'above',
+        'weight' => 15,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setRevisionable(TRUE)

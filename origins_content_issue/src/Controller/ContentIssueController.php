@@ -38,6 +38,7 @@ final class ContentIssueController extends ControllerBase {
     $form['advanced']['#attributes']['class'][] = 'hidden';
     $form['created']['#attributes']['class'][] = 'hidden';
     $form['status']['#attributes']['class'][] = 'hidden';
+    $form['comments']['#attributes']['class'][] = 'hidden';
     $form['uid']['#attributes']['class'][] = 'hidden';
     $form['revision_log']['#attributes']['class'][] = 'hidden';
     $form['revision_information']['#attributes']['class'][] = 'hidden';

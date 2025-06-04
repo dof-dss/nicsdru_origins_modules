@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\node\Entity\Node;
 
 /**
  * Provides a list controller for the content issue entity type.
@@ -82,19 +83,68 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $query = $this->getStorage()->getQuery();
     $query->accessCheck(TRUE);
 
-    $route = \Drupal::routeMatch();
+    $entity_id = \Drupal::request()->get('entity_id');
+    $revision_id = \Drupal::request()->get('revision_id');
 
-    if ($route->getParameters()->has('entity_id')) {
-      $query->condition('content_entity_entity_id', $route->getParameters()->get('entity_id'));
+    if (!empty($entity_id)) {
+      $query->condition('content_entity_id', $entity_id);
     }
 
-    if ($route->getParameters()->has('revision_id')) {
-      $query->condition('content_entity_revision_id', $route->getParameters()->get('entity_id'));
+    if (!empty($revision_id)) {
+      $query->condition('content_entity_revision_id', $revision_id);
     }
 
     $entity_ids = $query->execute();
 
     return $this->storage->loadMultiple($entity_ids);
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * Builds the entity listing as renderable array for table.html.twig.
+   *
+   * @todo Add a link to add a new item to the #empty text.
+   */
+  public function render() {
+
+    $entity_id = \Drupal::request()->get('entity_id');
+
+    $build['table'] = [
+      '#type' => 'table',
+      '#header' => $this->buildHeader(),
+      '#title' => $this->getTitle(),
+      '#rows' => [],
+      '#empty' => $this->t('There are no @label yet.', ['@label' => $this->entityType->getPluralLabel()]),
+      '#cache' => [
+        'contexts' => $this->entityType->getListCacheContexts(),
+        'tags' => $this->entityType->getListCacheTags(),
+      ],
+    ];
+    foreach ($this->load() as $entity) {
+      if ($row = $this->buildRow($entity)) {
+        $build['table']['#rows'][$entity->id()] = $row;
+      }
+    }
+
+    if (empty($build['table']['#rows']) && !empty($entity_id)) {
+
+      $node = Node::load($entity_id);
+
+      if (empty($node)) {
+        $build['table']['#empty'] = $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id]);
+      }
+      else {
+        $build['table']['#empty'] = $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()]);
+      }
+    }
+
+    if ($this->limit) {
+      $build['pager'] = [
+        '#type' => 'pager',
+      ];
+    }
+    return $build;
   }
 
 }
