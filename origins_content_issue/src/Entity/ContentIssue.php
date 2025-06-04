@@ -27,6 +27,7 @@ use Drupal\user\EntityOwnerTrait;
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\origins_content_issue\ContentIssueListBuilder",
+ *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "views_data" = "Drupal\views\EntityViewsData",
  *     "form" = {
  *       "add" = "Drupal\origins_content_issue\Form\ContentIssueForm",
@@ -138,31 +139,6 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-
-    $fields['severity'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Severity'))
-      ->setSettings([
-        'allowed_values' => [
-          1 => 'High',
-          2 => 'Medium',
-          3 => 'Low',
-        ],
-      ])
-      ->setDefaultValue(2)
-      ->setDisplayOptions('view', [
-        'label' => 'visible',
-        'type' => 'list_default',
-        'weight' => 10,
-      ])
-      ->setDisplayOptions('form', [
-        'label' => 'inline',
-        'type' => 'options_select',
-        'default_formatter' => "list_default",
-        'weight' => 10,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
     $fields['severity'] = BaseFieldDefinition::create('list_string')
       ->setLabel(t('Severity'))
       ->setSettings([
@@ -202,6 +178,7 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDefaultValue(1)
       ->setCardinality(1)
       ->setRequired(TRUE)
+      ->setRevisionable(TRUE)
       ->setDisplayOptions('view', [
         'label' => 'visible',
         'type' => 'list_default',

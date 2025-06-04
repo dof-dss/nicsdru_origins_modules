@@ -21,10 +21,12 @@ final class ContentIssueForm extends ContentEntityForm {
 
     $form['content_entity_id'] = [
       '#type' => 'hidden',
+      '#default_value' => $form_state->getValue('content_entity_id'),
     ];
 
     $form['content_entity_revision_id'] = [
       '#type' => 'hidden',
+      '#default_value' => $form_state->getValue('content_entity_revision_id'),
     ];
 
     return $form;
