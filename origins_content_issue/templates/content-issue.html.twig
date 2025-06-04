@@ -13,12 +13,26 @@
  * @see template_preprocess_content_issue()
  */
 #}
-<article{{ attributes }}>
+{{ attach_library('origins_content_issue/user-interface') }}
+<article{{ attributes.addClass('content-issue-layout') }}>
   {% if view_mode != 'full' %}
     {{ title_prefix }}
     {{ title_suffix }}
   {% endif %}
   {% if content %}
-    {{- content -}}
+    <div class="content-issue-main">
+      {{- content.description -}}
+      {% if content.comments %}
+      <div class="content-issue-comments">
+        {{- content.comments -}}
+      </div>
+      {% endif %}
+    </div>
+    <div class="content-issue-side">
+      {{- content.severity }}
+      {{- content.status }}
+      {{- content.created }}
+      {{- content.uid }}
+    </div>
   {% endif %}
 </article>

@@ -60,15 +60,15 @@ use Drupal\user\EntityOwnerTrait;
  *   },
  *   links = {
  *     "collection" = "/admin/content/content-issues",
- *     "add-form" = "/content-issue/add",
- *     "canonical" = "/content-issue/{content_issue}",
- *     "edit-form" = "/content-issue/{content_issue}/edit",
- *     "delete-form" = "/content-issue/{content_issue}/delete",
+ *     "add-form" = "/admin/content/content-issue/add",
+ *     "canonical" = "/admin/content/content-issue/{content_issue}",
+ *     "edit-form" = "/admin/content/content-issue/{content_issue}/edit",
+ *     "delete-form" = "/admin/content/content-issue/{content_issue}/delete",
  *     "delete-multiple-form" = "/admin/content/content-issue/delete-multiple",
- *     "revision" = "/content-issue/{content_issue}/revision/{content_issue_revision}/view",
- *     "revision-delete-form" = "/content-issue/{content_issue}/revision/{content_issue_revision}/delete",
- *     "revision-revert-form" = "/content-issue/{content_issue}/revision/{content_issue_revision}/revert",
- *     "version-history" = "/content-issue/{content_issue}/revisions",
+ *     "revision" = "/admin/content/content-issue/{content_issue}/revision/{content_issue_revision}/view",
+ *     "revision-delete-form" = "/admin/content/content-issue/{content_issue}/revision/{content_issue_revision}/delete",
+ *     "revision-revert-form" = "/admin/content/content-issue/{content_issue}/revision/{content_issue_revision}/revert",
+ *     "version-history" = "/admin/content/content-issue/{content_issue}/revisions",
  *   },
  *   field_ui_base_route = "entity.content_issue.settings",
  * )
@@ -133,7 +133,7 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'type' => 'text_default',
-        'label' => 'above',
+        'label' => 'hidden',
         'weight' => 5,
       ])
       ->setDisplayConfigurable('form', TRUE)

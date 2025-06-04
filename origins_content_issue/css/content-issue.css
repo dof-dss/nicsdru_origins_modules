@@ -1,20 +1,39 @@
-.reporter-link {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  background-color: rgba(100, 100, 100, 0.2);
-  background-image: url("../assets/report_icon.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  cursor: pointer;
-  border: 2px solid rgba(100, 100, 100, 0.48);
-  padding: 15px;
-  border-radius: 50px;
-  background-blend-mode: lighten;
+.content-issue-layout {
+  display: flex;
+  width: 100%;
+  column-gap: 20px;
 }
 
-.reporter-link span {
-  visibility: hidden;
+.content-issue-layout > * {
+  padding: 0.5em;
+}
+
+.content-issue-main {
+  flex: 2 70%;
+}
+
+.content-issue-side {
+  flex: 1 30%;
+  padding: 2em;
+  background-color: oklch(92.9% 0.013 255.508);
+}
+
+.content-issue-comments {
+  margin-top: 2em;
+  padding-top: 2em;
+  border-top: 1px solid oklch(72% 0.041 260.031);
+}
+
+.content-issue-side .field__label {
+  text-transform: uppercase;
+  font-weight: lighter;
+  font-size: 0.8em;
+  color: oklch(42% 0.041 260.031);
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid oklch(72% 0.041 260.031);
+  margin-bottom: 0.5em;
+}
+
+.content-issue-side .field__item {
+  margin-bottom: 2em;
 }

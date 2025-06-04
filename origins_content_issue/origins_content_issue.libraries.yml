@@ -1,6 +1,11 @@
+report-link:
+  css:
+    component:
+      css/report-link.css: {}
+  js:
+    js/content-issue.js: {}
+
 user-interface:
   css:
     component:
       css/content-issue.css: {}
-  js:
-    js/content-issue.js: {}

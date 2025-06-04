@@ -47,7 +47,7 @@ function origins_content_issue_preprocess_node(&$variables) {
   $enabled = $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled');
 
   if ($enabled) {
-    $variables['#attached']['library'][] =  'origins_content_issue/user-interface';
+    $variables['#attached']['library'][] =  'origins_content_issue/report-link';
     $variables['#attached']['drupalSettings']['origins_content_issue']['entity_id'] = $node->id();
 
     if ($route->getParameters()->has('node_revision')) {
