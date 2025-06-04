@@ -6,6 +6,8 @@ namespace Drupal\origins_content_issue;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Provides a list controller for the content issue entity type.
@@ -34,24 +36,13 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
 
-    $storage = \Drupal::entityTypeManager()->getStorage('node');
-    $node_id = $entity->get('content_entity_id')->getString();
-
-    if ($entity->get('content_entity_revision_id')->isEmpty()) {
-      $node = $storage->load($entity->get('content_entity_id')->getString());
-    }
-    else {
-      $node = $storage->loadRevision($entity->get('content_entity_revision_id')->getString());
-    }
-
     $row['id'] = $entity->id();
-
     $row['label'] = $entity->toLink();
 
     if ($entity->get('content_entity_revision_id')->isEmpty()) {
-      $row['content'] = $node->toLink('view');
+      $row['content'] = Link::fromTextAndUrl('View', new Url('entity.node.canonical', ['node' => $entity->get('content_entity_id')->getString()]))->toString();
     } else {
-      $row['content'] = $node->toLink('view', 'revision', ['node_revision' =>  $entity->get('content_entity_revision_id')->getString()]);
+      $row['content'] = Link::fromTextAndUrl('View', new Url('entity.node.revision', ['node' => $entity->get('content_entity_id')->getString(), 'node_revision' => $entity->get('content_entity_revision_id')->getString()]))->toString();
     }
 
     $status = $entity->get('status')->value;
@@ -82,6 +73,28 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $row['created']['data'] = ($entity->get('changed')->isEmpty()) ? $entity->get('created')->view(['label' => 'hidden']) : $entity->get('created')->view(['label' => 'hidden']);
 
     return $row + parent::buildRow($entity);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function load() {
+    $query = $this->getStorage()->getQuery();
+    $query->accessCheck(TRUE);
+
+    $route = \Drupal::routeMatch();
+
+    if ($route->getParameters()->has('entity_id')) {
+      $query->condition('content_entity_entity_id', $route->getParameters()->get('entity_id'));
+    }
+
+    if ($route->getParameters()->has('revision_id')) {
+      $query->condition('content_entity_revision_id', $route->getParameters()->get('entity_id'));
+    }
+
+    $entity_ids = $query->execute();
+
+    return $this->storage->loadMultiple($entity_ids);
   }
 
 }

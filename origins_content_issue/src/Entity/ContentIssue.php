@@ -59,7 +59,7 @@ use Drupal\user\EntityOwnerTrait;
  *     "revision_log_message" = "revision_log",
  *   },
  *   links = {
- *     "collection" = "/admin/content/content-issue",
+ *     "collection" = "/admin/content/content-issues",
  *     "add-form" = "/content-issue/add",
  *     "canonical" = "/content-issue/{content_issue}",
  *     "edit-form" = "/content-issue/{content_issue}/edit",

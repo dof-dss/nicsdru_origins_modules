@@ -1,0 +1,4 @@
+services:
+  content_issue.manager:
+    class: Drupal\origins_content_issue\ContentIssueManager
+    arguments: ['@entity_type.manager']

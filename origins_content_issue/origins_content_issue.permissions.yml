@@ -1,3 +1,6 @@
 administer content issue:
   title: 'Administer content issues'
   restrict access: true
+view content issue:
+  title: 'View content issues'
+  restrict access: true
