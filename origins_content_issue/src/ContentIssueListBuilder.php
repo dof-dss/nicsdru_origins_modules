@@ -16,12 +16,12 @@ final class ContentIssueListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader(): array {
-    $header['id'] = $this->t('ID');
-    $header['label'] = $this->t('Label');
+    $header['id'] = $this->t('Issue #');
+    $header['label'] = $this->t('Issue');
     $header['content'] = $this->t('Content');
     $header['status'] = $this->t('Status');
+    $header['severity'] = $this->t('severity');
     $header['uid'] = $this->t('Author');
-    $header['created'] = $this->t('Created');
     $header['changed'] = $this->t('Updated');
     return $header + parent::buildHeader();
   }
@@ -37,14 +37,13 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $row['id'] = $entity->id();
     $row['label'] = $entity->toLink();
     $row['content'] = $node->toLink($node->label(), 'revision', ['node_revision' =>  $entity->get('content_entity_revision_id')->getString()]);
-    $row['status'] = $entity->get('status')->value ? $this->t('Enabled') : $this->t('Disabled');
+    $row['status'] = $entity->get('status')->view();
     $username_options = [
       'label' => 'hidden',
       'settings' => ['link' => $entity->get('uid')->entity->isAuthenticated()],
     ];
     $row['uid']['data'] = $entity->get('uid')->view($username_options);
-    $row['created']['data'] = $entity->get('created')->view(['label' => 'hidden']);
-    $row['changed']['data'] = $entity->get('changed')->view(['label' => 'hidden']);
+    $row['created']['data'] = ($entity->get('changed')->isEmpty()) ? $entity->get('created')->view(['label' => 'hidden']) : $entity->get('created')->view(['label' => 'hidden']);
     return $row + parent::buildRow($entity);
   }
 

@@ -95,6 +95,16 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
 
     $fields = parent::baseFieldDefinitions($entity_type);
 
+    $fields['content_entity_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Content entity ID'))
+      ->setDescription(t('The identifier of the content entity to which this issue pertains.'))
+      ->setRequired(TRUE);
+
+    $fields['content_entity_revision_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Content entity revision ID'))
+      ->setDescription(t('The revision of the content entity to which this issue pertains.'))
+      ->setRequired(TRUE);
+
     $fields['label'] = BaseFieldDefinition::create('string')
       ->setRevisionable(TRUE)
       ->setLabel(t('Label'))
@@ -102,65 +112,109 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setSetting('max_length', 255)
       ->setDisplayOptions('form', [
         'type' => 'string_textfield',
-        'weight' => -5,
+        'weight' => 1,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'label' => 'hidden',
         'type' => 'string',
-        'weight' => -5,
+        'weight' => 1,
       ])
       ->setDisplayConfigurable('view', TRUE);
-
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setRevisionable(TRUE)
-      ->setLabel(t('Status'))
-      ->setDefaultValue(TRUE)
-      ->setSetting('on_label', 'Enabled')
-      ->setDisplayOptions('form', [
-        'type' => 'boolean_checkbox',
-        'settings' => [
-          'display_label' => FALSE,
-        ],
-        'weight' => 0,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'boolean',
-        'label' => 'above',
-        'weight' => 0,
-        'settings' => [
-          'format' => 'enabled-disabled',
-        ],
-      ])
-      ->setDisplayConfigurable('view', TRUE);
-
-    $fields['content_entity_id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Content entity ID'))
-      ->setDescription(t('The ID of the content entity this issue is for.'))
-      ->setRequired(TRUE)
-      ->setRevisionable(TRUE);
-
-    $fields['content_entity_revision_id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(t('Content entity revision ID'))
-      ->setDescription(t('The revision ID of the content entity this issue is for.'))
-      ->setRequired(TRUE)
-      ->setRevisionable(TRUE);
 
     $fields['description'] = BaseFieldDefinition::create('text_long')
       ->setRevisionable(TRUE)
       ->setLabel(t('Description'))
       ->setDisplayOptions('form', [
         'type' => 'text_textarea',
-        'weight' => 10,
+        'weight' => 5,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'type' => 'text_default',
         'label' => 'above',
+        'weight' => 5,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+
+    $fields['severity'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Severity'))
+      ->setSettings([
+        'allowed_values' => [
+          1 => 'High',
+          2 => 'Medium',
+          3 => 'Low',
+        ],
+      ])
+      ->setDefaultValue(2)
+      ->setDisplayOptions('view', [
+        'label' => 'visible',
+        'type' => 'list_default',
         'weight' => 10,
       ])
+      ->setDisplayOptions('form', [
+        'label' => 'inline',
+        'type' => 'options_select',
+        'default_formatter' => "list_default",
+        'weight' => 10,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['severity'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Severity'))
+      ->setSettings([
+        'allowed_values' => [
+          1 => 'High',
+          2 => 'Medium',
+          3 => 'Low',
+        ],
+      ])
+      ->setDefaultValue(2)
+      ->setCardinality(1)
+      ->setRequired(TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'visible',
+        'type' => 'list_default',
+        'weight' => 10,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'options_select',
+        'weight' => 10,
+        'settings' => [],
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['status'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('Status'))
+      ->setSettings([
+        'allowed_values' => [
+          1 => "To do",
+          2 => "In progress",
+          3 => "Done",
+          4 => "Rejected",
+          5 => "More info required",
+        ],
+      ])
+      ->setDefaultValue(1)
+      ->setCardinality(1)
+      ->setRequired(TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'visible',
+        'type' => 'list_default',
+        'weight' => 10,
+      ])
+      ->setDisplayOptions('form', [
+        'label' => 'inline',
+        'type' => 'options_select',
+        'weight' => 10,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setRevisionable(TRUE)
@@ -174,13 +228,13 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
           'size' => 60,
           'placeholder' => '',
         ],
-        'weight' => 15,
+        'weight' => 20,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'author',
-        'weight' => 15,
+        'weight' => 20,
       ])
       ->setDisplayConfigurable('view', TRUE);
 
@@ -190,12 +244,12 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'timestamp',
-        'weight' => 20,
+        'weight' => 25,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayOptions('form', [
         'type' => 'datetime_timestamp',
-        'weight' => 20,
+        'weight' => 25,
       ])
       ->setDisplayConfigurable('view', TRUE);
 
