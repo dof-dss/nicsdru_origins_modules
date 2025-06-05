@@ -67,6 +67,16 @@ function origins_content_issue_preprocess_node(&$variables) {
 function origins_content_issue_theme(): array {
   return [
     'content_issue' => ['render element' => 'elements'],
+    'content_issue_row' => [
+      'variables' => [
+        'id' => '',
+        'title' => '',
+        'status' => '',
+        'severity' => '',
+        'reporter' => '',
+        'updated' => '',
+      ],
+    ],
   ];
 }
 

@@ -37,3 +37,17 @@
 .content-issue-side .field__item {
   margin-bottom: 2em;
 }
+
+.content-issue-row {
+  display: flex;
+  gap: 10px;
+  align-content: space-between;
+  padding: 1em 0.1em;
+}
+
+.content-issue-row-main {
+  flex-grow: 2;
+}
+
+.content-issue-row-aside {
+}
