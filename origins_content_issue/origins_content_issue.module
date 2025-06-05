@@ -71,10 +71,15 @@ function origins_content_issue_theme(): array {
       'variables' => [
         'id' => '',
         'title' => '',
+        'node_type' => '',
+        'node_title' => '',
         'status' => '',
+        'status_class' => '',
         'severity' => '',
+        'severity_image' => '',
         'reporter' => '',
         'updated' => '',
+        'module_path' => '',
       ],
     ],
   ];

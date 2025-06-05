@@ -38,16 +38,80 @@
   margin-bottom: 2em;
 }
 
+.content-issue-dashboard-main table tbody tr td {
+  padding: 0;
+  height: auto;
+}
+
 .content-issue-row {
   display: flex;
   gap: 10px;
   align-content: space-between;
-  padding: 1em 0.1em;
+  padding: 1em 0.5em;
+  cursor: pointer;
 }
 
 .content-issue-row-main {
   flex-grow: 2;
 }
 
+.issue-number {
+  font-size: 0.8em;
+  color: #fff;
+  background: #34D399;
+  display: inline-block;
+  padding: 0.2em 1em;
+  margin-right: 1em;
+  border-radius: 3px;
+}
+
+.issue-content-meta {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 0.5em;
+}
+
+.issue-content-meta-type::after {
+  content: ':'
+}
+
+.issue-content-meta-title {
+  font-style: italic;
+}
+
 .content-issue-row-aside {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.issue-field,
+.issue-field {
+  display: flex;
+  align-items: center;
+}
+
+.issue-field p {
+  margin: 0 0 0 0.5em;
+}
+
+.status-icon {
+  display: inline-block;
+  background-color: #c4c4c4;
+  border-radius: 50px;
+  height: 24px;
+  width: 24px;
+}
+
+.todo {
+}
+
+.in-progress {
+
+}
+
+.done {}
+.rejected {}
+.more-info-required {
 }

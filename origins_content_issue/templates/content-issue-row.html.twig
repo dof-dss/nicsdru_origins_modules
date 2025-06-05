@@ -14,11 +14,25 @@
  */
 #}
 {{ attach_library('origins_content_issue/user-interface') }}
-<div class="content-issue-row">
-  <div class="content-issue-row-main"><span>{{ id }}</span> {{ title }}</div>
+<div class="content-issue-row" data-entity-id="{{ id }}">
+  <div class="content-issue-row-main">
+    <span class="issue-number"># {{ id }}</span><span class="issue-title">{{ title }}</span>
+    <div class="issue-content-meta">
+      <span class="issue-content-meta-type">{{ node_type }}</span> <span class="issue-content-meta-title">{{ node_title }}</span>
+    </div>
+  </div>
   <div class="content-issue-row-aside">
-    <div>{{ severity }}</div>
-    <div>{{ status }}</div>
-    <div>{{ reporter }}</div>
+    <div class="issue-field severity">
+      {{ severity_image }}
+      <p>{{ severity }}</p>
+    </div>
+    <div class="issue-field status">
+      <span class="status-icon {{ status_class }}"></span>
+      <p>{{ status }}</p>
+    </div>
+    <div class="issue-field reporter">
+      <img src="/{{ module_path }}/assets/icon-user.png" width="24" height="24" alt="Issue reported by" title="Issue reported by" />
+      <p>{{ reporter }}</p>
+    </div>
   </div>
 </div>

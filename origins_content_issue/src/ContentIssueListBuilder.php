@@ -32,10 +32,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
 
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = Node::load($entity->get('content_entity_id')->value);
+
     $status = $entity->get('status')->value;
     $status_field_definition = $entity->getFieldDefinition('status');
     $status_allowed_values = $status_field_definition->getSetting('allowed_values');
     $status_label = $status_allowed_values[$status] ?? $status;
+    $status_class = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $status_label));
 
     $severity = $entity->get('severity')->value;
     $severity_field_definition = $entity->getFieldDefinition('severity');
@@ -51,22 +55,24 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#width' => 24,
     ];
 
-    $username_options = [
-      'label' => 'hidden',
-      'settings' => ['link' => $entity->get('uid')->entity->isAuthenticated()],
-    ];
-    $reporter = $entity->get('uid')->view($username_options);
+    $severity_image = \Drupal::service('renderer')->render($severity_image);
+
+    $reporter = $entity->get('uid')->entity->label();
     $updated = ($entity->get('changed')->isEmpty()) ? $entity->get('created')->view(['label' => 'hidden']) : $entity->get('created')->view(['label' => 'hidden']);
 
     $row['issue']['data'] = [
       '#theme' => 'content_issue_row',
       '#id' => $entity->id(),
       '#title' => $entity->label(),
+      '#node_type' => ucfirst($node->bundle()),
+      '#node_title' => $node->getTitle(),
       '#status' => $status_label,
+      '#status_class' => $status_class,
       '#severity' => $severity_label,
       '#severity_image' => $severity_image,
       '#reporter' => $reporter,
       '#updated' => $updated,
+      '#module_path' => $module_path,
     ];
 
     return $row + parent::buildRow($entity);
@@ -107,15 +113,27 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $entity_id = \Drupal::request()->get('entity_id');
 
     $header = $this->buildHeader();
+    if (array_key_exists('operations', $header)) {
+      unset($header['operations']);
+    }
 
-    $header = [
-      'issue' => [
-        '#markup' => $this->t('Issue'),
-      ]
+    $build['dashboard'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['content-issue-dashboard'],
+      ],
     ];
 
+    $build['dashboard']['main'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['content-issue-dashboard-main'],
+      ],
+    ];
 
-    $build['table'] = [
+    $build['dashboard']['main']['table'] = [
       '#type' => 'table',
       '#header' => $header,
       '#title' => $this->getTitle(),
@@ -127,30 +145,38 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ],
     ];
 
+    $build['dashboard']['aside'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#attributes' => [
+        'class' => ['content-issue-dashboard-aside'],
+        'id' => ['content-issue-dashboard-aside'],
+      ],
+    ];
+
     foreach ($this->load() as $entity) {
       if ($row = $this->buildRow($entity)) {
         if (array_key_exists('operations', $row)) {
           unset($row['operations']);
         }
-        $build['table']['#rows'][$entity->id()] = $row;
+        $build['dashboard']['main']['table']['#rows'][$entity->id()] = $row;
       }
     }
-
 
     if (empty($build['table']['#rows']) && !empty($entity_id)) {
 
       $node = Node::load($entity_id);
 
       if (empty($node)) {
-        $build['table']['#empty'] = $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id]);
+        $build['dashboard']['main']['table']['#empty'] = $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id]);
       }
       else {
-        $build['table']['#empty'] = $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()]);
+        $build['dashboard']['main']['table']['#empty'] = $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()]);
       }
     }
 
     if ($this->limit) {
-      $build['pager'] = [
+      $build['dashboard']['main']['pager'] = [
         '#type' => 'pager',
       ];
     }
