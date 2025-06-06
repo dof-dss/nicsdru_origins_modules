@@ -15,12 +15,9 @@
 #}
 {{ attach_library('origins_content_issue/user-interface') }}
 <article{{ attributes.addClass('content-issue-layout') }}>
-  {% if view_mode != 'full' %}
-    {{ title_prefix }}
-    {{ title_suffix }}
-  {% endif %}
   {% if content %}
     <div class="content-issue-main">
+      <h3>{{ content.label }}</h3>
       {{- content.description -}}
       {% if content.comments %}
       <div class="content-issue-comments">

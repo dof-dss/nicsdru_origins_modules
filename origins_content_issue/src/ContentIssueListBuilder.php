@@ -111,6 +111,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public function render() {
 
     $entity_id = \Drupal::request()->get('entity_id');
+    $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
 
     $header = $this->buildHeader();
     if (array_key_exists('operations', $header)) {
@@ -152,6 +153,15 @@ final class ContentIssueListBuilder extends EntityListBuilder {
         'class' => ['content-issue-dashboard-aside'],
         'id' => ['content-issue-dashboard-aside'],
       ],
+    ];
+
+    $build['dashboard']['aside']['close'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'div',
+      '#value' => '<img src="/' . $module_path . '/assets/icon-close.png" /><span>Close</span',
+      '#attributes' => [
+        'class' => ['content-issue-layout-close'],
+      ]
     ];
 
     $build['dashboard']['aside']['container'] = [

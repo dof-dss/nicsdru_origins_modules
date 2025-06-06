@@ -9,14 +9,14 @@
           var ajaxSettings = {
             url: '/admin/content/content-issue/' + entityId,
             base: 'myBase',
-            element: $(context).find('#content-issue-dashboard-aside')
+            element: $(context).find('#content-issue-dashboard-aside'),
           };
 
           var myAjaxObject = Drupal.ajax(ajaxSettings);
 
           myAjaxObject.commands.insert = function (ajax, response, status) {
-            $('#content-issue-dashboard-aside article').replaceWith(response.data)
-            $('#content-issue-dashboard-aside').addClass('open')
+            $('#content-issue-dashboard-aside article').replaceWith(response.data);
+            $('#content-issue-dashboard-aside').addClass('open');
           };
 
           myAjaxObject.commands.destroyObject = function (ajax, response, status) {
@@ -24,6 +24,13 @@
           };
 
           myAjaxObject.execute();
+
+        });
+      })
+
+      once('issueClose', '.content-issue-layout-close').forEach(function (element) {
+        $(element).on('click', function() {
+          $('.content-issue-dashboard-aside').toggleClass('open');
         });
       })
     }

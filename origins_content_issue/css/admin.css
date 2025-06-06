@@ -15,13 +15,14 @@
 .content-issue-side {
   flex: 1 30%;
   padding: 2em;
-  background-color: oklch(92.9% 0.013 255.508);
+  margin-top: 1em;
+  background-color: #f3f4f9;
 }
 
 .content-issue-comments {
   margin-top: 2em;
   padding-top: 2em;
-  border-top: 1px solid oklch(72% 0.041 260.031);
+  border-top: 1px solid #f3f4f9;
 }
 
 .content-issue-side .field__label {
@@ -30,7 +31,7 @@
   font-size: 0.8em;
   color: oklch(42% 0.041 260.031);
   letter-spacing: 0.1em;
-  border-bottom: 1px solid oklch(72% 0.041 260.031);
+  border-bottom: 1px solid #c3c4c9;
   margin-bottom: 0.5em;
 }
 
@@ -40,6 +41,11 @@
 
 .content-issue-dashboard {
   display: flex;
+}
+
+.content-issue-dashboard-main table {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 .content-issue-dashboard-main table tbody tr td {
@@ -53,10 +59,32 @@
 
 .content-issue-dashboard-aside {
   flex-shrink: 3;
+  display: none;
+  padding: 2.5em
 }
 
 .content-issue-dashboard-aside.open {
   width: 50%;
+  flex-direction: column;
+  border: 2px solid #f3f4f9;
+  display: flex;
+}
+
+.content-issue-layout-close {
+  margin-left: auto;
+  display: inline-block;
+  background-color: #f3f4f9;
+  padding: 0.4em 1em;
+  margin-top: -2.5em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.content-issue-layout-close img{
+  margin-right: 5px;
+  height: 20px;
+  width: 20px;
 }
 
 .content-issue-row {
