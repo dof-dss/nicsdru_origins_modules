@@ -51,8 +51,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#uri' => '/' . $module_path . '/assets/severity-' . $severity . '.png',
       '#alt' => $severity_label,
       '#title' => $severity_label,
-      '#height' => 24,
-      '#width' => 24,
+      '#height' => 20,
+      '#width' => 20,
     ];
 
     $severity_image = \Drupal::service('renderer')->render($severity_image);
