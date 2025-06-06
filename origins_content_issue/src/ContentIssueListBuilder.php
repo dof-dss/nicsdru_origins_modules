@@ -154,6 +154,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ],
     ];
 
+    $build['dashboard']['aside']['container'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'article',
+      '#attributes' => [
+        'class' => ['content-issue-layout'],
+      ]
+    ];
+
     foreach ($this->load() as $entity) {
       if ($row = $this->buildRow($entity)) {
         if (array_key_exists('operations', $row)) {

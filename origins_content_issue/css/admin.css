@@ -38,9 +38,25 @@
   margin-bottom: 2em;
 }
 
+.content-issue-dashboard {
+  display: flex;
+}
+
 .content-issue-dashboard-main table tbody tr td {
   padding: 0;
   height: auto;
+}
+
+.content-issue-dashboard-main {
+  flex-grow: 3;
+}
+
+.content-issue-dashboard-aside {
+  flex-shrink: 3;
+}
+
+.content-issue-dashboard-aside.open {
+  width: 50%;
 }
 
 .content-issue-row {
@@ -57,12 +73,15 @@
 
 .issue-number {
   font-size: 0.8em;
+  font-weight: bold;
   color: #fff;
   background: #34D399;
   display: inline-block;
-  padding: 0.2em 1em;
+  padding: 0.1em 0.8em;
   margin-right: 1em;
   border-radius: 3px;
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
 }
 
 .issue-content-meta {

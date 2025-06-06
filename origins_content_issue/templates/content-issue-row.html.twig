@@ -15,8 +15,11 @@
 #}
 {{ attach_library('origins_content_issue/user-interface') }}
 <div class="content-issue-row" data-entity-id="{{ id }}">
+  <div>
+    <span class="issue-number"># {{ id }}</span>
+  </div>
   <div class="content-issue-row-main">
-    <span class="issue-number"># {{ id }}</span><span class="issue-title">{{ title }}</span>
+    <span class="issue-title">{{ title }}</span>
     <div class="issue-content-meta">
       <span class="issue-content-meta-type">{{ node_type }}</span> <span class="issue-content-meta-title">{{ node_title }}</span>
     </div>

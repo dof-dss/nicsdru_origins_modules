@@ -3,9 +3,11 @@ report-link:
     component:
       css/report-link.css: {}
   js:
-    js/content-issue.js: {}
+    js/report-link.js: {}
 
 user-interface:
   css:
     component:
-      css/content-issue.css: {}
+      css/admin.css: {}
+  js:
+    js/admin.js: { }
