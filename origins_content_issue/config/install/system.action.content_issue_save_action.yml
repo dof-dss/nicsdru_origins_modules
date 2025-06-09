@@ -1,10 +1,13 @@
+uuid: b05b2fe5-0339-4cbd-8eb1-5a4ba86784b9
 langcode: en
 status: true
 dependencies:
   module:
     - origins_content_issue
+_core:
+  default_config_hash: AW_ucWTdsTfwo2K-Fgnd6Jqj_fRXHTyRTkWDgG_8w7s
 id: content_issue_save_action
 label: 'Save content issues'
 type: content_issue
-plugin: entity:save_action:content_issue
+plugin: 'entity:save_action:content_issue'
 configuration: {  }

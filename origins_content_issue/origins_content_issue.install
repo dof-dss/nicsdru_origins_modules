@@ -1,0 +1,19 @@
+<
+use Drupal\comment\Entity\CommentType;
+
+/**
+ * Implements hook_install().
+ */
+function origins_content_issue_install() {
+  if (!CommentType::load('content_issue_comment')) {
+    $comment_type = CommentType::create([
+      'id' => 'content_issue_comment',
+      'label' => 'Content issue Comment',
+      'description' => 'Comment for Content Issues.',
+      'target_entity_type_id' => 'content_issue',
+    ]);
+    $comment_type->save();
+  }
+  \Drupal::service('comment.manager')->addBodyField('content_issue_comment');
+
+}

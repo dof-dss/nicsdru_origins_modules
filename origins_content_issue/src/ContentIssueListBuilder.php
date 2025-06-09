@@ -161,6 +161,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#value' => '<img src="/' . $module_path . '/assets/icon-close.png" /><span>Close</span',
       '#attributes' => [
         'class' => ['content-issue-layout-close'],
+        'title' => $this->t('Close the details pane'),
       ]
     ];
 

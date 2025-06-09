@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Entity;
 
+use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -105,6 +106,27 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setLabel(t('Content entity revision ID'))
       ->setDescription(t('The revision of the content entity to which this issue pertains.'))
       ->setRequired(TRUE);
+
+    $fields['content_entity_uid'] = BaseFieldDefinition::create('entity_reference')
+      ->setRevisionable(TRUE)
+      ->setLabel(t('Content author'))
+      ->setSetting('target_type', 'user')
+      ->setDisplayOptions('form', [
+        'type' => 'entity_reference_autocomplete',
+        'settings' => [
+          'match_operator' => 'CONTAINS',
+          'size' => 60,
+          'placeholder' => '',
+        ],
+        'weight' => 20,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'author',
+        'weight' => 20,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
 
     $fields['label'] = BaseFieldDefinition::create('string')
       ->setRevisionable(TRUE)
@@ -248,6 +270,43 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the content issue was last edited.'));
+
+    $fields['comments'] = BaseFieldDefinition::create('comment')
+      ->setLabel(t('Comments'))
+      ->setRequired(FALSE)
+      ->setSettings(
+        array(
+          'default_mode'=> 1,
+          'per_page'=>10,
+          'anonymous'=> 0,
+          'form_location'=>1,
+          'preview'=> 1,
+          'comment_type'=>'content_issue_comment',
+          'locked'=>false,
+        ))
+      ->setDefaultValue([
+        'status' => CommentItemInterface::OPEN,
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'comment_default',
+        'weight' => 30,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'comment_default',
+        'settings' => array(
+          'form_location' => 1,
+          'default_mode'=> 1,
+          'per_page'=>50,
+          'anonymous'=> 0,
+          'form_location'=>1,
+          'preview'=> 1,
+          'locked'=>false
+        ),
+        'weight' => 30,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }

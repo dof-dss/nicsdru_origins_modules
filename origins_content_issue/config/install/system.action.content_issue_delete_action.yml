@@ -1,10 +1,13 @@
+uuid: bedbf378-095c-40fc-be41-3d3d9d5c3e94
 langcode: en
 status: true
 dependencies:
   module:
     - origins_content_issue
+_core:
+  default_config_hash: AV5peT7T2BFV3tD41mkQ0EmJ56yvnKvWi9yhbDev7lQ
 id: content_issue_delete_action
 label: 'Delete content issues'
 type: content_issue
-plugin: entity:delete_action:content_issue
+plugin: 'entity:delete_action:content_issue'
 configuration: {  }

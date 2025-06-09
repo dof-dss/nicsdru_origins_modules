@@ -17,8 +17,10 @@
 <article{{ attributes.addClass('content-issue-layout') }}>
   {% if content %}
     <div class="content-issue-main">
+      <span class="issue-number" title="Issue number {{ elements['#content_issue'].id() }}"># {{ elements['#content_issue'].id() }}</span>
       <h3>{{ content.label }}</h3>
       {{- content.description -}}
+
       {% if content.comments %}
       <div class="content-issue-comments">
         {{- content.comments -}}
@@ -26,10 +28,16 @@
       {% endif %}
     </div>
     <div class="content-issue-side">
-      {{- content.severity }}
-      {{- content.status }}
-      {{- content.created }}
-      {{- content.uid }}
+      <dl>
+        <dt>Severity</dt>
+        <dd>{{- content.severity.0 }}</dd>
+        <dt>Status</dt>
+        <dd>{{- content.status.0 }}</dd>
+        <dt>Updated</dt>
+        <dd>{{- content.created.0 }}</dd>
+        <dt>Reporter</dt>
+        <dd>{{- content.uid.0 }}</dd>
+      </dl>
     </div>
   {% endif %}
 </article>
