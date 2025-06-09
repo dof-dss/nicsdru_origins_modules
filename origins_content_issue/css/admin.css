@@ -25,6 +25,16 @@
   border-top: 1px solid #f3f4f9;
 }
 
+.content-issue--comment {
+  border-top: 1px solid #f3f4f9;
+  margin: 1em 0;
+  padding: 1em 0;
+}
+
+.content-issue--comment footer {
+  font-size: 0.8em;
+}
+
 .content-issue-side dt {
   text-transform: uppercase;
   font-weight: lighter;
@@ -92,7 +102,6 @@
 .content-issue-layout-close:hover {
   color: #F87171;
 }
-
 
 .content-issue-row {
   display: flex;

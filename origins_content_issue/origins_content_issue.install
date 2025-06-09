@@ -1,5 +1,8 @@
-<
+<?php
+
 use Drupal\comment\Entity\CommentType;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
 
 /**
  * Implements hook_install().
@@ -14,6 +17,40 @@ function origins_content_issue_install() {
     ]);
     $comment_type->save();
   }
-  \Drupal::service('comment.manager')->addBodyField('content_issue_comment');
 
+  if (!FieldConfig::loadByName('comment', 'content_issue_comment', 'comment_body')) {
+
+    $entity_display = \Drupal::service('entity_display.repository');
+
+    $field = \Drupal::entityTypeManager()->getStorage('field_config')->create([
+      'label' => 'Comment',
+      'bundle' => 'content_issue_comment',
+      'required' => TRUE,
+      'field_storage' => FieldStorageConfig::loadByName('comment', 'comment_body'),
+    ]);
+    $field->save();
+
+    // Assign widget settings for the default form mode.
+    $entity_display->entityDisplayRepository->getFormDisplay('comment', 'content_issue_comment')
+      ->setComponent('comment_body', [
+        'type' => 'text_textarea',
+      ])
+      ->save();
+
+    // Assign display settings for the default view mode.
+    $entity_display->entityDisplayRepository->getViewDisplay('comment', 'content_issue_comment')
+      ->setComponent('comment_body', [
+        'label' => 'hidden',
+        'type' => 'text_default',
+        'weight' => 0,
+      ])
+      ->save();
+  }
+
+}
+
+function origins_content_issue_uninstall() {
+  if (!$comment_type = CommentType::load('content_issue_comment')) {
+    $comment_type->delete();
+  }
 }

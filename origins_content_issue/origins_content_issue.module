@@ -14,23 +14,6 @@ use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
 
-
-/**
- * Implements hook_preprocess().
- */
-function origins_content_issue_preprocess_page(&$variables) {
-  $route = \Drupal::routeMatch();
-  $entity = null;
-  if ($route->getRouteObject()) {
-    foreach ($route->getParameters() as $name => $parameter) {
-      if ($parameter instanceof \Drupal\Core\Entity\EntityInterface) {
-        $entity = $parameter;
-        break;
-      }
-    }
-  }
-}
-
 /**
  * Implements hook_preprocess_node().
  */
@@ -66,7 +49,9 @@ function origins_content_issue_preprocess_node(&$variables) {
  */
 function origins_content_issue_theme(): array {
   return [
-    'content_issue' => ['render element' => 'elements'],
+    'content_issue' => [
+      'render element' => 'elements',
+    ],
     'content_issue_row' => [
       'variables' => [
         'id' => '',
@@ -101,6 +86,8 @@ function template_preprocess_content_issue(array &$variables): void {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
+
+  $variables['content']['comments'] = $variables['content']["comments"][0]["comments"];
 }
 
 /**
@@ -255,5 +242,23 @@ function origins_content_issue_form_node_form_alter(&$form, FormStateInterface $
       '#access' => TRUE, // You can conditionally allow this
       '#group' => 'secondary', // This ensures it's grouped with secondary actions.
     ];
+  }
+}
+
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function origins_content_issue_preprocess_comment(&$variables) {
+
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function origins_content_issue_theme_registry_alter(&$theme_registry) {
+  if (isset($theme_registry['comment'])) {
+    $theme_registry['comment']['path'] = \Drupal::service('extension.path.resolver')->getPath('module', 'origins_content_issue') . '/templates';
+    $theme_registry['comment']['template'] = 'comment';
   }
 }

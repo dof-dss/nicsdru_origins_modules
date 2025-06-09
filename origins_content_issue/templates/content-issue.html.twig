@@ -23,7 +23,9 @@
 
       {% if content.comments %}
       <div class="content-issue-comments">
+        <h6>Comments</h6>
         {{- content.comments -}}
+{#        {{- content.comments[0]['comments'] -}}#}
       </div>
       {% endif %}
     </div>
@@ -41,3 +43,5 @@
     </div>
   {% endif %}
 </article>
+
+{#{{ dump() }}#}
