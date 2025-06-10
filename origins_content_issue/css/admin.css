@@ -50,6 +50,41 @@
   margin-left: 0;
 }
 
+.content-issue-operations {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.content-issue-operations .link-button {
+  display: inline-block;
+  padding: 0.5em 0.8em;
+  text-decoration: none;
+  font-weight: bold;
+  margin: 0 0.5em;
+  color: white;
+  display: flex;
+  gap: 0.2em;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.content-issue-operations .edit {
+  background-color: #FBBF24;
+}
+
+.content-issue-operations .edit:hover {
+  background-color: #FCD34D;
+}
+
+.content-issue-operations .delete {
+  background-color: #F87171;
+}
+
+.content-issue-operations .delete:hover {
+  background-color: #FCA5A5;
+}
+
 .content-issue-dashboard {
   display: flex;
 }

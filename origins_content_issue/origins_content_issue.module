@@ -83,11 +83,26 @@ function origins_content_issue_theme(): array {
  */
 function template_preprocess_content_issue(array &$variables): void {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
+
+  $module_path = \Drupal::service('extension.path.resolver')->getPath('module', 'origins_content_issue');
+
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
 
+//  $variables['content']['add_comment'] = [
+//    '#type' => 'link',
+//    '#title' => t('Add Comment'),
+//    '#url' => Url::fromRoute('comment.reply',
+//      [
+//        'entity_type' => 'content_issue',
+//        'entity' => $variables["elements"]["#content_issue"]->id(),
+//        'field_name' => 'comments'
+//      ]),
+//  ];
+
   $variables['content']['comments'] = $variables['content']["comments"][0]["comments"];
+  $variables['module_path'] = $module_path;
 }
 
 /**

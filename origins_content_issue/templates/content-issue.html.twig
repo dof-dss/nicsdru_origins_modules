@@ -24,8 +24,8 @@
       {% if content.comments %}
       <div class="content-issue-comments">
         <h6>Comments</h6>
+        {{- content.add_comment -}}
         {{- content.comments -}}
-{#        {{- content.comments[0]['comments'] -}}#}
       </div>
       {% endif %}
     </div>
@@ -40,8 +40,10 @@
         <dt>Reporter</dt>
         <dd>{{- content.uid.0 }}</dd>
       </dl>
+      <div class="content-issue-operations">
+        <div class="link-button edit" data-operation="edit" data-entity-id="{{ elements['#content_issue'].id() }}"><img src="/{{ module_path }}/assets/icon-edit.svg" />Edit</div>
+        <div class="link-button delete" data-operation="delete" data-entity-id="{{ elements['#content_issue'].id() }}"><img src="/{{ module_path }}/assets/icon-delete.svg" />Delete</div>
+      </div>
     </div>
   {% endif %}
 </article>
-
-{#{{ dump() }}#}
