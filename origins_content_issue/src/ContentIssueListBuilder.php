@@ -102,7 +102,6 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $query->condition('severity', $qs['severity']);
     }
 
-
     $entity_ids = $query->execute();
 
     return $this->storage->loadMultiple($entity_ids);
@@ -119,6 +118,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $entity_id = \Drupal::request()->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
+    $qs = \Drupal::request()->query->all();
 
     $build['filters'] = [
       '#type' => 'container',
@@ -139,12 +139,23 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     ];
 
     foreach (['high' => 1, 'medium' => 2, 'low' => 3] as $severity => $val) {
+
+      $querystring_severity = ['severity' => $val];
+      $classes = ['filter', 'severity-' . $severity];
+
+      if (array_key_exists('severity', $qs)) {
+        if ($qs['severity'] == $val) {
+          $querystring_severity = [];
+          $classes[] = 'active';
+        }
+      }
+
       $build['filters']['severity'][$severity] = [
         '#type' => 'link',
         '#title' => $this->t(ucfirst($severity)),
-        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => ['severity' => $val]]),
+        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $querystring_severity]),
         '#attributes' => [
-          'class' => ['filter', 'severity-' . $severity],
+          'class' => $classes,
         ]
       ];
     }

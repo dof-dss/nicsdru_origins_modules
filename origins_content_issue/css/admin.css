@@ -14,7 +14,7 @@
 
 .filters {
   font-size: 0.8em;
-  background-color: #cbd5e1;
+  background-color: #dbeafe;
   padding: 0.7em 1.2em;
 }
 
@@ -26,16 +26,42 @@
 .filter {
   display: inline-block;
   padding: 0.2em 0.8em;
-  color: white;
+  color: #232429;
   text-decoration: none;
   margin-right: 0.5em;
   background-color: #c4c4c4;
   border-radius: 50px;
+  transition: background-color 0.2s;
+  border: 2px solid #a4a4a4;
 }
 
-.severity-high { background-color: #F87171; }
-.severity-medium { background-color: #FBBF24; }
-.severity-low { background-color: #60A5FA; }
+.filter:hover,
+.filter.active {
+  color: white;
+}
+
+.severity-high {
+  border-color: #F87171;
+  background-color: #FECACA;
+}
+
+.severity-medium {
+  border-color: #FBBF24;
+  background-color: #FDE68A;
+}
+
+.severity-low {
+  border-color: #60A5FA;
+  background-color: #BFDBFE;
+}
+
+.severity-high.active {background-color: #F87171;}
+.severity-medium.active { background-color: #FBBF24; }
+.severity-low.active { background-color: #60A5FA; }
+
+.severity-high:hover { background-color: #F87171; }
+.severity-medium:hover { background-color: #FBBF24; }
+.severity-low:hover { background-color: #60A5FA; }
 
 .content-issue-side {
   flex: 1 30%;
