@@ -10,7 +10,9 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\node\Entity\Node;
 use Drupal\origins_content_issue\ContentIssueInterface;
+use Drupal\user\Entity\User;
 use Drupal\user\EntityOwnerTrait;
 
 /**
@@ -87,6 +89,18 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     if (!$this->getOwnerId()) {
       $this->setOwnerId(0);
     }
+
+    if ($this->isNew()) {
+      // Assign the issue to the author of the node with the issue.
+      $node_id = $this->get('content_entity_id')->getString();
+      if (!empty($node_id)) {
+        $node_uid = Node::load($node_id)->getOwnerId();
+        $assign_to = User::load($node_uid);
+        if (!empty($assign_to)) {
+          $this->set('assigned_to', $assign_to);
+        }
+      }
+    }
   }
 
   /**
@@ -106,9 +120,9 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDescription(t('The revision of the content entity to which this issue pertains.'))
       ->setRequired(TRUE);
 
-    $fields['content_entity_uid'] = BaseFieldDefinition::create('entity_reference')
+    $fields['assigned_to'] = BaseFieldDefinition::create('entity_reference')
       ->setRevisionable(TRUE)
-      ->setLabel(t('Content author'))
+      ->setLabel(t('Assigned to'))
       ->setSetting('target_type', 'user')
       ->setDisplayOptions('form', [
         'type' => 'entity_reference_autocomplete',

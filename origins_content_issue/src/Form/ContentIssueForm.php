@@ -18,6 +18,14 @@ final class ContentIssueForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
+    /** @var \Drupal\origins_content_issue\Entity\ContentIssue $entity */
+    $entity = $form_state->getFormObject()->getEntity();
+
+    if ($entity->isNew()) {
+      $form["state"]["#type"] = 'hidden';
+    }
+
+    $form['advanced']['#type'] = 'hidden';
 
     $form['content_entity_id'] = [
       '#type' => 'hidden',

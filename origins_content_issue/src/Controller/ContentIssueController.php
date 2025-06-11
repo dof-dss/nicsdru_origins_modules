@@ -10,7 +10,7 @@ use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormStateInterface;
-
+use Drupal\user\Entity\User;
 
 /**
  * Returns responses for Origins reporter routes.
@@ -24,6 +24,7 @@ final class ContentIssueController extends ControllerBase {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
     $form = \Drupal::service('entity.form_builder')->getForm($issue, 'add');
 
+    /** @var \Drupal\node\NodeInterface $node */
     $node_storage = $this->entityTypeManager->getStorage('node');
     if (!empty($revision_id)) {
       $node = $node_storage->loadRevision($revision_id);
@@ -37,7 +38,7 @@ final class ContentIssueController extends ControllerBase {
     $form['label']['#default_value'] = $node->label();
     $form['label']['#value'] = $node->label();
 
-    $form['advanced']['#attributes']['class'][] = 'hidden';
+    $form['assigned_to']['#attributes']['class'][] = 'hidden';
     $form['created']['#attributes']['class'][] = 'hidden';
     $form['status']['#attributes']['class'][] = 'hidden';
     $form['comments']['#attributes']['class'][] = 'hidden';
