@@ -6,6 +6,8 @@ namespace Drupal\origins_content_issue\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
+use Drupal\Core\Ajax\InvokeCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -68,6 +70,19 @@ final class ContentIssueController extends ControllerBase {
   public function ajaxCloseForm(array&$form, FormStateInterface $form_state) {
     $response = new AjaxResponse();
     $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    return $response;
+  }
+
+  public function display($entity_id) {
+
+    $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+    $issue = $storage->load($entity_id);
+    $viewBuilder = \Drupal::entityTypeManager()->getViewBuilder('content_issue');
+    $build = $viewBuilder->view($issue, 'default');
+
+    $response = new AjaxResponse();
+    $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $build, []));
+    $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
     return $response;
   }
 

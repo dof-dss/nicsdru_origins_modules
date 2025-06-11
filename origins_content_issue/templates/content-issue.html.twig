@@ -14,7 +14,7 @@
  */
 #}
 {{ attach_library('origins_content_issue/user-interface') }}
-<article{{ attributes.addClass('content-issue-layout') }}>
+<article{{ attributes.addClass('content-issue-layout') }} id="content-issue-details">
   {% if content %}
     <div class="content-issue-main">
       <span class="issue-number" title="Issue number {{ elements['#content_issue'].id() }}"># {{ elements['#content_issue'].id() }}</span>
@@ -41,8 +41,18 @@
         <dd>{{- content.uid.0 }}</dd>
       </dl>
       <div class="content-issue-operations">
-        <div class="link-button edit" data-operation="edit" data-entity-id="{{ elements['#content_issue'].id() }}"><img src="/{{ module_path }}/assets/icon-edit.svg" />Edit</div>
-        <div class="link-button delete" data-operation="delete" data-entity-id="{{ elements['#content_issue'].id() }}"><img src="/{{ module_path }}/assets/icon-delete.svg" />Delete</div>
+        <a class="use-ajax link-button edit"
+           data-dialog-options="{&quot;width&quot;:800}"
+           data-dialog-type="modal"
+           href="/content-issue/{{ elements['#content_issue'].id() }}/edit">
+           <img src="/{{ module_path }}/assets/icon-edit.svg" />Edit
+        </a>
+        <a class="use-ajax link-button delete"
+           data-dialog-options="{&quot;width&quot;:800}"
+           data-dialog-type="modal"
+           href="/content-issue/{{ elements['#content_issue'].id() }}/delete">
+           <img src="/{{ module_path }}/assets/icon-delete.svg" />Delete
+        </a>
       </div>
     </div>
   {% endif %}

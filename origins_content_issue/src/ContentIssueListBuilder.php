@@ -170,6 +170,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#tag' => 'article',
       '#attributes' => [
         'class' => ['content-issue-layout'],
+        'id' => ['content-issue-details'],
       ]
     ];
 

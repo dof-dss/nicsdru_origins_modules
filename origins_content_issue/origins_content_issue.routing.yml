@@ -13,3 +13,11 @@ origins_content_issue.issue.add:
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController'
   requirements:
     _permission: 'access content'
+
+
+origins_content_issue.issue.display:
+  path: '/origins/content-issue/display/{entity_id}'
+  defaults:
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController::display'
+  requirements:
+    _permission: 'access content'
