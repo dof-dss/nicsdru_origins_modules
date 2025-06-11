@@ -39,13 +39,6 @@ final class ContentIssueController extends ControllerBase {
     $form['label']['#value'] = $node->label();
 
     $form['assigned_to']['#attributes']['class'][] = 'hidden';
-    $form['created']['#attributes']['class'][] = 'hidden';
-    $form['status']['#attributes']['class'][] = 'hidden';
-    $form['comments']['#attributes']['class'][] = 'hidden';
-    $form['uid']['#attributes']['class'][] = 'hidden';
-    $form['revision_log']['#attributes']['class'][] = 'hidden';
-    $form['revision_information']['#attributes']['class'][] = 'hidden';
-    $form['revision']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
     $form["content_entity_id"]["#value"] = $entity_id;

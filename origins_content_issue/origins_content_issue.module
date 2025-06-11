@@ -250,4 +250,3 @@ function origins_content_issue_theme_registry_alter(&$theme_registry) {
     $theme_registry['comment']['template'] = 'comment';
   }
 }
-

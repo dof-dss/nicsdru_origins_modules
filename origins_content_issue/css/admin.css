@@ -12,6 +12,31 @@
   flex: 2 70%;
 }
 
+.filters {
+  font-size: 0.8em;
+  background-color: #cbd5e1;
+  padding: 0.7em 1.2em;
+}
+
+.filters-label {
+  font-weight: bold;
+  margin-right: 0.5em;
+}
+
+.filter {
+  display: inline-block;
+  padding: 0.2em 0.8em;
+  color: white;
+  text-decoration: none;
+  margin-right: 0.5em;
+  background-color: #c4c4c4;
+  border-radius: 50px;
+}
+
+.severity-high { background-color: #F87171; }
+.severity-medium { background-color: #FBBF24; }
+.severity-low { background-color: #60A5FA; }
+
 .content-issue-side {
   flex: 1 30%;
   padding: 2em;
@@ -114,6 +139,7 @@
   flex-direction: column;
   border: 2px solid #f3f4f9;
   display: flex;
+  border-top: none;
 }
 
 .content-issue-layout-close {
