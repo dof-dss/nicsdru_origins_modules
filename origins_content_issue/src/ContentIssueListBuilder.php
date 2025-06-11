@@ -35,11 +35,11 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     /** @var \Drupal\node\NodeInterface $node */
     $node = Node::load($entity->get('content_entity_id')->value);
 
-    $status = $entity->get('status')->value;
-    $status_field_definition = $entity->getFieldDefinition('status');
-    $status_allowed_values = $status_field_definition->getSetting('allowed_values');
-    $status_label = $status_allowed_values[$status] ?? $status;
-    $status_class = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $status_label));
+    $state = $entity->get('state')->value;
+    $state_field_definition = $entity->getFieldDefinition('state');
+    $state_allowed_values = $state_field_definition->getSetting('allowed_values');
+    $state_label = $state_allowed_values[$state] ?? $state;
+    $state_class = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $state_label));
 
     $severity = $entity->get('severity')->value;
     $severity_field_definition = $entity->getFieldDefinition('severity');
@@ -66,8 +66,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#title' => $entity->label(),
       '#node_type' => ucfirst($node->bundle()),
       '#node_title' => $node->getTitle(),
-      '#status' => $status_label,
-      '#status_class' => $status_class,
+      '#state' => $state_label,
+      '#state_class' => $state_class,
       '#severity' => $severity_label,
       '#severity_image' => $severity_image,
       '#reporter' => $reporter,

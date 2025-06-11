@@ -85,7 +85,6 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
     if (!$this->getOwnerId()) {
-      // If no owner has been set explicitly, make the anonymous user the owner.
       $this->setOwnerId(0);
     }
   }
@@ -186,8 +185,8 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('list_string')
-      ->setLabel(t('Status'))
+    $fields['state'] = BaseFieldDefinition::create('list_string')
+      ->setLabel(t('State'))
       ->setSettings([
         'allowed_values' => [
           1 => "To do",
