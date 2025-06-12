@@ -14,8 +14,9 @@
 
 .filters {
   font-size: 0.8em;
-  background-color: #dbeafe;
+  background-color: #cbd5e1;
   padding: 0.7em 1.2em;
+  border-radius: 10px 10px 0 0;
 }
 
 .filters-label {
@@ -30,7 +31,7 @@
   text-decoration: none;
   margin-right: 0.5em;
   background-color: #c4c4c4;
-  border-radius: 50px;
+  border-radius: 15px;
   transition: background-color 0.2s;
   border: 2px solid #a4a4a4;
 }
@@ -63,11 +64,28 @@
 .severity-medium:hover { background-color: #FBBF24; }
 .severity-low:hover { background-color: #60A5FA; }
 
+.assigned-me {
+  border-color: #8B5CF6;
+  background-color: #C4B5FD;
+}
+
+.assigned-nobody {
+  border-color: #EC4899;
+  background-color: #F9A8D4;
+}
+
+
+.assigned-me.active {background-color: #8B5CF6;}
+.assigned-nobody.active { background-color: #EC4899; }
+
+.assigned-me:hover { background-color: #8B5CF6; }
+.assigned-nobody:hover { background-color: #EC4899; }
+
 .content-issue-side {
   flex: 1 30%;
   padding: 2em;
   margin-top: 1em;
-  background-color: #f3f4f9;
+  background-color: #f1f5f9;
 }
 
 .content-issue-comments {
@@ -145,6 +163,14 @@
   margin-bottom: 0;
 }
 
+.content-issue-dashboard-main table tbody tr{
+  transition: background-color 0.2s;
+}
+
+.content-issue-dashboard-main table tbody tr:hover{
+  background-color: #f8fafc;
+}
+
 .content-issue-dashboard-main table tbody tr td {
   padding: 0;
   height: auto;
@@ -171,13 +197,14 @@
 .content-issue-layout-close {
   margin-left: auto;
   display: inline-block;
-  background-color: #f3f4f9;
+  background-color: #f1f5f9;
   padding: 0.4em 1em;
   margin-top: -2.5em;
   cursor: pointer;
   display: flex;
   align-items: center;
   transition: color 0.2s;
+  border-radius: 0 0 10px 10px;
 }
 
 .content-issue-layout-close img{

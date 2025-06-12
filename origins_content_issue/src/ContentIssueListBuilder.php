@@ -139,7 +139,6 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     ];
 
     foreach (['high' => 1, 'medium' => 2, 'low' => 3] as $severity => $val) {
-
       $querystring_severity = ['severity' => $val];
       $classes = ['filter', 'severity-' . $severity];
 
@@ -160,9 +159,31 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ];
     }
 
-    $header = $this->buildHeader();
-    if (array_key_exists('operations', $header)) {
-      unset($header['operations']);
+    $build['filters']['assigned_to']['label'] =[
+      '#type' => 'html_tag',
+      '#tag' => 'span',
+      '#value' => $this->t('Assigned to'),
+    ];
+
+    foreach (['me' => 1, 'nobody' => 2,] as $assigned => $val) {
+      $querystring_assigned = ['assigned' => $val];
+      $classes = ['filter', 'assigned-' . $assigned];
+
+      if (array_key_exists('assigned', $qs)) {
+        if ($qs['assigned'] == $val) {
+          $querystring_assigned = [];
+          $classes[] = 'active';
+        }
+      }
+
+      $build['filters']['assigned'][$assigned] = [
+        '#type' => 'link',
+        '#title' => $this->t(ucfirst($assigned)),
+        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $querystring_assigned]),
+        '#attributes' => [
+          'class' => $classes,
+        ]
+      ];
     }
 
     $build['dashboard'] = [
@@ -183,10 +204,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $build['dashboard']['main']['table'] = [
       '#type' => 'table',
-      '#header' => $header,
+      '#header' => [],
       '#title' => $this->getTitle(),
       '#rows' => [],
-      '#empty' => $this->t('There are no @label yet.', ['@label' => $this->entityType->getPluralLabel()]),
+      '#empty' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('There are no content issues.')
+      ],
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
         'tags' => $this->entityType->getListCacheTags(),
@@ -235,10 +260,18 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $node = Node::load($entity_id);
 
       if (empty($node)) {
-        $build['dashboard']['main']['table']['#empty'] = $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id]);
+        $build['dashboard']['main']['table']['#empty'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id])
+        ];
       }
       else {
-        $build['dashboard']['main']['table']['#empty'] = $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()]);
+        $build['dashboard']['main']['table']['#empty'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()])
+        ];
       }
     }
 
@@ -247,6 +280,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
         '#type' => 'pager',
       ];
     }
+
+    $build['#attached']['library'][] = 'origins_content_issue/user-interface';
 
     return $build;
   }
