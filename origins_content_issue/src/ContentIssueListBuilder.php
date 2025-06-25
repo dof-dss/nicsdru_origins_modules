@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Link;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 
@@ -102,6 +104,15 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $query->condition('severity', $qs['severity']);
     }
 
+    if (array_key_exists('assigned', $qs)) {
+      if ($qs['assigned'] > 0) {
+        $query->condition('assigned_to', $qs['assigned']);
+      }
+      if ($qs['assigned'] < 0) {
+        $query->notExists('assigned_to');
+      }
+    }
+
     $entity_ids = $query->execute();
 
     return $this->storage->loadMultiple($entity_ids);
@@ -118,7 +129,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $entity_id = \Drupal::request()->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
-    $qs = \Drupal::request()->query->all();
+    $current_qs = \Drupal::request()->query->all();
+    $current_user_id = \Drupal::currentUser()->id();
 
     $build['filters'] = [
       '#type' => 'container',
@@ -138,13 +150,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#value' => $this->t('Severity'),
     ];
 
+    $qs = $current_qs;
     foreach (['high' => 1, 'medium' => 2, 'low' => 3] as $severity => $val) {
-      $querystring_severity = ['severity' => $val];
       $classes = ['filter', 'severity-' . $severity];
+      $qs['severity'] = $val;
 
-      if (array_key_exists('severity', $qs)) {
-        if ($qs['severity'] == $val) {
-          $querystring_severity = [];
+      if (array_key_exists('severity', $current_qs)) {
+        if ($current_qs['severity'] == $val) {
+          unset($qs['severity']);
           $classes[] = 'active';
         }
       }
@@ -152,7 +165,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $build['filters']['severity'][$severity] = [
         '#type' => 'link',
         '#title' => $this->t(ucfirst($severity)),
-        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $querystring_severity]),
+        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $qs]),
         '#attributes' => [
           'class' => $classes,
         ]
@@ -165,13 +178,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#value' => $this->t('Assigned to'),
     ];
 
-    foreach (['me' => 1, 'nobody' => 2,] as $assigned => $val) {
-      $querystring_assigned = ['assigned' => $val];
+    $qs = $current_qs;
+    foreach (['me' => $current_user_id, 'nobody' => -1,] as $assigned => $val) {
       $classes = ['filter', 'assigned-' . $assigned];
+      $qs['assigned'] = $val;
 
-      if (array_key_exists('assigned', $qs)) {
-        if ($qs['assigned'] == $val) {
-          $querystring_assigned = [];
+      if (array_key_exists('assigned', $current_qs)) {
+        if ($current_qs['assigned'] == $val) {
+          unset($qs['assigned']);
           $classes[] = 'active';
         }
       }
@@ -179,7 +193,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $build['filters']['assigned'][$assigned] = [
         '#type' => 'link',
         '#title' => $this->t(ucfirst($assigned)),
-        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $querystring_assigned]),
+        '#url' => Url::fromRoute('entity.content_issue.collection', [], ['query' => $qs]),
         '#attributes' => [
           'class' => $classes,
         ]
