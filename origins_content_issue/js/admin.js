@@ -2,19 +2,24 @@
   Drupal.behaviors.originsContentIssue = {
     attach: function (context, settings) {
 
+      function displayIssue(entityId) {
+        let endpoint = Drupal.url('origins/content-issue/display/' + entityId);
+        Drupal.ajax({
+          url: endpoint,
+          progress: {
+            type: 'none',
+          },
+        }).execute();
+      }
+
+      if (settings.displayIssue) {
+        displayIssue();
+      }
+
       once('issueRow', '.content-issue-row').forEach(function (element) {
         $(element).on('click', function() {
           let entityId = $(element).data('entity-id');
-
-          let endpoint = Drupal.url('origins/content-issue/display/' + entityId);
-          Drupal.ajax({
-            url: endpoint,
-            element: '#content-issue-dashboard-aside article',
-            progress: {
-              type: 'none',
-            },
-          }).execute();
-
+          displayIssue(entityId);
         });
       })
 

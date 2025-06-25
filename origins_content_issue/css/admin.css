@@ -163,6 +163,11 @@
   margin-bottom: 0;
 }
 
+.content-issue-dashboard-main table tbody {
+  border-left: 1px solid #f3f4f9;
+  border-right: 1px solid #f3f4f9;
+}
+
 .content-issue-dashboard-main table tbody tr{
   transition: background-color 0.2s;
 }
