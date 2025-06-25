@@ -45,19 +45,10 @@
         <dd>{{- content.assigned_to.0 }}</dd>
       </dl>
       <div class="content-issue-operations">
-        <a class="use-ajax link-button edit"
-           data-dialog-options="{&quot;width&quot;:800}"
-           data-dialog-type="modal"
-           href="/content-issue/{{ elements['#content_issue'].id() }}/edit">
-           <img src="/{{ module_path }}/assets/icon-edit.svg" />Edit
-        </a>
-        <a class="use-ajax link-button delete"
-           data-dialog-options="{&quot;width&quot;:800}"
-           data-dialog-type="modal"
-           href="/content-issue/{{ elements['#content_issue'].id() }}/delete">
-           <img src="/{{ module_path }}/assets/icon-delete.svg" />Delete
-        </a>
+        {{- content.edit_url }}
+        {{- content.delete_url }}
       </div>
     </div>
   {% endif %}
 </article>
+

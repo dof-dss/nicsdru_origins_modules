@@ -7,6 +7,7 @@ declare(strict_types=1);
  * Provides a content issue entity type.
  */
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
@@ -90,6 +91,8 @@ function origins_content_issue_theme(): array {
 function template_preprocess_content_issue(array &$variables): void {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
 
+  $issue = $variables['elements']["#content_issue"];
+
   $module_path = \Drupal::service('extension.path.resolver')->getPath('module', 'origins_content_issue');
 
   foreach (Element::children($variables['elements']) as $key) {
@@ -123,6 +126,65 @@ function template_preprocess_content_issue(array &$variables): void {
 //        'field_name' => 'comments'
 //      ]),
 //  ];
+
+
+  if ($issue->access('update')) {
+
+    $icon['image'] = [
+      '#theme' => 'image',
+      '#uri' => $module_path . '/assets/icon-edit.svg',
+      '#alt' => t('Edit'),
+      '#height' => 24,
+      '#width' => 24,
+    ];
+
+    $icon['text'] = [
+      '#markup' => t('Edit'),
+    ];
+
+
+    $variables['content']['edit_url'] = [
+      '#type' => 'link',
+      '#title' => \Drupal::service('renderer')->render($icon),
+      '#url' => $issue->toUrl('edit-form'),
+      '#attributes' => [
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'edit']
+      ],
+    ];
+  }
+
+  if ($issue->access('delete')) {
+    $icon = [];
+
+    $icon['image'] = [
+      '#theme' => 'image',
+      '#uri' => $module_path . '/assets/icon-delete.svg',
+      '#alt' => t('Delete'),
+      '#height' => 24,
+      '#width' => 24,
+    ];
+
+    $icon['text'] = [
+      '#markup' => t('Delete'),
+    ];
+
+    $variables['content']['delete_url'] = [
+      '#type' => 'link',
+      '#title' => \Drupal::service('renderer')->render($icon),
+      '#url' => $issue->toUrl('delete-form'),
+      '#attributes' => [
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'delete']
+      ],
+    ];
+  }
 
   $variables['content']['comments'] = $variables['content']["comments"][0]["comments"];
   $variables['module_path'] = $module_path;
