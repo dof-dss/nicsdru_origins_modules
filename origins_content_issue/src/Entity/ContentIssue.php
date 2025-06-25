@@ -40,6 +40,7 @@ use Drupal\user\EntityOwnerTrait;
  *       "revision-delete" = \Drupal\Core\Entity\Form\RevisionDeleteForm::class,
  *       "revision-revert" = \Drupal\Core\Entity\Form\RevisionRevertForm::class,
  *     },
+ *     "access" = "Drupal\origins_content_issue\ContentIssueAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *       "revision" = \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
@@ -49,6 +50,7 @@ use Drupal\user\EntityOwnerTrait;
  *   revision_table = "origins_content_issue_revision",
  *   show_revision_ui = TRUE,
  *   admin_permission = "administer content issue",
+ *   collection_permission = "view content issue",
  *   entity_keys = {
  *     "id" = "id",
  *     "revision" = "revision_id",
