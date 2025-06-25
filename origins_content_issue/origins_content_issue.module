@@ -127,9 +127,7 @@ function template_preprocess_content_issue(array &$variables): void {
 //      ]),
 //  ];
 
-
   if ($issue->access('update')) {
-
     $icon['image'] = [
       '#theme' => 'image',
       '#uri' => $module_path . '/assets/icon-edit.svg',
@@ -141,7 +139,6 @@ function template_preprocess_content_issue(array &$variables): void {
     $icon['text'] = [
       '#markup' => t('Edit'),
     ];
-
 
     $variables['content']['edit_url'] = [
       '#type' => 'link',
@@ -159,7 +156,6 @@ function template_preprocess_content_issue(array &$variables): void {
 
   if ($issue->access('delete')) {
     $icon = [];
-
     $icon['image'] = [
       '#theme' => 'image',
       '#uri' => $module_path . '/assets/icon-delete.svg',
