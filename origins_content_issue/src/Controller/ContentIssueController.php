@@ -69,10 +69,8 @@ final class ContentIssueController extends ControllerBase {
 
   public function display($entity_id) {
 
-    $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
-    $issue = $storage->load($entity_id);
-    $viewBuilder = \Drupal::entityTypeManager()->getViewBuilder('content_issue');
-    $build = $viewBuilder->view($issue, 'default');
+    $issueManager = \Drupal::service('content_issue.manager');
+    $build = $issueManager->render($entity_id);
 
     $response = new AjaxResponse();
     $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $build, []));

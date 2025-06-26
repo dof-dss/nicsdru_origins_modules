@@ -1,25 +1,22 @@
 (function ($, Drupal, once) {
   Drupal.behaviors.originsContentIssue = {
+
+    displayIssue: function(entityId) {
+      let endpoint = Drupal.url('origins/content-issue/display/' + entityId);
+      Drupal.ajax({
+        url: endpoint,
+        progress: {
+          type: 'none',
+        },
+      }).execute();
+    },
+
     attach: function (context, settings) {
-
-      function displayIssue(entityId) {
-        let endpoint = Drupal.url('origins/content-issue/display/' + entityId);
-        Drupal.ajax({
-          url: endpoint,
-          progress: {
-            type: 'none',
-          },
-        }).execute();
-      }
-
-      if (settings.displayIssue) {
-        displayIssue();
-      }
 
       once('issueRow', '.content-issue-row').forEach(function (element) {
         $(element).on('click', function() {
           let entityId = $(element).data('entity-id');
-          displayIssue(entityId);
+          Drupal.behaviors.originsContentIssue.displayIssue(entityId);
         });
       })
 
@@ -29,6 +26,6 @@
         });
       });
 
-    }
+    },
   }
 })(jQuery, Drupal, once);

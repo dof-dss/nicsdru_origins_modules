@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
@@ -11,18 +12,31 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  */
 final class ContentIssueManager {
 
+  private EntityStorageInterface $issueStorage;
+
   /**
    * Constructs a ContentIssueManager object.
    */
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
-  ) {}
+  ) {
+    $this->issueStorage = $entityTypeManager->getStorage('content_issue');
+  }
 
   /**
    * Delete a Content Issue entity.
    */
   public function deleteIssue($issue_id): void {
     $this->entityTypeManager->getStorage('content_issue')->delete([$issue_id]);
+  }
+
+  /**
+   * Return a render array for the Content Issue default view.
+   */
+  public function render($issue_id): array {
+    $issue = $this->issueStorage->load($issue_id);
+    $viewBuilder = $this->entityTypeManager->getViewBuilder('content_issue');
+    return $viewBuilder->view($issue, 'default');
   }
 
 

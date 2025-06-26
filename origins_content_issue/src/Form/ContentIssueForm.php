@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Form;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseModalDialogCommand;
+use Drupal\Core\Ajax\InvokeCommand;
+use Drupal\Core\Ajax\ReplaceCommand;
+use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use phpDocumentor\Reflection\Types\Parent_;
@@ -44,7 +49,39 @@ final class ContentIssueForm extends ContentEntityForm {
     $form['status']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
+    // Make sure it's an AJAX form.
+    $form['actions']['submit']['#ajax'] = [
+      'callback' => '::ajaxSubmit',
+      'event' => 'click',
+      'progress' => [
+        'type' => 'throbber',
+        'message' => t('Saving...'),
+      ],
+    ];
+
+    // Remove redirect to prevent page reloading.
+    $form['#submit'][] = '::formSubmit';
+
+    $form_state->setRedirect(NULL);
+
     return $form;
+  }
+
+  public function formSubmit($form, FormStateInterface $form_state) {
+    $form_state->disableRedirect(); // Ensure no redirect happens
+  }
+
+  public function ajaxSubmit($form, FormStateInterface $form_state) {
+    $issue_id = $form_state->getformObject()->getEntity()->id();
+
+    $issueManager = \Drupal::service('content_issue.manager');
+    $build = $issueManager->render($issue_id);
+
+    $response = new AjaxResponse();
+    $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $build, []));
+    $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
+    $response->addCommand(new CloseModalDialogCommand());
+    return $response;
   }
 
   /**
