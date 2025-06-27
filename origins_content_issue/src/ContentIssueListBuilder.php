@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue;
 
-use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Link;
-use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 
@@ -126,11 +123,19 @@ final class ContentIssueListBuilder extends EntityListBuilder {
    * @todo Add a link to add a new item to the #empty text.
    */
   public function render() {
+    $request = \Drupal::request();
 
+    $issue_id = $request->get('content_issue');
+    // The ID of the entity for which issues will be displayed.
     $entity_id = \Drupal::request()->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
     $current_qs = \Drupal::request()->query->all();
     $current_user_id = \Drupal::currentUser()->id();
+
+    // If the request is to display a specific issue, remove any applied filters, as the issue may not match them.
+    if (!empty($issue_id)) {
+      $current_qs = [];
+    }
 
     $build['filters'] = [
       '#type' => 'container',
@@ -251,14 +256,27 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ]
     ];
 
-    $build['dashboard']['aside']['container'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'article',
-      '#attributes' => [
-        'class' => ['content-issue-layout'],
-        'id' => ['content-issue-details'],
-      ]
-    ];
+    // Display the requested issue in the side info-pane.
+    if (!empty($issue_id)) {
+      $issue_details = \Drupal::service('content_issue.manager')->render($issue_id);
+      if (empty($issue_details)) {
+        \Drupal::messenger()->addWarning($this->t('The requested issue could not be found.'));
+      }
+      else {
+        $build['dashboard']['aside']['container'] = $issue_details;
+        $build['dashboard']['aside']['#attributes']['class'][] = 'open';
+      }
+    }
+    else {
+      $build['dashboard']['aside']['container'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'article',
+        '#attributes' => [
+          'class' => ['content-issue-layout'],
+          'id' => ['content-issue-details'],
+        ]
+      ];
+    }
 
     foreach ($this->load() as $entity) {
       if ($row = $this->buildRow($entity)) {
@@ -269,6 +287,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       }
     }
 
+    // Display a warning if the request to show issues for a specific node returns no results.
     if (empty($build['table']['#rows']) && !empty($entity_id)) {
 
       $node = Node::load($entity_id);

@@ -7,6 +7,8 @@ namespace Drupal\origins_content_issue\Controller;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\InvokeCommand;
+use Drupal\Core\Ajax\MessageCommand;
+use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -69,10 +71,21 @@ final class ContentIssueController extends ControllerBase {
 
   public function display($entity_id) {
 
+    if (!\Drupal::request()->isXmlHttpRequest()) {
+      return $this->redirect('entity.content_issue.collection');
+    }
+
     $issueManager = \Drupal::service('content_issue.manager');
     $build = $issueManager->render($entity_id);
 
     $response = new AjaxResponse();
+
+    if ($build === NULL) {
+      $response->addCommand(new MessageCommand('Requested issue no longer exists and has been removed from the dashboard.'));
+      $response->addCommand(new RemoveCommand('div.content-issue-row[data-entity-id="' . $entity_id . '"]'));
+      return $response;
+    }
+
     $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $build, []));
     $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
     return $response;
