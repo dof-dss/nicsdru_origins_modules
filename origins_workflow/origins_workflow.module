@@ -712,10 +712,13 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
               '#type' => 'link',
               '#title' => t('Draft of published'),
               '#url' => Url::fromRoute(
-                'origins_workflow.moderation_state_controller_new_draft_of_published', [
-                'nid' => $entity->id(),
-                'new_state' => 'draft_of_published',
-              ], $options),
+                'origins_workflow.moderation_state_controller_new_draft_of_published',
+                [
+                  'nid' => $entity->id(),
+                  'new_state' => 'draft_of_published',
+                ],
+                $options
+              ),
               '#attributes' => [
                 'class' => [
                   'moderation-sidebar-link',
@@ -735,10 +738,13 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
               '#type' => 'link',
               '#title' => t('Archive'),
               '#url' => Url::fromRoute(
-                'origins_workflow.moderation_state_controller_change_state', [
-                'nid' => $entity->id(),
-                'new_state' => 'archived'
-              ], $options),
+                'origins_workflow.moderation_state_controller_change_state',
+                [
+                  'nid' => $entity->id(), 
+                  'new_state' => 'archived'
+                ],
+                $options
+              ),
               '#attributes' => [
                 'class' => [
                   'moderation-sidebar-link',
