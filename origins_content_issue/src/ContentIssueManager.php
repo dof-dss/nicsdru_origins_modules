@@ -68,7 +68,7 @@ final class ContentIssueManager {
    * Return a render array for an Issue row.
    */
   public function renderRow($issue): array|null {
-    $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
+    $module_path = \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
 
     /** @var \Drupal\node\NodeInterface $node */
     $node = Node::load($issue->get('content_entity_id')->value);

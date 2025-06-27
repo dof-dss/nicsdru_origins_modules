@@ -251,16 +251,30 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
       if (empty($node)) {
         $build['dashboard']['main']['table']['#empty'] = [
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => $this->t('The content with the ID %entity_id could not be found.', ['%entity_id' => $entity_id])
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'h3',
+            '#value' => $this->t('Oops')
+          ],
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $this->t('The content item with ID %entity_id was not found.', ['%entity_id' => $entity_id])
+          ]
         ];
       }
       else {
         $build['dashboard']['main']['table']['#empty'] = [
-          '#type' => 'html_tag',
-          '#tag' => 'p',
-          '#value' => $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()])
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'h3',
+            '#value' => $this->t('Great!')
+          ],
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#value' => $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()])
+          ]
         ];
       }
     }

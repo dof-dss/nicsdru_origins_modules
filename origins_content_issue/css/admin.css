@@ -31,7 +31,7 @@
   text-decoration: none;
   margin-right: 0.5em;
   background-color: #c4c4c4;
-  border-radius: 15px;
+  border-radius: 20px/75%;
   transition: background-color 0.2s;
   border: 2px solid #a4a4a4;
 }
@@ -179,6 +179,10 @@
 .content-issue-dashboard-main table tbody tr td {
   padding: 0;
   height: auto;
+}
+
+.content-issue-dashboard-main .empty.message {
+  padding: 1em;
 }
 
 .content-issue-dashboard-main {
