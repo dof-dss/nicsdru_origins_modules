@@ -76,7 +76,7 @@ final class ContentIssueController extends ControllerBase {
     }
 
     $issueManager = \Drupal::service('content_issue.manager');
-    $build = $issueManager->render($entity_id);
+    $build = $issueManager->renderIssue($entity_id);
 
     $response = new AjaxResponse();
 

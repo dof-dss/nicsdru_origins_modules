@@ -6,6 +6,7 @@ namespace Drupal\origins_content_issue;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\node\Entity\Node;
 
 /**
  * @todo Add class description.
@@ -50,9 +51,9 @@ final class ContentIssueManager {
   }
 
   /**
-   * Return a render array for the Content Issue default view.
+   * Return a render array for the default Issue display mode.
    */
-  public function render($issue_id): array|null {
+  public function renderIssue($issue_id): array|null {
     $issue = $this->issueStorage->load($issue_id);
 
     if (empty($issue)) {
@@ -63,6 +64,58 @@ final class ContentIssueManager {
     return $viewBuilder->view($issue, 'default');
   }
 
+  /**
+   * Return a render array for an Issue row.
+   */
+  public function renderRow($issue): array|null {
+    $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
+
+    /** @var \Drupal\node\NodeInterface $node */
+    $node = Node::load($issue->get('content_entity_id')->value);
+
+    $state = $issue->get('state')->value;
+    $state_field_definition = $issue->getFieldDefinition('state');
+    $state_allowed_values = $state_field_definition->getSetting('allowed_values');
+    $state_label = $state_allowed_values[$state] ?? $state;
+    $state_class = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $state_label));
+
+    $severity = $issue->get('severity')->value;
+    $severity_field_definition = $issue->getFieldDefinition('severity');
+    $severity_allowed_values = $severity_field_definition->getSetting('allowed_values');
+    $severity_label = $severity_allowed_values[$severity] ?? $severity;
+
+    $severity_image = [
+      '#theme' => 'image',
+      '#uri' => '/' . $module_path . '/assets/severity-' . $severity . '.png',
+      '#alt' => $severity_label,
+      '#title' => $severity_label,
+      '#height' => 20,
+      '#width' => 20,
+    ];
+
+    $severity_image = \Drupal::service('renderer')->render($severity_image);
+
+    $reporter = $issue->get('uid')->entity->label();
+    $updated = ($issue->get('changed')->isEmpty()) ? $issue->get('created')->view(['label' => 'hidden']) : $issue->get('created')->view(['label' => 'hidden']);
+
+    $row['issue']['data'] = [
+      '#theme' => 'content_issue_row',
+      '#id' => $issue->id(),
+      '#title' => $issue->label(),
+      '#node_type' => ucfirst($node->bundle()),
+      '#node_title' => $node->getTitle(),
+      '#state' => $state_label,
+      '#state_class' => $state_class,
+      '#severity' => $severity_label,
+      '#severity_image' => $severity_image,
+      '#reporter' => $reporter,
+      '#updated' => $updated,
+      '#module_path' => $module_path,
+    ];
+
+    return $row;
+
+  }
 
   /**
    * Delete a Content Issue entity.

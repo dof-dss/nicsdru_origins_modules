@@ -29,50 +29,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity): array {
     /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
 
-    $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
-
-    /** @var \Drupal\node\NodeInterface $node */
-    $node = Node::load($entity->get('content_entity_id')->value);
-
-    $state = $entity->get('state')->value;
-    $state_field_definition = $entity->getFieldDefinition('state');
-    $state_allowed_values = $state_field_definition->getSetting('allowed_values');
-    $state_label = $state_allowed_values[$state] ?? $state;
-    $state_class = strtolower(preg_replace("/[^A-Za-z0-9]/", '', $state_label));
-
-    $severity = $entity->get('severity')->value;
-    $severity_field_definition = $entity->getFieldDefinition('severity');
-    $severity_allowed_values = $severity_field_definition->getSetting('allowed_values');
-    $severity_label = $severity_allowed_values[$severity] ?? $severity;
-
-    $severity_image = [
-      '#theme' => 'image',
-      '#uri' => '/' . $module_path . '/assets/severity-' . $severity . '.png',
-      '#alt' => $severity_label,
-      '#title' => $severity_label,
-      '#height' => 20,
-      '#width' => 20,
-    ];
-
-    $severity_image = \Drupal::service('renderer')->render($severity_image);
-
-    $reporter = $entity->get('uid')->entity->label();
-    $updated = ($entity->get('changed')->isEmpty()) ? $entity->get('created')->view(['label' => 'hidden']) : $entity->get('created')->view(['label' => 'hidden']);
-
-    $row['issue']['data'] = [
-      '#theme' => 'content_issue_row',
-      '#id' => $entity->id(),
-      '#title' => $entity->label(),
-      '#node_type' => ucfirst($node->bundle()),
-      '#node_title' => $node->getTitle(),
-      '#state' => $state_label,
-      '#state_class' => $state_class,
-      '#severity' => $severity_label,
-      '#severity_image' => $severity_image,
-      '#reporter' => $reporter,
-      '#updated' => $updated,
-      '#module_path' => $module_path,
-    ];
+    $row = \Drupal::service('content_issue.manager')->renderRow($entity);
 
     return $row + parent::buildRow($entity);
   }
@@ -258,7 +215,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     // Display the requested issue in the side info-pane.
     if (!empty($issue_id)) {
-      $issue_details = \Drupal::service('content_issue.manager')->render($issue_id);
+      $issue_details = \Drupal::service('content_issue.manager')->renderIssue($issue_id);
       if (empty($issue_details)) {
         \Drupal::messenger()->addWarning($this->t('The requested issue could not be found.'));
       }

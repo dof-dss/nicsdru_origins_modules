@@ -11,6 +11,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\Node;
 use phpDocumentor\Reflection\Types\Parent_;
 
 /**
@@ -72,13 +73,19 @@ final class ContentIssueForm extends ContentEntityForm {
   }
 
   public function ajaxSubmit($form, FormStateInterface $form_state) {
-    $issue_id = $form_state->getformObject()->getEntity()->id();
-
+    $entity = $form_state->getformObject()->getEntity();
     $issueManager = \Drupal::service('content_issue.manager');
-    $build = $issueManager->render($issue_id);
+
+    // Render Issue row.
+    $row_build = $issueManager->renderRow($entity);
+    $row_build = \Drupal::service('renderer')->render($row_build);
+
+    // Render Issue details pane.
+    $info_build = $issueManager->renderIssue($entity->id());
 
     $response = new AjaxResponse();
-    $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $build, []));
+    $response->addCommand(new ReplaceCommand('.content-issue-row[data-entity-id="' . $entity->id() . '"]', $row_build, []));
+    $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $info_build, []));
     $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
     $response->addCommand(new CloseModalDialogCommand());
     return $response;
