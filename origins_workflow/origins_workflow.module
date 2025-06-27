@@ -740,7 +740,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
               '#url' => Url::fromRoute(
                 'origins_workflow.moderation_state_controller_change_state',
                 [
-                  'nid' => $entity->id(), 
+                  'nid' => $entity->id(),
                   'new_state' => 'archived'
                 ],
                 $options
