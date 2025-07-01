@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
 use Drupal\Core\Ajax\InvokeCommand;
+use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
-use Drupal\Core\Ajax\SettingsCommand;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\node\Entity\Node;
-use phpDocumentor\Reflection\Types\Parent_;
 
 /**
  * Form controller for the content issue entity edit forms.
@@ -32,6 +31,8 @@ final class ContentIssueForm extends ContentEntityForm {
     }
 
     $form['advanced']['#type'] = 'hidden';
+
+    $form["label"]["widget"][0]["value"]['#value'] = $form_state->getValue('label') ?? $entity->get('label')->getString();
 
     $form['content_entity_id'] = [
       '#type' => 'hidden',
@@ -60,10 +61,12 @@ final class ContentIssueForm extends ContentEntityForm {
       ],
     ];
 
-    // Remove redirect to prevent page reloading.
-    $form['#submit'][] = '::formSubmit';
+    if (!$entity->isNew()) {
+      // Remove redirect to prevent page reloading.
+      $form['#submit'][] = '::formSubmit';
 
-    $form_state->setRedirect(NULL);
+      $form_state->setRedirect(NULL);
+    }
 
     return $form;
   }
@@ -76,18 +79,26 @@ final class ContentIssueForm extends ContentEntityForm {
     $entity = $form_state->getformObject()->getEntity();
     $issueManager = \Drupal::service('content_issue.manager');
 
-    // Render Issue row.
-    $row_build = $issueManager->renderRow($entity);
-    $row_build = \Drupal::service('renderer')->render($row_build);
-
-    // Render Issue details pane.
-    $info_build = $issueManager->renderIssue($entity->id());
-
     $response = new AjaxResponse();
-    $response->addCommand(new ReplaceCommand('.content-issue-row[data-entity-id="' . $entity->id() . '"]', $row_build, []));
-    $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $info_build, []));
-    $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
-    $response->addCommand(new CloseModalDialogCommand());
+
+    if ($form_state->getFormObject()->getFormId() === 'content_issue_add_form') {
+      $response->addCommand(new MessageCommand('Content issue created.'));
+      $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+    }
+    else {
+      // Render Issue row.
+      $row_build = $issueManager->renderRow($entity);
+      $row_build = \Drupal::service('renderer')->render($row_build);
+
+      // Render Issue details pane.
+      $info_build = $issueManager->renderIssue($entity->id());
+
+      $response->addCommand(new ReplaceCommand('.content-issue-row[data-entity-id="' . $entity->id() . '"]', $row_build, []));
+      $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $info_build, []));
+      $response->addCommand(new InvokeCommand('#content-issue-dashboard-aside', 'addClass', ['open']));
+      $response->addCommand(new CloseModalDialogCommand());
+    }
+
     return $response;
   }
 
