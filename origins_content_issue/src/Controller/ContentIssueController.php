@@ -11,6 +11,7 @@ use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Entity\User;
 
@@ -24,50 +25,48 @@ final class ContentIssueController extends ControllerBase {
    */
   public function __invoke(int $entity_id, int|null $revision_id = NULL): array {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
-    $form = \Drupal::service('entity.form_builder')->getForm($issue, 'add');
 
     /** @var \Drupal\node\NodeInterface $node */
     $node_storage = $this->entityTypeManager->getStorage('node');
-    if (!empty($revision_id)) {
+    if (!empty($revision_id) && $entity_id != $revision_id) {
       $node = $node_storage->loadRevision($revision_id);
     }
     else {
       $node = $node_storage->load($entity_id);
     }
 
-    $form["label"]["widget"][0]["value"]['#value'] = $node->label();
+    $form_state['values']['content_entity_id'] = $entity_id;
+    $form_state['values']['content_entity_revision_id'] = $revision_id;
+    $form_state['values']['assigned_to'] = $node->getOwnerId();
+    $form_state['values']['label'] = $node->label();
 
-    $form['label']['#default_value'] = $node->label();
-    $form['label']['#value'] = $node->label();
+    $form = \Drupal::service('entity.form_builder')->getForm($issue, 'add', $form_state);
 
     $form['assigned_to']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
-    $form["content_entity_id"]["#value"] = $entity_id;
-    $form["content_entity_revision_id"]["#value"] = $revision_id;
-
-    $form['actions']['cancel'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Cancel'),
-      '#limit_validation_errors' => [],
-      '#ajax' => [
-        'callback' => '::ajaxCloseForm',
-      ],
-    ];
+//    $form['actions']['cancel'] = [
+//      '#type' => 'submit',
+//      '#value' => $this->t('Cancel'),
+//      '#limit_validation_errors' => [],
+//      '#ajax' => [
+//        'callback' => '::ajaxCloseForm',
+//      ],
+//    ];
 
     $build['content'] = $form;
 
     return $build;
   }
 
-  /**
-   * AJAX callback to close the off-canvas dialog
-   */
-  public function ajaxCloseForm(array&$form, FormStateInterface $form_state) {
-    $response = new AjaxResponse();
-    $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
-    return $response;
-  }
+//  /**
+//   * AJAX callback to close the off-canvas dialog
+//   */
+//  public function ajaxCloseForm(array&$form, FormStateInterface $form_state) {
+//    $response = new AjaxResponse();
+//    $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
+//    return $response;
+//  }
 
   public function display($entity_id) {
 
