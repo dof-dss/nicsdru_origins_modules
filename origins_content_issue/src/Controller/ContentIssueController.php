@@ -13,6 +13,7 @@ use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
 /**
@@ -25,14 +26,17 @@ final class ContentIssueController extends ControllerBase {
    */
   public function __invoke(int $entity_id, int|null $revision_id = NULL): array {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
+    $issueManager = \Drupal::service('content_issue.manager');
 
     /** @var \Drupal\node\NodeInterface $node */
     $node_storage = $this->entityTypeManager->getStorage('node');
     if (!empty($revision_id) && $entity_id != $revision_id) {
       $node = $node_storage->loadRevision($revision_id);
+      $current_issues = $issueManager->getIssuesByContentID($entity_id, $revision_id);
     }
     else {
       $node = $node_storage->load($entity_id);
+      $current_issues = $issueManager->getIssuesByContentID($entity_id);
     }
 
     $form_state['values']['content_entity_id'] = $entity_id;
@@ -45,28 +49,22 @@ final class ContentIssueController extends ControllerBase {
     $form['assigned_to']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
-//    $form['actions']['cancel'] = [
-//      '#type' => 'submit',
-//      '#value' => $this->t('Cancel'),
-//      '#limit_validation_errors' => [],
-//      '#ajax' => [
-//        'callback' => '::ajaxCloseForm',
-//      ],
-//    ];
+    if ($current_issues) {
+      $form["current_issues"] = [
+        '#type' => 'link',
+        '#title' => $this->t('Click here to view %count existing issues for this content.', ['%count' => count($current_issues)]),
+        '#url' => Url::fromRoute('entity.content_issue.collection', [
+          'entity_id' => $entity_id,
+          'revision_id' => $revision_id,
+        ]),
+      ];
+    }
+
 
     $build['content'] = $form;
 
     return $build;
   }
-
-//  /**
-//   * AJAX callback to close the off-canvas dialog
-//   */
-//  public function ajaxCloseForm(array&$form, FormStateInterface $form_state) {
-//    $response = new AjaxResponse();
-//    $response->addCommand(new CloseDialogCommand('#drupal-off-canvas'));
-//    return $response;
-//  }
 
   public function display($entity_id) {
 

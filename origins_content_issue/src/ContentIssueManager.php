@@ -120,7 +120,7 @@ final class ContentIssueManager {
   /**
    * Delete a Content Issue entity.
    */
-  public function getIssuesByContentID(string $node_id, string|null $revision_id = NULL) {
+  public function getIssuesByContentID(string|int $node_id, string|int|null $revision_id = NULL) {
     $issues = $this->issueStorage->loadByProperties([
       'content_entity_id' => $node_id,
       'content_entity_revision_id' => $revision_id ?? $node_id,
