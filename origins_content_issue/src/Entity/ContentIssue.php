@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Entity;
 
-use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
@@ -229,22 +228,6 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['comments'] = BaseFieldDefinition::create('text_long')
-      ->setRevisionable(TRUE)
-      ->setLabel(t('Comments'))
-      ->setDisplayOptions('form', [
-        'type' => 'text_textarea',
-        'weight' => 15,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('view', [
-        'type' => 'text_default',
-        'label' => 'above',
-        'weight' => 15,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayConfigurable('view', TRUE);
-
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
       ->setRevisionable(TRUE)
       ->setLabel(t('Author'))
@@ -285,43 +268,6 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the content issue was last edited.'));
-
-    $fields['comments'] = BaseFieldDefinition::create('comment')
-      ->setLabel(t('Comments'))
-      ->setRequired(FALSE)
-      ->setSettings(
-        array(
-          'default_mode'=> 1,
-          'per_page'=>10,
-          'anonymous'=> 0,
-          'form_location'=>1,
-          'preview'=> 1,
-          'comment_type'=>'content_issue_comment',
-          'locked'=>false,
-        ))
-      ->setDefaultValue([
-        'status' => CommentItemInterface::OPEN,
-      ])
-      ->setDisplayOptions('view', [
-        'label' => 'above',
-        'type' => 'comment_default',
-        'weight' => 30,
-      ])
-      ->setDisplayConfigurable('form', TRUE)
-      ->setDisplayOptions('form', [
-        'type' => 'comment_default',
-        'settings' => array(
-          'form_location' => 1,
-          'default_mode'=> 1,
-          'per_page'=>50,
-          'anonymous'=> 0,
-          'form_location'=>1,
-          'preview'=> 1,
-          'locked'=>false
-        ),
-        'weight' => 30,
-      ])
-      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }
