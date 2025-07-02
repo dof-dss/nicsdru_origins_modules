@@ -272,4 +272,12 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     return $fields;
   }
 
+
+  public function getComments() {
+    $comment_storage = $this->entityTypeManager()->getStorage('content_issue_comment');
+    return $comment_storage->loadByProperties([
+      'issue_entity' => $this->id(),
+    ]);
+  }
+
 }

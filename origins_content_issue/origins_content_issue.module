@@ -73,8 +73,13 @@ function origins_content_issue_theme(): array {
         'module_path' => '',
       ],
     ],
+    'content_issue_comment' => [
+      'render element' => 'elements',
+      'template' => 'content-issue-comment',
+    ],
   ];
 }
+
 
 /**
  * Prepares variables for content issue templates.
@@ -107,24 +112,25 @@ function template_preprocess_content_issue(array &$variables): void {
     $node_url = Url::fromRoute('entity.node.revision', ['node' => $content_nid, 'node_revision' => $content_vid]);
   }
 
+  $comments = $issue->getComments();
+
+  if ($comments) {
+    $issue_comment_view_builder = \Drupal::entityTypeManager()->getViewBuilder('content_issue_comment');
+
+    $rendered_comments = [];
+    foreach ($comments as $comment) {
+      $rendered_comments[] = $issue_comment_view_builder->view($comment, 'teaser');
+    }
+
+    $variables['comments'] = $rendered_comments;
+  }
+
   $variables['content']['concerning'] = [
     '#type' => 'link',
     '#title' => t('View content (new window)'),
     '#url' => $node_url,
     '#attributes' => ['target' => '_blank'],
   ];
-
-
-//  $variables['content']['add_comment'] = [
-//    '#type' => 'link',
-//    '#title' => t('Add Comment'),
-//    '#url' => Url::fromRoute('comment.reply',
-//      [
-//        'entity_type' => 'content_issue',
-//        'entity' => $variables["elements"]["#content_issue"]->id(),
-//        'field_name' => 'comments'
-//      ]),
-//  ];
 
   if ($issue->access('update')) {
     $icon['image'] = [
@@ -148,8 +154,14 @@ function template_preprocess_content_issue(array &$variables): void {
           'width' => 800,
         ]),
         'data-dialog-type' => 'modal',
-        'class' => ['use-ajax', 'link-button', 'edit']
+        'class' => ['use-ajax', 'link-button', 'edit'],
       ],
+    ];
+
+    $variables['content']['comment']['add'] = [
+      '#type' => 'link',
+      '#title' => t('Add Comment'),
+      '#url' => Url::fromRoute('origins_content_issue.comment.add', ['issue_id' => $issue->id()])
     ];
   }
 
@@ -181,8 +193,25 @@ function template_preprocess_content_issue(array &$variables): void {
     ];
   }
 
-  $variables['content']['comments'] = $variables['content']["comments"][0]["comments"];
   $variables['module_path'] = $module_path;
+}
+
+/**
+ * Prepares variables for content issue comment templates.
+ *
+ * Default template: content-issue-comment.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the content issue comment information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_content_issue_comment(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['comment'] = $variables['elements']['comment'][0];
+  $variables['author'] = $variables['elements']['uid'][0];
+  $variables['date'] = $variables['elements']['created'][0];
 }
 
 /**

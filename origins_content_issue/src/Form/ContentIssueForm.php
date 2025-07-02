@@ -12,6 +12,7 @@ use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\origins_content_issue\ContentIssueInterface;
 
 /**
  * Form controller for the content issue entity edit forms.

@@ -15,6 +15,23 @@ final class ContentIssueCommentForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form = parent::buildForm($form, $form_state);
+
+    $form['issue_entity'] = [
+      '#type' => 'hidden',
+      '#default_value' => $form_state->getValue('issue_entity')
+    ];
+
+    $form['uid']['#attributes']['class'][] = 'hidden';
+    $form['created']['#attributes']['class'][] = 'hidden';
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function save(array $form, FormStateInterface $form_state): int {
     $result = parent::save($form, $form_state);
 
@@ -39,7 +56,7 @@ final class ContentIssueCommentForm extends ContentEntityForm {
         throw new \LogicException('Could not save the entity.');
     }
 
-    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+//    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
 
     return $result;
   }

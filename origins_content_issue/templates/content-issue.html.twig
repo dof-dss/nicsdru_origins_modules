@@ -21,11 +21,15 @@
       <h3>{{ content.label }}</h3>
       {{- content.description -}}
 
-      {% if content.comments %}
+      <hr />
+      <h6>Comments</h6>
+      {{- content.comment.add }}
+
+      {% if comments %}
       <div class="content-issue-comments">
-        <h6>Comments</h6>
-        {{- content.add_comment -}}
-        {{- content.comments -}}
+        {% for comment in comments %}
+          {{ comment }}
+        {% endfor %}
       </div>
       {% endif %}
     </div>
@@ -51,4 +55,3 @@
     </div>
   {% endif %}
 </article>
-

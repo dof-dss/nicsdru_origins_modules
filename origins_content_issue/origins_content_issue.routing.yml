@@ -12,12 +12,19 @@ origins_content_issue.issue.add:
     _title: 'Create content issue'
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController'
   requirements:
-    _permission: 'access content'
-
+    _permission: 'create content issue'
 
 origins_content_issue.issue.display:
   path: '/origins/content-issue/display/{entity_id}'
   defaults:
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController::display'
   requirements:
-    _permission: 'access content'
+    _permission: 'view content issue'
+
+origins_content_issue.comment.add:
+  path: '/content-issue-comment/add/{issue_id}'
+  defaults:
+    _title: 'Create content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::addForm'
+  requirements:
+    _permission: 'create content issue'

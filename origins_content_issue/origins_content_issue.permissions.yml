@@ -15,3 +15,6 @@ delete own content issue:
   title: 'Delete own content issue'
 delete any content issue:
   title: 'Delete any content issue'
+
+administer content issue comments:
+  title: 'Administer content issue comments'

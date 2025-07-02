@@ -32,12 +32,13 @@ use Drupal\user\EntityOwnerTrait;
  *       "edit" = "Drupal\origins_content_issue\Form\ContentIssueCommentForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *     },
+ *    "access" = "Drupal\origins_content_issue\ContentIssueCommentAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\origins_content_issue\Routing\ContentIssueCommentHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "origins_content_issue_comment",
- *   admin_permission = "administer content issue comment",
+ *   admin_permission = "administer content issue comments",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "id",
@@ -52,7 +53,7 @@ use Drupal\user\EntityOwnerTrait;
  *   },
  * )
  */
-final class ContentIssueComment extends ContentEntityBase implements ContentIssueCommentInterface {
+final class ContentIssueComment extends ContentEntityBase {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
@@ -74,7 +75,7 @@ final class ContentIssueComment extends ContentEntityBase implements ContentIssu
 
     $fields = parent::baseFieldDefinitions($entity_type);
 
-    $fields['content_issue_entity'] = BaseFieldDefinition::create('entity_reference')
+    $fields['issue_entity'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Content issue'))
       ->setSetting('target_type', 'content_issue')
       ->setDescription(t('Content issue this comment is for.'))
