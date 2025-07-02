@@ -209,9 +209,35 @@ function template_preprocess_content_issue(array &$variables): void {
  */
 function template_preprocess_content_issue_comment(array &$variables): void {
   $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['id'] = $variables["elements"]["#content_issue_comment"]->id();
   $variables['comment'] = $variables['elements']['comment'][0];
   $variables['author'] = $variables['elements']['uid'][0];
   $variables['date'] = $variables['elements']['created'][0];
+
+  $variables['edit'] = [
+    '#type' => 'link',
+    '#title' => t('Edit'),
+    '#url' => Url::fromRoute('origins_content_issue.comment.edit', ['comment_id' => $variables['id']]),
+    '#attributes' => [
+      'class' => ['use-ajax'],
+    ],
+  ];
+
+  $variables['delete'] = [
+    '#type' => 'link',
+    '#title' => t('Delete'),
+    '#url' => Url::fromRoute('origins_content_issue.comment.delete_confirm', ['comment_id' => $variables['id']]),
+    '#attributes' => [
+      'id' => 'my-dialog',
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'width' => 700,
+        'minHeight' => 100,
+        'title' => t('Are you sure you want to delete this comment?'),
+      ]),
+    ],
+  ];
 }
 
 /**

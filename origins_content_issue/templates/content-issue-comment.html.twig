@@ -1,5 +1,5 @@
 <hr>
-<div class="content-issue-comment">
+<div class="content-issue-comment" data-comment-id="{{ id }}">
   <header>
     <div class="issue-comment-author">by {{ author }}</div>
     <div class="issue-comment-date">{{ date }}</div>
@@ -8,8 +8,8 @@
     {{ comment }}
   </div>
   <footer>
-    <a href="/edit">Edit</a>
-    <a href="/edit">Delete</a>
+    {{ edit }}
+    {{ delete }}
   </footer>
 </div>
 

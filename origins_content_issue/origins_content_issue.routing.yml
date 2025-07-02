@@ -28,3 +28,19 @@ origins_content_issue.comment.add:
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::addForm'
   requirements:
     _permission: 'create content issue'
+
+origins_content_issue.comment.edit:
+  path: '/content-issue-comment/edit/{comment_id}'
+  defaults:
+    _title: 'Edit content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::editForm'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.comment.delete_confirm:
+  path: '/content-issue-comment/delete/confirm/{comment_id}'
+  defaults:
+    _title: 'Confirm delete content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::deleteConfirm'
+  requirements:
+    _permission: 'create content issue'
