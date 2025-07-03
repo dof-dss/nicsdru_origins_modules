@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Drupal\origins_content_issue\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\CloseDialogCommand;
+use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Returns responses for Origins content issue routes.
@@ -49,7 +53,6 @@ final class ContentIssueCommentController extends ControllerBase {
       '#default_value' => $comment->get('comment')->getString(),
     ];
 
-
     $build['submit'] = [
       '#type' => 'submit',
       '#value' => 'update'
@@ -62,35 +65,63 @@ final class ContentIssueCommentController extends ControllerBase {
   }
 
   public function deleteConfirm(int $comment_id) {
+    $cancel_url = Url::fromRoute('origins_content_issue.comment.close_modal');
+    $action_url = Url::fromRoute('origins_content_issue.comment.delete', ['comment_id' => $comment_id]);
 
-    $form['comment_id'] = [
+    $build = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['confirm-modal']],
+      'message' => [
+        '#markup' => '<p>Are you sure you want to proceed?</p>',
+      ],
+      'actions' => [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['modal-actions']],
+        'confirm' => [
+          '#type' => 'link',
+          '#title' => $this->t('Confirm'),
+          '#url' => $action_url,
+          '#attributes' => [
+            'class' => ['use-ajax', 'button', 'button--primary'],
+            'data-dialog-close' => 'true',
+          ],
+        ],
+        'cancel' => [
+          '#type' => 'link',
+          '#title' => $this->t('Cancel'),
+          '#url' => $cancel_url,
+          '#attributes' => [
+            'class' => ['use-ajax'],
+            'data-dialog-close' => 'true',
+          ],
+        ],
+      ],
+    ];
+
+    $build['comment_id'] = [
       '#type' => 'hidden',
       '#value' => $comment_id,
     ];
 
-    $form['confirm'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#value' => $this->t('Are you sure you want to delete this comment?'),
-    ];
-
-    $form['actions']['delete'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Delete'),
-      '#submit' => ['deleteComment'],
-    ];
-
-    $form['actions']['cancel'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Cancel'),
-      '#submit' => [[$this, 'deleteComment']],
-    ];
-
-    return $form;
+//    $response->addCommand(new OpenModalDialogCommand('Confirm Action', $build, ['width' => '400']));
+//    return $response;
+    return $build;
   }
 
-  public function deleteComment($form, $form_state) {
+  public function delete($comment_id) {
+    $comment = $this->entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
+    $comment->delete();
 
+    $response = new AjaxResponse();
+    $response->addCommand(new RemoveCommand('.content-issue-comment[data-comment-id="' .$comment_id . '"]'));
+    $response->addCommand(new CloseDialogCommand());
+    return $response;
+  }
+
+  public function closeModal() {
+    $response = new AjaxResponse();
+    $response->addCommand(new CloseDialogCommand());
+    return $response;
   }
 
 }

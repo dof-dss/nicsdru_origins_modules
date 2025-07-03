@@ -228,7 +228,6 @@ function template_preprocess_content_issue_comment(array &$variables): void {
     '#title' => t('Delete'),
     '#url' => Url::fromRoute('origins_content_issue.comment.delete_confirm', ['comment_id' => $variables['id']]),
     '#attributes' => [
-      'id' => 'my-dialog',
       'class' => ['use-ajax'],
       'data-dialog-type' => 'modal',
       'data-dialog-options' => Json::encode([

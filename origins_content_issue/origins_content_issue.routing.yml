@@ -44,3 +44,19 @@ origins_content_issue.comment.delete_confirm:
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::deleteConfirm'
   requirements:
     _permission: 'create content issue'
+
+origins_content_issue.comment.delete:
+  path: '/content-issue-comment/delete/{comment_id}'
+  defaults:
+    _title: 'Delete content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::delete'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.comment.close_modal:
+   path: '/content-issue-comment/close-modal'
+   defaults:
+     _title: 'Close Modal'
+     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::closeModal'
+   requirements:
+     _permission: 'create content issue'
