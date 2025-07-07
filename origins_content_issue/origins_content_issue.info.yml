@@ -4,4 +4,4 @@ description: 'Provides a simple way for users to report issues with content dire
 package: 'NICS: Origins'
 core_version_requirement: ^10 | ^11
 dependencies:
-  - comment
+  - node

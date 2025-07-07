@@ -70,3 +70,19 @@ origins_content_issue.content_issue_comment_edit:
     _form: 'Drupal\origins_content_issue\Form\ContentIssueCommentEditForm'
   requirements:
     _permission: 'access content'
+
+origins_content_issue.settings:
+  path: '/admin/config/origins/content-issue/settings'
+  defaults:
+    _title: 'Content Issues settings'
+    _form: 'Drupal\origins_content_issue\Form\SettingsForm'
+  requirements:
+    _permission: 'administer content issue'
+
+origins.admin_config:
+  path: '/admin/config/origins'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Origins'
+  requirements:
+    _permission: 'access administration pages'
