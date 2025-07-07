@@ -10,10 +10,28 @@ declare(strict_types=1);
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_content_issue_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.origins_content_issue':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t("This module provides a system for editors to report, track, and manage issues related to site content such as grammatical errors, outdated information, broken links or display issues.") . '</p>';
+      $output .= '<h2>' . t('How to use') . '</h2>';
+      $output .= '<ul><li>' . t("After installing the module, open the edit form for a node content type. Navigate to the ‘Content Issue’ tab, check the box labeled ‘Enable content issue creation’, and save the form to apply the changes.") . '</li>';
+      $output .= '<li>' . t("Assign the appropriate Content Issue permissions to each user role.") . '</li>';
+      $output .= '<li>' . t("A block titled 'Issues for user' is available to display Content Issues assigned to the currently logged-in user. It is recommended to place this block in the theme’s ‘Content’ region and restrict its visibility to pages matching the path pattern '/user/*.'") . '</li></ul>';
+      return $output;
+  }
+}
 
 /**
  * Implements hook_preprocess_node().
