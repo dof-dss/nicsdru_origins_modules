@@ -25,13 +25,13 @@
       <h6>Comments</h6>
       {{- content.comment.add }}
 
-      {% if comments %}
       <div class="content-issue-comments">
+      {% if comments %}
         {% for comment in comments %}
           {{ comment }}
         {% endfor %}
-      </div>
       {% endif %}
+      </div>
     </div>
     <div class="content-issue-side">
       <dl>

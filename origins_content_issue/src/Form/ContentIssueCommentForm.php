@@ -13,6 +13,7 @@ use Drupal\Core\Ajax\PrependCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Form controller for the content issue comment entity edit forms.
@@ -44,6 +45,16 @@ final class ContentIssueCommentForm extends ContentEntityForm {
       'progress' => [
         'type' => 'throbber',
         'message' => t('Saving...'),
+      ],
+    ];
+
+    $form['actions']['cancel'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Cancel'),
+      '#url' => Url::fromRoute('origins_content_issue.comment.close_modal'),
+      '#attributes' => [
+        'class' => ['use-ajax', 'action-link'],
+        'data-dialog-close' => 'true',
       ],
     ];
 

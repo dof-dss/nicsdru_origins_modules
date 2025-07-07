@@ -165,6 +165,7 @@ function template_preprocess_content_issue(array &$variables): void {
       '#attributes' => [
       'data-dialog-options' => Json::encode([
         'width' => 800,
+        'title' => t('Add comment'),
       ]),
       'data-dialog-type' => 'modal',
       'class' => ['use-ajax', 'link-button', 'edit'],
@@ -193,6 +194,7 @@ function template_preprocess_content_issue(array &$variables): void {
       '#attributes' => [
         'data-dialog-options' => Json::encode([
           'width' => 800,
+          'title' => t('Delete comment'),
         ]),
         'data-dialog-type' => 'modal',
         'class' => ['use-ajax', 'link-button', 'delete']

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Controller;
 
-use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
@@ -18,13 +17,10 @@ use Drupal\Core\Url;
  */
 final class ContentIssueCommentController extends ControllerBase {
 
-  protected $closeModalRoute;
-
   protected $renderer;
 
   public function __construct(RendererInterface $renderer) {
     $this->renderer = $renderer;
-    $this->closeModalRoute = Url::fromRoute('origins_content_issue.comment.close_modal');
   }
 
   public static function create(ContainerInterface $container) {
@@ -68,16 +64,6 @@ final class ContentIssueCommentController extends ControllerBase {
     $form = \Drupal::service('entity.form_builder')->getForm($comment, 'add', $form_state);
 
     unset($form['actions']['delete']);
-
-    $form['actions']['cancel'] = [
-      '#type' => 'link',
-      '#title' => $this->t('Cancel'),
-      '#url' => $this->closeModalRoute,
-      '#attributes' => [
-        'class' => ['use-ajax', 'action-link'],
-        'data-dialog-close' => 'true',
-      ],
-    ];
 
     return $form;
   }
