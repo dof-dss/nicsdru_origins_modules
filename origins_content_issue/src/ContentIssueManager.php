@@ -9,11 +9,22 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\node\Entity\Node;
 
 /**
- * @todo Add class description.
+ * Manager for Content Issues.
  */
 final class ContentIssueManager {
 
+  /**
+   * The storage for the Content Issue entity type.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
   private EntityStorageInterface $issueStorage;
+
+  /**
+   * The storage for the Content Issue Comment entity type.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
   private EntityStorageInterface $commentStorage;
 
   /**
@@ -59,7 +70,7 @@ final class ContentIssueManager {
     $issue = $this->issueStorage->load($issue_id);
 
     if (empty($issue)) {
-      return null;
+      return NULL;
     }
 
     $viewBuilder = $this->entityTypeManager->getViewBuilder('content_issue');
@@ -119,7 +130,6 @@ final class ContentIssueManager {
 
   }
 
-
   /**
    * Return a render array for the default Issue display mode.
    */
@@ -127,7 +137,7 @@ final class ContentIssueManager {
     $comment = $this->commentStorage->load($comment_id);
 
     if (empty($comment)) {
-      return null;
+      return NULL;
     }
 
     $viewBuilder = $this->entityTypeManager->getViewBuilder('content_issue_comment');
@@ -137,7 +147,7 @@ final class ContentIssueManager {
   /**
    * Delete a Content Issue entity.
    */
-  public function getIssuesByContentID(string|int $node_id, string|int|null $revision_id = NULL) {
+  public function getIssuesByContentId(string|int $node_id, string|int|null $revision_id = NULL) {
     $issues = $this->issueStorage->loadByProperties([
       'content_entity_id' => $node_id,
       'content_entity_revision_id' => $revision_id ?? $node_id,
@@ -145,7 +155,6 @@ final class ContentIssueManager {
 
     return $issues;
   }
-
 
   /**
    * Delete a Content Issue entity.
@@ -157,6 +166,5 @@ final class ContentIssueManager {
 
     return $issues;
   }
-
 
 }

@@ -7,7 +7,6 @@ namespace Drupal\origins_content_issue\Form;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
-use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\PrependCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -64,11 +63,18 @@ final class ContentIssueCommentForm extends ContentEntityForm {
     return $form;
   }
 
-  public function formSubmit($form, FormStateInterface $form_state) {
-    $form_state->disableRedirect(); // Ensure no redirect happens
+  /**
+   * Comment form submit callback.
+   */
+  public function formSubmit(array $form, FormStateInterface $form_state) {
+    $form_state->disableRedirect();
   }
 
-  public function ajaxSubmitAdd($form, FormStateInterface $form_state) {
+  /**
+   * Submit callback for creating a content issue comment.
+   */
+  public function ajaxSubmitAdd(array $form, FormStateInterface $form_state) {
+    // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
     $issueManager = \Drupal::service('content_issue.manager');
 
@@ -81,7 +87,11 @@ final class ContentIssueCommentForm extends ContentEntityForm {
     return $response;
   }
 
-  public function ajaxSubmitEdit($form, FormStateInterface $form_state) {
+  /**
+   * Submit callback for updating a content issue comment.
+   */
+  public function ajaxSubmitEdit(array $form, FormStateInterface $form_state) {
+    // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
     $issueManager = \Drupal::service('content_issue.manager');
 

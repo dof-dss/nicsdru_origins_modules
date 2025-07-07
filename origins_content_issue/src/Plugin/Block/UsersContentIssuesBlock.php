@@ -61,7 +61,8 @@ final class UsersContentIssuesBlock extends BlockBase implements ContainerFactor
 
     if ($user instanceof AccountInterface) {
       $user_id = $user->id();
-    } else {
+    }
+    else {
       $user_id = \Drupal::currentUser()->id();
     }
 
@@ -87,7 +88,8 @@ final class UsersContentIssuesBlock extends BlockBase implements ContainerFactor
   protected function blockAccess(AccountInterface $account): AccessResult {
     if ($account->hasPermission('view content issue')) {
       return AccessResult::allowed();
-    } else {
+    }
+    else {
       return AccessResult::forbidden();
     }
   }

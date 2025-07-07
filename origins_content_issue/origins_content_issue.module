@@ -1,11 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @file
- * Provides a content issue entity type.
+ * Contains origins_content_issue.module.
  */
+
+declare(strict_types=1);
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
@@ -29,19 +29,19 @@ function origins_content_issue_preprocess_node(&$variables) {
     return;
   }
 
-  /** @var NodeInterface $node */
   $node = $route->getParameters()->get('node');
   $node_type = NodeType::load($node->getType());
   $enabled = $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled');
 
   if ($enabled) {
 
-    $variables['#attached']['library'][] =  'origins_content_issue/report-link';
+    $variables['#attached']['library'][] = 'origins_content_issue/report-link';
     $variables['#attached']['drupalSettings']['origins_content_issue']['entity_id'] = $node->id();
 
     if ($route->getParameters()->has('node_revision')) {
       $node_revision = $route->getParameter('node_revision')->getLoadedRevisionId();
-    } else {
+    }
+    else {
       $node_revision = $node->getRevisionId();
     }
 
@@ -80,7 +80,6 @@ function origins_content_issue_theme(): array {
   ];
 }
 
-
 /**
  * Prepares variables for content issue templates.
  *
@@ -108,7 +107,8 @@ function template_preprocess_content_issue(array &$variables): void {
 
   if (empty($content_vid) || $content_nid === $content_vid) {
     $node_url = Url::fromRoute('entity.node.canonical', ['node' => $content_nid]);
-  } else {
+  }
+  else {
     $node_url = Url::fromRoute('entity.node.revision', ['node' => $content_nid, 'node_revision' => $content_vid]);
   }
 
@@ -163,13 +163,13 @@ function template_preprocess_content_issue(array &$variables): void {
       '#title' => t('Add Comment'),
       '#url' => Url::fromRoute('origins_content_issue.comment.add', ['issue_id' => $issue->id()]),
       '#attributes' => [
-      'data-dialog-options' => Json::encode([
-        'width' => 800,
-        'title' => t('Add comment'),
-      ]),
-      'data-dialog-type' => 'modal',
-      'class' => ['use-ajax', 'link-button', 'edit'],
-    ],
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+          'title' => t('Add comment'),
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'edit'],
+      ],
     ];
   }
 
@@ -227,7 +227,6 @@ function template_preprocess_content_issue_comment(array &$variables): void {
     '#type' => 'link',
     '#title' => t('Edit'),
     '#url' => Url::fromRoute('origins_content_issue.comment.edit', ['comment_id' => $variables['id']]),
-//    '#url' => Url::fromRoute('origins_content_issue.content_issue_comment_edit'),
     '#attributes' => [
       'class' => ['use-ajax'],
       'data-dialog-type' => 'modal',
@@ -270,6 +269,7 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->accessCheck(FALSE)
         ->execute();
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        // @phpstan-ignore-next-line
         $content_issue->set('status', FALSE)->save();
       }
       break;
@@ -282,6 +282,7 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->accessCheck(FALSE)
         ->execute();
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        // @phpstan-ignore-next-line
         $content_issue->setOwnerId(0)->save();
       }
       break;
@@ -308,6 +309,7 @@ function origins_content_issue_user_predelete(UserInterface $account): void {
     ->accessCheck(FALSE)
     ->execute();
   foreach (array_keys($content_issue_ids) as $revision_id) {
+    // @phpstan-ignore-next-line
     $storage->deleteRevision($revision_id);
   }
 }
@@ -363,7 +365,7 @@ function origins_content_issue_moderation_sidebar_alter(&$build, &$context) {
 
         $issue_manager = \Drupal::service('content_issue.manager');
 
-        $issues = $issue_manager->getIssuesByContentID($context->id(), $context->getRevisionId());
+        $issues = $issue_manager->getIssuesByContentId($context->id(), $context->getRevisionId());
 
         $build['actions']['secondary']['origins_content_issue'] = [
           '#title' => t('Content issues (@count)', ['@count' => count($issues)]),

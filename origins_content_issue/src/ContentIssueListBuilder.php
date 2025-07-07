@@ -106,7 +106,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#attributes' => ['class' => ['filters-label']],
     ];
 
-    $build['filters']['severity']['label'] =[
+    $build['filters']['severity']['label'] = [
       '#type' => 'html_tag',
       '#tag' => 'span',
       '#value' => $this->t('Severity'),
@@ -134,14 +134,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ];
     }
 
-    $build['filters']['assigned_to']['label'] =[
+    $build['filters']['assigned_to']['label'] = [
       '#type' => 'html_tag',
       '#tag' => 'span',
       '#value' => $this->t('Assigned to'),
     ];
 
     $qs = $current_qs;
-    foreach (['me' => $current_user_id, 'nobody' => -1,] as $assigned => $val) {
+    foreach (['me' => $current_user_id, 'nobody' => -1] as $assigned => $val) {
       $classes = ['filter', 'assigned-' . $assigned];
       $qs['assigned'] = $val;
 
@@ -212,6 +212,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
         'title' => $this->t('Close the details pane'),
       ]
     ];
+
+    $build['table'] = [];
 
     // Display the requested issue in the side info-pane.
     if (!empty($issue_id)) {

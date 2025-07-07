@@ -272,7 +272,9 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     return $fields;
   }
 
-
+  /**
+   * Returns the comment entities for this content issue.
+   */
   public function getComments() {
 
     $query = $this->entityTypeManager()->getStorage('content_issue_comment')->getQuery();

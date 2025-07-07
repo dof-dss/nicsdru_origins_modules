@@ -17,16 +17,18 @@ use Drupal\Core\Url;
  */
 final class ContentIssueCommentController extends ControllerBase {
 
+  /**
+   * Drupal renderer service instance.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
   protected $renderer;
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(RendererInterface $renderer) {
     $this->renderer = $renderer;
-  }
-
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('renderer')
-    );
   }
 
   /**
@@ -42,7 +44,13 @@ final class ContentIssueCommentController extends ControllerBase {
     return $build;
   }
 
-  public function addForm(int $issue_id) {
+  /**
+   * Displays a create new comment form.
+   *
+   * @param int|string $issue_id
+   *   The id of the issue this comment is for.
+   */
+  public function addForm(int|string $issue_id) {
     $issue_comment = $this->entityTypeManager()->getStorage('content_issue_comment')->create([]);
 
     $form_state['values']['issue_entity'] = $issue_id;
@@ -54,10 +62,16 @@ final class ContentIssueCommentController extends ControllerBase {
     return $form;
   }
 
-
-  public function editForm(int $comment_id) {
+  /**
+   * Displays an edit form for comments.
+   *
+   * @param int|string $comment_id
+   *   The id of the comment to edit.
+   */
+  public function editForm(int|string $comment_id) {
     $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
 
+    // @phpstan-ignore-next-line
     $form_state['values']['issue_entity'] = $comment->get('issue_entity')->getString();
     $form_state['values']['comment_id'] = $comment_id;
 
@@ -68,8 +82,14 @@ final class ContentIssueCommentController extends ControllerBase {
     return $form;
   }
 
-  public function deleteConfirm(int $comment_id) {
-    $build = [
+  /**
+   * Displays a delete confirmation form for comments.
+   *
+   * @param int|string $comment_id
+   *   The id of the comment to delete.
+   */
+  public function deleteConfirm(int|string $comment_id) {
+    $form = [
       '#type' => 'container',
       '#attributes' => ['class' => ['confirm-modal']],
       'message' => [
@@ -90,7 +110,7 @@ final class ContentIssueCommentController extends ControllerBase {
         'cancel' => [
           '#type' => 'link',
           '#title' => $this->t('Cancel'),
-          '#url' => $this->closeModalRoute,
+          '#url' => Url::fromRoute('origins_content_issue.comment.close_modal'),
           '#attributes' => [
             'class' => ['use-ajax'],
             'data-dialog-close' => 'true',
@@ -99,24 +119,36 @@ final class ContentIssueCommentController extends ControllerBase {
       ],
     ];
 
-    $build['comment_id'] = [
+    $form['comment_id'] = [
       '#type' => 'hidden',
       '#value' => $comment_id,
     ];
 
-    return $build;
+    return $form;
   }
 
+  /**
+   * Deletes a comment and closes the modal.
+   *
+   * @param int|string $comment_id
+   *   The id of the comment to delete.
+   */
   public function delete($comment_id) {
     $comment = $this->entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
     $comment->delete();
 
     $response = new AjaxResponse();
-    $response->addCommand(new RemoveCommand('.content-issue-comment[data-comment-id="' .$comment_id . '"]'));
+    $response->addCommand(new RemoveCommand('.content-issue-comment[data-comment-id="' . $comment_id . '"]'));
     $response->addCommand(new CloseDialogCommand());
     return $response;
   }
 
+  /**
+   * Closes an ajax modal.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   Ajax response to close modal.
+   */
   public function closeModal() {
     $response = new AjaxResponse();
     $response->addCommand(new CloseDialogCommand());

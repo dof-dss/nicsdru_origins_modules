@@ -28,15 +28,16 @@ final class ContentIssueController extends ControllerBase {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
     $issueManager = \Drupal::service('content_issue.manager');
 
-    /** @var \Drupal\node\NodeInterface $node */
     $node_storage = $this->entityTypeManager->getStorage('node');
     if (!empty($revision_id) && $entity_id != $revision_id) {
+      /** @var \Drupal\node\NodeInterface $node */
       $node = $node_storage->loadRevision($revision_id);
-      $current_issues = $issueManager->getIssuesByContentID($entity_id, $revision_id);
+      $current_issues = $issueManager->getIssuesByContentId($entity_id, $revision_id);
     }
     else {
+      /** @var \Drupal\node\NodeInterface $node */
       $node = $node_storage->load($entity_id);
-      $current_issues = $issueManager->getIssuesByContentID($entity_id);
+      $current_issues = $issueManager->getIssuesByContentId($entity_id);
     }
 
     $form_state['values']['content_entity_id'] = $entity_id;
@@ -60,13 +61,21 @@ final class ContentIssueController extends ControllerBase {
       ];
     }
 
-
     $build['content'] = $form;
 
     return $build;
   }
 
-  public function display($entity_id) {
+  /**
+   * Displays a Content Issue in the information panel.
+   *
+   * @param int|string $entity_id
+   *   The Content Issue ID to display.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+   *   The Ajax response to update the information panel or warning.
+   */
+  public function display(int|string $entity_id) {
 
     if (!\Drupal::request()->isXmlHttpRequest()) {
       return $this->redirect('entity.content_issue.collection');

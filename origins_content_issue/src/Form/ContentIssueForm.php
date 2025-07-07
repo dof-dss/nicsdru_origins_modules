@@ -24,7 +24,7 @@ final class ContentIssueForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
-    /** @var \Drupal\origins_content_issue\Entity\ContentIssue $entity */
+    // @phpstan-ignore-next-line
     $entity = $form_state->getFormObject()->getEntity();
 
     if ($entity->isNew()) {
@@ -72,11 +72,18 @@ final class ContentIssueForm extends ContentEntityForm {
     return $form;
   }
 
+  /**
+   * Issue form submit callback.
+   */
   public function formSubmit($form, FormStateInterface $form_state) {
-    $form_state->disableRedirect(); // Ensure no redirect happens
+    $form_state->disableRedirect();
   }
 
+  /**
+   * Submit callback for creating or updating a content issue.
+   */
   public function ajaxSubmit($form, FormStateInterface $form_state) {
+    // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
     $issueManager = \Drupal::service('content_issue.manager');
 
