@@ -14,6 +14,7 @@ use Drupal\node\Entity\Node;
 final class ContentIssueManager {
 
   private EntityStorageInterface $issueStorage;
+  private EntityStorageInterface $commentStorage;
 
   /**
    * Constructs a ContentIssueManager object.
@@ -22,6 +23,7 @@ final class ContentIssueManager {
     private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {
     $this->issueStorage = $entityTypeManager->getStorage('content_issue');
+    $this->commentStorage = $entityTypeManager->getStorage('content_issue_comment');
   }
 
   /**
@@ -117,6 +119,21 @@ final class ContentIssueManager {
 
   }
 
+
+  /**
+   * Return a render array for the default Issue display mode.
+   */
+  public function renderComment($comment_id): array|null {
+    $comment = $this->commentStorage->load($comment_id);
+
+    if (empty($comment)) {
+      return null;
+    }
+
+    $viewBuilder = $this->entityTypeManager->getViewBuilder('content_issue_comment');
+    return $viewBuilder->view($comment, 'default');
+  }
+
   /**
    * Delete a Content Issue entity.
    */
@@ -129,6 +146,17 @@ final class ContentIssueManager {
     return $issues;
   }
 
+
+  /**
+   * Delete a Content Issue entity.
+   */
+  public function getIssuesAssignedTo(string|int $user_id) {
+    $issues = $this->issueStorage->loadByProperties([
+      'assigned_to' => $user_id,
+    ]);
+
+    return $issues;
+  }
 
 
 }

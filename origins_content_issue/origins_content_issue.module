@@ -161,7 +161,14 @@ function template_preprocess_content_issue(array &$variables): void {
     $variables['content']['comment']['add'] = [
       '#type' => 'link',
       '#title' => t('Add Comment'),
-      '#url' => Url::fromRoute('origins_content_issue.comment.add', ['issue_id' => $issue->id()])
+      '#url' => Url::fromRoute('origins_content_issue.comment.add', ['issue_id' => $issue->id()]),
+      '#attributes' => [
+      'data-dialog-options' => Json::encode([
+        'width' => 800,
+      ]),
+      'data-dialog-type' => 'modal',
+      'class' => ['use-ajax', 'link-button', 'edit'],
+    ],
     ];
   }
 
@@ -218,9 +225,17 @@ function template_preprocess_content_issue_comment(array &$variables): void {
     '#type' => 'link',
     '#title' => t('Edit'),
     '#url' => Url::fromRoute('origins_content_issue.comment.edit', ['comment_id' => $variables['id']]),
+//    '#url' => Url::fromRoute('origins_content_issue.content_issue_comment_edit'),
     '#attributes' => [
       'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'width' => 700,
+        'minHeight' => 500,
+        'title' => t('Edit comment'),
+      ]),
     ],
+    '#attached' => ['library' => ['core/drupal.ajax']],
   ];
 
   $variables['delete'] = [

@@ -4,18 +4,34 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Controller;
 
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\RemoveCommand;
-use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
 
 /**
  * Returns responses for Origins content issue routes.
  */
 final class ContentIssueCommentController extends ControllerBase {
+
+  protected $closeModalRoute;
+
+  protected $renderer;
+
+  public function __construct(RendererInterface $renderer) {
+    $this->renderer = $renderer;
+    $this->closeModalRoute = Url::fromRoute('origins_content_issue.comment.close_modal');
+  }
+
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('renderer')
+    );
+  }
 
   /**
    * Builds the response.
@@ -44,30 +60,29 @@ final class ContentIssueCommentController extends ControllerBase {
 
 
   public function editForm(int $comment_id) {
+    $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
 
-    $comment = $this->entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
+    $form_state['values']['issue_entity'] = $comment->get('issue_entity')->getString();
+    $form_state['values']['comment_id'] = $comment_id;
 
-    $build['ckeditor_section']['editor'] = [
-      '#type' => 'text_format',
-      '#format' => 'basic_html',
-      '#default_value' => $comment->get('comment')->getString(),
+    $form = \Drupal::service('entity.form_builder')->getForm($comment, 'add', $form_state);
+
+    unset($form['actions']['delete']);
+
+    $form['actions']['cancel'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Cancel'),
+      '#url' => $this->closeModalRoute,
+      '#attributes' => [
+        'class' => ['use-ajax', 'action-link'],
+        'data-dialog-close' => 'true',
+      ],
     ];
 
-    $build['submit'] = [
-      '#type' => 'submit',
-      '#value' => 'update'
-    ];
-
-    $response = new AjaxResponse();
-    $response->addCommand(new ReplaceCommand('.content-issue-comment[data-comment-id="' .$comment_id . '"]', $build, []));
-
-    return $response;
+    return $form;
   }
 
   public function deleteConfirm(int $comment_id) {
-    $cancel_url = Url::fromRoute('origins_content_issue.comment.close_modal');
-    $action_url = Url::fromRoute('origins_content_issue.comment.delete', ['comment_id' => $comment_id]);
-
     $build = [
       '#type' => 'container',
       '#attributes' => ['class' => ['confirm-modal']],
@@ -80,7 +95,7 @@ final class ContentIssueCommentController extends ControllerBase {
         'confirm' => [
           '#type' => 'link',
           '#title' => $this->t('Confirm'),
-          '#url' => $action_url,
+          '#url' => Url::fromRoute('origins_content_issue.comment.delete', ['comment_id' => $comment_id]),
           '#attributes' => [
             'class' => ['use-ajax', 'button', 'button--primary'],
             'data-dialog-close' => 'true',
@@ -89,7 +104,7 @@ final class ContentIssueCommentController extends ControllerBase {
         'cancel' => [
           '#type' => 'link',
           '#title' => $this->t('Cancel'),
-          '#url' => $cancel_url,
+          '#url' => $this->closeModalRoute,
           '#attributes' => [
             'class' => ['use-ajax'],
             'data-dialog-close' => 'true',
@@ -103,8 +118,6 @@ final class ContentIssueCommentController extends ControllerBase {
       '#value' => $comment_id,
     ];
 
-//    $response->addCommand(new OpenModalDialogCommand('Confirm Action', $build, ['width' => '400']));
-//    return $response;
     return $build;
   }
 

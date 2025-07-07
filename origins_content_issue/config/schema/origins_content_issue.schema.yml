@@ -1,0 +1,7 @@
+block.settings.origins_content_issue_users_content_issues:
+  type: block_settings
+  label: 'Users content issues block'
+  mapping:
+    example:
+      type: string
+      label: Example

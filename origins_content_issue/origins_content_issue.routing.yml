@@ -36,6 +36,8 @@ origins_content_issue.comment.edit:
     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::editForm'
   requirements:
     _permission: 'create content issue'
+  options:
+    _no_cache: 'TRUE'
 
 origins_content_issue.comment.delete_confirm:
   path: '/content-issue-comment/delete/confirm/{comment_id}'
@@ -60,3 +62,11 @@ origins_content_issue.comment.close_modal:
      _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::closeModal'
    requirements:
      _permission: 'create content issue'
+
+origins_content_issue.content_issue_comment_edit:
+  path: '/origins-content-issue/content-issue-comment-edit'
+  defaults:
+    _title: 'Content Issue Comment Edit'
+    _form: 'Drupal\origins_content_issue\Form\ContentIssueCommentEditForm'
+  requirements:
+    _permission: 'access content'
