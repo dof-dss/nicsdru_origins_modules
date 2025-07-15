@@ -7,7 +7,7 @@ workflows:
           php_version: << pipeline.parameters.php_version >>
       - supporting_repo_deprecated_code:
           php_version: << pipeline.parameters.php_version >>
-          deprecated_code_dirs: << pipeline.parameters.deprecated_code_dirs >>
+          custom_code_dirs: << pipeline.parameters.custom_code_dirs >>
           drupal_core_version: << pipeline.parameters.drupal_core_version >>
           supporting_repo_dependent_packages: << pipeline.parameters.supporting_repo_dependent_packages >>
       - supporting_repo_disallowed_functions:
