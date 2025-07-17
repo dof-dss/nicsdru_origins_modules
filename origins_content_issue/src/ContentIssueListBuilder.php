@@ -178,6 +178,30 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ],
     ];
 
+    $empty_text_severity = '';
+    $empty_text_assigned = '';
+
+    if (array_key_exists('severity', $current_qs)) {
+      $empty_text_severity = match($current_qs['severity']) {
+          '1' => ' high severity ',
+          '2' => ' medium severity ',
+          '3' => ' low severity ',
+      };
+    }
+
+
+    if (array_key_exists('assigned', $current_qs)) {
+      $empty_text_assigned = match($current_qs['assigned']) {
+        '-1' => ' to nobody',
+        '1' => ' to you',
+      };
+    }
+
+    $empty_text = $this->t('There are no@severitycontent issues@assigned.', [
+      '@severity' => $empty_text_severity,
+      '@assigned' => $empty_text_assigned,
+    ]);
+
     $build['dashboard']['main']['table'] = [
       '#type' => 'table',
       '#header' => [],
@@ -186,7 +210,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       '#empty' => [
         '#type' => 'html_tag',
         '#tag' => 'p',
-        '#value' => $this->t('There are no content issues.')
+        '#value' => $empty_text
       ],
       '#cache' => [
         'contexts' => $this->entityType->getListCacheContexts(),
