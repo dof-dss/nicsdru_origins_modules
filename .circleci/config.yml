@@ -21,7 +21,7 @@ jobs:
           command: wget https://raw.githubusercontent.com/dof-dss/webdev-ci/development/shared-config.yml -O shared-config.yml
 
       - run:
-          name: Combine shared jobs and local workflows
+          name: Combine shared jobs and local workflows.
           command: |
             # Remove the 'version: 2.1' from workflows config (since it's in shared config)
             tail -n +2 .circleci/workflow-config.yml > workflows-only.yml
