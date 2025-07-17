@@ -17,8 +17,13 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Download shared config
-          command: wget https://raw.githubusercontent.com/dof-dss/webdev-ci/development/shared-config.yml -O shared-config.yml
+          name: Download shared config (cache-busting)
+          command: |
+            wget \
+              --header="Cache-Control: no-cache" \
+              --header="Pragma: no-cache" \
+              "https://raw.githubusercontent.com/dof-dss/webdev-ci/development/shared-config.yml?nocache=$(date +%s)" \
+              -O shared-config.yml
 
       - run:
           name: Combine shared jobs and local workflows
