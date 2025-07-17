@@ -30,7 +30,7 @@ jobs:
           command: |
             # Remove the 'version: 2.1' from workflows config (since it's in shared config).
             tail -n +2 .circleci/workflow-config.yml > workflows-only.yml
-            # Concatenate shared jobs+commands with repo workflows.
+            # Concatenate shared jobs+commands with repo workflows
             cat shared-config.yml workflows-only.yml > full-config.yml
 
       - continuation/continue:
