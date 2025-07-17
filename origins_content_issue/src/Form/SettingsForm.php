@@ -49,6 +49,7 @@ final class SettingsForm extends ConfigFormBase {
       $icon_options['icon_report_' . $i . '.png'] = 'Style ' . $i;
     }
 
+    // TODO: implement custom icon path or upload.
     $icon_options['custom'] = $this->t('Custom');
 
     $form['report_icon'] = [
@@ -106,6 +107,12 @@ final class SettingsForm extends ConfigFormBase {
         '#suffix' => '</div>',
       ];
 
+    } else {
+      $selected_icon = [
+        '#markup' => '<p>Work in progress...</p>',
+        '#prefix' => '<div id="icon-preview">',
+        '#suffix' => '</div>',
+      ];
     }
 
     return [$selected_icon];
@@ -115,16 +122,6 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    // @todo Validate the form here.
-    // Example:
-    // @code
-    //   if ($form_state->getValue('example') === 'wrong') {
-    //     $form_state->setErrorByName(
-    //       'message',
-    //       $this->t('The value is not correct.'),
-    //     );
-    //   }
-    // @endcode
     parent::validateForm($form, $form_state);
   }
 

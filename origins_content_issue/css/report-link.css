@@ -4,13 +4,8 @@
   left: 20px;
   width: 50px;
   height: 50px;
-  background-color: rgba(100, 100, 100, 0.2);
-  background-image: url("../assets/report_icon.png");
-  background-repeat: no-repeat;
-  background-position: center;
   cursor: pointer;
-  border: 2px solid rgba(100, 100, 100, 0.48);
-  padding: 15px;
+  padding: 5px;
   border-radius: 50px;
   background-blend-mode: lighten;
   z-index: 100;
