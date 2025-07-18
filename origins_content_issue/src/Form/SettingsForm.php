@@ -6,6 +6,8 @@ namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\File\FileExists;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -63,20 +65,35 @@ final class SettingsForm extends ConfigFormBase {
         'event' => 'change',
         'wrapper' => 'icon-preview',
         'progress' => [
-          'type' => 'throbber',
+          'type' => 'none',
           'message' => $this->t('Previewing icon'),
         ],
       ]
     ];
 
+    $form['custom_icon'] = [
+      '#type' => 'file',
+      '#description' => $this->t('Allowed file types: gif, png, jpg, jpeg'),
+      '#states' => [
+        'visible' => [
+          ':input[name="report_icon"]' => ['value' => 'custom'],
+        ],
+      ],
+    ];
+
     $markup = [
       '#theme' => 'image',
-      '#uri' => $this->modulePath . '/assets/' . $selected_icon,
       '#width' => 40,
       '#height' => 20,
+      '#uri' => $this->modulePath . '/assets/' . $selected_icon,
       '#prefix' => '<div id="icon-preview">',
       '#suffix' => '</div>',
     ];
+
+    if ($selected_icon == 'custom') {
+      $custom_icon_url = $this->config('origins_content_issue.settings')->get('custom_icon_url') ?? '';
+      $markup['#uri'] = $custom_icon_url;
+    }
 
     $markup = \Drupal::service('renderer')->render($markup);
 
@@ -96,26 +113,21 @@ final class SettingsForm extends ConfigFormBase {
   public function reportIcon(array &$form, FormStateInterface $form_state) {
     $selected_icon = $form_state->getValue('report_icon');
 
-    if ($selected_icon != 'custom') {
+    $markup = [
+      '#theme' => 'image',
+      '#uri' => $this->modulePath . '/assets/' . $selected_icon,
+      '#width' => 40,
+      '#height' => 20,
+      '#prefix' => '<div id="icon-preview">',
+      '#suffix' => '</div>',
+    ];
 
-      $selected_icon = [
-        '#theme' => 'image',
-        '#uri' => $this->modulePath . '/assets/' . $selected_icon,
-        '#width' => 40,
-        '#height' => 20,
-        '#prefix' => '<div id="icon-preview">',
-        '#suffix' => '</div>',
-      ];
-
-    } else {
-      $selected_icon = [
-        '#markup' => '<p>Work in progress...</p>',
-        '#prefix' => '<div id="icon-preview">',
-        '#suffix' => '</div>',
-      ];
+    if ($selected_icon == 'custom') {
+      $custom_icon_url = $this->config('origins_content_issue.settings')->get('custom_icon_url') ?? '';
+      $markup['#uri'] = $custom_icon_url;
     }
 
-    return [$selected_icon];
+    return [$markup];
   }
 
   /**
@@ -129,6 +141,26 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+
+    $report_icon = $form_state->getValue('report_icon');
+
+    if ($report_icon == 'custom') {
+      $validators = ['FileExtension' => ['gif png jpg jpeg']];
+      $custom_icon_directory = 'public://origins_content_issue/';
+
+      \Drupal::service('file_system')->prepareDirectory($custom_icon_directory, FileSystemInterface::CREATE_DIRECTORY);
+
+      // Handle the upload manually.
+      if ($file = file_save_upload('custom_icon', $validators, $custom_icon_directory, 0, FileExists::Replace)) {
+        $file->setPermanent();
+        $file->save();
+
+        $this->config('origins_content_issue.settings')
+          ->set('custom_icon_url', $file->createFileUrl())
+          ->save();
+      }
+    }
+
     $this->config('origins_content_issue.settings')
       ->set('report_icon', $form_state->getValue('report_icon'))
       ->save();

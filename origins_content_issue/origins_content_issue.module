@@ -53,9 +53,15 @@ function origins_content_issue_preprocess_node(&$variables) {
 
   if ($enabled) {
 
-    // TODO: Display icon selected in admin settings form.
-    $report_icon_path = '/' . \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
-    $report_icon_path .= '/assets/' . \Drupal::config('origins_content_issue.settings')->get('report_icon');
+    $report_icon = \Drupal::config('origins_content_issue.settings')->get('report_icon');
+
+    if ($report_icon === 'custom') {
+      $report_icon_path = \Drupal::config('origins_content_issue.settings')->get('custom_icon_url');
+    } else {
+      $report_icon_path = '/' . \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
+      $report_icon_path .= '/assets/' . \Drupal::config('origins_content_issue.settings')->get('report_icon');
+    }
+
     $report_icon_alt = t('Report issues with this content.');
 
     $variables['#attached']['drupalSettings']['origins_content_issue']['report_icon'] = $report_icon_path;
