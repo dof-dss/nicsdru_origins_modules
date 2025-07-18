@@ -16,8 +16,19 @@ use Drupal\Core\Form\FormStateInterface;
  */
 final class SettingsForm extends ConfigFormBase {
 
-  private $modulePath;
+  /**
+   * The filesystem path to the module.
+   */
+  private string $modulePath;
 
+  /**
+   * Constructs a new Content Issue settings form.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   Configuration factory object.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
+   *   Configuration Manager object.
+   */
   public function __construct(
     ConfigFactoryInterface $config_factory,
     protected TypedConfigManagerInterface $typedConfigManager,
@@ -47,7 +58,7 @@ final class SettingsForm extends ConfigFormBase {
 
     $selected_icon = $this->config('origins_content_issue.settings')->get('report_icon') ?? 'icon_report_1.png';
 
-    for ($i=1; $i<=6; $i++) {
+    for ($i = 1; $i <= 6; $i++) {
       $icon_options['icon_report_' . $i . '.png'] = 'Style ' . $i;
     }
 
@@ -110,6 +121,9 @@ final class SettingsForm extends ConfigFormBase {
     return parent::buildForm($form, $form_state);
   }
 
+  /**
+   * AJAX callback for the report icon preview.
+   */
   public function reportIcon(array &$form, FormStateInterface $form_state) {
     $selected_icon = $form_state->getValue('report_icon');
 
@@ -148,11 +162,14 @@ final class SettingsForm extends ConfigFormBase {
     $custom_icon = $form_state->getValue('custom_icon');
 
     if (!empty($custom_icon) && $form_state->getValue('report_icon') == 'custom') {
-      if (!in_array($custom_icon['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'mimeType'], ['image/png', 'image/gif', 'image/jpeg'])) {
+      if (!in_array($custom_icon['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'mimeType'], [
+        'image/png',
+        'image/gif',
+        'image/jpeg'
+      ])) {
         $form_state->setErrorByName('custom_icon', $this->t('Custom icon file is not a valid format.'));
       }
     }
-
   }
 
   /**
