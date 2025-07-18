@@ -22,21 +22,6 @@ final class SettingsForm extends ConfigFormBase {
   private string $modulePath;
 
   /**
-   * Constructs a new Content Issue settings form.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   Configuration factory object.
-   * @param \Drupal\Core\Config\TypedConfigManagerInterface $typedConfigManager
-   *   Configuration Manager object.
-   */
-  public function __construct(
-    ConfigFactoryInterface $config_factory,
-    protected TypedConfigManagerInterface $typedConfigManager,
-  ) {
-    $this->setConfigFactory($config_factory);
-  }
-
-  /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
