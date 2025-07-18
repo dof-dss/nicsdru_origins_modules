@@ -122,9 +122,18 @@ final class SettingsForm extends ConfigFormBase {
       '#suffix' => '</div>',
     ];
 
-    if ($selected_icon == 'custom') {
+    if ($selected_icon === 'custom') {
       $custom_icon_url = $this->config('origins_content_issue.settings')->get('custom_icon_url') ?? '';
-      $markup['#uri'] = $custom_icon_url;
+
+      if (empty($custom_icon_url)) {
+        $markup = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t('No custom icon saved.'),
+          '#prefix' => '<div id="icon-preview">',
+          '#suffix' => '</div>',
+        ];
+      }
     }
 
     return [$markup];
@@ -135,6 +144,15 @@ final class SettingsForm extends ConfigFormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     parent::validateForm($form, $form_state);
+
+    $custom_icon = $form_state->getValue('custom_icon');
+
+    if (!empty($custom_icon) && $form_state->getValue('report_icon') == 'custom') {
+      if (!in_array($custom_icon['' . "\0" . 'Symfony\\Component\\HttpFoundation\\File\\UploadedFile' . "\0" . 'mimeType'], ['image/png', 'image/gif', 'image/jpeg'])) {
+        $form_state->setErrorByName('custom_icon', $this->t('Custom icon file is not a valid format.'));
+      }
+    }
+
   }
 
   /**
