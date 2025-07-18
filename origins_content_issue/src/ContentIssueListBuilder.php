@@ -178,7 +178,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       ],
     ];
 
-    $empty_text_severity = '';
+    $empty_text_severity = ' ';
     $empty_text_assigned = '';
 
     if (array_key_exists('severity', $current_qs)) {
@@ -192,14 +192,14 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     if (array_key_exists('assigned', $current_qs)) {
       $empty_text_assigned = match($current_qs['assigned']) {
-        '-1' => ' to nobody',
-        '1' => ' to you',
+        '-1' => ' assigned to nobody',
+        '1' => ' assigned to you',
       };
     }
 
-    $empty_text = $this->t('There are no@severitycontent issues@assigned.', [
-      '@severity' => $empty_text_severity,
-      '@assigned' => $empty_text_assigned,
+    $empty_text = $this->t('There are no%severitycontent issues%assigned.', [
+      '%severity' => $empty_text_severity,
+      '%assigned' => $empty_text_assigned,
     ]);
 
     $build['dashboard']['main']['table'] = [
@@ -290,16 +290,17 @@ final class ContentIssueListBuilder extends EntityListBuilder {
         ];
       }
       else {
+        $empty_text = $this->t('There are no%severitycontent issues%assigned for the content: %title', [
+          '%severity' => $empty_text_severity,
+          '%assigned' => $empty_text_assigned,
+          '%title' => $node->getTitle(),
+        ]);
+
         $build['dashboard']['main']['table']['#empty'] = [
           [
             '#type' => 'html_tag',
-            '#tag' => 'h3',
-            '#value' => $this->t('Great!')
-          ],
-          [
-            '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => $this->t('There are no issues for the content: %title.', ['%title' => $node->getTitle()])
+            '#value' => $empty_text,
           ]
         ];
       }

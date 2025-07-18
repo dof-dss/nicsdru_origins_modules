@@ -51,12 +51,12 @@ final class SettingsForm extends ConfigFormBase {
       $icon_options['icon_report_' . $i . '.png'] = 'Style ' . $i;
     }
 
-    // TODO: implement custom icon path or upload.
     $icon_options['custom'] = $this->t('Custom');
 
     $form['report_icon'] = [
       '#type' => 'select',
       '#title' => $this->t('Report icon'),
+      '#description' => $this->t('Select either a predefined or custom icon that will be shown to users for submitting content issue reports.'),
       '#default_value' => $this->config('origins_content_issue.settings')->get('report_icon'),
       '#options' => $icon_options,
       '#ajax' => [
