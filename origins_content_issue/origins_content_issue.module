@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
@@ -109,6 +110,17 @@ function origins_content_issue_theme(): array {
     'content_issue_comment' => [
       'render element' => 'elements',
       'template' => 'content-issue-comment',
+    ],
+    'content_issue_email' => [
+      'variables' => [
+        'site' => NULL,
+        'bundle' => NULL,
+        'title' => NULL,
+        'description' => NULL,
+        'link' => NULL,
+      ],
+      'template' => 'email/content-issue-email',
+      'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
     ],
   ];
 }
@@ -417,5 +429,32 @@ function origins_content_issue_moderation_sidebar_alter(&$build, &$context) {
         ];
       }
     }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function origins_content_issue_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'new_content_issue':
+
+      $build = [
+        '#theme' => 'content_issue_email',
+        '#site' => $params['site'],
+        '#bundle' => $params['bundle'],
+        '#title' => $params['title'],
+        '#description' => $params['description'],
+        '#link' => $params['link'],
+      ];
+
+      $renderer = \Drupal::service('renderer');
+      $body = $renderer->renderRoot($build);
+
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Content issue for @subject', ['@subject' => $params['subject']]);
+      $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
+      $message['body'][] = MailFormatHelper::htmlToText($body);
+      break;
   }
 }
