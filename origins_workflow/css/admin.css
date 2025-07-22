@@ -30,3 +30,7 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
   color: #00558a; /* darken link color for better contrast */
   text-decoration: underline;
 }
+/* Scheduled transitions button for non-admins. */
+.ui-widget.button--primary {
+  background-color: #003ecc;
+}
