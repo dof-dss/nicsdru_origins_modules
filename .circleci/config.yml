@@ -1,87 +1,45 @@
-# Use of custom drupal-recommended-project package to allow the installation of modules with a dev/alpha/beta release.
-# See: https://github.com/dof-dss/drupal-recommended-project
 version: 2.1
 
-default_docker_image: &docker_image
-  docker:
-    - image: thecodingmachine/php:8.2-v4-apache-node12
-      environment:
-        PROJECT_ROOT: "/home/docker/project"
-        PHP_EXTENSION_GD: 1
-        PHP_INI_MEMORY_LIMIT: 1g
+setup: true
+
+orbs:
+  continuation: circleci/continuation@0.4.0
+
+workflows:
+  setup:
+    jobs:
+      - fetch-and-continue
 
 jobs:
-  # Test that coding standards fit drupal.org definitions.
-  coding_standards:
-    <<: *docker_image
+  fetch-and-continue:
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
       - run:
-          name: Fetch phpcs and dependencies
+          name: Download shared config (cache-busting)
           command: |
-            composer require drupal/coder --prefer-stable --no-interaction --optimize-autoloader
-            # Move vendor and core directories up a level, out of the way, as we don't want to code-check all of that.
-            mv vendor ../
-            mv core ../
-      - run:
-          name: Fetch phpcs convenience script
-          command: |
-            curl https://raw.githubusercontent.com/dof-dss/nidirect-drupal/development/phpcs.sh -o $PROJECT_ROOT/phpcs.sh
-            chmod +x $PROJECT_ROOT/phpcs.sh
-      - run:
-          name: PHPCS analysis
-          command: $PROJECT_ROOT/phpcs.sh ~/ "${PROJECT_ROOT}"
+            wget \
+              --header="Cache-Control: no-cache" \
+              --header="Pragma: no-cache" \
+              "https://raw.githubusercontent.com/dof-dss/webdev-ci/development/shared-config.yml?nocache=$(date +%s)" \
+              -O shared-config.yml
 
-  deprecated_code:
-    <<: *docker_image
-    steps:
-      - checkout:
-          path: ~/nicsdru_origins_modules
       - run:
-          name: Fetch recent Drupal version
+          name: Combine shared jobs and local workflows
           command: |
-            cd $PROJECT_ROOT
-            composer create-project dof-dss/drupal-recommended-project:10.2.x-dev $PROJECT_ROOT --no-interaction
-      - run:
-          name: Download dependent contrib modules.
-          command: |
-            cd $PROJECT_ROOT
-            composer require drupal/entity_embed:^1.6 mglaman/drupal-check \
-              drupal/flag:^4.0@beta drupal/geolocation:^4.0 \
-              drupal/facets:^3.0@beta drush/drush:^12.5
-      - run:
-          name: Move custom code into position
-          command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
-      - run:
-          name: Deprecated code check
-          command: |
-            cd $PROJECT_ROOT/web
-            ../vendor/bin/drupal-check modules/origins
+            # Remove the 'version: 2.1' from workflows config (since it's in shared config).
+            tail -n +2 .circleci/workflow-config.yml > workflows-only.yml
+            # Concatenate shared jobs+commands with repo workflows
+            cat shared-config.yml workflows-only.yml > full-config.yml
 
-  disallowed_functions:
-    <<: *docker_image
-    steps:
-      - checkout:
-          path: ~/nicsdru_origins_modules
-      - run:
-          name: Fetch latest Drupal core and other misc composer tools.
-          command: |
-            cd $PROJECT_ROOT
-            composer create-project dof-dss/drupal-recommended-project:10.2.x-dev $PROJECT_ROOT --no-interaction
-            composer require --dev phpstan/extension-installer spaze/phpstan-disallowed-calls
-      - run:
-          name: Move custom code into position
-          command: mv ~/nicsdru_origins_modules $PROJECT_ROOT/web/modules/origins
-      - run:
-          name: Check for disallowed function calls
-          command: |
-            CHECK_DIRS="$CHECK_DIRS ${PROJECT_ROOT}/web/modules/origins"
-            vendor/bin/phpstan analyse $CHECK_DIRS -c $PROJECT_ROOT/web/modules/origins/.circleci/phpstan.neon
-
-workflows:
-  version: 2
-  static_analysis:
-    jobs:
-      - coding_standards
-      - deprecated_code
-      - disallowed_functions
+      - continuation/continue:
+          configuration_path: full-config.yml
+          parameters: |
+            {
+              "php_version": "8.3",
+              "drupal_core_version": "10.4",
+              "custom_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
+              "deprecated_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
+              "supporting_repo_dependent_packages": "drupal/entity_embed:^1.6 mglaman/drupal-check drupal/flag:^4.0@beta drupal/geolocation:^4.0 drupal/facets:^3.0@beta drush/drush:^12.5"
+            }
