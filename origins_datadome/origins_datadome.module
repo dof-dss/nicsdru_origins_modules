@@ -9,10 +9,13 @@
  * Implements hook_page_attachments().
  */
 function origins_datadome_page_attachments(&$attachments) {
-
   $config = \Drupal::config('origins_datadome.settings');
 
   $script = "window.ddjskey = '" . $config->get('ddjskey') . "';";
+
+  if ($js_config = $config->get('ddoptions')) {
+    $script .= "window.ddoptions = {" . $js_config . "};";
+  }
 
   $inline_js = [
     '#tag' => 'script',

@@ -6,3 +6,6 @@ origins_datadome.settings:
     ddjskey:
       type: string
       label: 'DataDome JS key'
+    ddoptions:
+      type: text
+      label: 'DataDome configuration options'
