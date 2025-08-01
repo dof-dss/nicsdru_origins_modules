@@ -1,0 +1,26 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Origins DataDome module.
+ */
+
+/**
+ * Implements hook_page_attachments().
+ */
+function origins_datadome_page_attachments(&$attachments) {
+
+  $config = \Drupal::config('origins_datadome.settings');
+
+  $script = "window.ddjskey = '" . $config->get('ddjskey') . "';";
+
+  $inline_js = [
+    '#tag' => 'script',
+    '#attributes' => ['type' => 'text/javascript'],
+    '#value' => $script,
+  ];
+
+  $attachments['#attached']['html_head'][] = [$inline_js, 'origins_datadome'];
+
+  $attachments['#attached']['library'][] = 'origins_datadome/datadome';
+}

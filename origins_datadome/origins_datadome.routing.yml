@@ -1,0 +1,7 @@
+origins_datadome.settings:
+  path: '/admin/config/system/origins/datadome'
+  defaults:
+    _title: 'DataDome settings'
+    _form: 'Drupal\origins_datadome\Form\SettingsForm'
+  requirements:
+    _permission: 'administer datadome'
