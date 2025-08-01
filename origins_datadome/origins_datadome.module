@@ -11,6 +11,12 @@
 function origins_datadome_page_attachments(&$attachments) {
   $config = \Drupal::config('origins_datadome.settings');
 
+  $js_key = $config->get('ddjskey');
+
+  if (empty($js_key)) {
+    return;
+  }
+
   $script = "window.ddjskey = '" . $config->get('ddjskey') . "';";
 
   if ($js_config = $config->get('ddoptions')) {
@@ -24,6 +30,5 @@ function origins_datadome_page_attachments(&$attachments) {
   ];
 
   $attachments['#attached']['html_head'][] = [$inline_js, 'origins_datadome'];
-
   $attachments['#attached']['library'][] = 'origins_datadome/datadome';
 }

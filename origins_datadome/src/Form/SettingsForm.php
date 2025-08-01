@@ -53,7 +53,12 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    // @todo Validate key for spaces etc.
+    $values = $form_state->getValues();
+
+    if (preg_match('/[^a-zA-Z\d]/', $values['ddjskey']) == 1) {
+      $form_state->setErrorByName('ddjskey', $this->t('Key must contain alphanumeric characters only.'));
+    }
+
     parent::validateForm($form, $form_state);
   }
 
@@ -61,9 +66,20 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $values = $form_state->getValues();
+
+    if (!empty($values['ddoptions'])) {
+      if (!str_starts_with($values['ddoptions'], '{')) {
+        $values['ddoptions'] = '{' . PHP_EOL . $values['ddoptions'];
+      }
+      if (!str_ends_with($values['ddoptions'], '}')) {
+        $values['ddoptions'] = $values['ddoptions'] . PHP_EOL . '}';
+      }
+    }
+
     $config = $this->config('origins_datadome.settings');
-    $config->set('ddjskey', $form_state->getValue('ddjskey'));
-    $config->set('ddoptions', $form_state->getValue('ddoptions'));
+    $config->set('ddjskey', $values['ddjskey']);
+    $config->set('ddoptions', $values['ddoptions']);
     $config->save();
 
     parent::submitForm($form, $form_state);
