@@ -5,6 +5,8 @@
  * Primary module hooks for Origins DataDome module.
  */
 
+use Drupal\csp\Csp;
+
 /**
  * Implements hook_page_attachments().
  */
@@ -23,12 +25,28 @@ function origins_datadome_page_attachments(&$attachments) {
     $script .= "window.ddoptions = {" . $js_config . "};";
   }
 
-  $inline_js = [
+  $datadome_js = [
     '#tag' => 'script',
     '#attributes' => ['type' => 'text/javascript'],
     '#value' => $script,
   ];
 
-  $attachments['#attached']['html_head'][] = [$inline_js, 'origins_datadome'];
+
+  if (\Drupal::service('module_handler')->moduleExists('csp')) {
+    $placeholderKey = Drupal::service('csp.nonce_builder')->getPlaceholderKey();
+
+    $datadome_js['#attributes']['nonce'] = $placeholderKey;
+
+//    $attachments['#attached']['csp'] = [
+//      'script-src' => ['js.datadome.co', 'ct.captcha-delivery.com'],
+//    ];
+
+    $attachments['#attached']['placeholders'][$placeholderKey] = [
+      '#lazy_builder' => ['csp.nonce_builder:renderNonce', []],
+    ];
+    $attachments['#attached']['csp_nonce']['script'][] = Csp::POLICY_UNSAFE_INLINE;
+  }
+
+  $attachments['#attached']['html_head'][] = [$datadome_js, 'origins_datadome'];
   $attachments['#attached']['library'][] = 'origins_datadome/datadome';
 }

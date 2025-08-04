@@ -1,0 +1,5 @@
+services:
+  origins_datadome.event_subscriber:
+    class: Drupal\origins_datadome\EventSubscriber\CspPolicySubscriber
+    tags:
+      - { name: event_subscriber }
