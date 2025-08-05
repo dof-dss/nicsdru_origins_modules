@@ -41,6 +41,7 @@ function origins_datadome_page_attachments(&$attachments) {
     ];
 
     $attachments['#attached']['placeholders'][$placeholderKey] = [
+      // @phpstan-ignore-next-line
       '#lazy_builder' => ['csp.nonce_builder:renderNonce', []],
     ];
   }
