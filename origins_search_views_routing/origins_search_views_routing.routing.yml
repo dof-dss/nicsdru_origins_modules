@@ -107,3 +107,23 @@ origins.search.views.members.routing:
     node: \d+
     _entity_access: node.view
     searchstring: '[^\?\/]+$'
+
+origins.search.views.champions.routing:
+  path: '/champions/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.stories.routing:
+  path: '/stories/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
