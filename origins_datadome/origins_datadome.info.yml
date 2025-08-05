@@ -1,0 +1,5 @@
+name: 'Origins DataDome'
+type: module
+description: 'Provides an interface for the DataDome service'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
