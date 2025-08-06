@@ -137,3 +137,33 @@ origins.search.views.legal.guidance.routing:
     node: \d+
     _entity_access: node.view
     searchstring: '[^\?\/]+$'
+
+origins.search.views.noticeboard.routing:
+  path: '/noticeboard/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.blog.routing:
+  path: '/blog/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.resources.routing:
+  path: '/resources/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
