@@ -1,5 +1,5 @@
 name: 'Origins search views routing'
 type: module
-description: 'Additional routes for Corplite and Unity Views. Distinguish URLs that are searches from those that are nodes e.g. /publications.'
+description: 'Additional routes for Corplite, Unity and Unity Intranet Views. Distinguish URLs that are searches from those that are nodes e.g. /publications.'
 package: 'Custom'
 core_version_requirement: ^8 || ^9 || ^10 || ^11
