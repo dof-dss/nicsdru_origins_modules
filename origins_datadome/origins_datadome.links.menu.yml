@@ -1,0 +1,6 @@
+origins_datadome.settings:
+  title: DataDome settings
+  description: DataDome settings
+  route_name: origins_datadome.settings
+  parent: origins.admin_config
+  weight: 10
