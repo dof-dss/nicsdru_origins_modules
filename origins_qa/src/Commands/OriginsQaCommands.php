@@ -98,6 +98,13 @@ class OriginsQaCommands extends DrushCommands {
       $this->io()->write($msg, TRUE);
       return;
     }
+
+    if (empty($role = getenv('QA_STAFF_ROLE'))) {
+      $msg = t("QA_STAFF_ROLE variable not set.");
+      $this->io()->write($msg, TRUE);
+      return;
+    }
+
     $emails = explode(',', $env_email_string);
     $generator = new DefaultPasswordGenerator();
 
@@ -108,10 +115,10 @@ class OriginsQaCommands extends DrushCommands {
       $user->enforceIsNew();
       $user->setEmail($email);
       $user->setUsername($email);
+      $user->addRole($role);
       $user->activate();
-      $result = $user->save();
 
-      if ($result) {
+      if ($user->save()) {
         $this->io()->writeln(t('Account generated for @email', ['@email' => $email]));
       } else {
         $this->io()->writeln(t('Unable to generate account for @email', ['@email' => $email]));
