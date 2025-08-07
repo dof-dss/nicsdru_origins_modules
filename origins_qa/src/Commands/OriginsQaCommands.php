@@ -3,7 +3,6 @@
 namespace Drupal\origins_qa\Commands;
 
 use Drupal\Core\Password\DefaultPasswordGenerator;
-use Drupal\Core\Password\PasswordGeneratorInterface;
 use Drupal\origins_qa\Controller\QaAccountsManager;
 use Drupal\user\Entity\User;
 use Drush\Commands\DrushCommands;
@@ -94,21 +93,36 @@ class OriginsQaCommands extends DrushCommands {
    */
   public function createQaStaffAccounts() {
     if (empty($env_email_string = getenv('QA_STAFF_ACCOUNTS'))) {
-      $msg = t("QA_STAFF_ACCOUNTS variable not set.");
-      $this->io()->write($msg, TRUE);
+      $this->io()->error('QA_STAFF_ACCOUNTS variable not set.');
       return;
     }
 
     if (empty($role = getenv('QA_STAFF_ROLE'))) {
-      $msg = t("QA_STAFF_ROLE variable not set.");
-      $this->io()->write($msg, TRUE);
+      $this->io()->error(t('QA_STAFF_ROLE variable not set.'));
+      return;
+    }
+
+    $user_role = \Drupal::entityTypeManager()->getStorage('user_role')->load($role);
+
+    if (empty($user_role)) {
+      $this->io()->error(t('The QA_STAFF_ROLE role \'@role\', does not exist.', ['@role' => $role]));
       return;
     }
 
     $emails = explode(',', $env_email_string);
     $generator = new DefaultPasswordGenerator();
+    $user_manager = \Drupal::entityTypeManager()->getStorage('user');
 
     foreach ($emails as $email) {
+      $user_exists = $user_manager->loadByProperties([
+        'mail' => $email,
+      ]);
+
+      if (!empty($user_exists)) {
+        $this->io()->warning(t('Account already exists for @email', ['@email' => $email]));
+        $this->io()->newLine();
+        continue;
+      }
 
       $user = User::create();
       $user->setPassword($generator->generate());
