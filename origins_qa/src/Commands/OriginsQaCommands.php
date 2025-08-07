@@ -2,7 +2,10 @@
 
 namespace Drupal\origins_qa\Commands;
 
+use Drupal\Core\Password\DefaultPasswordGenerator;
+use Drupal\Core\Password\PasswordGeneratorInterface;
 use Drupal\origins_qa\Controller\QaAccountsManager;
+use Drupal\user\Entity\User;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -82,6 +85,39 @@ class OriginsQaCommands extends DrushCommands {
 
     $msg = t("Password for @cnt QA accounts updated.", ['@cnt' => count($qa_users)]);
     $this->io()->write($msg, TRUE);
+  }
+
+  /**
+   * Drush command to create QA staff accounts.
+   *
+   * @command create_qa_staff_accounts
+   */
+  public function createQaStaffAccounts() {
+    if (empty($env_email_string = getenv('QA_STAFF_ACCOUNTS'))) {
+      $msg = t("QA_STAFF_ACCOUNTS variable not set.");
+      $this->io()->write($msg, TRUE);
+      return;
+    }
+    $emails = explode(',', $env_email_string);
+    $generator = new DefaultPasswordGenerator();
+
+    foreach ($emails as $email) {
+
+      $user = User::create();
+      $user->setPassword($generator->generate());
+      $user->enforceIsNew();
+      $user->setEmail($email);
+      $user->setUsername($email);
+      $user->activate();
+      $result = $user->save();
+
+      if ($result) {
+        $this->io()->writeln(t('Account generated for @email', ['@email' => $email]));
+      } else {
+        $this->io()->writeln(t('Unable to generate account for @email', ['@email' => $email]));
+      }
+    }
+
   }
 
 }
