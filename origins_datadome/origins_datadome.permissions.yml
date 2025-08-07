@@ -1,0 +1,3 @@
+administer datadome:
+  title: 'Administer DataDome settings'
+  restrict access: true

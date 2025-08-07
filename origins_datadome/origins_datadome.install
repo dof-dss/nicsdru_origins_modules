@@ -1,0 +1,9 @@
+<?php
+
+
+/**
+* Implements hook_install().
+*/
+function origins_datadome_install() {
+  module_set_weight('origins_datadome', 80);
+}

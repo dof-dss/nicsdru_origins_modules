@@ -53,6 +53,7 @@ class QaAccountsManager extends ControllerBase {
    */
   public function list() {
     $build = [];
+    $masquerade_enabled = \Drupal::service('module_handler')->moduleExists('masquerade');
 
     // Fetch all the accounts belonging to the 'qa' role.
     $accounts = $this->entityTypeManager()
@@ -72,6 +73,21 @@ class QaAccountsManager extends ControllerBase {
     $rows = [];
 
     foreach ($accounts as $account) {
+
+      $operations = [
+        'edit' => [
+          'title' => $this->t('Edit'),
+          'url' => Url::fromRoute('entity.user.edit_form', ['user' => $account->id()]),
+        ],
+      ];
+
+      if ($masquerade_enabled) {
+        $operations['masquerade'] = [
+          'title' => $this->t('Masquerade as'),
+          'url' => Url::fromRoute('entity.user.masquerade', ['user' => $account->id()]),
+        ];
+      }
+
       /** @var \Drupal\user\UserInterface $account */
       $rows[] = [
         $account->label(),
@@ -80,13 +96,8 @@ class QaAccountsManager extends ControllerBase {
         [
           'data' => [
             '#type' => 'dropbutton',
-            '#links' => [
-              'edit' => [
-                'title' => $this->t('Edit'),
-                'url' => Url::fromRoute('entity.user.edit_form', ['user' => $account->id()]),
-              ],
-
-            ],
+            '#dropbutton_type' => 'small',
+            '#links' => $operations,
           ],
         ],
       ];
