@@ -2,7 +2,9 @@
 
 namespace Drupal\origins_qa\Commands;
 
+use Drupal\Core\Password\DefaultPasswordGenerator;
 use Drupal\origins_qa\Controller\QaAccountsManager;
+use Drupal\user\Entity\User;
 use Drush\Commands\DrushCommands;
 
 /**
@@ -82,6 +84,79 @@ class OriginsQaCommands extends DrushCommands {
 
     $msg = t("Password for @cnt QA accounts updated.", ['@cnt' => count($qa_users)]);
     $this->io()->write($msg, TRUE);
+  }
+
+  /**
+   * Drush command to create QA staff accounts.
+   *
+   * @command create_qa_staff_accounts
+   */
+  public function createQaStaffAccounts() {
+    if (empty($env_email_string = getenv('QA_STAFF_ACCOUNTS'))) {
+      $this->io()->error('QA_STAFF_ACCOUNTS variable not set.');
+      return;
+    }
+
+    if (empty($role = getenv('QA_STAFF_ROLE'))) {
+      $this->io()->error(t('QA_STAFF_ROLE variable not set.'));
+      return;
+    }
+
+    // Check that the requested QA role exists on the site.
+    $user_role = \Drupal::entityTypeManager()->getStorage('user_role')->load($role);
+
+    if (empty($user_role)) {
+      $this->io()->error(t('The QA_STAFF_ROLE role \'@role\', does not exist.', ['@role' => $role]));
+      return;
+    }
+
+    // Generate array of entity reference field values if we need to assign
+    // users to a Domain.
+    if (\Drupal::service('module_handler')->moduleExists('domain')) {
+      $domains = \Drupal::entityTypeManager()->getStorage('domain')->loadMultiple();
+      $domain_references = [];
+      foreach ($domains as $domain) {
+        $domain_references[] = ['target_id' => $domain->id()];
+      }
+    }
+
+    $emails = explode(',', $env_email_string);
+    $generator = new DefaultPasswordGenerator();
+    $user_manager = \Drupal::entityTypeManager()->getStorage('user');
+
+    foreach ($emails as $email) {
+      $user_exists = $user_manager->loadByProperties([
+        'mail' => $email,
+      ]);
+
+      if (!empty($user_exists)) {
+        $this->io()->warning(t('Account already exists for @email', ['@email' => $email]));
+        $this->io()->newLine();
+        continue;
+      }
+
+      $user = User::create();
+      $user->setPassword($generator->generate());
+      $user->enforceIsNew();
+      $user->setEmail($email);
+      $user->setUsername($email);
+      $user->addRole($role);
+
+      if (!empty($domain_references)) {
+        $user->field_domain_access = $domain_references;
+        $user->field_domain_source[] = reset($domain_references);
+      }
+
+      $user->activate();
+
+      if ($user->save()) {
+        $this->io()->writeln(t('Account generated for @email', ['@email' => $email]));
+      }
+      else {
+        $this->io()->writeln(t('Unable to generate account for @email', ['@email' => $email]));
+      }
+    }
+
   }
 
 }
