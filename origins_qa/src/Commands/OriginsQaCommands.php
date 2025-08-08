@@ -102,6 +102,7 @@ class OriginsQaCommands extends DrushCommands {
       return;
     }
 
+    // Check that the requested QA role exists on the site.
     $user_role = \Drupal::entityTypeManager()->getStorage('user_role')->load($role);
 
     if (empty($user_role)) {
@@ -109,6 +110,8 @@ class OriginsQaCommands extends DrushCommands {
       return;
     }
 
+    // Generate array of entity reference field values if we need to assign
+    // users to a Domain.
     if (\Drupal::service('module_handler')->moduleExists('domain')) {
       $domains = \Drupal::entityTypeManager()->getStorage('domain')->loadMultiple();
       $domain_references = [];
@@ -148,7 +151,8 @@ class OriginsQaCommands extends DrushCommands {
 
       if ($user->save()) {
         $this->io()->writeln(t('Account generated for @email', ['@email' => $email]));
-      } else {
+      }
+      else {
         $this->io()->writeln(t('Unable to generate account for @email', ['@email' => $email]));
       }
     }
