@@ -109,6 +109,14 @@ class OriginsQaCommands extends DrushCommands {
       return;
     }
 
+    if (\Drupal::service('module_handler')->moduleExists('domain')) {
+      $domains = \Drupal::entityTypeManager()->getStorage('domain')->loadMultiple();
+      $domain_references = [];
+      foreach ($domains as $domain) {
+        $domain_references[] = ['target_id' => $domain->id()];
+      }
+    }
+
     $emails = explode(',', $env_email_string);
     $generator = new DefaultPasswordGenerator();
     $user_manager = \Drupal::entityTypeManager()->getStorage('user');
@@ -130,6 +138,12 @@ class OriginsQaCommands extends DrushCommands {
       $user->setEmail($email);
       $user->setUsername($email);
       $user->addRole($role);
+
+      if (!empty($domain_references)) {
+        $user->field_domain_access = $domain_references;
+        $user->field_domain_source[] = reset($domain_references);
+      }
+
       $user->activate();
 
       if ($user->save()) {
