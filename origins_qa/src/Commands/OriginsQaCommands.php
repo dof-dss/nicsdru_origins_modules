@@ -87,11 +87,16 @@ class OriginsQaCommands extends DrushCommands {
   }
 
   /**
-   * Drush command to create QA staff accounts.
+   * Drush command to create QA staff accounts on non-production environments.
    *
    * @command create_qa_staff_accounts
    */
   public function createQaStaffAccounts() {
+
+    if (getenv('PLATFORM_ENVIRONMENT_TYPE') == 'production') {
+      return;
+    }
+
     if (empty($env_email_string = getenv('QA_STAFF_ACCOUNTS'))) {
       $this->io()->error('QA_STAFF_ACCOUNTS variable not set.');
       return;
