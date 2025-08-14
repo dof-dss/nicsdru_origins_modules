@@ -23,7 +23,7 @@ function origins_datadome_page_attachments(&$attachments) {
 
   if (\Drupal::service('module_handler')->moduleExists('csp')) {
     $attachments['#attached']['csp'] = [
-      'script-src' => ['js.datadome.co', 'ct.captcha-delivery.com'],
+      'script-src' => ['js.datadome.co', 'ct.captcha-delivery.com'],e stand
     ];
   }
 
