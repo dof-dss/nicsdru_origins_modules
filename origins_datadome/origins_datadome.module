@@ -13,39 +13,15 @@ use Drupal\csp\Csp;
 function origins_datadome_page_attachments(&$attachments) {
   $config = \Drupal::config('origins_datadome.settings');
 
-  $js_key = $config->get('ddjskey');
+  $dd_key = $config->get('ddjskey');
 
-  if (empty($js_key)) {
+  if (empty($dd_key)) {
     return;
   }
 
-  $script = "window.ddjskey = '" . $config->get('ddjskey') . "';";
+  $dd_config = $config->get('ddoptions');
 
-  if ($js_config = $config->get('ddoptions')) {
-    $script .= "window.ddoptions = {" . $js_config . "};";
-  }
-
-  $datadome_js = [
-    '#tag' => 'script',
-    '#attributes' => ['type' => 'text/javascript'],
-    '#value' => $script,
-  ];
-
-  if (\Drupal::service('module_handler')->moduleExists('csp')) {
-    $placeholderKey = Drupal::service('csp.nonce_builder')->getPlaceholderKey();
-
-    $datadome_js['#attributes']['nonce'] = $placeholderKey;
-    $attachments['#attached']['csp_nonce']['script'][] = Csp::POLICY_UNSAFE_INLINE;
-    $attachments['#attached']['csp'] = [
-      'script-src' => ['js.datadome.co', 'ct.captcha-delivery.com'],
-    ];
-
-    $attachments['#attached']['placeholders'][$placeholderKey] = [
-      // @phpstan-ignore-next-line
-      '#lazy_builder' => ['csp.nonce_builder:renderNonce', []],
-    ];
-  }
-
-  $attachments['#attached']['html_head'][] = [$datadome_js, 'origins_datadome'];
+  $attachments['#attached']['drupalSettings']['origins_datadome']['ddkey'] = $dd_key;
+  $attachments['#attached']['drupalSettings']['origins_datadome']['ddconfig'] = $dd_config;
   $attachments['#attached']['library'][] = 'origins_datadome/datadome';
 }
