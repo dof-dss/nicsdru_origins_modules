@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Origins Cloud Tasks module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Url;
+use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
+use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
+use Google\Cloud\Tasks\V2\HttpMethod;
+use Google\Cloud\Tasks\V2\Task;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
+
+  if ($entity instanceof ScheduledTransitionInterface) {
+
+    $moderation_state = $entity->get('moderation_state')->getString();
+
+    if ($moderation_state == 'published' || $moderation_state == 'archived') {
+      // TODO: GCT only allow tasks up to 30 days in advance. If the
+      // transition_on date is greater then save to a table for processing by
+      // regular cron, which will add the Cloud Task when it's within 30 days.
+      $transition_on = $entity->get('transition_on')->getString();
+
+      $state = \Drupal::service('state');
+      $config = \Drupal::service('config.factory')->get('origins_cloud_tasks.settings');
+
+
+      // TODO: Store the project, location and queue id in a sharable location.
+      $project_id = getenv('PLATFORM_APPLICATION_NAME');
+      $location = 'europe-west2-a';
+      // TODO: set the entity type and ID as part of the queue so we can alter
+      // it at a later date if the scheduled transition is edited.
+      $queue_id = $project_id . '-origins-cloud-tasks';
+      // Cannot use a colon like Drupal uses for the entity identifier.
+      $task_id = $entity->bundle() . '-' . $entity->id();
+      $url = Url::fromRoute('system.cron', ['key' => $state->get('system.cron_key')], ['absolute' => TRUE])->toString();
+
+      $client = new CloudTasksClient();
+      $queue_name = $client->queueName($project_id, $location, $queue_id);
+      $task_name = CloudTasksClient::taskName($project_id, $location, $queue_id, $task_id);
+
+//      $schedule_time = $transition_on + ->get('callback_offset') ?? 5;
+
+      $task = [
+        'http_request' => [
+          'http_method' => HttpMethod::GET,
+          'url' => $url,
+          'headers' => ['Content-Type' => 'text/html'],
+        ],
+      ];
+
+      $task = new Task($task);
+      $task->setName($task_name);
+      $task->setScheduleTime($schedule_time);
+      $response = $client->createTask($queue_name, $task);
+
+      \Drupal::logger('origins_cloud_tasks')->info('Created task: ' . $response->getName());
+    }
+  }
+
+}

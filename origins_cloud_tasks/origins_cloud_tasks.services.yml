@@ -1,0 +1,5 @@
+services:
+  origins_cloud_tasks.event_subscriber:
+    class: Drupal\origins_cloud_tasks\EventSubscriber\ScheduledTransitionSubscriber
+    tags:
+      - { name: event_subscriber }

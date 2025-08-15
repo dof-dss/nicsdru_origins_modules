@@ -1,0 +1,17 @@
+# Schema for the configuration files of the Origins cloud tasks module.
+origins_cloud_tasks.settings:
+  type: config_object
+  label: 'Origins cloud tasks settings'
+  mapping:
+    project_id:
+      type: string
+      label: 'Google Cloud project ID'
+    queue_id:
+      type: string
+      label: 'Google Cloud queue ID'
+    region:
+      type: string
+      label: 'Google Cloud region'
+    callback_offset:
+      type: string
+      label: 'Callback offset'

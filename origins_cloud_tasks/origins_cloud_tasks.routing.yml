@@ -1,0 +1,15 @@
+origins_cloud_tasks.settings:
+  path: '/admin/config/origins/cloud-tasks/settings'
+  defaults:
+    _title: 'Origins Cloud Tasks settings'
+    _form: 'Drupal\origins_cloud_tasks\Form\SettingsForm'
+  requirements:
+    _permission: 'administer cloud tasks'
+
+origins_cloud_tasks.cloud_tasks:
+  path: '/admin/config/origins/cloud-tasks'
+  defaults:
+    _title: 'Cloud Tasks'
+    _controller: '\Drupal\origins_cloud_tasks\Controller\CloudTasksController::displayTasks'
+  requirements:
+    _permission: 'access cloud tasks'

@@ -1,0 +1,12 @@
+origins_cloud_tasks.tasks:
+  title: Cloud Tasks
+  parent: origins.admin_config
+  route_name: origins_cloud_tasks.cloud_tasks
+  weight: 10
+
+origins_cloud_tasks.settings:
+  title: Settings
+  parent: origins_cloud_tasks.tasks
+  route_name: origins_cloud_tasks.settings
+  weight: 10
+
