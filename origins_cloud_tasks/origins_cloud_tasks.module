@@ -8,14 +8,18 @@
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
 use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
+use Google\ApiCore\ApiException;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
+use Google\Cloud\Tasks\V2\CreateTaskRequest;
 use Google\Cloud\Tasks\V2\HttpMethod;
+use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\Task;
+use Google\Protobuf\Timestamp;
 
 /**
  * Implements hook_entity_presave().
  */
-function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
+function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
 
   if ($entity instanceof ScheduledTransitionInterface) {
 
@@ -28,39 +32,44 @@ function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
       $transition_on = $entity->get('transition_on')->getString();
 
       $state = \Drupal::service('state');
-      $config = \Drupal::service('config.factory')->get('origins_cloud_tasks.settings');
+      $config = \Drupal::config('origins_cloud_tasks.settings');
+      $project_id = $config->get('project_id');
+      $queue_id = $config->get('queue_id');
+      $location = $config->get('region');
 
+      $cloudTasksClient = new CloudTasksClient();
 
-      // TODO: Store the project, location and queue id in a sharable location.
-      $project_id = getenv('PLATFORM_APPLICATION_NAME');
-      $location = 'europe-west2-a';
-      // TODO: set the entity type and ID as part of the queue so we can alter
-      // it at a later date if the scheduled transition is edited.
-      $queue_id = $project_id . '-origins-cloud-tasks';
-      // Cannot use a colon like Drupal uses for the entity identifier.
-      $task_id = $entity->bundle() . '-' . $entity->id();
+      $formattedParent = CloudTasksClient::queueName($project_id, $location, $queue_id);
+
       $url = Url::fromRoute('system.cron', ['key' => $state->get('system.cron_key')], ['absolute' => TRUE])->toString();
 
-      $client = new CloudTasksClient();
-      $queue_name = $client->queueName($project_id, $location, $queue_id);
+      $httpRequest = new HttpRequest();
+      $httpRequest->setUrl($url);
+      $httpRequest->setHttpMethod(HttpMethod::GET);
+
+      $schedule_time = $transition_on + $config->get('callback_offset') ?? 5;
+      $ts = new Timestamp();
+      $ts->setSeconds($schedule_time);
+      $ts->setNanos(0);
+
+      $task_id = $entity->bundle() . '--' . $entity->id();
       $task_name = CloudTasksClient::taskName($project_id, $location, $queue_id, $task_id);
 
-//      $schedule_time = $transition_on + ->get('callback_offset') ?? 5;
-
-      $task = [
-        'http_request' => [
-          'http_method' => HttpMethod::GET,
-          'url' => $url,
-          'headers' => ['Content-Type' => 'text/html'],
-        ],
-      ];
-
-      $task = new Task($task);
+      $task = new Task();
+      $task->setHttpRequest($httpRequest);
+      $task->setScheduleTime($ts);
       $task->setName($task_name);
-      $task->setScheduleTime($schedule_time);
-      $response = $client->createTask($queue_name, $task);
+      $request = (new CreateTaskRequest())
+        ->setParent($formattedParent)
+        ->setTask($task);
 
-      \Drupal::logger('origins_cloud_tasks')->info('Created task: ' . $response->getName());
+      try {
+        /** @var Task $response */
+        $response = $cloudTasksClient->createTask($request);
+        \Drupal::logger('origins_cloud_tasks')->info('Created Cloud Task: ' . $response->getName());
+      } catch (ApiException $ex) {
+        \Drupal::logger('origins_cloud_tasks')->error('Cloud Task creation failed: ' . $ex->getMessage());
+      }
     }
   }
 
