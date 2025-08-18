@@ -14,12 +14,46 @@ use Google\Cloud\Tasks\V2\ListTasksRequest;
  */
 final class CloudTasksController extends ControllerBase {
 
+  public function displayAuthCheck(): array {
+    $path = getenv('GOOGLE_APPLICATION_CREDENTIALS');
+
+    $build['table'] = [
+      '#type' => 'table',
+      '#header' => [
+        $this->t('Check'),
+        $this->t('Status'),
+      ],
+      '#rows' => []
+    ];
+
+    if (file_exists($path)){
+      $build['table']['#rows'][] = [$this->t('ADC File present'), $this->t('Yes')];
+
+      $json_string = file_get_contents($path);
+
+      $json_data =  json_decode((string) $json_string, true);
+
+      $json_error = json_last_error();
+
+      if ($json_error == JSON_ERROR_NONE) {
+        $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('Yes')];
+      }
+      else {
+        $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('No') . ' (' . json_last_error_msg() . ')'];
+      }
+    }
+    else {
+      $build['table']['#rows'][] = [$this->t('ADC File present'), $this->t('No')];
+      $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('N/A')];
+    }
+
+    return $build;
+  }
+
   /**
    * Display current Cloud Tasks in the Queue.
    */
   public function displayTasks(): array {
-
-//    putenv('GOOGLE_APPLICATION_CREDENTIALS=/app/google_application_credentials.json');
     $config = \Drupal::config('origins_cloud_tasks.settings');
     $project_id = $config->get('project_id');
     $queue_id = $config->get('queue_id');

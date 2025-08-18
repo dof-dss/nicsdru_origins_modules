@@ -6,7 +6,8 @@
 JSON_FILE="$PLATFORM_APP_DIR/google_application_credentials.json"
 
 if [ -n "${GOOGLE_APPLICATION_CREDENTIALS_JSON}" ]; then
-  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$JSON_FILE"
+  # Take the JSON in the env var, clean the string and save as a file
+  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | tr -d '[:cntrl:]' > "$JSON_FILE"
   export GOOGLE_APPLICATION_CREDENTIALS="$JSON_FILE"
   echo "GAC JSON file created."
 else
