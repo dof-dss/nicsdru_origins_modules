@@ -7,6 +7,7 @@
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Url;
+use Drupal\origins_cloud_tasks\CronTask;
 use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
 use Google\ApiCore\ApiException;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
@@ -30,50 +31,46 @@ function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
       // transition_on date is greater then save to a table for processing by
       // regular cron, which will add the Cloud Task when it's within 30 days.
       $transition_on = $entity->get('transition_on')->getString();
-
-      $state = \Drupal::service('state');
-      $config = \Drupal::config('origins_cloud_tasks.settings');
-      $project_id = $config->get('project_id');
-      $queue_id = $config->get('queue_id');
-      $location = $config->get('region');
-
-
-      $adc_path = getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
-      putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $adc_path);
-
-      $cloudTasksClient = new CloudTasksClient();
-
-      $formattedParent = CloudTasksClient::queueName($project_id, $location, $queue_id);
-
-      $url = Url::fromRoute('system.cron', ['key' => $state->get('system.cron_key')], ['absolute' => TRUE])->toString();
-
-      $httpRequest = new HttpRequest();
-      $httpRequest->setUrl($url);
-      $httpRequest->setHttpMethod(HttpMethod::GET);
-
-      $schedule_time = $transition_on + $config->get('callback_offset') ?? 5;
-      $ts = new Timestamp();
-      $ts->setSeconds($schedule_time);
-      $ts->setNanos(0);
-
       $task_id = $entity->bundle() . '--' . $entity->id();
-      $task_name = CloudTasksClient::taskName($project_id, $location, $queue_id, $task_id);
 
-      $task = new Task();
-      $task->setHttpRequest($httpRequest);
-      $task->setScheduleTime($ts);
-      $task->setName($task_name);
-      $request = (new CreateTaskRequest())
-        ->setParent($formattedParent)
-        ->setTask($task);
+      $task_manager = \Drupal::service('origins_cloud_tasks.manager');
 
-      try {
-        /** @var Task $response */
-        $response = $cloudTasksClient->createTask($request);
-        \Drupal::logger('origins_cloud_tasks')->info('Created Cloud Task: ' . $response->getName());
-      } catch (ApiException $ex) {
-        \Drupal::logger('origins_cloud_tasks')->error('Cloud Task creation failed: ' . $ex->getMessage());
-      }
+      $task = new CronTask($task_id, $transition_on);
+      $task_manager->createTask($task);
+
+//      $state = \Drupal::service('state');
+//      $config = \Drupal::config('origins_cloud_tasks.settings');
+//      $task_manager = \Drupal::service('origins_cloud_tasks.manager');
+//
+//      $url = Url::fromRoute('system.cron', ['key' => $state->get('system.cron_key')], ['absolute' => TRUE])->toString();
+//
+//      $httpRequest = new HttpRequest();
+//      $httpRequest->setUrl($url);
+//      $httpRequest->setHttpMethod(HttpMethod::GET);
+//
+//      $schedule_time = $transition_on + $config->get('callback_offset') ?? 5;
+//      $ts = new Timestamp();
+//      $ts->setSeconds($schedule_time);
+//      $ts->setNanos(0);
+//
+//      $task_id = $entity->bundle() . '--' . $entity->id();
+//      $task_name = CloudTasksClient::taskName($project_id, $location, $queue_id, $task_id);
+//
+//      $task = new Task();
+//      $task->setHttpRequest($httpRequest);
+//      $task->setScheduleTime($ts);
+//      $task->setName($task_name);
+//      $request = (new CreateTaskRequest())
+//        ->setParent($formattedParent)
+//        ->setTask($task);
+//
+//      try {
+//        /** @var Task $response */
+//        $response = $cloudTasksClient->createTask($request);
+//        \Drupal::logger('origins_cloud_tasks')->info('Created Cloud Task: ' . $response->getName());
+//      } catch (ApiException $ex) {
+//        \Drupal::logger('origins_cloud_tasks')->error('Cloud Task creation failed: ' . $ex->getMessage());
+//      }
     }
   }
 
