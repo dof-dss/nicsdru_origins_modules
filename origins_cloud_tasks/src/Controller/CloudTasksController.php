@@ -5,14 +5,25 @@ declare(strict_types=1);
 namespace Drupal\origins_cloud_tasks\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Exception;
-use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
-use Google\Cloud\Tasks\V2\ListTasksRequest;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\origins_cloud_tasks\CloudTasksManager;
+use Drupal\Core\DependencyInjection\AutowireTrait;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Returns responses for Origins cloud tasks routes.
  */
-final class CloudTasksController extends ControllerBase {
+final class CloudTasksController extends ControllerBase implements ContainerInjectionInterface {
+
+  use AutowireTrait;
+
+  /**
+   * Constructs a Cloud Tasks manager object.
+   */
+  public function __construct(
+    #[Autowire(service: 'origins_cloud_tasks.manager')]
+    protected CloudTasksManager $taskManager
+  ) {}
 
   public function displayAuthCheck(): array {
     $path = getenv('GOOGLE_APPLICATION_CREDENTIALS');
@@ -54,37 +65,19 @@ final class CloudTasksController extends ControllerBase {
    * Display current Cloud Tasks in the Queue.
    */
   public function displayTasks(): array {
-    $config = \Drupal::config('origins_cloud_tasks.settings');
-    $project_id = $config->get('project_id');
-    $queue_id = $config->get('queue_id');
-    $location = $config->get('region');
-
-    $adc_path = getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
-    putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $adc_path);
-
-    if (empty($project_id)) {
-      return [
-        '#markup' => '<p>Project ID for Cloud tasks is missing.</p>',
-      ];
-    }
-
-    if (empty($queue_id)) {
-      return [
-        '#markup' => '<p>Queue ID for Cloud tasks is missing.</p>',
-      ];
-    }
-
 
     $build = [];
-    $client = new CloudTasksClient();
 
-    try {
-      $queue_name = $client->queueName($project_id, $location, $queue_id);
+    $tasks = $this->taskManager->getTasks();
 
-      $request = (new ListTasksRequest())->setParent($queue_name);
-
-      $tasks = $client->listTasks($request);
-
+    if ($tasks instanceof \Exception) {
+      return [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => 'Error: ' . $tasks->getMessage(),
+      ];
+    }
+    else {
       $rows = [];
       foreach ($tasks as $task) {
 
@@ -107,16 +100,8 @@ final class CloudTasksController extends ControllerBase {
         '#empty' => $this->t('No tasks found.'),
       ];
 
-
-    } catch (Exception $ex) {
-      $build[] = [
-        '#markup' => 'Error: ' . $ex->getMessage()
-      ];
-    } finally {
-      $client->close();
+      return $build;
     }
-
-    return $build;
   }
 
 }

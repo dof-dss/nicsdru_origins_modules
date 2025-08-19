@@ -3,3 +3,9 @@ services:
     class: Drupal\origins_cloud_tasks\EventSubscriber\ScheduledTransitionSubscriber
     tags:
       - { name: event_subscriber }
+
+  origins_cloud_tasks.manager:
+    class: Drupal\origins_cloud_tasks\CloudTasksManager
+    arguments: ['@config.manager', '@entity_type.manager']
+    autowire: true
+
