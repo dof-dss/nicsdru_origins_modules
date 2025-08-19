@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\origins_cloud_tasks\Form;
 
+use Drupal\Core\File\FileExists;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -32,6 +34,17 @@ final class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
     $offset_value = $this->config('origins_cloud_tasks.settings')->get('callback_offset') ?? '5';
+
+    $form['auth'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Authentication'),
+      '#open' => FALSE,
+    ];
+
+    $form['auth']['adc'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('API Key'),
+    ];
 
     $form['project_id'] = [
       '#type' => 'textfield',
@@ -86,6 +99,12 @@ final class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $values = $form_state->getValues();
+    $fs = \Drupal::service('file_system');
+
+    if (!empty($values['adc'])) {
+      $destination = 'private://google_application_credentials.json';
+      $fs->saveData($values['adc'], $destination, FileExists::Replace);
+    }
 
     $config = $this->config('origins_cloud_tasks.settings');
     $config->set('project_id', $values['project_id']);

@@ -37,6 +37,10 @@ function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
       $queue_id = $config->get('queue_id');
       $location = $config->get('region');
 
+
+      $adc_path = getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
+      putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $adc_path);
+
       $cloudTasksClient = new CloudTasksClient();
 
       $formattedParent = CloudTasksClient::queueName($project_id, $location, $queue_id);

@@ -59,6 +59,9 @@ final class CloudTasksController extends ControllerBase {
     $queue_id = $config->get('queue_id');
     $location = $config->get('region');
 
+    $adc_path = getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
+    putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $adc_path);
+
     if (empty($project_id)) {
       return [
         '#markup' => '<p>Project ID for Cloud tasks is missing.</p>',
