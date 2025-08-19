@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Drupal\origins_cloud_tasks\Form;
 
 use Drupal\Core\File\FileExists;
-use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 
 /**
  * Configure Origins cloud tasks settings for this site.
@@ -33,6 +34,7 @@ final class SettingsForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
+    $timezone_offset = $this->config('origins_cloud_tasks.settings')->get('timezone_offset') ?? '0';
     $offset_value = $this->config('origins_cloud_tasks.settings')->get('callback_offset') ?? '5';
 
     $form['auth'] = [
@@ -43,7 +45,12 @@ final class SettingsForm extends ConfigFormBase {
 
     $form['auth']['adc'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('API Key'),
+      '#title' => $this->t('ADC JSON'),
+      '#description' => $this->t('See the Google Cloud documentation %link',
+        [
+          '%link' => Link::fromTextAndUrl('Set up Application Default Credentials', Url::fromUri('https://cloud.google.com/docs/authentication/provide-credentials-adc'))->toString()
+        ]
+      ),
     ];
 
     $form['project_id'] = [
@@ -78,9 +85,22 @@ final class SettingsForm extends ConfigFormBase {
       '#required' => TRUE,
     ];
 
+    $form['timezone_offset'] = [
+      '#type' => 'range',
+      '#title' => $this->t('Timezone offset'),
+      '#description' => $this->t('@offset_value hours.', ['@offset_value' => $timezone_offset]),
+      '#min' => -2,
+      '#max' => 2,
+      '#step' => 1,
+      '#default_value' => $timezone_offset,
+      '#attributes' => [
+        'oninput' => 'document.getElementById("edit-timezone-offset--description").innerText = this.value + " hours."'
+      ],
+    ];
+
     $form['callback_offset'] = [
       '#type' => 'range',
-      '#title' => $this->t('Callback offset'),
+      '#title' => $this->t('Callback offset (delay added to scheduled time)'),
       '#description' => $this->t('@offset_value seconds.', ['@offset_value' => $offset_value]),
       '#min' => 5,
       '#max' => 180,
@@ -110,6 +130,7 @@ final class SettingsForm extends ConfigFormBase {
     $config->set('project_id', $values['project_id']);
     $config->set('queue_id', $values['queue_id']);
     $config->set('region', $values['region']);
+    $config->set('timezone_offset', $values['timezone_offset']);
     $config->set('callback_offset', $values['callback_offset']);
     $config->save();
 

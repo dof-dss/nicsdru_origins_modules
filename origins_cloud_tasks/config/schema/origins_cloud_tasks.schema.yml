@@ -12,6 +12,9 @@ origins_cloud_tasks.settings:
     region:
       type: string
       label: 'Google Cloud region'
+    timezone_offset:
+      type: string
+      label: 'Timezone offset'
     callback_offset:
       type: string
       label: 'Callback offset'
