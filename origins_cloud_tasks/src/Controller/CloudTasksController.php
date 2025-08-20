@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\origins_cloud_tasks\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\origins_cloud_tasks\CloudTasksManager;
 use Drupal\Core\DependencyInjection\AutowireTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -13,7 +12,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 /**
  * Returns responses for Origins cloud tasks routes.
  */
-final class CloudTasksController extends ControllerBase implements ContainerInjectionInterface {
+final class CloudTasksController extends ControllerBase {
 
   use AutowireTrait;
 

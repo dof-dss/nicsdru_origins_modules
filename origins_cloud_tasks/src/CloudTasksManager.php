@@ -8,6 +8,7 @@ use Drupal\Core\Config\ConfigManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
 use Google\Cloud\Tasks\V2\CreateTaskRequest;
+use Google\Cloud\Tasks\V2\DeleteTaskRequest;
 use Google\Cloud\Tasks\V2\ListTasksRequest;
 
 /**
@@ -78,6 +79,25 @@ final class CloudTasksManager {
 
     try {
       $response = $this->cloudClient->createTask($request);
+    }
+    catch (\Exception $ex) {
+      return $ex;
+    } finally {
+      $this->cloudClient->close();
+    }
+  }
+
+  /**
+   * Delete a Cloud Task.
+   */
+  public function deleteTask(string $task_id) {
+    $task_name = CloudTasksClient::taskName($this->projectId, $this->location, $this->queueId, $task_id);
+
+    $request = (new DeleteTaskRequest())
+      ->setName($task_name);
+
+    try {
+      $this->cloudClient->deleteTask($request);
     }
     catch (\Exception $ex) {
       return $ex;

@@ -6,19 +6,11 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Url;
 use Drupal\origins_cloud_tasks\CronTask;
 use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
-use Google\ApiCore\ApiException;
-use Google\Cloud\Tasks\V2\Client\CloudTasksClient;
-use Google\Cloud\Tasks\V2\CreateTaskRequest;
-use Google\Cloud\Tasks\V2\HttpMethod;
-use Google\Cloud\Tasks\V2\HttpRequest;
-use Google\Cloud\Tasks\V2\Task;
-use Google\Protobuf\Timestamp;
 
 /**
- * Implements hook_entity_presave().
+ * Implements hook_entity_insert().
  */
 function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
 
@@ -27,51 +19,63 @@ function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
     $moderation_state = $entity->get('moderation_state')->getString();
 
     if ($moderation_state == 'published' || $moderation_state == 'archived') {
-      // TODO: GCT only allow tasks up to 30 days in advance. If the
-      // transition_on date is greater then save to a table for processing by
-      // regular cron, which will add the Cloud Task when it's within 30 days.
-      $transition_on = $entity->get('transition_on')->getString();
-      $task_id = $entity->bundle() . '--' . $entity->id();
-
-      $task_manager = \Drupal::service('origins_cloud_tasks.manager');
-
-      $task = new CronTask($task_id, $transition_on);
-      $task_manager->createTask($task);
-
-//      $state = \Drupal::service('state');
-//      $config = \Drupal::config('origins_cloud_tasks.settings');
-//      $task_manager = \Drupal::service('origins_cloud_tasks.manager');
-//
-//      $url = Url::fromRoute('system.cron', ['key' => $state->get('system.cron_key')], ['absolute' => TRUE])->toString();
-//
-//      $httpRequest = new HttpRequest();
-//      $httpRequest->setUrl($url);
-//      $httpRequest->setHttpMethod(HttpMethod::GET);
-//
-//      $schedule_time = $transition_on + $config->get('callback_offset') ?? 5;
-//      $ts = new Timestamp();
-//      $ts->setSeconds($schedule_time);
-//      $ts->setNanos(0);
-//
-//      $task_id = $entity->bundle() . '--' . $entity->id();
-//      $task_name = CloudTasksClient::taskName($project_id, $location, $queue_id, $task_id);
-//
-//      $task = new Task();
-//      $task->setHttpRequest($httpRequest);
-//      $task->setScheduleTime($ts);
-//      $task->setName($task_name);
-//      $request = (new CreateTaskRequest())
-//        ->setParent($formattedParent)
-//        ->setTask($task);
-//
-//      try {
-//        /** @var Task $response */
-//        $response = $cloudTasksClient->createTask($request);
-//        \Drupal::logger('origins_cloud_tasks')->info('Created Cloud Task: ' . $response->getName());
-//      } catch (ApiException $ex) {
-//        \Drupal::logger('origins_cloud_tasks')->error('Cloud Task creation failed: ' . $ex->getMessage());
-//      }
+      create_cloud_task($entity);
     }
   }
 
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function origins_cloud_tasks_entity_update(EntityInterface $entity) {
+
+  $foo = 'bar';
+
+  if ($entity instanceof ScheduledTransitionInterface) {
+
+    $moderation_state = $entity->get('moderation_state')->getString();
+
+    if ($moderation_state == 'published' || $moderation_state == 'archived') {
+      delete_cloud_task($entity);
+      create_cloud_task($entity);
+    }
+  }
+
+}
+
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof ScheduledTransitionInterface && !$entity->isNew()) {
+
+    $moderation_state = $entity->get('moderation_state')->getString();
+
+    if ($moderation_state == 'published' || $moderation_state == 'archived') {
+      delete_cloud_task($entity);
+      create_cloud_task($entity);
+    }
+  }
+
+}
+
+function delete_cloud_task($entity) {
+  $task_id = $entity->bundle() . '--' . $entity->id();
+  $task_manager = \Drupal::service('origins_cloud_tasks.manager');
+  $task_manager->deleteTask($task_id);
+}
+
+function create_cloud_task($entity) {
+  // TODO: GCT only allow tasks up to 30 days in advance. If the
+  // transition_on date is greater then save to a table for processing by
+  // regular cron, which will add the Cloud Task when it's within 30 days.
+  $transition_on = $entity->get('transition_on')->getString();
+  $task_id = $entity->bundle() . '--' . $entity->id();
+
+  $task_manager = \Drupal::service('origins_cloud_tasks.manager');
+
+  $task = new CronTask($task_id, $transition_on);
+  $task_manager->createTask($task);
 }
