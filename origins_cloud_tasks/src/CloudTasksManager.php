@@ -64,12 +64,16 @@ final class CloudTasksManager {
         throw new \Exception('Origins Cloud Tasks settings are missing or incomplete.');
       }
 
-      $this->projectId = $config->get('project_id');
-      $this->queueId = $config->get('queue_id');
-      $this->location = $config->get('region');
+      $this->projectId = $config['project_id'];
+      $this->queueId = $config['queue_id'];
+      $this->location = $config['region'];
 
-      $this->cloudClient = new CloudTasksClient();
+      if (empty($this->projectId) || empty($this->queueId) || empty($this->location)) {
+        throw new \Exception('Origins Cloud Tasks settings are missing or incomplete.');
+      }
+
       putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $this->adcPath);
+      $this->cloudClient = new CloudTasksClient();
     }
   }
 
