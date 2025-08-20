@@ -67,16 +67,9 @@ final class CloudTasksController extends ControllerBase {
 
     $build = [];
 
-    $tasks = $this->taskManager->getTasks();
+    try {
+      $tasks = $this->taskManager->getTasks();
 
-    if ($tasks instanceof \Exception) {
-      return [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#value' => 'Error: ' . $tasks->getMessage(),
-      ];
-    }
-    else {
       $rows = [];
       foreach ($tasks as $task) {
 
@@ -98,9 +91,18 @@ final class CloudTasksController extends ControllerBase {
         '#rows' => $rows,
         '#empty' => $this->t('No tasks found.'),
       ];
-
+    }
+    catch (\Exception $ex) {
+      $build = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => 'Error: ' . $ex->getMessage(),
+      ];
+    }
+    finally {
       return $build;
     }
+
   }
 
 }
