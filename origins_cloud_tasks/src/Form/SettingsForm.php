@@ -9,6 +9,7 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\origins_cloud_tasks\CloudTasksManager;
 
 /**
  * Configure Origins cloud tasks settings for this site.
@@ -51,6 +52,20 @@ final class SettingsForm extends ConfigFormBase {
           '%link' => Link::fromTextAndUrl('Set up Application Default Credentials', Url::fromUri('https://cloud.google.com/docs/authentication/provide-credentials-adc'))->toString()
         ]
       ),
+    ];
+
+    $adc_file_exists = file_exists(CloudTasksManager::adcPath());
+
+    $adc_info = $this->t('An ADC file @status present in the filesystem. @additional', [
+      '@status' => $adc_file_exists ? 'is' : 'is not',
+      '@additional' => $adc_file_exists ? ' For security purposes the file contents are not shown in the form .' : ' To use this service, valid ADC JSON must be pasted into form field.',
+    ]);
+
+    $form['auth']['adc_info'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'strong',
+      '#value' => $adc_info,
+      '#attributes' => ['style' => $adc_file_exists ? 'color: green;' : 'color: red;'],
     ];
 
     $form['project_id'] = [
@@ -112,6 +127,21 @@ final class SettingsForm extends ConfigFormBase {
     ];
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    $adc_data = $form_state->getValue('adc');
+
+    if (!empty($adc_data)) {
+      $json_data = json_decode((string) $adc_data, TRUE);
+
+      if (json_last_error() !== JSON_ERROR_NONE) {
+        $form_state->setErrorByName('adc', 'Invalid JSON: ' . json_last_error_msg());
+      }
+    }
   }
 
   /**

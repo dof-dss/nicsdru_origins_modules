@@ -17,11 +17,6 @@ use Google\Cloud\Tasks\V2\ListTasksRequest;
 final class CloudTasksManager {
 
   /**
-   * Absolute path to the ADC file.
-   */
-  protected string $adcPath;
-
-  /**
    * Google Cloud Tasks client.
    *
    * @var \Google\Cloud\Tasks\V2\Client\CloudTasksClient
@@ -51,11 +46,23 @@ final class CloudTasksManager {
     private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
+  /**
+   * Returns the ADC file path.
+   *
+   * @return string
+   *   Absolute system filepath.
+   */
+  public static function adcPath() {
+    return getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
+  }
+
+  /**
+   * Populate config and instantiate Cloud Task client.
+   */
   private function ready() {
     if (empty($this->cloudClient)) {
-      $this->adcPath = getenv('FILE_PRIVATE_PATH') . '/google_application_credentials.json';
 
-      if (!file_exists($this->adcPath)) {
+      if (!file_exists(self::adcPath())) {
         throw new \Exception('google_application_credentials.json file does not exist.');
       }
 
@@ -73,7 +80,7 @@ final class CloudTasksManager {
         throw new \Exception('Origins Cloud Tasks settings are missing or incomplete.');
       }
 
-      putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $this->adcPath);
+      putenv('GOOGLE_APPLICATION_CREDENTIALS=' . self::adcPath());
       $this->cloudClient = new CloudTasksClient();
     }
   }
@@ -87,9 +94,11 @@ final class CloudTasksManager {
 
     try {
       return $this->cloudClient->listTasks($request);
-    } catch (\Exception $ex) {
+    }
+    catch (\Exception $ex) {
       return $ex;
-    } finally {
+    }
+    finally {
       $this->cloudClient->close();
     }
   }
@@ -107,19 +116,19 @@ final class CloudTasksManager {
     $task->name($task_name);
 
     $request = (new CreateTaskRequest())
-        ->setParent($this->getQueueName())
-        ->setTask($task->task());
+      ->setParent($this->getQueueName())
+      ->setTask($task->task());
 
     try {
       $response = $this->cloudClient->createTask($request);
     }
     catch (\Exception $ex) {
       return $ex;
-    } finally {
+    }
+    finally {
       $this->cloudClient->close();
     }
   }
-
 
   /**
    * Delete a Cloud Task.
@@ -136,7 +145,8 @@ final class CloudTasksManager {
     }
     catch (\Exception $ex) {
       return $ex;
-    } finally {
+    }
+    finally {
       $this->cloudClient->close();
     }
   }

@@ -13,17 +13,20 @@ use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
  * Implements hook_entity_insert().
  */
 function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
-  scheduledTransitionCloudTask($entity);
+  origins_cloud_tasks_process_scheduled_transition($entity);
 }
 
 /**
  * Implements hook_entity_presave().
  */
 function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
-  scheduledTransitionCloudTask($entity);
+  origins_cloud_tasks_process_scheduled_transition($entity);
 }
 
-function scheduledTransitionCloudTask($entity) {
+/**
+ * Process new and existing Cloud Tasks for scheduled transitions.
+ */
+function origins_cloud_tasks_process_scheduled_transition($entity) {
   if ($entity instanceof ScheduledTransitionInterface) {
 
     $moderation_state = $entity->get('moderation_state')->getString();

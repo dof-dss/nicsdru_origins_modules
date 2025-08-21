@@ -21,50 +21,13 @@ final class CloudTasksController extends ControllerBase {
    */
   public function __construct(
     #[Autowire(service: 'origins_cloud_tasks.manager')]
-    protected CloudTasksManager $taskManager
+    protected CloudTasksManager $taskManager,
   ) {}
-
-  public function displayAuthCheck(): array {
-    $path = getenv('GOOGLE_APPLICATION_CREDENTIALS');
-
-    $build['table'] = [
-      '#type' => 'table',
-      '#header' => [
-        $this->t('Check'),
-        $this->t('Status'),
-      ],
-      '#rows' => []
-    ];
-
-    if (file_exists($path)){
-      $build['table']['#rows'][] = [$this->t('ADC File present'), $this->t('Yes')];
-
-      $json_string = file_get_contents($path);
-
-      $json_data =  json_decode((string) $json_string, true);
-
-      $json_error = json_last_error();
-
-      if ($json_error == JSON_ERROR_NONE) {
-        $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('Yes')];
-      }
-      else {
-        $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('No') . ' (' . json_last_error_msg() . ')'];
-      }
-    }
-    else {
-      $build['table']['#rows'][] = [$this->t('ADC File present'), $this->t('No')];
-      $build['table']['#rows'][] = [$this->t('JSON valid'), $this->t('N/A')];
-    }
-
-    return $build;
-  }
 
   /**
    * Display current Cloud Tasks in the Queue.
    */
   public function displayTasks(): array {
-
     $build = [];
 
     try {

@@ -9,11 +9,20 @@ use Google\Cloud\Tasks\V2\HttpRequest;
 use Google\Cloud\Tasks\V2\Task;
 use Google\Protobuf\Timestamp;
 
+/**
+ * Helper to create a Cloud Task to call the site's cronjob.
+ */
 class CronTask implements CloudTaskInterface {
 
-  protected $id;
+  /**
+   * Task identifier.
+   */
+  protected string $id;
 
-  protected $schedule;
+  /**
+   * Linux timestamp for when the task's cron callback should be executed.
+   */
+  protected string $schedule;
 
   /**
    * Google Task object.
@@ -22,23 +31,46 @@ class CronTask implements CloudTaskInterface {
    */
   protected $task;
 
+  /**
+   * {@inheritdoc}
+   */
   public function id() {
     return $this->id;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function task() {
     return $this->task;
   }
 
+  /**
+   * The task schedule.
+   *
+   * @return string
+   *   Schedule date time as a timestamp.
+   */
   public function schedule() {
     return $this->schedule;
   }
 
-  public function name($name) {
+  /**
+   * {@inheritdoc}
+   */
+  public function name(string $name) {
     $this->task->setName($name);
   }
 
-  public function __construct($id, $schedule) {
+  /**
+   * Constructs a new cron job callback task.
+   *
+   * @param string $id
+   *   The task identifier.
+   * @param string $schedule
+   *   Timestamp for when the task callback should execute.
+   */
+  public function __construct(string $id, string $schedule) {
     $state = \Drupal::service('state');
     $this->task = new Task();
     $this->id = $id;
@@ -49,7 +81,6 @@ class CronTask implements CloudTaskInterface {
     $httpRequest = new HttpRequest();
     $httpRequest->setUrl($url);
     $httpRequest->setHttpMethod(HttpMethod::GET);
-
 
     $ts = new Timestamp();
     $ts->setSeconds($this->schedule);
