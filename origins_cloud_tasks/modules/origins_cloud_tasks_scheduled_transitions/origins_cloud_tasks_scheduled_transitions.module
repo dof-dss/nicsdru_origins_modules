@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Link;
 use Drupal\origins_cloud_tasks\CronTask;
 use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
 
@@ -13,20 +14,20 @@ use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
  * Implements hook_entity_insert().
  */
 function origins_cloud_tasks_scheduled_transitions_entity_insert(EntityInterface $entity) {
-  origins_cloud_tasks_process_scheduled_transition($entity);
+  origins_cloud_tasks_scheduled_transitions_process($entity);
 }
 
 /**
  * Implements hook_entity_presave().
  */
 function origins_cloud_tasks_scheduled_transitions_entity_presave(EntityInterface $entity) {
-  origins_cloud_tasks_process_scheduled_transition($entity);
+  origins_cloud_tasks_scheduled_transitions_process($entity);
 }
 
 /**
  * Process new and existing Cloud Tasks for scheduled transitions.
  */
-function origins_cloud_tasks_scheduled_transitions_process_scheduled_transition($entity) {
+function origins_cloud_tasks_scheduled_transitions_process($entity) {
   if ($entity instanceof ScheduledTransitionInterface) {
 
     $moderation_state = $entity->get('moderation_state')->getString();
@@ -54,11 +55,26 @@ function origins_cloud_tasks_scheduled_transitions_process_scheduled_transition(
   }
 }
 
-/**
- * Implements hook_cron().
- */
-function origins_cloud_tasks_scheduled_transitions_cron(){
-  $database = \Drupal::database();
+function origins_cloud_tasks_scheduled_transitions_origins_cloud_task_list_rows($rows) {
+  $entity_type_manager = \Drupal::entityTypeManager();
+  foreach ($rows as &$row) {
 
+    $task_name = basename($row['name']);
+
+    if (str_starts_with($task_name, 'scheduled_transition--')) {
+      $id = substr($task_name, 22);
+      $scheduled_transition = $entity_type_manager->getStorage('scheduled_transition')->load($id);
+      $entity = $scheduled_transition->getEntity();
+
+      $row['data'] = [
+        [
+          'data' => ['#markup' => 'Scheduled transition (' . $id . ')' . ' for ' . Link::fromTextAndUrl($entity->label(), $entity->toUrl())->toString()],
+        ],
+        $row['schedule'],
+        $row['url'],
+      ];
+    }
+  }
+  return $rows;
 }
 
