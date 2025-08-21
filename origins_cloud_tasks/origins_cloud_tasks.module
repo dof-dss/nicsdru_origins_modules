@@ -13,19 +13,31 @@ use Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface;
  * Implements hook_entity_insert().
  */
 function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
+  scheduledTransitionCloudTask($entity);
+}
 
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_cloud_tasks_entity_presave(EntityInterface $entity) {
+  scheduledTransitionCloudTask($entity);
+}
+
+function scheduledTransitionCloudTask($entity) {
   if ($entity instanceof ScheduledTransitionInterface) {
 
     $moderation_state = $entity->get('moderation_state')->getString();
 
     if ($moderation_state == 'published' || $moderation_state == 'archived') {
-      // TODO: GCT only allow tasks up to 30 days in advance. If the
-      // transition_on date is greater then save to a table for processing by
-      // regular cron, which will add the Cloud Task when it's within 30 days.
       $transition_on = $entity->get('transition_on')->getString();
       $task_id = $entity->bundle() . '--' . $entity->id();
 
       $task_manager = \Drupal::service('origins_cloud_tasks.manager');
+
+      // If updating a schedule, delete the existing task before recreating it.
+      if (!$entity->isNew()) {
+        $task_manager->deleteTask($task_id);
+      }
 
       $task = new CronTask($task_id, $transition_on);
       try {
@@ -37,5 +49,4 @@ function origins_cloud_tasks_entity_insert(EntityInterface $entity) {
       }
     }
   }
-
 }
