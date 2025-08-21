@@ -55,26 +55,38 @@ function origins_cloud_tasks_scheduled_transitions_process($entity) {
   }
 }
 
-function origins_cloud_tasks_scheduled_transitions_origins_cloud_task_list_rows($rows) {
+/**
+ * Implements hook_cron().
+ */
+function origins_cloud_tasks_scheduled_transitions_cron() {
+  // TODO: Implement cron processing for schedules over 30 days.
+}
+
+/**
+ * Implements hook_origins_cloud_tasks_list_rows().
+ */
+function origins_cloud_tasks_scheduled_transitions_origins_cloud_tasks_list_rows($rows) {
+  // Alter task row to change the name to the transition ID and a link to the node.
   $entity_type_manager = \Drupal::entityTypeManager();
   foreach ($rows as &$row) {
-
     $task_name = basename($row['name']);
 
     if (str_starts_with($task_name, 'scheduled_transition--')) {
       $id = substr($task_name, 22);
+      /** @var \Drupal\scheduled_transitions\Entity\ScheduledTransitionInterface $scheduled_transition */
       $scheduled_transition = $entity_type_manager->getStorage('scheduled_transition')->load($id);
       $entity = $scheduled_transition->getEntity();
 
-      $row['data'] = [
-        [
-          'data' => ['#markup' => 'Scheduled transition (' . $id . ')' . ' for ' . Link::fromTextAndUrl($entity->label(), $entity->toUrl())->toString()],
-        ],
-        $row['schedule'],
-        $row['url'],
-      ];
+      if ($entity) {
+        $row['data'] = [
+          [
+            'data' => ['#markup' => 'Scheduled transition (' . $id . ')' . ' for ' . Link::fromTextAndUrl($entity->label(), $entity->toUrl())->toString()],
+          ],
+          $row['schedule'],
+          $row['url'],
+        ];
+      }
     }
   }
   return $rows;
 }
-

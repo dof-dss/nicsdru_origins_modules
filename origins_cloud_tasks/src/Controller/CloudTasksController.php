@@ -45,7 +45,7 @@ final class CloudTasksController extends ControllerBase {
           ];
       }
 
-      $rows = $this->moduleHandler()->invokeAll('origins_cloud_task_list_rows', [$rows]);
+      $rows = $this->moduleHandler()->invokeAll('origins_cloud_tasks_list_rows', [$rows]);
 
       $build['tasks'] = [
         '#type' => 'table',
