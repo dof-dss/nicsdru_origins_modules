@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\origins_cloud_tasks\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Extension\ModuleHandler;
 use Drupal\origins_cloud_tasks\CloudTasksManager;
 use Drupal\Core\DependencyInjection\AutowireTrait;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -43,6 +44,7 @@ final class CloudTasksController extends ControllerBase {
             'url' => $task->getHttpRequest()->getUrl(),
           ];
       }
+
 
       $build['tasks'] = [
         '#type' => 'table',

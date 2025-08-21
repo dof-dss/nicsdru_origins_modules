@@ -1,5 +1,5 @@
 name: 'Origins Cloud Tasks'
 type: module
 description: 'Generate Cloud Tasks for Drupal hooks and events'
-package: &#039;NICS: Origins&#039;
+package: 'NICS: Origins'
 core_version_requirement: ^10 || ^11

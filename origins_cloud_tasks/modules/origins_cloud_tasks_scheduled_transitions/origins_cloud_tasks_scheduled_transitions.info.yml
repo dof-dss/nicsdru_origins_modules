@@ -1,0 +1,7 @@
+name: 'Origins Cloud Tasks: Scheduled transitions'
+type: module
+description: 'Executes scheduled transitions using Cloud Tasks'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - origins_cloud_tasks
