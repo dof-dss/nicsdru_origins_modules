@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Primary module hooks for Origins Cloud Tasks module.
+ * Primary module hooks for Origins Cloud Tasks Scheduled Transitions module.
  */
 
 use Drupal\Core\Entity\EntityInterface;
@@ -21,7 +21,9 @@ function origins_cloud_tasks_scheduled_transitions_entity_insert(EntityInterface
  * Implements hook_entity_presave().
  */
 function origins_cloud_tasks_scheduled_transitions_entity_presave(EntityInterface $entity) {
-  origins_cloud_tasks_scheduled_transitions_process($entity);
+  if (!$entity->isNew()) {
+    origins_cloud_tasks_scheduled_transitions_process($entity);
+  }
 }
 
 /**
@@ -53,13 +55,6 @@ function origins_cloud_tasks_scheduled_transitions_process($entity) {
       }
     }
   }
-}
-
-/**
- * Implements hook_cron().
- */
-function origins_cloud_tasks_scheduled_transitions_cron() {
-  // TODO: Implement cron processing for schedules over 30 days.
 }
 
 /**

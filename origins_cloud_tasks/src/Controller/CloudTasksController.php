@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Drupal\origins_cloud_tasks\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Extension\ModuleHandler;
 use Drupal\origins_cloud_tasks\CloudTasksManager;
 use Drupal\Core\DependencyInjection\AutowireTrait;
+use Drupal\origins_cloud_tasks\UrlTask;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -29,11 +29,19 @@ final class CloudTasksController extends ControllerBase {
    * Display current Cloud Tasks in the Queue.
    */
   public function displayTasks(): array {
+
     $build = [];
 
-    try {
-      $tasks = $this->taskManager->getTasks();
+    $tasks = $this->taskManager->getTasks();
 
+    if ($tasks instanceof \Exception) {
+      return [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => 'Error: ' . $tasks->getMessage(),
+      ];
+    }
+    else {
       $rows = [];
       foreach ($tasks as $task) {
 
@@ -45,8 +53,6 @@ final class CloudTasksController extends ControllerBase {
           ];
       }
 
-      $rows = $this->moduleHandler()->invokeAll('origins_cloud_tasks_list_rows', [$rows]);
-
       $build['tasks'] = [
         '#type' => 'table',
         '#header' => [
@@ -57,18 +63,9 @@ final class CloudTasksController extends ControllerBase {
         '#rows' => $rows,
         '#empty' => $this->t('No tasks found.'),
       ];
-    }
-    catch (\Exception $ex) {
-      $build = [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#value' => 'Error: ' . $ex->getMessage(),
-      ];
-    }
-    finally {
+
       return $build;
     }
-
   }
 
 }

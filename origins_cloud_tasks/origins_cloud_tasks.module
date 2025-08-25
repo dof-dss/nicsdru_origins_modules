@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Origins Cloud Tasks module.
+ */
+
+use Drupal\origins_cloud_tasks\UrlTask;
+
+/**
+ * Implements hook_cron().
+ */
+function origins_cloud_tasks_cron(): void {
+  // Interval is every 28 days as Cloud Tasks can only be scheduled up to 30 days.
+  $interval = 86400 * 28;
+
+  $next_execution = \Drupal::state()->get('origins_cloud_tasks.next_cron_execution', 0);
+  $request_time = \Drupal::time()->getRequestTime();
+  if ($request_time >= $next_execution) {
+    $successful = FALSE;
+    $today = new \DateTime('today');
+    $max_schedule_ts = $today->add(new \DateInterval('P29D'))->getTimestamp();
+    $database = \Drupal::database();
+
+    // Select all tasks that have a timestammp less than 29 days in the future.
+    $db_tasks = $database->select('origins_cloud_tasks', 'oct')
+      ->fields('oct', ['id', 'schedule_timestamp', 'url'])
+      ->condition('schedule_timestamp', $max_schedule_ts, '<')
+      ->execute()->fetchAll();
+
+    // Create a new cloud task and remove row from the tasks table.
+    if ($db_tasks) {
+      $cloud_task_manager = \Drupal::service('origins_cloud_tasks.manager');
+      foreach ($db_tasks as $db_task) {
+        $task = new UrlTask($db_task->id, $db_task->schedule_timestamp, $db_task->url);
+        try {
+          $cloud_task_manager->createTask($task);
+          $successful = TRUE;
+        }
+        catch (\Exception $ex) {
+          $successful = FALSE;
+          \Drupal::logger('origins_cloud_tasks')->error('Unable to create cloud task for db task: @ex', ['@ex' => $ex->getMessage()]);
+        }
+        finally {
+          if ($successful) {
+            $database->delete('origins_cloud_tasks')
+              ->condition('id', $db_task->id)
+              ->execute();
+          }
+        }
+      }
+    }
+
+    \Drupal::state()->set('origins_cloud_tasks.next_cron_execution', $request_time + $interval);
+  }
+
+}

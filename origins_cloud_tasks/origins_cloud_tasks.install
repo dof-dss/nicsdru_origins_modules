@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install file for Origins Cloud Tasks module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function origins_cloud_tasks_schema() {
+  $schema['origins_cloud_tasks'] = [
+    'description' => 'Stores Cloud Tasks scheduled beyond 30 days, since Cloud Tasks cannot be directly scheduled more than 30 days in advance.',
+    'fields' => [
+      'id' => [
+        'type' => 'varchar',
+        'description' => 'Task identifier.',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'schedule_timestamp' => [
+        'type' => 'int',
+        'size' => 'big',
+        'description' => 'Unix timestamp of when the task callback should be executed.',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'url' => [
+        'type' => 'varchar',
+        'description' => 'Callback URL for the task to call',
+        'length' => '255',
+        'default' => '',
+      ],
+    ],
+    'primary key' => ['name'],
+  ];
+
+  return $schema;
+}

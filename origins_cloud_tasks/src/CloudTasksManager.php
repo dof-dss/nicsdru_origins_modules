@@ -91,15 +91,17 @@ final class CloudTasksManager {
   public function getTasks() {
     $this->ready();
     $request = (new ListTasksRequest())->setParent($this->getQueueName());
+    $tasks = NULL;
 
     try {
-      return $this->cloudClient->listTasks($request);
+      $tasks = $this->cloudClient->listTasks($request);
     }
     catch (\Exception $ex) {
       return $ex;
     }
     finally {
       $this->cloudClient->close();
+      return $tasks;
     }
   }
 
@@ -109,24 +111,47 @@ final class CloudTasksManager {
   public function createTask(CloudTaskInterface $task) {
     $this->ready();
 
-    // TODO: GCT only allow tasks up to 30 days in advance. If the
-    // transition_on date is greater then save to a table for processing by
-    // regular cron, which will add the Cloud Task when it's within 30 days.
     $task_name = CloudTasksClient::taskName($this->projectId, $this->location, $this->queueId, $task->id());
     $task->name($task_name);
 
-    $request = (new CreateTaskRequest())
-      ->setParent($this->getQueueName())
-      ->setTask($task->task());
+    $today = new \DateTime('today');
+    $scheduled = $task->task()->getScheduleTime()->toDateTime();
+    $interval = $today->diff($scheduled);
 
-    try {
-      $response = $this->cloudClient->createTask($request);
+    if (!$interval->invert && $interval->days >= 30) {
+      $database = \Drupal::database();
+
+      try {
+        $database->insert('origins_cloud_tasks')
+          ->fields([
+            'id' => $task->id(),
+            'schedule_timestamp' => $scheduled->getTimestamp(),
+            'url' => $task->task()->getHttpRequest()->getUrl(),
+          ])
+          ->execute();
+      }
+      catch (\Exception $ex) {
+        \Drupal::messenger()->addError('Unable to save Cloud task to Database. Please contact your site administrator.');
+        \Drupal::logger('origins_cloud_tasks')->error('Unable to save task to db: @id. @ex', [
+          '@id' => $task->id(),
+          '@ex' => $ex->getMessage()
+        ]);
+      }
     }
-    catch (\Exception $ex) {
-      return $ex;
-    }
-    finally {
-      $this->cloudClient->close();
+    else {
+      $request = (new CreateTaskRequest())
+        ->setParent($this->getQueueName())
+        ->setTask($task->task());
+
+      try {
+        $response = $this->cloudClient->createTask($request);
+      }
+      catch (\Exception $ex) {
+        return $ex;
+      }
+      finally {
+        $this->cloudClient->close();
+      }
     }
   }
 
