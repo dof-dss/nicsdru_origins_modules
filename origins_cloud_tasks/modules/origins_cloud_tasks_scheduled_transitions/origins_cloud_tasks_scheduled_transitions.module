@@ -27,6 +27,17 @@ function origins_cloud_tasks_scheduled_transitions_entity_presave(EntityInterfac
 }
 
 /**
+ * Implements hook_entity_delete().
+ */
+function origins_cloud_tasks_scheduled_transitions_entity_delete(EntityInterface $entity) {
+  if ($entity instanceof ScheduledTransitionInterface) {
+    $task_manager = \Drupal::service('origins_cloud_tasks.manager');
+    $task_id = $entity->bundle() . '--' . $entity->id();
+    $task_manager->deleteTask($task_id);
+  }
+}
+
+/**
  * Process new and existing Cloud Tasks for scheduled transitions.
  */
 function origins_cloud_tasks_scheduled_transitions_process($entity) {
