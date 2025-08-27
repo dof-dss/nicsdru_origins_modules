@@ -1,0 +1,18 @@
+datadome:
+  header: true
+  remote: https://docs.datadome.co/docs/javascript-tag
+  license:
+    name: MIT
+  js:
+    js/datadome.js:
+      preprocess: false
+      weight: -1
+    https://js.datadome.co/tags.js:
+      type: external
+      minified: true
+      attributes:
+        async: true
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings

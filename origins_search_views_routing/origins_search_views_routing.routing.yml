@@ -1,0 +1,169 @@
+origins.search.views.publications.routing:
+  path: '/publications/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.news.routing:
+  path: '/news/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.consultations.routing:
+  path: '/consultations/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.evidence.routing:
+  path: '/evidence/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.questions.routing:
+  path: '/questions/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.documents.routing:
+  path: '/documents/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.articles.routing:
+  path: '/articles/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.events.routing:
+  path: '/events/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.institutions.routing:
+  path: '/institutions/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.judicial.decisions.routing:
+  path: '/judicial-decisions/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.members.routing:
+  path: '/members/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.champions.routing:
+  path: '/champions/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.stories.routing:
+  path: '/stories/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.legal.guidance.routing:
+  path: '/legal-guidance/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.noticeboard.routing:
+  path: '/noticeboard/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.blog.routing:
+  path: '/blog/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'
+
+origins.search.views.resources.routing:
+  path: '/resources/{searchstring}'
+  defaults:
+    _controller: '\Drupal\node\Controller\NodeViewController::view'
+    _title_callback: '\Drupal\node\Controller\NodeViewController::title'
+  requirements:
+    node: \d+
+    _entity_access: node.view
+    searchstring: '[^\?\/]+$'

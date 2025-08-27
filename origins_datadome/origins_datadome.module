@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Origins DataDome module.
+ */
+
+use Drupal\csp\Csp;
+
+/**
+ * Implements hook_page_attachments().
+ */
+function origins_datadome_page_attachments(&$attachments) {
+  $config = \Drupal::config('origins_datadome.settings');
+
+  $dd_key = $config->get('ddjskey');
+
+  if (empty($dd_key)) {
+    return;
+  }
+
+  $dd_config = $config->get('ddoptions');
+
+  if (\Drupal::service('module_handler')->moduleExists('csp')) {
+    $attachments['#attached']['csp'] = [
+      'script-src' => ['js.datadome.co', 'ct.captcha-delivery.com'],
+    ];
+  }
+
+  $attachments['#attached']['drupalSettings']['origins_datadome']['ddkey'] = $dd_key;
+  $attachments['#attached']['drupalSettings']['origins_datadome']['ddconfig'] = $dd_config;
+  $attachments['#attached']['library'][] = 'origins_datadome/datadome';
+}
