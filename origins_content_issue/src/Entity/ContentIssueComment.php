@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\origins_content_issue\ContentIssueCommentInterface;
 use Drupal\user\EntityOwnerTrait;
 
@@ -58,13 +59,69 @@ final class ContentIssueComment extends ContentEntityBase {
   use EntityChangedTrait;
   use EntityOwnerTrait;
 
+
+  /**
+   * Mail manager service.
+   *
+   * @var \Drupal\Core\Mail\MailManagerInterface
+   */
+  protected MailManagerInterface $mailManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $values, $entity_type, $bundle = FALSE, $translations = []) {
+    parent::__construct($values, $entity_type, $bundle, $translations);
+    $this->mailManager = \Drupal::service('plugin.manager.mail');
+  }
+
   /**
    * {@inheritdoc}
    */
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
+
     if (!$this->getOwnerId()) {
       $this->setOwnerId(0);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE): void {
+    $config = \Drupal::config('origins_content_issue.settings');
+    $notify = $config->get('notify_on_create') ?? TRUE;
+
+    if ($notify) {
+      $site_name = \Drupal::config('system.site')->get('name');
+      $current_user = \Drupal::currentUser();
+      $content_issue = $content_issue = $this->get('issue_entity')->entity;
+
+      // @phpstan-ignore-next-line
+      $reported_by = $content_issue->getOwner();
+      // @phpstan-ignore-next-line
+      $assigned_to = $content_issue->get('assigned_to')->entity;
+      $email_to = [];
+
+      if ($current_user->id() != $reported_by->id()) {
+        $email_to[] = $reported_by->getEmail();
+      }
+
+      if ($current_user->id() != $assigned_to->id()) {
+        $email_to[] = $assigned_to->getEmail();
+      }
+
+      $params = [
+        'site' => $site_name,
+        'issue_title' => $content_issue->label(),
+        'comment' => $this->get('comment')->getValue()[0]['value'],
+        'link' => $content_issue->toUrl('canonical', ['absolute' => TRUE])
+          ->toString(),
+        'subject' => t('New Comment for @issue', ['@issue' => $content_issue->label()]),
+      ];
+
+      $this->mailManager->mail('origins_content_issue', 'content_issue_comment', implode(',', $email_to), 'en', $params, NULL, TRUE);
     }
   }
 

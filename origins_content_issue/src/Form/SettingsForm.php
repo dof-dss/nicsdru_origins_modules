@@ -50,10 +50,16 @@ final class SettingsForm extends ConfigFormBase {
     $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('content_issue', 'content_issue');
     $state_values = $fields['state']->getSetting('allowed_values');
 
+    $form['notifications']['issues'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'strong',
+      '#value' => $this->t('Content issues'),
+    ];
+
     $form['notifications']['notify_on_create'] = [
       '#type' => 'checkbox',
-      '#description' => $this->t('Notify assigned to by email when a new issue is created.'),
-      '#default_value' => $this->config('origins_content_issue.settings')->get('notify_on_create') ?? 'TRUE',
+      '#description' => $this->t('Email assigned to when a new issue is created.'),
+      '#default_value' => (boolean) $this->config('origins_content_issue.settings')->get('notify_on_create') ?? TRUE,
       '#wrapper_attributes' => ['class' => ['container-inline']],
     ];
 
@@ -61,9 +67,22 @@ final class SettingsForm extends ConfigFormBase {
 
     $form['notifications']['notify_state_change_to_reporter'] = [
       '#type' => 'checkboxes',
-      '#description' => $this->t('Notify issue reporter by email when the issue state is changed.'),
+      '#description' => $this->t('Email issue reporter when the issue state is changed.'),
       '#options' => $state_values,
       '#default_value' => explode(',', $notify_reporter),
+      '#wrapper_attributes' => ['class' => ['container-inline']],
+    ];
+
+    $form['notifications']['comments'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'strong',
+      '#value' => $this->t('Content issue comments'),
+    ];
+
+    $form['notifications']['notify_on_comment'] = [
+      '#type' => 'checkbox',
+      '#description' => $this->t('Email assigned to and reported by when comments are created or edited.'),
+      '#default_value' => (boolean) $this->config('origins_content_issue.settings')->get('notify_on_comment') ?? TRUE,
       '#wrapper_attributes' => ['class' => ['container-inline']],
     ];
 
@@ -215,6 +234,7 @@ final class SettingsForm extends ConfigFormBase {
       ->set('report_icon', $report_icon)
       ->set('notify_on_create', $form_values['notify_on_create'])
       ->set('notify_reporter', implode(',', $notify_reporter))
+      ->set('notify_on_comment', $form_values['notify_on_comment'])
       ->save();
     parent::submitForm($form, $form_state);
   }

@@ -20,3 +20,6 @@ origins_content_issue.settings:
     notify_reporter:
       type: string
       label: 'Notify reporter on state change'
+    notify_on_comment:
+      type: boolean
+      label: 'Notify when comment created or edited.'
