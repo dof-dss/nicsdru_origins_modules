@@ -60,7 +60,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     if (array_key_exists('assigned', $qs)) {
       if ($qs['assigned'] > 0) {
-        $query->condition('assigned_to', $qs['assigned']);
+        $query->condition('assigned_to', \Drupal::currentUser()->id());
       }
       if ($qs['assigned'] < 0) {
         $query->notExists('assigned_to');
@@ -87,7 +87,6 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $entity_id = \Drupal::request()->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
     $current_qs = \Drupal::request()->query->all();
-    $current_user_id = \Drupal::currentUser()->id();
 
     // If the request is to display a specific issue, remove any applied filters, as the issue may not match them.
     if (!empty($issue_id)) {
@@ -141,7 +140,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     ];
 
     $qs = $current_qs;
-    foreach (['me' => $current_user_id, 'nobody' => -1] as $assigned => $val) {
+    foreach (['me' => 1, 'nobody' => -1] as $assigned => $val) {
       $classes = ['filter', 'assigned-' . $assigned];
       $qs['assigned'] = $val;
 
