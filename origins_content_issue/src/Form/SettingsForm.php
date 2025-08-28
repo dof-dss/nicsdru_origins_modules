@@ -41,10 +41,29 @@ final class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $this->modulePath = \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
 
-    $form['notify_on_create'] = [
+    $form['notifications'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Notifications'),
+      '#open' => TRUE,
+    ];
+
+    $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('content_issue', 'content_issue');
+    $state_values = $fields['state']->getSetting('allowed_values');
+
+    $form['notifications']['notify_on_create'] = [
       '#type' => 'checkbox',
-      '#description' => $this->t('Notify content author by email when a new issue is created.'),
+      '#description' => $this->t('Notify assigned to by email when a new issue is created.'),
       '#default_value' => $this->config('origins_content_issue.settings')->get('notify_on_create') ?? 'TRUE',
+      '#wrapper_attributes' => ['class' => ['container-inline']],
+    ];
+
+    $notify_reporter = $this->config('origins_content_issue.settings')->get('notify_reporter') ?? '';
+
+    $form['notifications']['notify_state_change_to_reporter'] = [
+      '#type' => 'checkboxes',
+      '#description' => $this->t('Notify issue reporter by email when the issue state is changed.'),
+      '#options' => $state_values,
+      '#default_value' => explode(',', $notify_reporter),
       '#wrapper_attributes' => ['class' => ['container-inline']],
     ];
 
@@ -169,9 +188,13 @@ final class SettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
 
+    $form_values = $form_state->getValues();
+
+    $notify_reporter = array_filter($form_values['notify_state_change_to_reporter']);
+
     $report_icon = $form_state->getValue('report_icon');
 
-    if ($report_icon == 'custom') {
+    if ($form_values['report_icon'] == 'custom') {
       $validators = ['FileExtension' => ['gif png jpg jpeg']];
       $custom_icon_directory = 'public://origins_content_issue/';
 
@@ -189,8 +212,9 @@ final class SettingsForm extends ConfigFormBase {
     }
 
     $this->config('origins_content_issue.settings')
-      ->set('report_icon', $form_state->getValue('report_icon'))
-      ->set('notify_on_create', $form_state->getValue('notify_on_create'))
+      ->set('report_icon', $report_icon)
+      ->set('notify_on_create', $form_values['notify_on_create'])
+      ->set('notify_reporter', implode(',', $notify_reporter))
       ->save();
     parent::submitForm($form, $form_state);
   }

@@ -122,6 +122,17 @@ function origins_content_issue_theme(): array {
       'template' => 'email/content-issue-email',
       'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
     ],
+    'content_issue_state_change' => [
+      'variables' => [
+        'site' => NULL,
+        'old_state' => NULL,
+        'new_state' => NULL,
+        'link' => NULL,
+      ],
+      'template' => 'email/content-issue-state-change-email',
+      'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
+    ],
+
   ];
 }
 
@@ -456,6 +467,25 @@ function origins_content_issue_mail($key, &$message, $params) {
 
       $message['from'] = \Drupal::config('system.site')->get('mail');
       $message['subject'] = t('Content issue for @subject', ['@subject' => $params['subject']]);
+      $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
+      $message['body'][] = MailFormatHelper::htmlToText($body);
+      break;
+
+    case 'content_issue_state_change':
+
+      $build = [
+        '#theme' => 'content_issue_state_change',
+        '#site' => $params['site'],
+        '#old_state' => $params['old_state'],
+        '#new_state' => $params['new_state'],
+        '#link' => $params['link'],
+      ];
+
+      $renderer = \Drupal::service('renderer');
+      $body = $renderer->renderRoot($build);
+
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Content issue @subject updated.', ['@subject' => $params['subject']]);
       $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
       $message['body'][] = MailFormatHelper::htmlToText($body);
       break;

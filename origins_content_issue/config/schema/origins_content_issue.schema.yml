@@ -17,3 +17,6 @@ origins_content_issue.settings:
     notify_on_create:
       type: boolean
       label: 'Notify content author on create.'
+    notify_reporter:
+      type: string
+      label: 'Notify reporter on state change'

@@ -118,6 +118,34 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
         }
       }
     }
+    else {
+      $config = \Drupal::config('origins_content_issue.settings');
+      $notify_reporter = explode(',', $config->get('notify_reporter') ?? []);
+
+      if (array_filter($notify_reporter)) {
+
+        $new_state = $this->get('state')->getString();
+        $old_state = $this->original->get('state')->getString();
+
+        if ($new_state != $old_state && in_array($new_state, $notify_reporter)) {
+          $reporter = $this->getOwner();
+
+          $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('content_issue', 'content_issue');
+          $state_values = $fields['state']->getSetting('allowed_values');
+
+          $params = [
+            'subject' => $this->label(),
+            'site' => \Drupal::config('system.site')->get('name'),
+            'title' => $this->label(),
+            'link' => $this->toUrl('canonical', ['absolute' => TRUE])->toString(),
+            'old_state' => $state_values[$old_state],
+            'new_state' => $state_values[$new_state],
+          ];
+
+          $this->mailManager->mail('origins_content_issue', 'content_issue_state_change', $reporter->getEmail(), 'en', $params, NULL, TRUE);
+        }
+      }
+    }
   }
 
   /**
@@ -138,7 +166,7 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
         $config = \Drupal::config('system.site');
 
         $params = [
-          'site' => $config->get('name'),
+          'site' => \Drupal::config('system.site')->get('name'),
           'bundle' => $node->bundle(),
           'title' => $node->label(),
           'description' => $this->get('description')->getValue()[0]['value'],
