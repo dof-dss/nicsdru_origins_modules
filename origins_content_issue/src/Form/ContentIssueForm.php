@@ -25,8 +25,11 @@ final class ContentIssueForm extends ContentEntityForm {
     $form = parent::buildForm($form, $form_state);
     // @phpstan-ignore-next-line
     $entity = $form_state->getFormObject()->getEntity();
+    $is_new = $entity->isNew();
+    $current_user = \Drupal::currentUser()->id();
+    $assigned_to = $entity->get('assigned_to')->getString();
 
-    if ($entity->isNew()) {
+    if ($is_new) {
       $form["state"]["#type"] = 'hidden';
     }
 
@@ -51,6 +54,11 @@ final class ContentIssueForm extends ContentEntityForm {
     $form['status']['#attributes']['class'][] = 'hidden';
     $form["description"]["widget"][0]["format"]['#attributes']['class'][] = 'hidden';
 
+    // Only the assigned user can change the issue state.
+    if (!$is_new && $current_user != $assigned_to) {
+      $form["state"]["#attributes"]["class"][] = 'hidden';
+    }
+
     // Make sure it's an AJAX form.
     $form['actions']['submit']['#ajax'] = [
       'callback' => '::ajaxSubmit',
@@ -61,7 +69,7 @@ final class ContentIssueForm extends ContentEntityForm {
       ],
     ];
 
-    if (!$entity->isNew()) {
+    if (!$is_new) {
       // Remove redirect to prevent page reloading.
       $form['#submit'][] = '::formSubmit';
 
