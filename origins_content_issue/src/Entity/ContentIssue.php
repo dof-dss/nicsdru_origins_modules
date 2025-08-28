@@ -90,6 +90,9 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
    */
   protected MailManagerInterface $mailManager;
 
+  /**
+   * {@inheritdoc}
+   */
   public function __construct(array $values, $entity_type, $bundle = FALSE, $translations = []) {
     parent::__construct($values, $entity_type, $bundle, $translations);
     $this->mailManager = \Drupal::service('plugin.manager.mail');
@@ -127,21 +130,25 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     $content_id = $this->get('content_entity_id')->getString();
     $node = Node::load($content_id);
 
-    if ($author->id() != $assigned_to->id()) {
-      $config = \Drupal::config('system.site');
+    if (!$update) {
+      $config = \Drupal::config('origins_content_issue.settings');
+      $notify = $config->get('notify_on_create') ?? TRUE;
 
-      $params = [
-        'site' => $config->get('name'),
-        'bundle' => $node->bundle(),
-        'title' => $node->label(),
-        'description' => $this->get('description')->getValue()[0]['value'],
-        'link' => $this->toUrl('canonical', ['absolute' => TRUE])->toString(),
-        'subject' => substr($node->label(), 0, 50) . '...',
-      ];
+      if ($author->id() != $assigned_to->id() && $notify) {
+        $config = \Drupal::config('system.site');
 
-      $this->mailManager->mail('origins_content_issue', 'new_content_issue', $assigned_to->getEmail(), 'en', $params, NULL, TRUE);
+        $params = [
+          'site' => $config->get('name'),
+          'bundle' => $node->bundle(),
+          'title' => $node->label(),
+          'description' => $this->get('description')->getValue()[0]['value'],
+          'link' => $this->toUrl('canonical', ['absolute' => TRUE])->toString(),
+          'subject' => substr($node->label(), 0, 50) . '...',
+        ];
+
+        $this->mailManager->mail('origins_content_issue', 'new_content_issue', $assigned_to->getEmail(), 'en', $params, NULL, TRUE);
+      }
     }
-
   }
 
   /**

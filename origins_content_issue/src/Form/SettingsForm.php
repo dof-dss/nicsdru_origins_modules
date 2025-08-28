@@ -41,6 +41,13 @@ final class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $this->modulePath = \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
 
+    $form['notify_on_create'] = [
+      '#type' => 'checkbox',
+      '#description' => $this->t('Notify content author by email when a new issue is created.'),
+      '#default_value' => $this->config('origins_content_issue.settings')->get('notify_on_create') ?? 'TRUE',
+      '#wrapper_attributes' => ['class' => ['container-inline']],
+    ];
+
     $selected_icon = $this->config('origins_content_issue.settings')->get('report_icon') ?? 'icon_report_1.png';
 
     for ($i = 1; $i <= 6; $i++) {
@@ -183,6 +190,7 @@ final class SettingsForm extends ConfigFormBase {
 
     $this->config('origins_content_issue.settings')
       ->set('report_icon', $form_state->getValue('report_icon'))
+      ->set('notify_on_create', $form_state->getValue('notify_on_create'))
       ->save();
     parent::submitForm($form, $form_state);
   }
