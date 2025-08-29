@@ -1,7 +1,7 @@
 name: 'Origins: Forms'
 type: module
 description: 'Form plugins and utilities'
-core_version_requirement: ^10
+core_version_requirement: ^10 || ^11
 package: 'NICS: Origins'
 configure: origins_forms.forms_configuration
 dependencies:
