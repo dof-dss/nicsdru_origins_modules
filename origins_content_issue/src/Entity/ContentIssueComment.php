@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Core\Url;
 use Drupal\origins_content_issue\ContentIssueCommentInterface;
 use Drupal\user\EntityOwnerTrait;
 
@@ -90,13 +91,17 @@ final class ContentIssueComment extends ContentEntityBase {
    * {@inheritdoc}
    */
   public function postSave(EntityStorageInterface $storage, $update = TRUE): void {
-    $config = \Drupal::config('origins_content_issue.settings');
-    $notify = $config->get('notify_on_create') ?? TRUE;
+    $notify = \Drupal::config('origins_content_issue.settings')->get('notify_on_create') ?? TRUE;
 
     if ($notify) {
       $site_name = \Drupal::config('system.site')->get('name');
       $current_user = \Drupal::currentUser();
-      $content_issue = $content_issue = $this->get('issue_entity')->entity;
+      $content_issue = $this->get('issue_entity')->entity;
+      // The node ID and revision the content issue is referencing.
+      // @phpstan-ignore-next-line
+      $content_entity_id = $content_issue->get('content_entity_id')->getString();
+      // @phpstan-ignore-next-line
+      $content_entity_revision_id = $content_issue->get('content_entity_revision_id')->getString();
 
       // @phpstan-ignore-next-line
       $reported_by = $content_issue->getOwner();
@@ -104,6 +109,7 @@ final class ContentIssueComment extends ContentEntityBase {
       $assigned_to = $content_issue->get('assigned_to')->entity;
       $email_to = [];
 
+      // Don't email if the current user is the issue reporter or assigned to user.
       if ($current_user->id() != $reported_by->id()) {
         $email_to[] = $reported_by->getEmail();
       }
@@ -116,8 +122,10 @@ final class ContentIssueComment extends ContentEntityBase {
         'site' => $site_name,
         'issue_title' => $content_issue->label(),
         'comment' => $this->get('comment')->getValue()[0]['value'],
-        'link' => $content_issue->toUrl('canonical', ['absolute' => TRUE])
-          ->toString(),
+        'link' => Url::fromRoute('entity.content_issue.collection', [
+          'entity_id' => $content_entity_id,
+          'revision_id' => $content_entity_revision_id,
+        ]),
         'subject' => t('New Comment for @issue', ['@issue' => $content_issue->label()]),
       ];
 

@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Drupal\origins_content_issue\ContentIssueInterface;
 use Drupal\user\Entity\User;
@@ -111,8 +112,8 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
       // Assign the issue to the author of the node with the issue.
       $node_id = $this->get('content_entity_id')->getString();
       if (!empty($node_id)) {
-        $node_uid = Node::load($node_id)->getOwnerId();
-        $assign_to = User::load($node_uid);
+        $node = Node::load($node_id);
+        $assign_to = User::load($node->getOwnerId());
         if (!empty($assign_to)) {
           $this->set('assigned_to', $assign_to);
         }
@@ -127,9 +128,11 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
         $new_state = $this->get('state')->getString();
         $old_state = $this->original->get('state')->getString();
 
+        // Notify if the state has changed and config is set to notify for that state change.
         if ($new_state != $old_state && in_array($new_state, $notify_reporter)) {
           $reporter = $this->getOwner();
 
+          // Extract the field label from definitions, so we can convert the stored key to a readable label.
           $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('content_issue', 'content_issue');
           $state_values = $fields['state']->getSetting('allowed_values');
 
@@ -137,7 +140,10 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
             'subject' => $this->label(),
             'site' => \Drupal::config('system.site')->get('name'),
             'title' => $this->label(),
-            'link' => $this->toUrl('canonical', ['absolute' => TRUE])->toString(),
+            'link' => Url::fromRoute('entity.content_issue.collection', [
+              'entity_id' => $this->get('content_entity_id')->getString(),
+              'revision_id' => $this->get('$content_entity_revision_id')->getString(),
+            ]),
             'old_state' => $state_values[$old_state],
             'new_state' => $state_values[$new_state],
           ];
@@ -152,25 +158,26 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
    * {@inheritdoc}
    */
   public function postSave(EntityStorageInterface $storage, $update = TRUE): void {
-    $author = $this->getOwner();
-    // @phpstan-ignore-next-line
-    $assigned_to = $this->get('assigned_to')?->first()?->get('entity')?->getTarget()?->getValue();
-    $content_id = $this->get('content_entity_id')->getString();
-    $node = Node::load($content_id);
-
+    // Process new content issues only.
     if (!$update) {
-      $config = \Drupal::config('origins_content_issue.settings');
-      $notify = $config->get('notify_on_create') ?? TRUE;
+      $author = $this->getOwner();
+      // @phpstan-ignore-next-line
+      $assigned_to = $this->get('assigned_to')?->first()?->get('entity')?->getTarget()?->getValue();
+      $notify = \Drupal::config('origins_content_issue.settings')->get('notify_on_create') ?? TRUE;
 
+      // Email assigned user if they are not the reporter and notifications are enabled.
       if ($author->id() != $assigned_to->id() && $notify) {
-        $config = \Drupal::config('system.site');
+        $node = Node::load($this->get('content_entity_id')->getString());
 
         $params = [
           'site' => \Drupal::config('system.site')->get('name'),
           'bundle' => $node->bundle(),
           'title' => $node->label(),
           'description' => $this->get('description')->getValue()[0]['value'],
-          'link' => $this->toUrl('canonical', ['absolute' => TRUE])->toString(),
+          'link' => Url::fromRoute('entity.content_issue.collection', [
+            'entity_id' => $this->get('content_entity_id')->getString(),
+            'revision_id' => $this->get('$content_entity_revision_id')->getString(),
+          ]),
           'subject' => substr($node->label(), 0, 50) . '...',
         ];
 
