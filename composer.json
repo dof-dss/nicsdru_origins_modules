@@ -11,7 +11,7 @@
     "allow-plugins": {
       "composer/installers": true,
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "tbachert/spi": true
+      "tbachert/spi": false
     }
   }
 }
