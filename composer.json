@@ -5,7 +5,7 @@
   "license": "MIT",
   "require": {
     "composer/installers": "^2.0",
-    "drupal/core": "^10"
+    "drupal/core": "^10 || ^11"
   },
   "config": {
     "allow-plugins": {
