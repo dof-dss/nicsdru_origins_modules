@@ -41,5 +41,5 @@ jobs:
               "drupal_core_version": "11.2",
               "custom_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
               "deprecated_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
-              "supporting_repo_dependent_packages": "drupal/csp:^2.2 drupal/entity_embed:^1.7 mglaman/drupal-check drupal/flag:^5.0 drupal/geolocation:^4.0 drupal/facets:^3.0 drush/drush"
+              "supporting_repo_dependent_packages": "drupal/csp:^2.2 drupal/entity_embed:^1.7 mglaman/drupal-check drupal/flag:^5.0 drupal/geolocation:^4.0@beta drupal/facets:^3.0 drush/drush"
             }
