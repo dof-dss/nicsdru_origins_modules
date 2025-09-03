@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Create QA accounts.
  */
-class CreateQaAccountsForm extends FormBase {
+final class CreateQaAccountsForm extends FormBase {
 
   /**
    * The entity type manager.

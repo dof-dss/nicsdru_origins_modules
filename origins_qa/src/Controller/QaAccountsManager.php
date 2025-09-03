@@ -5,16 +5,20 @@ namespace Drupal\origins_qa\Controller;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Form\FormBuilder;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for Origins QA.
  */
-class QaAccountsManager extends ControllerBase {
+final class QaAccountsManager extends ControllerBase {
 
   /**
    * The form builder.
@@ -24,14 +28,36 @@ class QaAccountsManager extends ControllerBase {
   protected $formBuilder;
 
   /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
+
+  /**
+   * The logger channel.
+   *
+   * @var \Psr\Log\LoggerInterface
+   */
+  protected LoggerInterface $logger;
+
+  /**
    * {@inheritdoc}
    *
    * @param \Drupal\Core\Form\FormBuilder|null $formBuilder
    *   The form builder.
+   * @param \Drupal\Core\Extension\ModuleHandler|null $moduleHandler
+   *   The module handler.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface|null $loggerFactory
+   *   The logger factory service object.
    */
-  public function __construct(FormBuilder|null $formBuilder = NULL) {
-    // Note that $formBuilder will be NULL if calling from drush.
+  public function __construct(LoggerChannelFactoryInterface $loggerFactory,
+      FormBuilder|null $formBuilder = NULL,
+      ModuleHandler|null $moduleHandler = NULL) {
+
+    $this->logger = $loggerFactory->get('origins_qa');
     $this->formBuilder = $formBuilder;
+    $this->moduleHandler = $moduleHandler;
   }
 
   /**
@@ -44,7 +70,9 @@ class QaAccountsManager extends ControllerBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('form_builder')
+      $container->get('logger.factory'),
+      $container->get('form_builder'),
+      $container->get('module_handler'),
     );
   }
 
@@ -53,7 +81,7 @@ class QaAccountsManager extends ControllerBase {
    */
   public function list() {
     $build = [];
-    $masquerade_enabled = \Drupal::service('module_handler')->moduleExists('masquerade');
+    $masquerade_enabled = $this->moduleHandler->moduleExists('masquerade');
 
     // Fetch all the accounts belonging to the 'qa' role.
     $accounts = $this->entityTypeManager()
@@ -168,7 +196,7 @@ class QaAccountsManager extends ControllerBase {
             $account->save();
           }
           catch (\Throwable $error) {
-            \Drupal::logger('origins_qa')->error("Error when enabling QA Accounts - " . $error);
+            $this->logger->error("Error when enabling QA Accounts - " . $error);
           }
         }
       }
@@ -179,7 +207,7 @@ class QaAccountsManager extends ControllerBase {
             $account->save();
           }
           catch (\Throwable $error) {
-            \Drupal::logger('origins_qa')->error("Error when disabling QA Accounts - " . $error);
+            $this->logger->error("Error when disabling QA Accounts - " . $error);
           }
         }
       }
@@ -225,7 +253,7 @@ class QaAccountsManager extends ControllerBase {
       $user = user_load_by_name($name);
       if (empty($user)) {
         $msg = t('Creating user @name', ['@name' => $name]);
-        \Drupal::logger('origins_qa')->notice($msg);
+        $this->logger->notice($msg);
         if (!$called_from_drush) {
           $this->messenger()->addMessage($msg);
         }
@@ -241,7 +269,7 @@ class QaAccountsManager extends ControllerBase {
       }
       else {
         $msg = t('Did not create user @name as already exists.', ['@name' => $name]);
-        \Drupal::logger('origins_qa')->error($msg);
+        $this->logger->error($msg);
         if (!$called_from_drush) {
           $this->messenger()->addMessage($msg);
         }
@@ -272,7 +300,7 @@ class QaAccountsManager extends ControllerBase {
       }
       else {
         $msg = t('Did not create user @name as already exists.', ['@name' => $name]);
-        \Drupal::logger('origins_qa')->error($msg);
+        $this->logger->error($msg);
         if (!PHP_SAPI) {
           $this->messenger()->addMessage($msg);
         }

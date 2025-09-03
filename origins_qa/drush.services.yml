@@ -1,5 +1,6 @@
 services:
   origins_qa.commands:
     class: \Drupal\origins_qa\Commands\OriginsQaCommands
+    arguments: ['@entity_type.manager', '@module_handler', '@logger.factory']
     tags:
       - { name: drush.command }
