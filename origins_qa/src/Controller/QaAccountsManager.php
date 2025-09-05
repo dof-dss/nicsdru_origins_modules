@@ -44,14 +44,15 @@ final class QaAccountsManager extends ControllerBase {
   /**
    * {@inheritdoc}
    *
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface|null $loggerFactory
+   *    The logger factory service object.
    * @param \Drupal\Core\Form\FormBuilder|null $formBuilder
    *   The form builder.
    * @param \Drupal\Core\Extension\ModuleHandler|null $moduleHandler
    *   The module handler.
-   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface|null $loggerFactory
-   *   The logger factory service object.
    */
-  public function __construct(LoggerChannelFactoryInterface $loggerFactory,
+  public function __construct(
+      LoggerChannelFactoryInterface $loggerFactory,
       FormBuilder|null $formBuilder = NULL,
       ModuleHandler|null $moduleHandler = NULL) {
 

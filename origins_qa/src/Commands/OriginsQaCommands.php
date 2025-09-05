@@ -16,10 +16,12 @@ use Drush\Commands\DrushCommands;
 class OriginsQaCommands extends DrushCommands {
 
   /**
-   * @param EntityTypeManagerInterface $entityTypeManager
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
    *   Entity type manager service object.
-   * @param ModuleHandler $moduleHandler
+   * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
    *   Module handler service object.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
+   *   Logger factory service object.
    */
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
