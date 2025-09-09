@@ -31,7 +31,7 @@ final class ContentIssueCommentForm extends ContentEntityForm {
     EntityRepositoryInterface $entity_repository,
     EntityTypeBundleInfoInterface $entity_type_bundle_info,
     TimeInterface $time,
-    private readonly ContentIssueManager $contentIssueManager,gaa
+    private readonly ContentIssueManager $contentIssueManager,
   ) {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
   }
