@@ -2,7 +2,7 @@
   Drupal.behaviors.originsContentIssue = {
 
     displayIssue: function(entityId) {
-      let endpoint = Drupal.url('origins/content-issue/display/' + entityId);
+      const endpoint = Drupal.url('origins/content-issue/display/' + entityId);
       Drupal.ajax({
         url: endpoint,
         progress: {
@@ -15,7 +15,7 @@
 
       once('issueRow', '.content-issue-row').forEach(function (element) {
         $(element).on('click', function() {
-          let entityId = $(element).data('entity-id');
+          const entityId = $(element).data('entity-id');
           Drupal.behaviors.originsContentIssue.displayIssue(entityId);
         });
       })

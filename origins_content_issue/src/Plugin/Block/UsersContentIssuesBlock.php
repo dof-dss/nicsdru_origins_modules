@@ -67,7 +67,7 @@ final class UsersContentIssuesBlock extends BlockBase implements ContainerFactor
     }
 
     $issues = $this->contentIssueManager->getIssuesAssignedTo($user_id);
-    $link = Link::fromTextAndUrl('Click here to view', Url::fromRoute('entity.content_issue.collection', [], ['query' => ['assigned' => $user_id]]))->toString();
+    $link = Link::fromTextAndUrl($this->t('Click here to view'), Url::fromRoute('entity.content_issue.collection', [], ['query' => ['assigned' => $user_id]]))->toString();
     $count = count($issues) . ((count($issues) > 1) ? ' issues' : ' issue');
 
     if ($issues) {

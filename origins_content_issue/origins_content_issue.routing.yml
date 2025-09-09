@@ -10,7 +10,7 @@ origins_content_issue.issue.add:
   path: '/origins/content-issue/add/{entity_id}/{revision_id}'
   defaults:
     _title: 'Create content issue'
-    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController::addForm'
   requirements:
     _permission: 'create content issue'
 

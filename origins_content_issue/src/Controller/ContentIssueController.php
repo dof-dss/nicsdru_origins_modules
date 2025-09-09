@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace Drupal\origins_content_issue\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Form\FormState;
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\user\Entity\User;
 
 /**
  * Returns responses for Origins reporter routes.
@@ -24,7 +20,7 @@ final class ContentIssueController extends ControllerBase {
   /**
    * Builds the response.
    */
-  public function __invoke(int $entity_id, int|null $revision_id = NULL): array {
+  public function addForm(int $entity_id, int|null $revision_id = NULL): array {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
     $issueManager = \Drupal::service('content_issue.manager');
 
@@ -72,10 +68,10 @@ final class ContentIssueController extends ControllerBase {
    * @param int|string $entity_id
    *   The Content Issue ID to display.
    *
-   * @return \Drupal\Core\Ajax\AjaxResponse|\Symfony\Component\HttpFoundation\RedirectResponse
+   * @return \Drupal\Core\Ajax\AjaxResponse
    *   The Ajax response to update the information panel or warning.
    */
-  public function display(int|string $entity_id) {
+  public function display(int|string $entity_id): AjaxResponse {
 
     if (!\Drupal::request()->isXmlHttpRequest()) {
       return $this->redirect('entity.content_issue.collection');

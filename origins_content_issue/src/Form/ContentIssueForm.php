@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -11,12 +12,54 @@ use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
+use Drupal\origins_content_issue\ContentIssueManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for the content issue entity edit forms.
  */
 final class ContentIssueForm extends ContentEntityForm {
+
+  /**
+   * Drupal renderer service instance.
+   *
+   * @var \Drupal\Core\Render\RendererInterface
+   */
+  protected $renderer;
+
+
+  /**
+   * Content Issue Manager service.
+   *
+   * @var \Drupal\origins_content_issue\ContentIssueManager
+   */
+  protected $contentIssueManager;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(EntityRepositoryInterface $entity_repository, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, ContentIssueManager $content_issue_manager, RendererInterface $renderer) {
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
+    $this->contentIssueManager = $content_issue_manager;
+    $this->renderer = $renderer;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
+      $container->get('content_issue.manager'),
+      $container->get('renderer'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -92,7 +135,6 @@ final class ContentIssueForm extends ContentEntityForm {
   public function ajaxSubmit($form, FormStateInterface $form_state) {
     // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
-    $issueManager = \Drupal::service('content_issue.manager');
 
     $response = new AjaxResponse();
 
@@ -102,11 +144,11 @@ final class ContentIssueForm extends ContentEntityForm {
     }
     else {
       // Render Issue row.
-      $row_build = $issueManager->renderRow($entity);
-      $row_build = \Drupal::service('renderer')->render($row_build);
+      $row_build = $this->contentIssueManager->renderRow($entity);
+      $row_build = $this->renderer->render($row_build);
 
       // Render Issue details pane.
-      $info_build = $issueManager->renderIssue($entity->id());
+      $info_build = $this->contentIssueManager->renderIssue($entity->id());
 
       $response->addCommand(new ReplaceCommand('.content-issue-row[data-entity-id="' . $entity->id() . '"]', $row_build, []));
       $response->addCommand(new ReplaceCommand('#content-issue-dashboard-aside article', $info_build, []));

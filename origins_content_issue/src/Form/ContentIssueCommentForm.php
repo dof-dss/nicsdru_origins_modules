@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -11,13 +12,41 @@ use Drupal\Core\Ajax\MessageCommand;
 use Drupal\Core\Ajax\PrependCommand;
 use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityRepositoryInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
+use Drupal\origins_content_issue\ContentIssueManager;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Form controller for the content issue comment entity edit forms.
  */
 final class ContentIssueCommentForm extends ContentEntityForm {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    EntityRepositoryInterface $entity_repository,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    TimeInterface $time,
+    private readonly ContentIssueManager $contentIssueManager
+  ) {
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity.repository'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
+      $container->get('content_issue.manager'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -76,10 +105,9 @@ final class ContentIssueCommentForm extends ContentEntityForm {
   public function ajaxSubmitAdd(array $form, FormStateInterface $form_state) {
     // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
-    $issueManager = \Drupal::service('content_issue.manager');
 
     $response = new AjaxResponse();
-    $comment_build = $issueManager->renderComment($entity->id());
+    $comment_build = $this->contentIssueManager->renderComment($entity->id());
     $response->addCommand(new PrependCommand('.content-issue-comments', $comment_build));
     $response->addCommand(new MessageCommand('Comment created.'));
     $response->addCommand(new CloseDialogCommand());
@@ -93,10 +121,9 @@ final class ContentIssueCommentForm extends ContentEntityForm {
   public function ajaxSubmitEdit(array $form, FormStateInterface $form_state) {
     // @phpstan-ignore-next-line
     $entity = $form_state->getformObject()->getEntity();
-    $issueManager = \Drupal::service('content_issue.manager');
 
     $response = new AjaxResponse();
-    $comment_build = $issueManager->renderComment($entity->id());
+    $comment_build = $this->contentIssueManager->renderComment($entity->id());
 
     $response->addCommand(new ReplaceCommand('.content-issue-comment[data-comment-id="' . $entity->id() . '"]', $comment_build, []));
     $response->addCommand(new CloseModalDialogCommand());

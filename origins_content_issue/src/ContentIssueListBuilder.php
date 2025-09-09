@@ -6,13 +6,38 @@ namespace Drupal\origins_content_issue;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
+use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a list controller for the content issue entity type.
  */
 final class ContentIssueListBuilder extends EntityListBuilder {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(
+    EntityTypeInterface $entity_type,
+    EntityStorageInterface $storage,
+    private readonly ContentIssueManager $contentIssueManager,
+  ) {
+    parent::__construct($entity_type, $storage);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function createInstance(ContainerInterface $container, $entity_type) {
+    return new static(
+      $entity_type,
+      $container->get('entity_type.manager')->getStorage($entity_type->id()),
+      $container->get('content_issue.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -29,7 +54,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public function buildRow(EntityInterface $entity): array {
     /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
 
-    $row = \Drupal::service('content_issue.manager')->renderRow($entity);
+    $row = $this->contentIssueManager->renderRow($entity);
 
     return $row + parent::buildRow($entity);
   }
@@ -84,9 +109,9 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     $issue_id = $request->get('content_issue');
     // The ID of the entity for which issues will be displayed.
-    $entity_id = \Drupal::request()->get('entity_id');
+    $entity_id = $request->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
-    $current_qs = \Drupal::request()->query->all();
+    $current_qs = $request->query->all();
 
     // If the request is to display a specific issue, remove any applied filters, as the issue may not match them.
     if (!empty($issue_id)) {
@@ -239,7 +264,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     // Display the requested issue in the side info-pane.
     if (!empty($issue_id)) {
-      $issue_details = \Drupal::service('content_issue.manager')->renderIssue($issue_id);
+      $issue_details = $this->contentIssueManager->renderIssue($issue_id);
       if (empty($issue_details)) {
         \Drupal::messenger()->addWarning($this->t('The requested issue could not be found.'));
       }

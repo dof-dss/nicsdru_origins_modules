@@ -142,7 +142,7 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
             'title' => $this->label(),
             'link' => Url::fromRoute('entity.content_issue.collection', [
               'entity_id' => $this->get('content_entity_id')->getString(),
-              'revision_id' => $this->get('$content_entity_revision_id')->getString(),
+              'revision_id' => $this->get('content_entity_revision_id')->getString(),
             ]),
             'old_state' => $state_values[$old_state],
             'new_state' => $state_values[$new_state],
@@ -176,7 +176,7 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
           'description' => $this->get('description')->getValue()[0]['value'],
           'link' => Url::fromRoute('entity.content_issue.collection', [
             'entity_id' => $this->get('content_entity_id')->getString(),
-            'revision_id' => $this->get('$content_entity_revision_id')->getString(),
+            'revision_id' => $this->get('content_entity_revision_id')->getString(),
           ]),
           'subject' => substr($node->label(), 0, 50) . '...',
         ];

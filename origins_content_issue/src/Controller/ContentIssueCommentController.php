@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue\Controller;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseDialogCommand;
 use Drupal\Core\Ajax\RemoveCommand;
@@ -50,7 +49,7 @@ final class ContentIssueCommentController extends ControllerBase {
    * @param int|string $issue_id
    *   The id of the issue this comment is for.
    */
-  public function addForm(int|string $issue_id) {
+  public function addForm(int|string $issue_id): array {
     $issue_comment = $this->entityTypeManager()->getStorage('content_issue_comment')->create([]);
 
     $form_state['values']['issue_entity'] = $issue_id;
@@ -68,7 +67,7 @@ final class ContentIssueCommentController extends ControllerBase {
    * @param int|string $comment_id
    *   The id of the comment to edit.
    */
-  public function editForm(int|string $comment_id) {
+  public function editForm(int|string $comment_id): array {
     $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
 
     // @phpstan-ignore-next-line
@@ -88,7 +87,7 @@ final class ContentIssueCommentController extends ControllerBase {
    * @param int|string $comment_id
    *   The id of the comment to delete.
    */
-  public function deleteConfirm(int|string $comment_id) {
+  public function deleteConfirm(int|string $comment_id): array {
     $form = [
       '#type' => 'container',
       '#attributes' => ['class' => ['confirm-modal']],
@@ -132,8 +131,11 @@ final class ContentIssueCommentController extends ControllerBase {
    *
    * @param int|string $comment_id
    *   The id of the comment to delete.
+   *
+   * @return \Drupal\Core\Ajax\AjaxResponse
+   *   Ajax response to the delete request.
    */
-  public function delete($comment_id) {
+  public function delete($comment_id): AjaxResponse {
     $comment = $this->entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
     $comment->delete();
 
@@ -149,7 +151,7 @@ final class ContentIssueCommentController extends ControllerBase {
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   Ajax response to close modal.
    */
-  public function closeModal() {
+  public function closeModal(): AjaxResponse {
     $response = new AjaxResponse();
     $response->addCommand(new CloseDialogCommand());
     return $response;

@@ -6,12 +6,21 @@ namespace Drupal\origins_content_issue;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\node\Entity\Node;
 
 /**
  * Manager for Content Issues.
  */
 final class ContentIssueManager {
+
+  /**
+   * The storage for the Node entity type.
+   *
+   * @var \Drupal\Core\Entity\EntityStorageInterface
+   */
+  private EntityStorageInterface $nodeStorage;
 
   /**
    * The storage for the Content Issue entity type.
@@ -28,13 +37,24 @@ final class ContentIssueManager {
   private EntityStorageInterface $commentStorage;
 
   /**
+   * Filesystem path to the module.
+   *
+   * @var string
+   */
+  private string $modulePath;
+
+  /**
    * Constructs a ContentIssueManager object.
    */
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
+    ModuleHandlerInterface $module_handler,
+    private readonly RendererInterface $renderer,
   ) {
+    $this->nodeStorage = $entityTypeManager->getStorage('node');
     $this->issueStorage = $entityTypeManager->getStorage('content_issue');
     $this->commentStorage = $entityTypeManager->getStorage('content_issue_comment');
+    $this->modulePath = $module_handler->getModule('origins_content_issue')->getPath();
   }
 
   /**
@@ -42,7 +62,7 @@ final class ContentIssueManager {
    */
   public function createIssue($title, $description, $content_entity_id, $content_revision_id, $severity): void {
 
-    $node = $this->entityTypeManager->getStorage('node')->load($content_entity_id);
+    $node = $this->nodeStorage->load($content_entity_id);
 
     $issue = $this->issueStorage->create([
       'label' => $title,
@@ -50,6 +70,7 @@ final class ContentIssueManager {
       'content_entity_id' => $content_entity_id,
       'content_revision_id' => $content_revision_id,
       'severity' => $severity,
+      // @phpstan-ignore-next-line
       'assigned_to' => $node->getOwnerId(),
     ]);
 
@@ -81,10 +102,8 @@ final class ContentIssueManager {
    * Return a render array for an Issue row.
    */
   public function renderRow($issue): array|null {
-    $module_path = \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
-
     /** @var \Drupal\node\NodeInterface $node */
-    $node = Node::load($issue->get('content_entity_id')->value);
+    $node = $this->nodeStorage->load($issue->get('content_entity_id')->value);
 
     $state = $issue->get('state')->value;
     $state_field_definition = $issue->getFieldDefinition('state');
@@ -99,14 +118,14 @@ final class ContentIssueManager {
 
     $severity_image = [
       '#theme' => 'image',
-      '#uri' => '/' . $module_path . '/assets/severity-' . $severity . '.png',
+      '#uri' => '/' . $this->modulePath . '/assets/severity-' . $severity . '.png',
       '#alt' => $severity_label,
       '#title' => $severity_label,
       '#height' => 20,
       '#width' => 20,
     ];
 
-    $severity_image = \Drupal::service('renderer')->render($severity_image);
+    $severity_image = $this->renderer->render($severity_image);
 
     $reporter = $issue->get('uid')->entity->label();
     $updated = ($issue->get('changed')->isEmpty()) ? $issue->get('created')->view(['label' => 'hidden']) : $issue->get('created')->view(['label' => 'hidden']);
@@ -123,7 +142,7 @@ final class ContentIssueManager {
       '#severity_image' => $severity_image,
       '#reporter' => $reporter,
       '#updated' => $updated,
-      '#module_path' => $module_path,
+      '#module_path' => $this->modulePath ,
     ];
 
     return $row;

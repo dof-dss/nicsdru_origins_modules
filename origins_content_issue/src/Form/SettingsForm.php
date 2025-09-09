@@ -5,21 +5,52 @@ declare(strict_types=1);
 namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\TypedConfigManagerInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\File\FileExists;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\RendererInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure Origins content issue settings for this site.
  */
-final class SettingsForm extends ConfigFormBase {
+final class SettingsForm extends ConfigFormBase implements ContainerInjectionInterface {
 
   /**
-   * The filesystem path to the module.
+   * The file system path to the module.
    */
   private string $modulePath;
+
+  /**
+   * Class constructor.
+   */
+  public function __construct(
+    ConfigFactoryInterface $config_factory,
+    ModuleHandlerInterface $module_handler,
+    private readonly RendererInterface $renderer,
+    private readonly EntityFieldManagerInterface $entityFieldManager,
+    private readonly FileSystemInterface $fileSystem
+  ) {
+    parent::__construct($config_factory);
+    $this->modulePath = $module_handler->getModule('origins_content_issue')->getPath();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('module_handler'),
+      $container->get('renderer'),
+      $container->get('entity_field.manager'),
+      $container->get('file_system'),
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -39,7 +70,6 @@ final class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $this->modulePath = \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
 
     $form['notifications'] = [
       '#type' => 'details',
@@ -47,7 +77,7 @@ final class SettingsForm extends ConfigFormBase {
       '#open' => TRUE,
     ];
 
-    $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('content_issue', 'content_issue');
+    $fields = $this->entityFieldManager->getFieldDefinitions('content_issue', 'content_issue');
     $state_values = $fields['state']->getSetting('allowed_values');
 
     $form['notifications']['issues'] = [
@@ -136,7 +166,7 @@ final class SettingsForm extends ConfigFormBase {
       $markup['#uri'] = $custom_icon_url;
     }
 
-    $markup = \Drupal::service('renderer')->render($markup);
+    $markup = $this->renderer->render($markup);
 
     $form['report_icon_preview'] = [
       '#type' => 'item',
@@ -217,7 +247,7 @@ final class SettingsForm extends ConfigFormBase {
       $validators = ['FileExtension' => ['gif png jpg jpeg']];
       $custom_icon_directory = 'public://origins_content_issue/';
 
-      \Drupal::service('file_system')->prepareDirectory($custom_icon_directory, FileSystemInterface::CREATE_DIRECTORY);
+      $this->fileSystem->prepareDirectory($custom_icon_directory, FileSystemInterface::CREATE_DIRECTORY);
 
       // Handle the upload manually.
       if ($file = file_save_upload('custom_icon', $validators, $custom_icon_directory, 0, FileExists::Replace)) {
