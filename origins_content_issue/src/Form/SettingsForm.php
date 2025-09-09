@@ -33,7 +33,7 @@ final class SettingsForm extends ConfigFormBase implements ContainerInjectionInt
     ModuleHandlerInterface $module_handler,
     private readonly RendererInterface $renderer,
     private readonly EntityFieldManagerInterface $entityFieldManager,
-    private readonly FileSystemInterface $fileSystem
+    private readonly FileSystemInterface $fileSystem,
   ) {
     parent::__construct($config_factory);
     $this->modulePath = $module_handler->getModule('origins_content_issue')->getPath();
