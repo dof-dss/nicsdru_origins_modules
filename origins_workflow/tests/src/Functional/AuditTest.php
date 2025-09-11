@@ -119,13 +119,13 @@ class AuditTest extends BrowserTestBase {
       'title' => 'audit testing ' . $type,
       'moderation_state' => 'published',
     ]);
-    $this->assertTrue(Node::load($node->id()), 'Node created.');
+    self::assertTrue(Node::load($node->id()), 'Node created.');
     $nid = $node->id();
     $new_node = Node::load($nid);
     // 'Next audit due' date should have been set automatically
     // to six months in the future.
     $sixm = date('Y-m-d', strtotime("+6 months"));
-    $this->assertEquals($sixm, $new_node->get('field_next_audit_due')->value);
+    self::assertEquals($sixm, $new_node->get('field_next_audit_due')->value);
     // Now reset the audit due date to today.
     $today = date('Y-m-d', \Drupal::time()->getCurrentTime());
     $new_node->set('field_next_audit_due', $today);
@@ -135,7 +135,7 @@ class AuditTest extends BrowserTestBase {
     $auditer->confirmAudit($nid);
     // 'Next audit due' date should now have bumped to 6 months time.
     $audited_node = Node::load($nid);
-    $this->assertEquals($sixm, $audited_node->get('field_next_audit_due')->value);
+    self::assertEquals($sixm, $audited_node->get('field_next_audit_due')->value);
   }
 
 }

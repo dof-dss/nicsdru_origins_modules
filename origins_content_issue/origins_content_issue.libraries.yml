@@ -1,0 +1,13 @@
+report-link:
+  css:
+    component:
+      css/report-link.css: {}
+  js:
+    js/report-link.js: {}
+
+user-interface:
+  css:
+    component:
+      css/admin.css: {}
+  js:
+    js/admin.js: { }

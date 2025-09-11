@@ -1,0 +1,20 @@
+administer content issue:
+  title: 'Administer content issues'
+  restrict access: true
+create content issue:
+  title: 'Create content issue'
+view content issue:
+  title: 'View content issues'
+edit own content issue:
+  title: 'Edit own content issue'
+edit assigned content issue:
+  title: 'Edit assigned content issue'
+edit any content issue:
+  title: 'Edit any content issue'
+delete own content issue:
+  title: 'Delete own content issue'
+delete any content issue:
+  title: 'Delete any content issue'
+
+administer content issue comments:
+  title: 'Administer content issue comments'
