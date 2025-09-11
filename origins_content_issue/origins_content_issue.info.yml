@@ -1,0 +1,7 @@
+name: 'Origins content issue'
+type: module
+description: 'Provides a simple way for users to report issues with content directly to the original author.'
+package: 'NICS: Origins'
+core_version_requirement: ^10 | ^11
+dependencies:
+  - node

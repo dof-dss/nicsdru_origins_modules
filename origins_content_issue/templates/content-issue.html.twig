@@ -1,0 +1,57 @@
+{#
+/**
+ * @file
+ * Default theme implementation to present a content issue entity.
+ *
+ * This template is used when viewing a canonical content issue page,
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ *   print a subset such as 'content.label'.
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_content_issue()
+ */
+#}
+{{ attach_library('origins_content_issue/user-interface') }}
+<article{{ attributes.addClass('content-issue-layout') }} id="content-issue-details">
+  {% if content %}
+    <div class="content-issue-main">
+      <span class="issue-number" title="Issue number {{ elements['#content_issue'].id() }}"># {{ elements['#content_issue'].id() }}</span>
+      <h3>{{ content.label }}</h3>
+      {{- content.description -}}
+
+      <hr />
+      <h6>Comments</h6>
+      {{- content.comment.add }}
+
+      <div class="content-issue-comments">
+      {% if comments %}
+        {% for comment in comments %}
+          {{ comment }}
+        {% endfor %}
+      {% endif %}
+      </div>
+    </div>
+    <div class="content-issue-side">
+      <dl>
+        <dt>Concerning</dt>
+        <dd>{{- content.concerning }}</dd>
+        <dt>Severity</dt>
+        <dd>{{- content.severity.0 }}</dd>
+        <dt>State</dt>
+        <dd>{{- content.state.0 }}</dd>
+        <dt>Updated</dt>
+        <dd>{{- content.created.0 }}</dd>
+        <dt>Reporter</dt>
+        <dd>{{- content.uid.0 }}</dd>
+        <dt>Assigned to</dt>
+        <dd>{{- content.assigned_to.0 }}</dd>
+      </dl>
+      <div class="content-issue-operations">
+        {{- content.edit_url }}
+        {{- content.delete_url }}
+      </div>
+    </div>
+  {% endif %}
+</article>
