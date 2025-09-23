@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Set all QA account passwords.
  */
-class QaPasswordSetForm extends FormBase {
+final class QaPasswordSetForm extends FormBase {
 
   /**
    * The entity type manager.

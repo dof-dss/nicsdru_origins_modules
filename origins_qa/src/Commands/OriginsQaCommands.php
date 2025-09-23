@@ -2,6 +2,9 @@
 
 namespace Drupal\origins_qa\Commands;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Password\DefaultPasswordGenerator;
 use Drupal\origins_qa\Controller\QaAccountsManager;
 use Drupal\user\Entity\User;
@@ -13,6 +16,20 @@ use Drush\Commands\DrushCommands;
 class OriginsQaCommands extends DrushCommands {
 
   /**
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entityTypeManager
+   *   Entity type manager service object.
+   * @param \Drupal\Core\Extension\ModuleHandler $moduleHandler
+   *   Module handler service object.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
+   *   Logger factory service object.
+   */
+  public function __construct(
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected ModuleHandler $moduleHandler,
+    protected LoggerChannelFactoryInterface $loggerFactory,
+  ) {}
+
+  /**
    * Drush command to enable or dsable all QA accounts.
    *
    * @param string $option
@@ -22,7 +39,7 @@ class OriginsQaCommands extends DrushCommands {
    */
   public function bulkUpdateQaAccounts($option = 'disable') {
     // Use QaAccountsManager to enable or disable all QA accounts.
-    $qac = new QaAccountsManager();
+    $qac = new QaAccountsManager($this->loggerFactory, NULL, $this->moduleHandler);
     $qac->toggleAll($option);
   }
 
@@ -38,7 +55,7 @@ class OriginsQaCommands extends DrushCommands {
    */
   public function createQaAccounts($prefix, $password) {
     // Use QaAccountsManager to create QA accounts.
-    $qac = new QaAccountsManager();
+    $qac = new QaAccountsManager($this->loggerFactory, NULL, $this->moduleHandler);
     $accounts_created = $qac->createQaAccounts($prefix, $password, TRUE);
     $msg = t("@cnt QA accounts created", ['@cnt' => $accounts_created]);
     $this->io()->write($msg, TRUE);
@@ -52,7 +69,6 @@ class OriginsQaCommands extends DrushCommands {
    * @command password_qa_accounts
    */
   public function assignPasswordToQaAccounts() {
-    $entity_type_manager = \Drupal::entityTypeManager();
     $pass = getenv('QA_PASSWORD');
 
     if (getenv('PLATFORM_ENVIRONMENT_TYPE') === 'production') {
@@ -65,7 +81,7 @@ class OriginsQaCommands extends DrushCommands {
       return;
     }
 
-    $qa_users = $entity_type_manager->getStorage('user')->loadByProperties(['roles' => 'qa']);
+    $qa_users = $this->entityTypeManager->getStorage('user')->loadByProperties(['roles' => 'qa']);
 
     foreach ($qa_users as $user) {
       $user->setPassword($pass);
@@ -103,7 +119,7 @@ class OriginsQaCommands extends DrushCommands {
     }
 
     // Check that the requested QA role exists on the site.
-    $user_role = \Drupal::entityTypeManager()->getStorage('user_role')->load($role);
+    $user_role = $this->entityTypeManager->getStorage('user_role')->load($role);
 
     if (empty($user_role)) {
       $this->io()->error(t('The QA_STAFF_ROLE role \'@role\', does not exist.', ['@role' => $role]));
@@ -112,8 +128,8 @@ class OriginsQaCommands extends DrushCommands {
 
     // Generate array of entity reference field values if we need to assign
     // users to a Domain.
-    if (\Drupal::service('module_handler')->moduleExists('domain')) {
-      $domains = \Drupal::entityTypeManager()->getStorage('domain')->loadMultiple();
+    if ($this->moduleHandler->moduleExists('domain')) {
+      $domains = $this->entityTypeManager->getStorage('domain')->loadMultiple();
       $domain_references = [];
       foreach ($domains as $domain) {
         $domain_references[] = ['target_id' => $domain->id()];
@@ -122,7 +138,7 @@ class OriginsQaCommands extends DrushCommands {
 
     $emails = explode(',', $env_email_string);
     $generator = new DefaultPasswordGenerator();
-    $user_manager = \Drupal::entityTypeManager()->getStorage('user');
+    $user_manager = $this->entityTypeManager->getStorage('user');
 
     foreach ($emails as $email) {
       $user_exists = $user_manager->loadByProperties([
