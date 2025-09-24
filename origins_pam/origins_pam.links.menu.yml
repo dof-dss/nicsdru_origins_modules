@@ -1,0 +1,6 @@
+origins_pam.settings:
+  title: Path Alias Manager Settings
+  description: Configure fields to process alias changes.
+  parent: origins.admin_config
+  route_name: origins_pam.settings
+  weight: 10

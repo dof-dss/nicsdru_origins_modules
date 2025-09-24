@@ -1,0 +1,7 @@
+origins_pam.settings:
+  path: '/admin/config/system/settings'
+  defaults:
+    _title: 'Path Alias Manager Settings'
+    _form: 'Drupal\origins_pam\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

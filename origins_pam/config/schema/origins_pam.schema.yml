@@ -1,0 +1,28 @@
+# Schema for the configuration files of the Origins pam module.
+origins_pam.alias_source_fields:
+  type: mapping
+  label: 'Path alias source fields'
+  mapping:
+    entities:
+      type: sequence
+      label: 'Entities'
+      sequence:
+        entity_type:
+          type: string
+          label: 'Entity type'
+        fields:
+          type: sequence
+          label: 'Fields'
+          sequence:
+            field:
+              type: mapping
+              label: 'Field'
+              mapping:
+                 base_table:
+                   type: string
+                   label: 'Field db table'
+                 revision_table:
+                   type: string
+                   label: 'Field revision db table'
+
+
