@@ -1,5 +1,5 @@
 name: 'Origins: Path Alias Manager'
 type: module
-description: 'Manages PAth Aliases'
+description: 'Process legacy LinkIt urls with path aliases'
 package: 'NICS: Origins'
 core_version_requirement: ^10 || ^11

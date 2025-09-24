@@ -1,7 +1,7 @@
-origins_pam.settings:
-  path: '/admin/config/system/settings'
+origins_pam.process_form:
+  path: '/admin/config/origins_pam'
   defaults:
-    _title: 'Path Alias Manager Settings'
-    _form: 'Drupal\origins_pam\Form\SettingsForm'
+    _title: 'Field process form'
+    _form: 'Drupal\origins_pam\Form\ProcessEntityFieldsForm'
   requirements:
     _permission: 'administer site configuration'
