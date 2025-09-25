@@ -97,8 +97,6 @@ final class ProcessEntityFieldsForm extends FormBase {
       $fields_data[$entity_type][$field] = $tables;
     }
 
-    $db = \Drupal::database();
-
     $batch = new BatchBuilder();
     $batch->setTitle('Updating URL aliases')
       ->setFinishCallback([self::class, 'batchFinished'])
@@ -109,15 +107,17 @@ final class ProcessEntityFieldsForm extends FormBase {
     foreach ($fields_data as $entity_type => $fields) {
       foreach ($fields as $field => $tables) {
         foreach ($tables as $table) {
-
           $field_name = substr($field, strrpos($field, '.') + 1);
 
-          $entity_ids = $db->select($table, 't')
-            ->fields('t', ['entity_id'])
-            ->condition('t.' . $field_name . '_value', '%href="/%', 'LIKE', )
-            ->distinct()->execute()->fetchCol();
+          $db = \Drupal::database();
 
-          $entity_id_chunks = array_chunk($entity_ids, 250);
+          $entity_ids = $db->select($table, 't')
+            ->fields('t', ['entity_id', 'revision_id'])
+            ->condition($field_name . '_value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+            ->condition($field_name . '_value', 'href=["\'][^"\']*\/node[^"\']*["\']', 'NOT REGEXP')
+            ->distinct()->execute()->fetchAllKeyed(0);
+
+          $entity_id_chunks = array_chunk($entity_ids, 100, TRUE);
 
           foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
             $args = [
@@ -174,27 +174,31 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     $db = \Drupal::database();
 
-    foreach ($entity_ids as $entity_id) {
+    foreach ($entity_ids as $entity_id => $revision_id) {
       $value_field = $field_name . "_value";
-      $field_results = $db->select($table, 't')
-        ->fields('t', ['revision_id', $value_field])
+      $value_field_contents = $db->select($table, 't')
+        ->fields('t', [$value_field])
         ->condition('t.entity_id', $entity_id)
-        ->execute()->fetchAllKeyed(0);
+        ->execute()->fetchField(0);
 
-      foreach ($field_results as $revision_id => $field_value) {
-        $url_matches = self::fetchRelativeUrls($field_value);
+      $url_matches = self::fetchRelativeUrls($value_field_contents);
 
-        foreach ($url_matches as $url_alias) {
-          if (!str_starts_with($url_alias, '/node')) {
-            $canonical_url = $db->select('path_alias', 'pa')
-              ->fields('pa', ['path'])
-              ->condition('alias', $url_alias)
-              ->execute()->fetchCol();
+      foreach ($url_matches as $url_alias) {
+        if (!str_starts_with($url_alias, '/node')) {
+          $canonical_url = $db->select('path_alias', 'pa')
+            ->fields('pa', ['path'])
+            ->condition('alias', $url_alias)
+            ->execute()->fetchField();
 
-            if ($canonical_url) {
-              $db->query("UPDATE $table SET $value_field = REPLACE(url, $url_alias, $canonical_url)")->execute();
-            }
-
+          if ($canonical_url) {
+            \Drupal::database()->update($table)
+              ->expression($value_field, "REPLACE($value_field, :search, :replace)", [
+                ':search' => $url_alias,
+                ':replace' => $canonical_url,
+              ])
+              ->condition('entity_id', $entity_id)
+              ->condition('revision_id', $revision_id)
+              ->execute();
           }
         }
       }
