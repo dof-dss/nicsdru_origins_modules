@@ -190,6 +190,18 @@ final class ProcessEntityFieldsForm extends FormBase {
             ->condition('alias', $url_alias)
             ->execute()->fetchField();
 
+          if (empty($canonical_url)) {
+            $canonical_url = $db->select('redirect', 'r')
+              ->fields('r', ['redirect_redirect__uri'])
+              ->condition('redirect_source__path', substr($url_alias, 1))
+              ->execute()->fetchField();
+
+            if (!empty($canonical_url)) {
+              $canonical_url = str_replace(['internal:/', 'entity:'], '', $url_alias);
+              $canonical_url = '/' . $canonical_url;
+            }
+          }
+
           if ($canonical_url) {
             \Drupal::database()->update($table)
               ->expression($value_field, "REPLACE($value_field, :search, :replace)", [
