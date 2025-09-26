@@ -164,12 +164,13 @@ final class ProcessEntityFieldsForm extends FormBase {
       $context['results']['skipped'] = 0;
       $context['results']['failed'] = 0;
       $context['results']['progress'] = 0;
-      $context['results']['process'] = 'Form batch completed';
+      $context['results']['process'] = 'Finished processing ';
     }
 
     $context['results']['progress'] += count($entity_ids);
 
-    $context['message'] = t('Processing batch #@batch_id batch size @batch_size for total @count items.', [
+    $context['message'] = t('Processing @table batch: #@batch_id.Batch size @batch_size for total @count items.', [
+      '@table' => $table,
       '@batch_id' => number_format($chunk_id),
       '@batch_size' => number_format(count($entity_ids)),
       '@count' => number_format($context['sandbox']['max']),
@@ -211,10 +212,6 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         $url_alias = $link_element->getAttribute('href');
 
-        if (self::invalidUrl($url_alias)) {
-          continue;
-        }
-
         $url_canonical = $db->select('path_alias', 'pa')
           ->fields('pa', ['path'])
           ->condition('alias', $url_alias)
@@ -234,17 +231,23 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         if ($url_canonical) {
           $link_element->setAttribute('href', $url_canonical);
-          $value_field_updated = $link_element->ownerDocument->saveHTML($dom);
-
-          \Drupal::database()->update($table)
-            ->fields([
-              $value_field => $value_field_updated
-            ])
-            ->condition('entity_id', $entity_id)
-            ->condition('revision_id', $revision_id)
-            ->execute();
+        } else {
+          $context['results']['skipped'] = $context['results']['updated'] + 1;
         }
       }
+
+      $value_field_updated = $dom->saveHTML($dom);
+
+      \Drupal::database()->update($table)
+        ->fields([
+          $value_field => $value_field_updated
+        ])
+        ->condition('entity_id', $entity_id)
+        ->condition('revision_id', $revision_id)
+        ->execute();
+
+      $context['results']['updated'] = $context['results']['updated'] + 1;
+
     }
   }
 
@@ -252,22 +255,20 @@ final class ProcessEntityFieldsForm extends FormBase {
     $messenger = \Drupal::messenger();
 
     if ($success) {
-      $messenger->addMessage(t('@process processed @count, skipped @skipped, updated @updated, failed @failed in @elapsed.', [
+      $messenger->addMessage(t('@process @count nodes. Skipped @skipped URLs, updated @updated URLs, failed @failed URLs.', [
         '@process' => $results['process'],
         '@count' => $results['progress'],
         '@skipped' => $results['skipped'],
         '@updated' => $results['updated'],
         '@failed' => $results['failed'],
-        '@elapsed' => $elapsed,
       ]));
       \Drupal::logger('batch_form_example')->info(
-        '@process processed @count, skipped @skipped, updated @updated, failed @failed in @elapsed.', [
+        '@process @count nodes. Skipped @skipped URLs, updated @updated URLs, failed @failed URLs.', [
         '@process' => $results['process'],
         '@count' => $results['progress'],
         '@skipped' => $results['skipped'],
         '@updated' => $results['updated'],
         '@failed' => $results['failed'],
-        '@elapsed' => $elapsed,
       ]);
     }
     else {
@@ -282,8 +283,4 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
   }
 
-
-  public static function invalidUrl(string $url): bool {
-    return (!str_starts_with($url, '/') || strpos($url, ' ') === FALSE);
-  }
 }
