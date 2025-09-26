@@ -11,6 +11,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
+use phpDocumentor\Reflection\Types\Boolean;
 
 /**
  * Provides a Origins: Path Alias Manager form.
@@ -191,14 +192,15 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       $xpath = new DOMXPath($dom);
 
-      $query = '//a[
-        starts-with(@href, "/") = false
-        and not(starts-with(@href, "http"))
-        and not(starts-with(@href, "/node"))
-        and not(starts-with(@href, "mailto:"))
-        and not(starts-with(@href, "tel:"))
-        and not(starts-with(@href, "//"))
-      ]';
+      $query = "//a[@href and
+                  @href != '' and
+                  normalize-space(@href) != '' and
+                  not(starts-with(@href, 'http://')) and
+                  not(starts-with(@href, 'https://')) and
+                  not(starts-with(@href, 'mailto:')) and
+                  not(starts-with(@href, 'tel:')) and
+                  not(starts-with(@href, '#')) and
+                  not(starts-with(@href, '/node'))]";
 
       $link_elements = $xpath->query($query);
 
@@ -209,9 +211,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         $url_alias = $link_element->getAttribute('href');
 
-        // TODO: Check url_alias for empty value, doesn't start with / and spaces in the url.
-
-        if (empty($url_alias)) {
+        if (self::invalidUrl($url_alias)) {
           continue;
         }
 
@@ -282,4 +282,8 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
   }
 
+
+  public static function invalidUrl(string $url): bool {
+    return (!str_starts_with($url, '/') || strpos($url, ' ') === FALSE);
+  }
 }
