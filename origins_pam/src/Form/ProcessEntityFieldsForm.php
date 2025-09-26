@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\origins_pam\Form;
 
+use DOMDocument;
+use DOMXPath;
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -173,45 +175,74 @@ final class ProcessEntityFieldsForm extends FormBase {
     ]);
 
     $db = \Drupal::database();
+    $dom = new DOMDocument();
+    libxml_use_internal_errors(true);
 
     foreach ($entity_ids as $entity_id => $revision_id) {
       $value_field = $field_name . "_value";
       $value_field_contents = $db->select($table, 't')
         ->fields('t', [$value_field])
         ->condition('t.entity_id', $entity_id)
+        ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
-      $url_matches = self::fetchRelativeUrls($value_field_contents);
+      $dom->loadHTML($value_field_contents, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+      libxml_clear_errors();
 
-      foreach ($url_matches as $url_alias) {
-        if (!str_starts_with($url_alias, '/node')) {
-          $canonical_url = $db->select('path_alias', 'pa')
-            ->fields('pa', ['path'])
-            ->condition('alias', $url_alias)
+      $xpath = new DOMXPath($dom);
+
+      $query = '//a[
+        starts-with(@href, "/") = false
+        and not(starts-with(@href, "http"))
+        and not(starts-with(@href, "/node"))
+        and not(starts-with(@href, "mailto:"))
+        and not(starts-with(@href, "tel:"))
+        and not(starts-with(@href, "//"))
+      ]';
+
+      $link_elements = $xpath->query($query);
+
+      foreach ($link_elements as $link_element) {
+        if (!$link_element->hasAttribute('href')) {
+          continue;
+        }
+
+        $url_alias = $link_element->getAttribute('href');
+
+        // TODO: Check url_alias for empty value, doesn't start with / and spaces in the url.
+
+        if (empty($url_alias)) {
+          continue;
+        }
+
+        $url_canonical = $db->select('path_alias', 'pa')
+          ->fields('pa', ['path'])
+          ->condition('alias', $url_alias)
+          ->execute()->fetchField();
+
+        if (empty($url_canonical)) {
+          $url_canonical = $db->select('redirect', 'r')
+            ->fields('r', ['redirect_redirect__uri'])
+            ->condition('redirect_source__path', substr($url_alias, 1))
             ->execute()->fetchField();
 
-          if (empty($canonical_url)) {
-            $canonical_url = $db->select('redirect', 'r')
-              ->fields('r', ['redirect_redirect__uri'])
-              ->condition('redirect_source__path', substr($url_alias, 1))
-              ->execute()->fetchField();
-
-            if (!empty($canonical_url)) {
-              $canonical_url = str_replace(['internal:/', 'entity:'], '', $url_alias);
-              $canonical_url = '/' . $canonical_url;
-            }
+          if (!empty($url_canonical)) {
+            $url_canonical = str_replace(['internal:/', 'entity:'], '', $url_alias);
+            $url_canonical = '/' . $url_canonical;
           }
+        }
 
-          if ($canonical_url) {
-            \Drupal::database()->update($table)
-              ->expression($value_field, "REPLACE($value_field, :search, :replace)", [
-                ':search' => $url_alias,
-                ':replace' => $canonical_url,
-              ])
-              ->condition('entity_id', $entity_id)
-              ->condition('revision_id', $revision_id)
-              ->execute();
-          }
+        if ($url_canonical) {
+          $link_element->setAttribute('href', $url_canonical);
+          $value_field_updated = $link_element->ownerDocument->saveHTML($dom);
+
+          \Drupal::database()->update($table)
+            ->fields([
+              $value_field => $value_field_updated
+            ])
+            ->condition('entity_id', $entity_id)
+            ->condition('revision_id', $revision_id)
+            ->execute();
         }
       }
     }
