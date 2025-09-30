@@ -6,12 +6,14 @@ namespace Drupal\origins_pam\Form;
 
 use DOMDocument;
 use DOMXPath;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
-use phpDocumentor\Reflection\Types\Boolean;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a Origins: Path Alias Manager form.
@@ -140,20 +142,6 @@ final class ProcessEntityFieldsForm extends FormBase {
     $form_state->setRedirectUrl(Url::fromRoute('origins_pam.process_form'));
   }
 
-  public static function fetchRelativeUrls($html) {
-    $pattern = '/<a\b[^>]*\shref\s*=\s*["\']([^"\']*)["\'][^>]*>/i';
-    preg_match_all($pattern, $html, $matches);
-
-    $urls = [];
-    foreach ($matches[1] as $href) {
-      if (strpos($href, '/') === 0) {
-        $urls[] = $href;
-      }
-    }
-
-    return $urls;
-  }
-
   public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, array &$context): void {
     if (!isset($context['sandbox']['progress'])) {
       $context['sandbox']['progress'] = 0;
@@ -179,8 +167,24 @@ final class ProcessEntityFieldsForm extends FormBase {
     $db = \Drupal::database();
     $dom = new DOMDocument();
     libxml_use_internal_errors(true);
+    $redirect_repo = \Drupal::service('redirect.repository');
+    $path_alias_manager = \Drupal::service('path_alias.manager');
+
+
+    $entity_types = \Drupal::entityTypeManager()->getDefinitions();
+    $content_entity_types = [];
+
+    foreach ($entity_types as $entity_type) {
+      if ($entity_type instanceof ContentEntityTypeInterface) {
+        if ($entity_type->getLinkTemplate('canonical')) {
+          $content_entity_types[] = $entity_type->id();
+        }
+      }
+    }
+
 
     foreach ($entity_ids as $entity_id => $revision_id) {
+      $field_is_updated = FALSE;
       $value_field = $field_name . "_value";
       $value_field_contents = $db->select($table, 't')
         ->fields('t', [$value_field])
@@ -188,7 +192,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
-      $dom->loadHTML($value_field_contents, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+      $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
       libxml_clear_errors();
 
       $xpath = new DOMXPath($dom);
@@ -210,44 +214,68 @@ final class ProcessEntityFieldsForm extends FormBase {
           continue;
         }
 
-        $url_alias = $link_element->getAttribute('href');
+        $link_url = $link_element->getAttribute('href');
 
-        $url_canonical = $db->select('path_alias', 'pa')
-          ->fields('pa', ['path'])
-          ->condition('alias', $url_alias)
-          ->execute()->fetchField();
+        if (!UrlHelper::isValid($link_url)) {
+          continue;
+        }
 
-        if (empty($url_canonical)) {
-          $url_canonical = $db->select('redirect', 'r')
-            ->fields('r', ['redirect_redirect__uri'])
-            ->condition('redirect_source__path', substr($url_alias, 1))
-            ->execute()->fetchField();
+        if (!str_starts_with($link_url, '/')) {
+          $link_url = '/' . $link_url;
+        }
 
-          if (!empty($url_canonical)) {
-            $url_canonical = str_replace(['internal:/', 'entity:'], '', $url_alias);
-            $url_canonical = '/' . $url_canonical;
+        $redirects = $redirect_repo->findBySourcePath($link_url);
+
+        if (!empty($redirects)) {
+          $redirect = current($redirects);
+          $internal_url = $redirect->getRedirectUrl();
+        } else {
+          $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
+
+          if (!empty($path_alias_url)) {
+            $internal_url = Url::fromUserInput($path_alias_url);
           }
         }
 
-        if ($url_canonical) {
-          $link_element->setAttribute('href', $url_canonical);
+        if ($internal_url->isRouted()) {
+          $route_params = $internal_url->getRouteParameters();
+
+          if (empty($route_params)) {
+            continue;
+          }
+
+          $url_entity_type = key($route_params);
+
+          if (!array_search($url_entity_type, $content_entity_types)) {
+            continue;
+          }
+
+          $url_entity_id = current($route_params);
+          $url_entity = \Drupal::entityTypeManager()->getStorage($url_entity_type)->load($url_entity_id);
+          $link_element->setAttribute('href', $internal_url->getInternalPath());
+          $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+          $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
+          $link_element->setAttribute('data-entity-substitution', 'canonical');;
+          $field_is_updated = TRUE;
         } else {
           $context['results']['skipped'] = $context['results']['updated'] + 1;
         }
+
       }
 
-      $value_field_updated = $dom->saveHTML($dom);
+      if ($field_is_updated) {
+        $value_field_updated = str_replace(['<html>','</html>'] , '' , $dom->saveHTML());;
 
-      \Drupal::database()->update($table)
-        ->fields([
-          $value_field => $value_field_updated
-        ])
-        ->condition('entity_id', $entity_id)
-        ->condition('revision_id', $revision_id)
-        ->execute();
+        \Drupal::database()->update($table)
+          ->fields([
+            $value_field => $value_field_updated
+          ])
+          ->condition('entity_id', $entity_id)
+          ->condition('revision_id', $revision_id)
+          ->execute();
 
-      $context['results']['updated'] = $context['results']['updated'] + 1;
-
+        $context['results']['updated'] = $context['results']['updated'] + 1;
+      }
     }
   }
 
