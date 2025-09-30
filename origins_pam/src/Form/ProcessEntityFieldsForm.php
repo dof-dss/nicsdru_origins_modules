@@ -13,7 +13,6 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a Origins: Path Alias Manager form.
@@ -119,10 +118,9 @@ final class ProcessEntityFieldsForm extends FormBase {
           $entity_ids = $db->select($table, 't')
             ->fields('t', ['entity_id', 'revision_id'])
             ->condition($field_name . '_value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
-            ->condition($field_name . '_value', 'href=["\'][^"\']*\/node[^"\']*["\']', 'NOT REGEXP')
             ->distinct()->execute()->fetchAllKeyed(0);
 
-          $entity_id_chunks = array_chunk($entity_ids, 100, TRUE);
+          $entity_id_chunks = array_chunk($entity_ids, 500, TRUE);
 
           foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
             $args = [
@@ -216,12 +214,12 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         $link_url = $link_element->getAttribute('href');
 
-        if (!UrlHelper::isValid($link_url)) {
+        if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
           continue;
         }
 
-        if (!str_starts_with($link_url, '/')) {
-          $link_url = '/' . $link_url;
+        if (str_starts_with($link_url, '/')) {
+          $link_url = substr($link_url, 1);
         }
 
         $redirects = $redirect_repo->findBySourcePath($link_url);
@@ -230,6 +228,11 @@ final class ProcessEntityFieldsForm extends FormBase {
           $redirect = current($redirects);
           $internal_url = $redirect->getRedirectUrl();
         } else {
+
+          if (!str_starts_with($link_url, '/')) {
+            $link_url = '/' . $link_url;
+          }
+
           $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
 
           if (!empty($path_alias_url)) {
@@ -266,7 +269,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       if ($field_is_updated) {
         $value_field_updated = str_replace(['<html>','</html>'] , '' , $dom->saveHTML());;
 
-        \Drupal::database()->update($table)
+        $result = \Drupal::database()->update($table)
           ->fields([
             $value_field => $value_field_updated
           ])
