@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\origins_pam\Form;
 
-use DOMDocument;
-use DOMXPath;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
@@ -15,7 +13,7 @@ use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
- * Provides a Origins: Path Alias Manager form.
+ * Origins: Path Alias Manager form.
  */
 final class ProcessEntityFieldsForm extends FormBase {
 
@@ -33,6 +31,9 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
 
+    // Build a list of text based field storage entries rather than field
+    // instances which would mean multiple entries for the same field table.
+    // e.g. Body storage exists as body, details, description etc field.
     foreach ($field_storage_definitions as $field_storage) {
       $type = $field_storage->getType();
       if (in_array($type, ['text_long', 'text_with_summary'])) {
@@ -60,6 +61,8 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
     }
 
+    // Taxonony uses a description column as part of the term record instead of
+    // a 'description' table so we have to process it separately.
     $form['taxonomy_descriptions'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Process links in taxonomy descriptions'),
@@ -83,8 +86,10 @@ final class ProcessEntityFieldsForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected_fields = array_filter($form_state->cleanValues()->getValues());
     $process_taxonomy_descriptions = FALSE;
+    $db = \Drupal::database();
 
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
+      // TODO: Process taxonomy table.
       $process_taxonomy_descriptions = TRUE;
       unset($selected_fields['taxonomy_descriptions']);
     }
@@ -93,10 +98,12 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_type_manager = \Drupal::entityTypeManager();
     $fields_data = [];
 
+    // Extract the db table names (base + revision) for each entity field.
     foreach ($process_fields as $field) {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
       $storage = $entity_type_manager->getStorage($entity_type);
+      // @phpstan-ignore-next-line.
       $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
       $fields_data[$entity_type][$field] = $tables;
     }
@@ -113,14 +120,15 @@ final class ProcessEntityFieldsForm extends FormBase {
         foreach ($tables as $table) {
           $field_name = substr($field, strrpos($field, '.') + 1);
 
-          $db = \Drupal::database();
-
+          // Build a quick list of entity ID's and revision ID's using a search
+          // for field values that contain href's with relative links.
           $entity_ids = $db->select($table, 't')
             ->fields('t', ['entity_id', 'revision_id'])
             ->condition($field_name . '_value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
             ->distinct()->execute()->fetchAllKeyed(0);
 
-          $entity_id_chunks = array_chunk($entity_ids, 500, TRUE);
+          $entity_total = count($entity_ids);
+          $entity_id_chunks = array_chunk($entity_ids, 250, TRUE);
 
           foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
             $args = [
@@ -128,6 +136,7 @@ final class ProcessEntityFieldsForm extends FormBase {
               $entity_ids,
               $table,
               $field_name,
+              $entity_total,
             ];
             $batch->addOperation([self::class, 'batchProcess'], $args);
           }
@@ -140,10 +149,13 @@ final class ProcessEntityFieldsForm extends FormBase {
     $form_state->setRedirectUrl(Url::fromRoute('origins_pam.process_form'));
   }
 
-  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, array &$context): void {
+  /**
+   * Batch process callback.
+   */
+  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, array &$context): void {
     if (!isset($context['sandbox']['progress'])) {
       $context['sandbox']['progress'] = 0;
-      $context['sandbox']['max'] = 1000;
+      $context['sandbox']['max'] = $entity_total;
     }
     if (!isset($context['results']['updated'])) {
       $context['results']['updated'] = 0;
@@ -155,7 +167,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     $context['results']['progress'] += count($entity_ids);
 
-    $context['message'] = t('Processing @table batch: #@batch_id.Batch size @batch_size for total @count items.', [
+    $context['message'] = t('Processing @batch_size entities in batch #@batch_id from a total of @count for @table.', [
       '@table' => $table,
       '@batch_id' => number_format($chunk_id),
       '@batch_size' => number_format(count($entity_ids)),
@@ -163,15 +175,19 @@ final class ProcessEntityFieldsForm extends FormBase {
     ]);
 
     $db = \Drupal::database();
-    $dom = new DOMDocument();
-    libxml_use_internal_errors(true);
+    $dom = new \DOMDocument();
     $redirect_repo = \Drupal::service('redirect.repository');
     $path_alias_manager = \Drupal::service('path_alias.manager');
-
-
     $entity_types = \Drupal::entityTypeManager()->getDefinitions();
     $content_entity_types = [];
 
+    // Prevent DOMDocument from throwing runtime errors when it encounters
+    // invalid HTML markup.
+    libxml_use_internal_errors(TRUE);
+
+    // Build a list of content type entities that we can use later to match
+    // against a link's URL parameters and reject any invalid, non-content
+    // entity, URLs.
     foreach ($entity_types as $entity_type) {
       if ($entity_type instanceof ContentEntityTypeInterface) {
         if ($entity_type->getLinkTemplate('canonical')) {
@@ -180,7 +196,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
     }
 
-
+    // Fetch each field value, load as DOM and then process each relative link.
     foreach ($entity_ids as $entity_id => $revision_id) {
       $field_is_updated = FALSE;
       $value_field = $field_name . "_value";
@@ -190,12 +206,18 @@ final class ProcessEntityFieldsForm extends FormBase {
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
+      // Load the field HTML without the DTD and default root elements but wrap
+      // it in a root <html> tag to prevent formatting issues during export.
       $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
       libxml_clear_errors();
 
-      $xpath = new DOMXPath($dom);
+      $xpath = new \DOMXPath($dom);
 
-      $query = "//a[@href and
+      // Match all anchor elements with a populated href attribute with a
+      // relative URL.
+      // TODO: Do we want to include 'node/XXX' URL's in case they don't
+      // have the data attributes?
+      $anchor_query = "//a[@href and
                   @href != '' and
                   normalize-space(@href) != '' and
                   not(starts-with(@href, 'http://')) and
@@ -205,30 +227,37 @@ final class ProcessEntityFieldsForm extends FormBase {
                   not(starts-with(@href, '#')) and
                   not(starts-with(@href, '/node'))]";
 
-      $link_elements = $xpath->query($query);
+      $link_elements = $xpath->query($anchor_query);
 
       foreach ($link_elements as $link_element) {
+        // @phpstan-ignore-next-line.
         if (!$link_element->hasAttribute('href')) {
           continue;
         }
 
+        // @phpstan-ignore-next-line.
         $link_url = $link_element->getAttribute('href');
 
         if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
           continue;
         }
 
+        // Redirect paths don't start with a leading slash so remove it to
+        // perform a valid match.
         if (str_starts_with($link_url, '/')) {
           $link_url = substr($link_url, 1);
         }
 
         $redirects = $redirect_repo->findBySourcePath($link_url);
+        $internal_url = '';
 
         if (!empty($redirects)) {
           $redirect = current($redirects);
           $internal_url = $redirect->getRedirectUrl();
-        } else {
+        }
+        else {
 
+          // Add the leading slash as path aliases require it.
           if (!str_starts_with($link_url, '/')) {
             $link_url = '/' . $link_url;
           }
@@ -248,59 +277,71 @@ final class ProcessEntityFieldsForm extends FormBase {
           }
 
           $url_entity_type = key($route_params);
+          $url_entity_id = current($route_params);
 
+          // Check this URL is for a content entity type.
           if (!array_search($url_entity_type, $content_entity_types)) {
             continue;
           }
 
-          $url_entity_id = current($route_params);
+          // Load the entity and update the link DOM node attributes.
           $url_entity = \Drupal::entityTypeManager()->getStorage($url_entity_type)->load($url_entity_id);
+          // @phpstan-ignore-next-line.
           $link_element->setAttribute('href', $internal_url->getInternalPath());
+          // @phpstan-ignore-next-line.
           $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+          // @phpstan-ignore-next-line.
           $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
-          $link_element->setAttribute('data-entity-substitution', 'canonical');;
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-substitution', 'canonical');
           $field_is_updated = TRUE;
-        } else {
-          $context['results']['skipped'] = $context['results']['updated'] + 1;
+          $context['results']['updated'] = $context['results']['updated'] + 1;
+        }
+        else {
+          $context['results']['skipped'] = $context['results']['skipped'] + 1;
         }
 
       }
 
       if ($field_is_updated) {
-        $value_field_updated = str_replace(['<html>','</html>'] , '' , $dom->saveHTML());;
+        // Strip the root element added to preserve formatting on export.
+        $value_field_updated = str_replace(['<html>', '</html>'], '', $dom->saveHTML());
 
-        $result = \Drupal::database()->update($table)
+        // Save directly to the field table as we don't want to use the entity
+        // API which would create a revision on entity save.
+        \Drupal::database()->update($table)
           ->fields([
             $value_field => $value_field_updated
           ])
           ->condition('entity_id', $entity_id)
           ->condition('revision_id', $revision_id)
           ->execute();
-
-        $context['results']['updated'] = $context['results']['updated'] + 1;
       }
     }
   }
 
+  /**
+   * Batch finished callback.
+   */
   public static function batchFinished(bool $success, array $results, array $operations, string $elapsed): void {
     $messenger = \Drupal::messenger();
 
     if ($success) {
-      $messenger->addMessage(t('@process @count nodes. Skipped @skipped URLs, updated @updated URLs, failed @failed URLs.', [
+      $messenger->addMessage(t('@process @count entities. Updated @updated URLs, skipped @skipped and failed @failed URLs.', [
         '@process' => $results['process'],
-        '@count' => $results['progress'],
-        '@skipped' => $results['skipped'],
-        '@updated' => $results['updated'],
-        '@failed' => $results['failed'],
+        '@count' => number_format($results['progress']),
+        '@updated' => number_format($results['updated']),
+        '@skipped' => number_format($results['skipped']),
+        '@failed' => number_format($results['failed']),
       ]));
-      \Drupal::logger('batch_form_example')->info(
-        '@process @count nodes. Skipped @skipped URLs, updated @updated URLs, failed @failed URLs.', [
-        '@process' => $results['process'],
-        '@count' => $results['progress'],
-        '@skipped' => $results['skipped'],
-        '@updated' => $results['updated'],
-        '@failed' => $results['failed'],
-      ]);
+      \Drupal::logger('origins_pam')->info(
+        '@process @count entities. Updated @updated URLs, skipped @skipped and failed @failed URLs.', [
+          '@process' => $results['process'],
+          '@count' => number_format($results['progress']),
+          '@updated' => number_format($results['updated']),
+          '@skipped' => number_format($results['skipped']),
+          '@failed' => number_format($results['failed']),
+        ]);
     }
     else {
       $error_operation = reset($operations);
