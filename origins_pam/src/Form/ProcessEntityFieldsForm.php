@@ -89,16 +89,43 @@ final class ProcessEntityFieldsForm extends FormBase {
     $db = \Drupal::database();
 
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
-      // TODO: Process taxonomy table.
-      $process_taxonomy_descriptions = TRUE;
       unset($selected_fields['taxonomy_descriptions']);
+
+      $terms_data = $db->select('taxonomy_term_field_data', 't')
+        ->fields('t', ['tid', 'revision_id', 'description__value'])
+        ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+        ->execute()->fetchAll();
+
+      $services = [
+        'entity_type_manager' => \Drupal::entityTypeManager(),
+        'redirect_repo' => \Drupal::service('redirect.repository'),
+        'path_alias_manager' => \Drupal::service('path_alias.manager'),
+        'content_entity_types' => self::getContentEntityTypes(),
+      ];
+
+      $context = [];
+
+      foreach ($terms_data as $term_data) {
+        $updated_field_value = self::processFieldValue($services, $term_data->description__value, $context);
+
+        if (!empty($updated_field_value)) {
+          \Drupal::database()->update('taxonomy_term_field_data')
+            ->fields([
+              'description__value' => $updated_field_value
+            ])
+            ->condition('tid', $term_data->tid)
+            ->condition('revision_id', $term_data->revision_id)
+            ->execute();
+        }
+      }
     }
+
     $process_fields = array_values($selected_fields);
 
     $entity_type_manager = \Drupal::entityTypeManager();
     $fields_data = [];
 
-    // Extract the db table names (base + revision) for each entity field.
+    // Extract the db table names (base + revision) for each storage instance.
     foreach ($process_fields as $field) {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
@@ -175,30 +202,16 @@ final class ProcessEntityFieldsForm extends FormBase {
     ]);
 
     $db = \Drupal::database();
-    $dom = new \DOMDocument();
-    $redirect_repo = \Drupal::service('redirect.repository');
-    $path_alias_manager = \Drupal::service('path_alias.manager');
-    $entity_types = \Drupal::entityTypeManager()->getDefinitions();
-    $content_entity_types = [];
 
-    // Prevent DOMDocument from throwing runtime errors when it encounters
-    // invalid HTML markup.
-    libxml_use_internal_errors(TRUE);
-
-    // Build a list of content type entities that we can use later to match
-    // against a link's URL parameters and reject any invalid, non-content
-    // entity, URLs.
-    foreach ($entity_types as $entity_type) {
-      if ($entity_type instanceof ContentEntityTypeInterface) {
-        if ($entity_type->getLinkTemplate('canonical')) {
-          $content_entity_types[] = $entity_type->id();
-        }
-      }
-    }
+    $services = [
+      'entity_type_manager' => \Drupal::entityTypeManager(),
+      'redirect_repo' => \Drupal::service('redirect.repository'),
+      'path_alias_manager' => \Drupal::service('path_alias.manager'),
+      'content_entity_types' => self::getContentEntityTypes(),
+    ];
 
     // Fetch each field value, load as DOM and then process each relative link.
     foreach ($entity_ids as $entity_id => $revision_id) {
-      $field_is_updated = FALSE;
       $value_field = $field_name . "_value";
       $value_field_contents = $db->select($table, 't')
         ->fields('t', [$value_field])
@@ -206,107 +219,9 @@ final class ProcessEntityFieldsForm extends FormBase {
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
-      // Load the field HTML without the DTD and default root elements but wrap
-      // it in a root <html> tag to prevent formatting issues during export.
-      $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-      libxml_clear_errors();
+      $value_field_updated = self::processFieldValue($services, $value_field_contents, $context);
 
-      $xpath = new \DOMXPath($dom);
-
-      // Match all anchor elements with a populated href attribute with a
-      // relative URL.
-      // TODO: Do we want to include 'node/XXX' URL's in case they don't
-      // have the data attributes?
-      $anchor_query = "//a[@href and
-                  @href != '' and
-                  normalize-space(@href) != '' and
-                  not(starts-with(@href, 'http://')) and
-                  not(starts-with(@href, 'https://')) and
-                  not(starts-with(@href, 'mailto:')) and
-                  not(starts-with(@href, 'tel:')) and
-                  not(starts-with(@href, '#')) and
-                  not(starts-with(@href, '/node'))]";
-
-      $link_elements = $xpath->query($anchor_query);
-
-      foreach ($link_elements as $link_element) {
-        // @phpstan-ignore-next-line.
-        if (!$link_element->hasAttribute('href')) {
-          continue;
-        }
-
-        // @phpstan-ignore-next-line.
-        $link_url = $link_element->getAttribute('href');
-
-        if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
-          continue;
-        }
-
-        // Redirect paths don't start with a leading slash so remove it to
-        // perform a valid match.
-        if (str_starts_with($link_url, '/')) {
-          $link_url = substr($link_url, 1);
-        }
-
-        $redirects = $redirect_repo->findBySourcePath($link_url);
-        $internal_url = '';
-
-        if (!empty($redirects)) {
-          $redirect = current($redirects);
-          $internal_url = $redirect->getRedirectUrl();
-        }
-        else {
-
-          // Add the leading slash as path aliases require it.
-          if (!str_starts_with($link_url, '/')) {
-            $link_url = '/' . $link_url;
-          }
-
-          $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
-
-          if (!empty($path_alias_url)) {
-            $internal_url = Url::fromUserInput($path_alias_url);
-          }
-        }
-
-        if ($internal_url->isRouted()) {
-          $route_params = $internal_url->getRouteParameters();
-
-          if (empty($route_params)) {
-            continue;
-          }
-
-          $url_entity_type = key($route_params);
-          $url_entity_id = current($route_params);
-
-          // Check this URL is for a content entity type.
-          if (!array_search($url_entity_type, $content_entity_types)) {
-            continue;
-          }
-
-          // Load the entity and update the link DOM node attributes.
-          $url_entity = \Drupal::entityTypeManager()->getStorage($url_entity_type)->load($url_entity_id);
-          // @phpstan-ignore-next-line.
-          $link_element->setAttribute('href', $internal_url->getInternalPath());
-          // @phpstan-ignore-next-line.
-          $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
-          // @phpstan-ignore-next-line.
-          $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
-          // @phpstan-ignore-next-line.
-          $link_element->setAttribute('data-entity-substitution', 'canonical');
-          $field_is_updated = TRUE;
-          $context['results']['updated'] = $context['results']['updated'] + 1;
-        }
-        else {
-          $context['results']['skipped'] = $context['results']['skipped'] + 1;
-        }
-
-      }
-
-      if ($field_is_updated) {
-        // Strip the root element added to preserve formatting on export.
-        $value_field_updated = str_replace(['<html>', '</html>'], '', $dom->saveHTML());
-
+      if (!empty($value_field_updated)) {
         // Save directly to the field table as we don't want to use the entity
         // API which would create a revision on entity save.
         \Drupal::database()->update($table)
@@ -353,6 +268,155 @@ final class ProcessEntityFieldsForm extends FormBase {
         $messenger->addError($message);
       }
     }
+  }
+
+  /**
+   * Processes HTML to update existing links with LinkIt attributes.
+   *
+   * @param $services
+   *   Array of container services and variables
+   * @param $value_field_contents
+   *   An HTML string to process
+   * @param $context
+   *   Batch API context array.
+   */
+  public static function processFieldValue($services, $value_field_contents, &$context) {
+    extract($services);
+    $value_field_updated = '';
+    $field_is_updated = FALSE;
+
+    $dom = new \DOMDocument();
+
+    // Prevent DOMDocument from throwing runtime errors when it encounters
+    // invalid HTML markup.
+    libxml_use_internal_errors(TRUE);
+    // Load the field HTML without the DTD and default root elements but wrap
+    // it in a root <html> tag to prevent formatting issues during export.
+    $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    libxml_clear_errors();
+
+    $xpath = new \DOMXPath($dom);
+
+    // Match all anchor elements with a populated href attribute with a
+    // relative URL.
+    // TODO: Do we want to include 'node/XXX' URL's in case they don't
+    // have the data attributes?
+    $anchor_query = "//a[@href and
+                  @href != '' and
+                  normalize-space(@href) != '' and
+                  not(starts-with(@href, 'http://')) and
+                  not(starts-with(@href, 'https://')) and
+                  not(starts-with(@href, 'mailto:')) and
+                  not(starts-with(@href, 'tel:')) and
+                  not(starts-with(@href, '#'))]";
+
+    $link_elements = $xpath->query($anchor_query);
+
+    foreach ($link_elements as $link_element) {
+      // @phpstan-ignore-next-line.
+      if (!$link_element->hasAttribute('href')) {
+        continue;
+      }
+
+      // @phpstan-ignore-next-line.
+      $link_url = $link_element->getAttribute('href');
+
+      if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
+        continue;
+      }
+
+      // Redirect paths don't start with a leading slash so remove it to
+      // perform a valid match.
+      if (str_starts_with($link_url, '/')) {
+        $link_url = substr($link_url, 1);
+      }
+
+      $redirects = $redirect_repo->findBySourcePath($link_url);
+      $internal_url = '';
+
+      if (!empty($redirects)) {
+        $redirect = current($redirects);
+        $internal_url = $redirect->getRedirectUrl();
+      }
+      else {
+        // Add the leading slash as path aliases require it.
+        if (!str_starts_with($link_url, '/')) {
+          $link_url = '/' . $link_url;
+        }
+
+        $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
+
+        if (!empty($path_alias_url)) {
+          $internal_url = Url::fromUserInput($path_alias_url);
+        }
+      }
+
+      if ($internal_url->isRouted()) {
+        $route_params = $internal_url->getRouteParameters();
+
+        if (empty($route_params)) {
+          continue;
+        }
+
+        $url_entity_type = key($route_params);
+        $url_entity_id = current($route_params);
+
+        // Check this URL is for a content entity type.
+        if (!array_search($url_entity_type, $content_entity_types)) {
+          continue;
+        }
+
+        // Load the entity and update the link DOM node attributes.
+        $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('href', $internal_url->getInternalPath());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-substitution', 'canonical');
+        $field_is_updated = TRUE;
+        $context['results']['updated'] = $context['results']['updated'] + 1;
+      }
+      else {
+        $context['results']['skipped'] = $context['results']['skipped'] + 1;
+      }
+
+    }
+
+    if ($field_is_updated) {
+      // Strip the root element added to preserve formatting on export.
+      $value_field_updated = str_replace([
+        '<html>',
+        '</html>'
+      ], '', $dom->saveHTML());
+    }
+
+    return $value_field_updated;
+  }
+
+  /**
+   * Generates a list of content entity types.
+   *
+   * @return array
+   *   List of machine names.
+   */
+  public static function getContentEntityTypes() {
+    $content_entity_types = [];
+
+    // Build a list of content type entities that we can use later to match
+    // against a link's URL parameters and reject any invalid, non-content
+    // entity, URLs.
+    foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
+      if ($entity_type instanceof ContentEntityTypeInterface) {
+        if ($entity_type->getLinkTemplate('canonical')) {
+          $content_entity_types[] = $entity_type->id();
+        }
+      }
+    }
+
+    return $content_entity_types;
   }
 
 }
