@@ -1,6 +1,0 @@
-origins_pam.process_form:
-  title: Process Path Aliases
-  description: Select fields for processing.
-  parent: origins.admin_config
-  route_name: origins_pam.process_form
-  weight: 10

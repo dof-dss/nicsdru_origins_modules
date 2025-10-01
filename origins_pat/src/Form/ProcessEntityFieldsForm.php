@@ -2,18 +2,19 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_pam\Form;
+namespace Drupal\origins_pat\Form;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
- * Origins: Path Alias Manager form.
+ * Origins: Path Alias Transformer form.
  */
 final class ProcessEntityFieldsForm extends FormBase {
 
@@ -21,7 +22,7 @@ final class ProcessEntityFieldsForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'origins_pam_process_entity_fields';
+    return 'origins_pat_process_entity_fields';
   }
 
   /**
@@ -30,6 +31,10 @@ final class ProcessEntityFieldsForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
+
+    $form['introduction'] = [
+      '#markup' => '<p>This form will transform URLs for the selected field storage definitions, for more information visit ' . Link::fromTextAndUrl('the help page.', Url::fromRoute('help.page', ['name' => 'origins_pat']))->toString()
+    ];
 
     // Build a list of text based field storage entries rather than field
     // instances which would mean multiple entries for the same field table.
@@ -85,9 +90,11 @@ final class ProcessEntityFieldsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected_fields = array_filter($form_state->cleanValues()->getValues());
-    $process_taxonomy_descriptions = FALSE;
     $db = \Drupal::database();
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $messenger = \Drupal::messenger();
 
+    // Process taxonomy term descriptions if selected.
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
       unset($selected_fields['taxonomy_descriptions']);
 
@@ -105,7 +112,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         ->execute()->fetchAll();
 
       $services = [
-        'entity_type_manager' => \Drupal::entityTypeManager(),
+        'entity_type_manager' => $entity_type_manager,
         'redirect_repo' => \Drupal::service('redirect.repository'),
         'path_alias_manager' => \Drupal::service('path_alias.manager'),
         'content_entity_types' => self::getContentEntityTypes(),
@@ -115,7 +122,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         $updated_field_value = self::processFieldValue($services, $term_data->description__value, $context);
 
         if (!empty($updated_field_value)) {
-          \Drupal::database()->update('taxonomy_term_field_data')
+          $db->update('taxonomy_term_field_data')
             ->fields([
               'description__value' => $updated_field_value
             ])
@@ -126,12 +133,11 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
     }
 
+    // Process selected field storage definitions.
     $process_fields = array_values($selected_fields);
-
-    $entity_type_manager = \Drupal::entityTypeManager();
     $fields_data = [];
 
-    // Extract the db table names (base + revision) for each storage instance.
+    // Extract the db table names (e.g. base + revision) for each storage definition.
     foreach ($process_fields as $field) {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
@@ -181,19 +187,21 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     if ($batch_processes['operations']) {
       batch_set($batch->toArray());
-    } else {
-      \Drupal::messenger()->addMessage(t('No entity fields selected for processing.'));
+    }
+    else {
+      $messenger->addMessage(t('No entity fields selected for processing.'));
     }
 
+    // If the $context array is populated, that indicates taxonomy descriptions have been processed, so the stats should be displayed.
     if (!empty($context)) {
-      \Drupal::messenger()->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
+      $messenger->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
         '@updated' => number_format($context['results']['updated']),
         '@skipped' => number_format($context['results']['skipped']),
         '@failed' => number_format($context['results']['failed']),
       ]));
     }
 
-    $form_state->setRedirectUrl(Url::fromRoute('origins_pam.process_form'));
+    $form_state->setRedirectUrl(Url::fromRoute('origins_pat.process_form'));
   }
 
   /**
@@ -214,7 +222,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     $context['results']['progress'] += count($entity_ids);
 
-    $context['message'] = t('Processing @batch_size entities in batch #@batch_id from a total of @count for @table.', [
+    $context['message'] = t('Processing @batch_size entities in batch #@batch_id from @table for a total of @count.', [
       '@table' => $table,
       '@batch_id' => number_format($chunk_id),
       '@batch_size' => number_format(count($entity_ids)),
@@ -269,7 +277,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         '@skipped' => number_format($results['skipped']),
         '@failed' => number_format($results['failed']),
       ]));
-      \Drupal::logger('origins_pam')->info(
+      \Drupal::logger('origins_pat')->info(
         '@process @count entities. Updated @updated URLs, skipped @skipped and failed @failed URLs.', [
           '@process' => $results['process'],
           '@count' => number_format($results['progress']),
@@ -293,11 +301,11 @@ final class ProcessEntityFieldsForm extends FormBase {
   /**
    * Processes HTML to update existing links with LinkIt attributes.
    *
-   * @param $services
-   *   Array of container services and variables
-   * @param $value_field_contents
-   *   An HTML string to process
-   * @param $context
+   * @param array $services
+   *   Array of container services and variables.
+   * @param string $value_field_contents
+   *   An HTML string to process.
+   * @param array $context
    *   Batch API context array.
    */
   public static function processFieldValue($services, $value_field_contents, &$context) {
@@ -351,6 +359,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         $link_url = substr($link_url, 1);
       }
 
+      /* @phpstan-ignore variable.undefined */
       $redirects = $redirect_repo->findBySourcePath($link_url);
       $internal_url = '';
 
@@ -364,6 +373,7 @@ final class ProcessEntityFieldsForm extends FormBase {
           $link_url = '/' . $link_url;
         }
 
+        /* @phpstan-ignore variable.undefined */
         $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
 
         if (!empty($path_alias_url)) {
@@ -382,11 +392,13 @@ final class ProcessEntityFieldsForm extends FormBase {
         $url_entity_id = current($route_params);
 
         // Check this URL is for a content entity type.
+        /* @phpstan-ignore variable.undefined */
         if (!array_search($url_entity_type, $content_entity_types)) {
           continue;
         }
 
         // Load the entity and update the link DOM node attributes.
+        /* @phpstan-ignore variable.undefined */
         $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
         // @phpstan-ignore-next-line.
         $link_element->setAttribute('href', $internal_url->getInternalPath());

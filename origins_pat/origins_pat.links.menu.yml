@@ -1,0 +1,6 @@
+origins_pat.process_form:
+  title: Path Alias Transformer
+  description: Select fields for processing URL path aliases to the LinkIt link format.
+  parent: origins.admin_config
+  route_name: origins_pat.process_form
+  weight: 10

@@ -1,4 +1,4 @@
-name: 'Origins: Path Alias Manager'
+name: 'Origins: Path Alias Transformer'
 type: module
 description: 'Process legacy LinkIt urls with path aliases'
 package: 'NICS: Origins'
