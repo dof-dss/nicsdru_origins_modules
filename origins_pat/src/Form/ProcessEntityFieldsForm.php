@@ -327,8 +327,6 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Match all anchor elements with a populated href attribute with a
     // relative URL.
-    // TODO: Do we want to include 'node/XXX' URL's in case they don't
-    // have the data attributes?
     $anchor_query = "//a[@href and
                   @href != '' and
                   normalize-space(@href) != '' and
