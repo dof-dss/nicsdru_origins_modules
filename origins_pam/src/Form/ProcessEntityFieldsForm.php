@@ -91,6 +91,14 @@ final class ProcessEntityFieldsForm extends FormBase {
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
       unset($selected_fields['taxonomy_descriptions']);
 
+      $context = [
+        'results' => [
+          'updated' => 0,
+          'skipped' => 0,
+          'failed' => 0,
+        ],
+      ];
+
       $terms_data = $db->select('taxonomy_term_field_data', 't')
         ->fields('t', ['tid', 'revision_id', 'description__value'])
         ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
@@ -102,8 +110,6 @@ final class ProcessEntityFieldsForm extends FormBase {
         'path_alias_manager' => \Drupal::service('path_alias.manager'),
         'content_entity_types' => self::getContentEntityTypes(),
       ];
-
-      $context = [];
 
       foreach ($terms_data as $term_data) {
         $updated_field_value = self::processFieldValue($services, $term_data->description__value, $context);
@@ -171,7 +177,21 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
     }
 
-    batch_set($batch->toArray());
+    $batch_processes = $batch->toArray();
+
+    if ($batch_processes['operations']) {
+      batch_set($batch->toArray());
+    } else {
+      \Drupal::messenger()->addMessage(t('No entity fields selected for processing.'));
+    }
+
+    if (!empty($context)) {
+      \Drupal::messenger()->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
+        '@updated' => number_format($context['results']['updated']),
+        '@skipped' => number_format($context['results']['skipped']),
+        '@failed' => number_format($context['results']['failed']),
+      ]));
+    }
 
     $form_state->setRedirectUrl(Url::fromRoute('origins_pam.process_form'));
   }
