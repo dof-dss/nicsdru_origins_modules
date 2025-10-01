@@ -1,5 +1,5 @@
 name: 'Origins: Path Alias Transformer'
 type: module
-description: 'Process legacy LinkIt urls with path aliases'
+description: 'Transform links to be compatible with the LinkIt module.'
 package: 'NICS: Origins'
 core_version_requirement: ^10 || ^11
