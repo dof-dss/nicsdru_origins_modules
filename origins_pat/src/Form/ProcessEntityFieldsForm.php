@@ -1,0 +1,452 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Drupal\origins_pat\Form;
+
+use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Origins: Path Alias Transformer form.
+ */
+final class ProcessEntityFieldsForm extends FormBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId(): string {
+    return 'origins_pat_process_entity_fields';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state): array {
+    $entity_fields = [];
+    $field_storage_definitions = FieldStorageConfig::loadMultiple();
+
+    $form['introduction'] = [
+      '#markup' => '<p>This form will transform URLs for the selected field storage definitions, for more information visit ' . Link::fromTextAndUrl('the help page.', Url::fromRoute('help.page', ['name' => 'origins_pat']))->toString()
+    ];
+
+    // Build a list of text based field storage entries rather than field
+    // instances which would mean multiple entries for the same field table.
+    // e.g. Body storage exists as body, details, description etc field.
+    foreach ($field_storage_definitions as $field_storage) {
+      $type = $field_storage->getType();
+      if (in_array($type, ['text_long', 'text_with_summary'])) {
+        $entity_type = $field_storage->getTargetEntityTypeId();
+        $entity_fields[$entity_type][$field_storage->getName()] = $field_storage->getLabel();
+      }
+    }
+
+    foreach ($entity_fields as $entity_type => $fields) {
+      $form[$entity_type] = [
+        '#type' => 'details',
+        '#title' => $this->t('@entity_type', ['@entity_type' => $entity_type]),
+        '#open' => TRUE,
+      ];
+
+      foreach ($fields as $field_name => $field_id) {
+        $form[$entity_type]["$entity_type--$field_name"] = [
+          '#type' => 'checkbox',
+          '#title' => $this->t('@name (@label)', [
+            '@name' => $field_name,
+            '@label' => $field_id,
+          ]),
+          '#return_value' => $field_id,
+        ];
+      }
+    }
+
+    // Taxonony uses a description column as part of the term record instead of
+    // a 'description' table so we have to process it separately.
+    $form['taxonomy_descriptions'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Process links in taxonomy descriptions'),
+      '#return_value' => TRUE,
+    ];
+
+    $form['actions'] = [
+      '#type' => 'actions',
+      'submit' => [
+        '#type' => 'submit',
+        '#value' => $this->t('Process'),
+      ],
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $selected_fields = array_filter($form_state->cleanValues()->getValues());
+    $db = \Drupal::database();
+    $entity_type_manager = \Drupal::entityTypeManager();
+    $messenger = \Drupal::messenger();
+
+    // Process taxonomy term descriptions if selected.
+    if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
+      unset($selected_fields['taxonomy_descriptions']);
+
+      $context = [
+        'results' => [
+          'updated' => 0,
+          'skipped' => 0,
+          'failed' => 0,
+        ],
+      ];
+
+      $terms_data = $db->select('taxonomy_term_field_data', 't')
+        ->fields('t', ['tid', 'revision_id', 'description__value'])
+        ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+        ->execute()->fetchAll();
+
+      $services = [
+        'entity_type_manager' => $entity_type_manager,
+        'redirect_repo' => \Drupal::service('redirect.repository'),
+        'path_alias_manager' => \Drupal::service('path_alias.manager'),
+        'content_entity_types' => self::getContentEntityTypes(),
+      ];
+
+      foreach ($terms_data as $term_data) {
+        $updated_field_value = self::processFieldValue($services, $term_data->description__value, $context);
+
+        if (!empty($updated_field_value)) {
+          $db->update('taxonomy_term_field_data')
+            ->fields([
+              'description__value' => $updated_field_value
+            ])
+            ->condition('tid', $term_data->tid)
+            ->condition('revision_id', $term_data->revision_id)
+            ->execute();
+        }
+      }
+    }
+
+    // Process selected field storage definitions.
+    $process_fields = array_values($selected_fields);
+    $fields_data = [];
+
+    // Extract the db table names (e.g. base + revision) for each storage definition.
+    foreach ($process_fields as $field) {
+      $entity_type = substr($field, 0, strrpos($field, '.'));
+      $field_id = substr($field, strrpos($field, '.') + 1);
+      $storage = $entity_type_manager->getStorage($entity_type);
+      // @phpstan-ignore-next-line.
+      $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
+      $fields_data[$entity_type][$field] = $tables;
+    }
+
+    $batch = new BatchBuilder();
+    $batch->setTitle('Updating URL aliases')
+      ->setFinishCallback([self::class, 'batchFinished'])
+      ->setInitMessage('Starting field alias processing')
+      ->setProgressMessage('Processing...')
+      ->setErrorMessage('An error occurred during processing.');
+
+    foreach ($fields_data as $entity_type => $fields) {
+      foreach ($fields as $field => $tables) {
+        foreach ($tables as $table) {
+          $field_name = substr($field, strrpos($field, '.') + 1);
+
+          // Build a quick list of entity ID's and revision ID's using a search
+          // for field values that contain href's with relative links.
+          $entity_ids = $db->select($table, 't')
+            ->fields('t', ['entity_id', 'revision_id'])
+            ->condition($field_name . '_value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+            ->distinct()->execute()->fetchAllKeyed(0);
+
+          $entity_total = count($entity_ids);
+          $entity_id_chunks = array_chunk($entity_ids, 250, TRUE);
+
+          foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
+            $args = [
+              $chunk_id,
+              $entity_ids,
+              $table,
+              $field_name,
+              $entity_total,
+            ];
+            $batch->addOperation([self::class, 'batchProcess'], $args);
+          }
+        }
+      }
+    }
+
+    $batch_processes = $batch->toArray();
+
+    if ($batch_processes['operations']) {
+      batch_set($batch->toArray());
+    }
+    else {
+      $messenger->addMessage(t('No entity fields selected for processing.'));
+    }
+
+    // If the $context array is populated, that indicates taxonomy descriptions have been processed, so the stats should be displayed.
+    if (!empty($context)) {
+      $messenger->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
+        '@updated' => number_format($context['results']['updated']),
+        '@skipped' => number_format($context['results']['skipped']),
+        '@failed' => number_format($context['results']['failed']),
+      ]));
+    }
+
+    $form_state->setRedirectUrl(Url::fromRoute('origins_pat.process_form'));
+  }
+
+  /**
+   * Batch process callback.
+   */
+  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, array &$context): void {
+    if (!isset($context['sandbox']['progress'])) {
+      $context['sandbox']['progress'] = 0;
+      $context['sandbox']['max'] = $entity_total;
+    }
+    if (!isset($context['results']['updated'])) {
+      $context['results']['updated'] = 0;
+      $context['results']['skipped'] = 0;
+      $context['results']['failed'] = 0;
+      $context['results']['progress'] = 0;
+      $context['results']['process'] = 'Finished processing ';
+    }
+
+    $context['results']['progress'] += count($entity_ids);
+
+    $context['message'] = t('Processing @batch_size entities in batch #@batch_id from @table for a total of @count.', [
+      '@table' => $table,
+      '@batch_id' => number_format($chunk_id),
+      '@batch_size' => number_format(count($entity_ids)),
+      '@count' => number_format($context['sandbox']['max']),
+    ]);
+
+    $db = \Drupal::database();
+
+    $services = [
+      'entity_type_manager' => \Drupal::entityTypeManager(),
+      'redirect_repo' => \Drupal::service('redirect.repository'),
+      'path_alias_manager' => \Drupal::service('path_alias.manager'),
+      'content_entity_types' => self::getContentEntityTypes(),
+    ];
+
+    // Fetch each field value, load as DOM and then process each relative link.
+    foreach ($entity_ids as $entity_id => $revision_id) {
+      $value_field = $field_name . "_value";
+      $value_field_contents = $db->select($table, 't')
+        ->fields('t', [$value_field])
+        ->condition('t.entity_id', $entity_id)
+        ->condition('t.revision_id', $revision_id)
+        ->execute()->fetchField(0);
+
+      $value_field_updated = self::processFieldValue($services, $value_field_contents, $context);
+
+      if (!empty($value_field_updated)) {
+        // Save directly to the field table as we don't want to use the entity
+        // API which would create a revision on entity save.
+        \Drupal::database()->update($table)
+          ->fields([
+            $value_field => $value_field_updated
+          ])
+          ->condition('entity_id', $entity_id)
+          ->condition('revision_id', $revision_id)
+          ->execute();
+      }
+    }
+  }
+
+  /**
+   * Batch finished callback.
+   */
+  public static function batchFinished(bool $success, array $results, array $operations, string $elapsed): void {
+    $messenger = \Drupal::messenger();
+
+    if ($success) {
+      $messenger->addMessage(t('@process @count entities. Updated @updated URLs, skipped @skipped and failed @failed URLs.', [
+        '@process' => $results['process'],
+        '@count' => number_format($results['progress']),
+        '@updated' => number_format($results['updated']),
+        '@skipped' => number_format($results['skipped']),
+        '@failed' => number_format($results['failed']),
+      ]));
+      \Drupal::logger('origins_pat')->info(
+        '@process @count entities. Updated @updated URLs, skipped @skipped and failed @failed URLs.', [
+          '@process' => $results['process'],
+          '@count' => number_format($results['progress']),
+          '@updated' => number_format($results['updated']),
+          '@skipped' => number_format($results['skipped']),
+          '@failed' => number_format($results['failed']),
+        ]);
+    }
+    else {
+      $error_operation = reset($operations);
+      if ($error_operation) {
+        $message = t('An error occurred while processing %error_operation with arguments: @arguments', [
+          '%error_operation' => print_r($error_operation[0]),
+          '@arguments' => print_r($error_operation[1], TRUE),
+        ]);
+        $messenger->addError($message);
+      }
+    }
+  }
+
+  /**
+   * Processes HTML to update existing links with LinkIt attributes.
+   *
+   * @param array $services
+   *   Array of container services and variables.
+   * @param string $value_field_contents
+   *   An HTML string to process.
+   * @param array $context
+   *   Batch API context array.
+   */
+  public static function processFieldValue($services, $value_field_contents, &$context) {
+    extract($services);
+    $value_field_updated = '';
+    $field_is_updated = FALSE;
+
+    $dom = new \DOMDocument();
+
+    // Prevent DOMDocument from throwing runtime errors when it encounters
+    // invalid HTML markup.
+    libxml_use_internal_errors(TRUE);
+    // Load the field HTML without the DTD and default root elements but wrap
+    // it in a root <html> tag to prevent formatting issues during export.
+    $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    libxml_clear_errors();
+
+    $xpath = new \DOMXPath($dom);
+
+    // Match all anchor elements with a populated href attribute with a
+    // relative URL.
+    $anchor_query = "//a[@href and
+                  @href != '' and
+                  normalize-space(@href) != '' and
+                  not(starts-with(@href, 'http://')) and
+                  not(starts-with(@href, 'https://')) and
+                  not(starts-with(@href, 'mailto:')) and
+                  not(starts-with(@href, 'tel:')) and
+                  not(starts-with(@href, '#'))]";
+
+    $link_elements = $xpath->query($anchor_query);
+
+    foreach ($link_elements as $link_element) {
+      // @phpstan-ignore-next-line.
+      if (!$link_element->hasAttribute('href')) {
+        continue;
+      }
+
+      // @phpstan-ignore-next-line.
+      $link_url = $link_element->getAttribute('href');
+
+      if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
+        continue;
+      }
+
+      // Redirect paths don't start with a leading slash so remove it to
+      // perform a valid match.
+      if (str_starts_with($link_url, '/')) {
+        $link_url = substr($link_url, 1);
+      }
+
+      /* @phpstan-ignore variable.undefined */
+      $redirects = $redirect_repo->findBySourcePath($link_url);
+      $internal_url = '';
+
+      if (!empty($redirects)) {
+        $redirect = current($redirects);
+        $internal_url = $redirect->getRedirectUrl();
+      }
+      else {
+        // Add the leading slash as path aliases require it.
+        if (!str_starts_with($link_url, '/')) {
+          $link_url = '/' . $link_url;
+        }
+
+        /* @phpstan-ignore variable.undefined */
+        $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
+
+        if (!empty($path_alias_url)) {
+          $internal_url = Url::fromUserInput($path_alias_url);
+        }
+      }
+
+      if ($internal_url->isRouted()) {
+        $route_params = $internal_url->getRouteParameters();
+
+        if (empty($route_params)) {
+          continue;
+        }
+
+        $url_entity_type = key($route_params);
+        $url_entity_id = current($route_params);
+
+        // Check this URL is for a content entity type.
+        /* @phpstan-ignore variable.undefined */
+        if (!array_search($url_entity_type, $content_entity_types)) {
+          continue;
+        }
+
+        // Load the entity and update the link DOM node attributes.
+        /* @phpstan-ignore variable.undefined */
+        $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('href', $internal_url->getInternalPath());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
+        // @phpstan-ignore-next-line.
+        $link_element->setAttribute('data-entity-substitution', 'canonical');
+        $field_is_updated = TRUE;
+        $context['results']['updated'] = $context['results']['updated'] + 1;
+      }
+      else {
+        $context['results']['skipped'] = $context['results']['skipped'] + 1;
+      }
+
+    }
+
+    if ($field_is_updated) {
+      // Strip the root element added to preserve formatting on export.
+      $value_field_updated = str_replace([
+        '<html>',
+        '</html>'
+      ], '', $dom->saveHTML());
+    }
+
+    return $value_field_updated;
+  }
+
+  /**
+   * Generates a list of content entity types.
+   *
+   * @return array
+   *   List of machine names.
+   */
+  public static function getContentEntityTypes() {
+    $content_entity_types = [];
+
+    // Build a list of content type entities that we can use later to match
+    // against a link's URL parameters and reject any invalid, non-content
+    // entity, URLs.
+    foreach (\Drupal::entityTypeManager()->getDefinitions() as $entity_type) {
+      if ($entity_type instanceof ContentEntityTypeInterface) {
+        if ($entity_type->getLinkTemplate('canonical')) {
+          $content_entity_types[] = $entity_type->id();
+        }
+      }
+    }
+
+    return $content_entity_types;
+  }
+
+}

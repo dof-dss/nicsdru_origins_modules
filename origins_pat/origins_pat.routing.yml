@@ -1,0 +1,7 @@
+origins_pat.process_form:
+  path: '/admin/config/origins_pat'
+  defaults:
+    _title: 'Field process form'
+    _form: 'Drupal\origins_pat\Form\ProcessEntityFieldsForm'
+  requirements:
+    _permission: 'administer site configuration'
