@@ -1,0 +1,5 @@
+.eu-cookie-compliance-banner,
+.eu-cookie-withdraw-banner {
+  max-height: calc(100vh - 5rem);
+  overflow: auto;
+}
