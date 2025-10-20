@@ -1,3 +1,7 @@
+html {
+  scroll-padding-bottom: 6rem;
+}
+
 .eu-cookie-withdraw-wrapper,
 #sliding-popup.sliding-popup-bottom {
   max-height: calc(100vh - 5rem);
