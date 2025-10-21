@@ -2,12 +2,13 @@ html {
   scroll-padding-bottom: 6rem;
 }
 
-.eu-cookie-withdraw-wrapper,
-#sliding-popup.sliding-popup-bottom {
+#sliding-popup.sliding-popup-bottom,
+#sliding-popup.sliding-popup-top,
+#sliding-popup .popup-content
+{
   max-height: calc(100vh - 5rem);
 }
 
-.eu-cookie-compliance-banner,
-.eu-cookie-withdraw-banner {
+#sliding-popup .popup-content {
   overflow: auto;
 }
