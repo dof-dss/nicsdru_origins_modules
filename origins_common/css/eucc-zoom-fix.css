@@ -1,0 +1,14 @@
+html {
+  scroll-padding-bottom: 6rem;
+}
+
+#sliding-popup.sliding-popup-bottom,
+#sliding-popup.sliding-popup-top,
+#sliding-popup .popup-content
+{
+  max-height: calc(100vh - 5rem);
+}
+
+#sliding-popup .popup-content {
+  overflow: auto;
+}
