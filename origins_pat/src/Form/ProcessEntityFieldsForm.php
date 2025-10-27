@@ -205,6 +205,7 @@ final class ProcessEntityFieldsForm extends FormBase {
               $table,
               $field_name,
               $entity_total,
+              $entity_type,
               $report_size,
             ];
             $batch->addOperation([self::class, 'batchProcess'], $args);
@@ -216,6 +217,10 @@ final class ProcessEntityFieldsForm extends FormBase {
     $batch_processes = $batch->toArray();
 
     if ($batch_processes['operations']) {
+      if ($generate_report && file_exists(self::REPORT_FILENAME)) {
+        unlink(self::REPORT_FILENAME);
+      }
+
       batch_set($batch->toArray());
     }
     else {
@@ -237,9 +242,7 @@ final class ProcessEntityFieldsForm extends FormBase {
   /**
    * Batch process callback.
    */
-  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, int $report_size, array &$context): void {
-    $report_data = [];
-
+  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, string $entity_type, int $report_size, array &$context): void {
     if (!isset($context['sandbox']['progress'])) {
       $context['sandbox']['progress'] = 0;
       $context['sandbox']['max'] = $entity_total;
@@ -251,6 +254,9 @@ final class ProcessEntityFieldsForm extends FormBase {
       $context['results']['progress'] = 0;
       $context['results']['process'] = 'Finished processing ';
     }
+
+    $context['report']['size'] = $report_size;
+    $context['report']['data'] = [];
 
     $context['results']['progress'] += count($entity_ids);
 
@@ -272,40 +278,40 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Fetch each field value, load as DOM and then process each relative link.
     foreach ($entity_ids as $entity_id => $revision_id) {
-      $value_field = $field_name . "_value";
-      $value_field_contents = $db->select($table, 't')
-        ->fields('t', [$value_field])
+      $value_field_data['nid'] = $entity_id;
+      $value_field_data['type'] = $entity_type;
+      $value_field_data['name'] = $field_name . "_value";
+      $value_field_data['content'] = $db->select($table, 't')
+        ->fields('t', [$value_field_data['name']])
         ->condition('t.entity_id', $entity_id)
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
-      $value_field_updated = self::processFieldValue($services, $value_field_contents, $context);
+      $value_field_updated = self::processFieldValue($services, $value_field_data, $context);
 
       if (!empty($value_field_updated)) {
         // Save directly to the field table as we don't want to use the entity
         // API which would create a revision on entity save.
         \Drupal::database()->update($table)
           ->fields([
-            $value_field => $value_field_updated
+            $value_field_data['name'] => $value_field_updated
           ])
           ->condition('entity_id', $entity_id)
           ->condition('revision_id', $revision_id)
           ->execute();
+      }
 
-        if ($report_size > 0 && (rand(1, 100) <= ($report_size * 10))) {
-          $report_data[] = [$entity_id, $value_field];
+      if (!empty($context['report']['data'])) {
+        $report_file = fopen(self::REPORT_FILENAME, 'a');
+
+        foreach ($context['report']['data'] as $report_entry) {
+          fputcsv($report_file, $report_entry, ',', '"', '');
         }
-      }
-    }
 
-    if (!empty($report_data)) {
-      $fp = fopen(self::REPORT_FILENAME, 'w');
-
-      foreach ($report_data as $report_entry) {
-        fputcsv($fp, $report_entry, ',', '"', '');
+        fclose($report_file);
       }
 
-      fclose($fp);
+
     }
   }
 
@@ -349,15 +355,16 @@ final class ProcessEntityFieldsForm extends FormBase {
    *
    * @param array $services
    *   Array of container services and variables.
-   * @param string $value_field_contents
-   *   An HTML string to process.
+   * @param array $value_field_data
+   *   Array of data for the field to process.
    * @param array $context
    *   Batch API context array.
    */
-  public static function processFieldValue($services, $value_field_contents, &$context) {
+  public static function processFieldValue($services, $value_field_data, &$context) {
     extract($services);
     $value_field_updated = '';
     $field_is_updated = FALSE;
+    $value_field_contents = $value_field_data['content'];
 
     $dom = new \DOMDocument();
 
@@ -392,6 +399,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       // @phpstan-ignore-next-line.
       $link_url = $link_element->getAttribute('href');
+      $original_link_url = $link_url;
 
       if (!UrlHelper::isValid($link_url) || UrlHelper::isExternal($link_url)) {
         continue;
@@ -454,6 +462,18 @@ final class ProcessEntityFieldsForm extends FormBase {
         $link_element->setAttribute('data-entity-substitution', 'canonical');
         $field_is_updated = TRUE;
         $context['results']['updated'] = $context['results']['updated'] + 1;
+
+        if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
+
+          $link_from_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['nid']);
+
+          $context['report']['data'][] = [
+            $link_from_entity->getInternalPath(),
+            $original_link_url,
+            $internal_url->getInternalPath()
+          ];
+        }
+
       }
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
