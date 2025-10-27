@@ -18,6 +18,8 @@ use Drupal\field\Entity\FieldStorageConfig;
  */
 final class ProcessEntityFieldsForm extends FormBase {
 
+  const REPORT_FILENAME = 'public://pat_report.csv';
+
   /**
    * {@inheritdoc}
    */
@@ -74,6 +76,23 @@ final class ProcessEntityFieldsForm extends FormBase {
       '#return_value' => TRUE,
     ];
 
+    $form['enable_report'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Generate a report'),
+      '#return_value' => TRUE,
+    ];
+
+    $form['report_sample_size'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Sample size'),
+      '#description' => $this->t('A higher value will generate a larger report than a smaller value.'),
+      '#options' => array_combine(range(1, 10, 1), range(1, 10, 1)),
+      '#default_value' => 3,
+      '#states' => [
+        'visible' => [':input[name="enable_report"]' => ['checked' => TRUE]],
+      ],
+    ];
+
     $form['actions'] = [
       '#type' => 'actions',
       'submit' => [
@@ -93,6 +112,16 @@ final class ProcessEntityFieldsForm extends FormBase {
     $db = \Drupal::database();
     $entity_type_manager = \Drupal::entityTypeManager();
     $messenger = \Drupal::messenger();
+
+    if (array_key_exists('enable_report', $selected_fields)) {
+      $generate_report = $selected_fields['enable_report'];
+      unset($selected_fields['enable_report']);
+    }
+
+    if (array_key_exists('report_sample_size', $selected_fields)) {
+      $report_size = ($generate_report = TRUE) ? $selected_fields['report_sample_size'] : 0;
+      unset($selected_fields['report_sample_size']);
+    }
 
     // Process taxonomy term descriptions if selected.
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
@@ -176,6 +205,7 @@ final class ProcessEntityFieldsForm extends FormBase {
               $table,
               $field_name,
               $entity_total,
+              $report_size,
             ];
             $batch->addOperation([self::class, 'batchProcess'], $args);
           }
@@ -207,7 +237,9 @@ final class ProcessEntityFieldsForm extends FormBase {
   /**
    * Batch process callback.
    */
-  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, array &$context): void {
+  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, int $report_size, array &$context): void {
+    $report_data = [];
+
     if (!isset($context['sandbox']['progress'])) {
       $context['sandbox']['progress'] = 0;
       $context['sandbox']['max'] = $entity_total;
@@ -259,7 +291,21 @@ final class ProcessEntityFieldsForm extends FormBase {
           ->condition('entity_id', $entity_id)
           ->condition('revision_id', $revision_id)
           ->execute();
+
+        if ($report_size > 0 && (rand(1, 100) <= ($report_size * 10))) {
+          $report_data[] = [$entity_id, $value_field];
+        }
       }
+    }
+
+    if (!empty($report_data)) {
+      $fp = fopen(self::REPORT_FILENAME, 'w');
+
+      foreach ($report_data as $report_entry) {
+        fputcsv($fp, $report_entry, ',', '"', '');
+      }
+
+      fclose($fp);
     }
   }
 
