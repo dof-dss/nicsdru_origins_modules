@@ -134,39 +134,16 @@ final class ProcessEntityFieldsForm extends FormBase {
     if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
       unset($selected_fields['taxonomy_descriptions']);
 
-      $context = [
-        'results' => [
-          'updated' => 0,
-          'skipped' => 0,
-          'failed' => 0,
-        ],
-      ];
+      $context['sandbox']['progress'] = 0;
+      $context['sandbox']['max'] = 0;
+      $context['results']['updated'] = 0;
+      $context['results']['skipped'] = 0;
+      $context['results']['failed'] = 0;
+      $context['results']['progress'] = 0;
+      $context['report']['size'] = $report_size;
+      $context['report']['data'] = [];
 
-      $terms_data = $db->select('taxonomy_term_field_data', 't')
-        ->fields('t', ['tid', 'revision_id', 'description__value'])
-        ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
-        ->execute()->fetchAll();
-
-      $services = [
-        'entity_type_manager' => $entity_type_manager,
-        'redirect_repo' => \Drupal::service('redirect.repository'),
-        'path_alias_manager' => \Drupal::service('path_alias.manager'),
-        'content_entity_types' => self::getContentEntityTypes(),
-      ];
-
-      foreach ($terms_data as $term_data) {
-        $updated_field_value = self::processFieldValue($services, $term_data->description__value, $context);
-
-        if (!empty($updated_field_value)) {
-          $db->update('taxonomy_term_field_data')
-            ->fields([
-              'description__value' => $updated_field_value
-            ])
-            ->condition('tid', $term_data->tid)
-            ->condition('revision_id', $term_data->revision_id)
-            ->execute();
-        }
-      }
+      $this->processTaxonomyDescriptions($db, $entity_type_manager, $context);
     }
 
     // Process selected field storage definitions.
@@ -247,6 +224,43 @@ final class ProcessEntityFieldsForm extends FormBase {
   }
 
   /**
+   * Process taxonomy term descriptions.
+   */
+  public function processTaxonomyDescriptions($db, $entity_type_manager, &$context): void {
+    $terms_data = $db->select('taxonomy_term_field_data', 't')
+      ->fields('t', ['tid', 'revision_id', 'description__value'])
+      ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+      ->execute()->fetchAll();
+
+    $services = [
+      'entity_type_manager' => $entity_type_manager,
+      'redirect_repo' => \Drupal::service('redirect.repository'),
+      'path_alias_manager' => \Drupal::service('path_alias.manager'),
+      'content_entity_types' => self::getContentEntityTypes(),
+    ];
+
+    foreach ($terms_data as $term_data) {
+      $value_field_data['id'] = $term_data->tid;
+      $value_field_data['type'] = 'taxonomy_term';
+      $value_field_data['content'] = $term_data->description__value;
+
+      $updated_field_value = self::processFieldValue($services, $value_field_data, $context);
+
+      if (!empty($updated_field_value)) {
+        $db->update('taxonomy_term_field_data')
+          ->fields([
+            'description__value' => $updated_field_value
+          ])
+          ->condition('tid', $term_data->tid)
+          ->condition('revision_id', $term_data->revision_id)
+          ->execute();
+      }
+    }
+
+    self::writeReport($context);
+  }
+
+  /**
    * Batch process callback.
    */
   public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, string $entity_type, int $report_size, array &$context): void {
@@ -285,11 +299,12 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Fetch each field value, load as DOM and then process each relative link.
     foreach ($entity_ids as $entity_id => $revision_id) {
-      $value_field_data['nid'] = $entity_id;
+      $field_value_column = $field_name . "_value";
+
+      $value_field_data['id'] = $entity_id;
       $value_field_data['type'] = $entity_type;
-      $value_field_data['name'] = $field_name . "_value";
       $value_field_data['content'] = $db->select($table, 't')
-        ->fields('t', [$value_field_data['name']])
+        ->fields('t', [$field_value_column])
         ->condition('t.entity_id', $entity_id)
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
@@ -301,7 +316,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         // API which would create a revision on entity save.
         \Drupal::database()->update($table)
           ->fields([
-            $value_field_data['name'] => $value_field_updated
+            $field_value_column => $value_field_updated
           ])
           ->condition('entity_id', $entity_id)
           ->condition('revision_id', $revision_id)
@@ -462,12 +477,13 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
 
-          $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['nid']);
+          // @phpstan-ignore-next-line.
+          $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
 
           $context['report']['data'][] = [
             $linking_entity->toUrl()->toString(),
-            $internal_url->getInternalPath(),
-            $original_link_url,
+            '/' . $internal_url->getInternalPath(),
+            $link_url,
           ];
         }
       }
