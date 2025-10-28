@@ -34,6 +34,12 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
 
+    if (file_exists(self::REPORT_FILENAME)) {
+      $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
+      $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
+      \Drupal::messenger()->addMessage($report_link);
+    }
+
     $form['introduction'] = [
       '#markup' => '<p>This form will transform URLs for the selected field storage definitions, for more information visit ' . Link::fromTextAndUrl('the help page.', Url::fromRoute('help.page', ['name' => 'origins_pat']))->toString()
     ];
@@ -112,6 +118,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     $db = \Drupal::database();
     $entity_type_manager = \Drupal::entityTypeManager();
     $messenger = \Drupal::messenger();
+    $report_size = 0;
 
     if (array_key_exists('enable_report', $selected_fields)) {
       $generate_report = $selected_fields['enable_report'];
@@ -300,19 +307,9 @@ final class ProcessEntityFieldsForm extends FormBase {
           ->condition('revision_id', $revision_id)
           ->execute();
       }
-
-      if (!empty($context['report']['data'])) {
-        $report_file = fopen(self::REPORT_FILENAME, 'a');
-
-        foreach ($context['report']['data'] as $report_entry) {
-          fputcsv($report_file, $report_entry, ',', '"', '');
-        }
-
-        fclose($report_file);
-      }
-
-
     }
+
+    self::writeReport($context);
   }
 
   /**
@@ -337,13 +334,6 @@ final class ProcessEntityFieldsForm extends FormBase {
           '@skipped' => number_format($results['skipped']),
           '@failed' => number_format($results['failed']),
         ]);
-
-      if (file_exists(self::REPORT_FILENAME)) {
-        $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
-        $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
-        $messenger->addMessage($report_link);
-      }
-
     }
     else {
       $error_operation = reset($operations);
@@ -496,6 +486,24 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
 
     return $value_field_updated;
+  }
+
+  /**
+   * Writes link update data to a report file.
+   *
+   * @param array $context
+   *   Array of context data for a batch or taxonomy process.
+   */
+  public static function writeReport($context) {
+    if (!empty($context['report']['data'])) {
+      $report_file = fopen(self::REPORT_FILENAME, 'a');
+
+      foreach ($context['report']['data'] as $report_entry) {
+        fputcsv($report_file, $report_entry, ',', '"', '');
+      }
+
+      fclose($report_file);
+    }
   }
 
   /**
