@@ -217,7 +217,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     $batch_processes = $batch->toArray();
 
     if ($batch_processes['operations']) {
-      if ($generate_report && file_exists(self::REPORT_FILENAME)) {
+      if (file_exists(self::REPORT_FILENAME)) {
         unlink(self::REPORT_FILENAME);
       }
 
@@ -337,6 +337,13 @@ final class ProcessEntityFieldsForm extends FormBase {
           '@skipped' => number_format($results['skipped']),
           '@failed' => number_format($results['failed']),
         ]);
+
+      if (file_exists(self::REPORT_FILENAME)) {
+        $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
+        $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
+        $messenger->addMessage($report_link);
+      }
+
     }
     else {
       $error_operation = reset($operations);
@@ -465,15 +472,14 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
 
-          $link_from_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['nid']);
+          $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['nid']);
 
           $context['report']['data'][] = [
-            $link_from_entity->getInternalPath(),
+            $linking_entity->toUrl()->toString(),
+            $internal_url->getInternalPath(),
             $original_link_url,
-            $internal_url->getInternalPath()
           ];
         }
-
       }
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
