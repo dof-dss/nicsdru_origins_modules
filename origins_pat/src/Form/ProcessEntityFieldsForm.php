@@ -122,17 +122,16 @@ final class ProcessEntityFieldsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected_fields = array_filter($form_state->cleanValues()->getValues());
+    $generate_report = FALSE;
+    $report_size = 0;
 
     if (array_key_exists('enable_report', $selected_fields)) {
       $generate_report = $selected_fields['enable_report'];
       unset($selected_fields['enable_report']);
-    } else {
-      $generate_report = FALSE;
-      $report_size = 0;
     }
 
     if (array_key_exists('report_sample_size', $selected_fields)) {
-      $report_size = ($generate_report = TRUE) ? $selected_fields['report_sample_size'] : 0;
+      $report_size = ($generate_report = TRUE) ? (int) $selected_fields['report_sample_size'] : 0;
       unset($selected_fields['report_sample_size']);
     }
 
@@ -156,6 +155,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     $batch_processes = $batch->toArray();
 
     if ($batch_processes['operations']) {
+      // Remove any existing report files.
       if (file_exists(self::REPORT_FILENAME)) {
         unlink(self::REPORT_FILENAME);
       }
@@ -165,7 +165,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       $url_parameters = [
         'deadlinks' => TRUE,
-        'report' => $generate_report ?? FALSE,
+        'report' => $generate_report,
       ];
 
       $redirect_url = Url::fromRoute('origins_pat.process_form', $url_parameters);
@@ -177,19 +177,20 @@ final class ProcessEntityFieldsForm extends FormBase {
       $this->messenger()->addMessage(t('No entity fields selected for processing.'));
     }
 
-    // If the $context array is populated, that indicates taxonomy descriptions have been processed, so the stats should be displayed.
-    if (!empty($context)) {
-      $this->messenger()->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
-        '@updated' => number_format($context['results']['updated']),
-        '@skipped' => number_format($context['results']['skipped']),
-        '@failed' => number_format($context['results']['failed']),
-      ]));
-    }
-
     $form_state->setRedirectUrl($redirect_url);
   }
 
-  public function createEntityFieldsBatch(&$batch, $process_fields, $report_size) {
+  /**
+   * Generate batch operations for entity fields.
+   *
+   * @param \Drupal\Core\Batch\BatchBuilder $batch
+   *   The batch object.
+   * @param array $process_fields
+   *   List of fields to process.
+   * @param int $report_size
+   *   The size of report.
+   */
+  public function createEntityFieldsBatch(BatchBuilder &$batch, array $process_fields, int $report_size) {
     $fields_data = [];
 
     // Extract the db table names (e.g. base + revision) for each storage definition.
@@ -233,7 +234,15 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
   }
 
-  public function createTaxononyDescriptionsBatch(&$batch, $report_size) {
+  /**
+   * Generate batch operations for taxonomy descriptions.
+   *
+   * @param \Drupal\Core\Batch\BatchBuilder $batch
+   *   The batch object.
+   * @param int $report_size
+   *   The size of report.
+   */
+  public function createTaxononyDescriptionsBatch(BatchBuilder &$batch, int $report_size) {
     $table_schema = [
       'table' => 'taxonomy_term_field_data',
       'id_column' => 'tid',
@@ -256,8 +265,8 @@ final class ProcessEntityFieldsForm extends FormBase {
   /**
    * Returns a list of entities for the given table schema that contain relative links.
    *
-   * @param $table_schema
-   *  Array of table data
+   * @param array $table_schema
+   *   Array of table schema data.
    */
   public function fetchEntitiesToProcess($table_schema) {
     return \Drupal::database()->select($table_schema['table'], 't')
@@ -274,6 +283,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       $context['sandbox']['progress'] = 0;
       $context['sandbox']['max'] = $entity_total;
     }
+
     if (!isset($context['results']['updated'])) {
       $context['results']['updated'] = 0;
       $context['results']['skipped'] = 0;
@@ -310,7 +320,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       $value_field_data['type'] = $entity_type;
       $value_field_data['content'] = $db->select($table_schema['table'], 't')
         ->fields('t', [$table_schema['value_column']])
-        ->condition( 't.' . $table_schema['id_column'], $entity_id)
+        ->condition('t.' . $table_schema['id_column'], $entity_id)
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
@@ -382,14 +392,6 @@ final class ProcessEntityFieldsForm extends FormBase {
     $value_field_updated = '';
     $field_is_updated = FALSE;
     $value_field_contents = $value_field_data['content'];
-    // @phpstan-ignore-next-line.
-    $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
-
-    if ($linking_entity->hasLinkTemplate('canonical')) {
-      $linking_entity_url = $linking_entity->toUrl()->toString();
-    } else {
-      $linking_entity_url = 'ID:'  . $linking_entity->getType() . ':' . $linking_entity->id();
-    }
 
     $dom = new \DOMDocument();
 
@@ -415,6 +417,15 @@ final class ProcessEntityFieldsForm extends FormBase {
                   not(starts-with(@href, '#'))]";
 
     $link_elements = $xpath->query($anchor_query);
+
+    if (!$link_elements) {
+      return "";
+    }
+
+    // @phpstan-ignore-next-line.
+    $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
+    // Generate a URL or identifier for the entity containing the link.
+    $linking_entity_url = ($linking_entity->hasLinkTemplate('canonical')) ? $linking_entity->toUrl()->toString() : 'ID:' . $linking_entity->getType() . ':' . $linking_entity->id();
 
     foreach ($link_elements as $link_element) {
       // @phpstan-ignore-next-line.
@@ -566,7 +577,5 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     return $content_entity_types;
   }
-
-
 
 }
