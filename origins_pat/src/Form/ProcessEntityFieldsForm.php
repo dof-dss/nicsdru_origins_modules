@@ -385,6 +385,12 @@ final class ProcessEntityFieldsForm extends FormBase {
     // @phpstan-ignore-next-line.
     $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
 
+    if ($linking_entity->hasLinkTemplate('canonical')) {
+      $linking_entity_url = $linking_entity->toUrl()->toString();
+    } else {
+      $linking_entity_url = 'ID:'  . $linking_entity->getType() . ':' . $linking_entity->id();
+    }
+
     $dom = new \DOMDocument();
 
     // Prevent DOMDocument from throwing runtime errors when it encounters
@@ -484,7 +490,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
           $context['report']['links'][] = [
-            $linking_entity->toUrl()->toString(),
+            $linking_entity_url,
             '/' . $internal_url->getInternalPath(),
             $link_url,
           ];
@@ -493,7 +499,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
         $context['report']['dead'][] = [
-          $linking_entity->toUrl()->toString(),
+          $linking_entity_url,
           $link_url
         ];
       }
