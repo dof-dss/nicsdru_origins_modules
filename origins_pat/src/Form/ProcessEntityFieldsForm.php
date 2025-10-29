@@ -6,12 +6,15 @@ namespace Drupal\origins_pat\Form;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Batch\BatchBuilder;
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Origins: Path Alias Transformer form.
@@ -19,6 +22,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 final class ProcessEntityFieldsForm extends FormBase {
 
   const REPORT_FILENAME = 'public://pat_report.csv';
+  const DEADLINKS_FILENAME = 'public://pat_dead_links.csv';
 
   /**
    * {@inheritdoc}
@@ -115,9 +119,6 @@ final class ProcessEntityFieldsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected_fields = array_filter($form_state->cleanValues()->getValues());
-    $db = \Drupal::database();
-    $entity_type_manager = \Drupal::entityTypeManager();
-    $messenger = \Drupal::messenger();
     $report_size = 0;
 
     if (array_key_exists('enable_report', $selected_fields)) {
@@ -130,36 +131,6 @@ final class ProcessEntityFieldsForm extends FormBase {
       unset($selected_fields['report_sample_size']);
     }
 
-    // Process taxonomy term descriptions if selected.
-    if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
-      unset($selected_fields['taxonomy_descriptions']);
-
-      $context['sandbox']['progress'] = 0;
-      $context['sandbox']['max'] = 0;
-      $context['results']['updated'] = 0;
-      $context['results']['skipped'] = 0;
-      $context['results']['failed'] = 0;
-      $context['results']['progress'] = 0;
-      $context['report']['size'] = $report_size;
-      $context['report']['data'] = [];
-
-      $this->processTaxonomyDescriptions($db, $entity_type_manager, $context);
-    }
-
-    // Process selected field storage definitions.
-    $process_fields = array_values($selected_fields);
-    $fields_data = [];
-
-    // Extract the db table names (e.g. base + revision) for each storage definition.
-    foreach ($process_fields as $field) {
-      $entity_type = substr($field, 0, strrpos($field, '.'));
-      $field_id = substr($field, strrpos($field, '.') + 1);
-      $storage = $entity_type_manager->getStorage($entity_type);
-      // @phpstan-ignore-next-line.
-      $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
-      $fields_data[$entity_type][$field] = $tables;
-    }
-
     $batch = new BatchBuilder();
     $batch->setTitle('Updating URL aliases')
       ->setFinishCallback([self::class, 'batchFinished'])
@@ -167,36 +138,15 @@ final class ProcessEntityFieldsForm extends FormBase {
       ->setProgressMessage('Processing...')
       ->setErrorMessage('An error occurred during processing.');
 
-    foreach ($fields_data as $entity_type => $fields) {
-      foreach ($fields as $field => $tables) {
-        foreach ($tables as $table) {
-          $field_name = substr($field, strrpos($field, '.') + 1);
-
-          // Build a quick list of entity ID's and revision ID's using a search
-          // for field values that contain href's with relative links.
-          $entity_ids = $db->select($table, 't')
-            ->fields('t', ['entity_id', 'revision_id'])
-            ->condition($field_name . '_value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
-            ->distinct()->execute()->fetchAllKeyed(0);
-
-          $entity_total = count($entity_ids);
-          $entity_id_chunks = array_chunk($entity_ids, 250, TRUE);
-
-          foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
-            $args = [
-              $chunk_id,
-              $entity_ids,
-              $table,
-              $field_name,
-              $entity_total,
-              $entity_type,
-              $report_size,
-            ];
-            $batch->addOperation([self::class, 'batchProcess'], $args);
-          }
-        }
-      }
+    // Process taxonomy term descriptions if selected.
+    if (array_key_exists('taxonomy_descriptions', $selected_fields)) {
+      unset($selected_fields['taxonomy_descriptions']);
+      $this->createTaxononyDescriptionsBatch($batch, $report_size);
     }
+
+    // Process selected field storage definitions.
+    $process_fields = array_values($selected_fields);
+    $this->createEntityFieldsBatch($batch, $process_fields, $report_size);
 
     $batch_processes = $batch->toArray();
 
@@ -208,12 +158,12 @@ final class ProcessEntityFieldsForm extends FormBase {
       batch_set($batch->toArray());
     }
     else {
-      $messenger->addMessage(t('No entity fields selected for processing.'));
+      $this->messenger()->addMessage(t('No entity fields selected for processing.'));
     }
 
     // If the $context array is populated, that indicates taxonomy descriptions have been processed, so the stats should be displayed.
     if (!empty($context)) {
-      $messenger->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
+      $this->messenger()->addMessage(t('Updated @updated URLs, skipped @skipped and failed @failed URLs for Taxonomy descriptions.', [
         '@updated' => number_format($context['results']['updated']),
         '@skipped' => number_format($context['results']['skipped']),
         '@failed' => number_format($context['results']['failed']),
@@ -223,47 +173,87 @@ final class ProcessEntityFieldsForm extends FormBase {
     $form_state->setRedirectUrl(Url::fromRoute('origins_pat.process_form'));
   }
 
-  /**
-   * Process taxonomy term descriptions.
-   */
-  public function processTaxonomyDescriptions($db, $entity_type_manager, &$context): void {
-    $terms_data = $db->select('taxonomy_term_field_data', 't')
-      ->fields('t', ['tid', 'revision_id', 'description__value'])
-      ->condition('description__value', 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
-      ->execute()->fetchAll();
+  public function createEntityFieldsBatch(&$batch, $process_fields, $report_size) {
+    $fields_data = [];
 
-    $services = [
-      'entity_type_manager' => $entity_type_manager,
-      'redirect_repo' => \Drupal::service('redirect.repository'),
-      'path_alias_manager' => \Drupal::service('path_alias.manager'),
-      'content_entity_types' => self::getContentEntityTypes(),
-    ];
-
-    foreach ($terms_data as $term_data) {
-      $value_field_data['id'] = $term_data->tid;
-      $value_field_data['type'] = 'taxonomy_term';
-      $value_field_data['content'] = $term_data->description__value;
-
-      $updated_field_value = self::processFieldValue($services, $value_field_data, $context);
-
-      if (!empty($updated_field_value)) {
-        $db->update('taxonomy_term_field_data')
-          ->fields([
-            'description__value' => $updated_field_value
-          ])
-          ->condition('tid', $term_data->tid)
-          ->condition('revision_id', $term_data->revision_id)
-          ->execute();
-      }
+    // Extract the db table names (e.g. base + revision) for each storage definition.
+    foreach ($process_fields as $field) {
+      $entity_type = substr($field, 0, strrpos($field, '.'));
+      $field_id = substr($field, strrpos($field, '.') + 1);
+      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
+      // @phpstan-ignore-next-line.
+      $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
+      $fields_data[$entity_type][$field] = $tables;
     }
 
-    self::writeReport($context);
+    foreach ($fields_data as $entity_type => $fields) {
+      foreach ($fields as $field => $tables) {
+        foreach ($tables as $table) {
+
+          $table_schema = [
+            'table' => $table,
+            'id_column' => 'entity_id',
+            'value_column' => substr($field, strrpos($field, '.') + 1) . '_value',
+          ];
+
+          $entity_ids = $this->fetchEntitiesToProcess($table_schema);
+
+          $entity_total = count($entity_ids);
+          $entity_id_chunks = array_chunk($entity_ids, 250, TRUE);
+
+          foreach ($entity_id_chunks as $chunk_id => $entity_ids) {
+            $args = [
+              $entity_ids,
+              $entity_type,
+              $table_schema,
+              $chunk_id,
+              $entity_total,
+              $report_size,
+            ];
+            $batch->addOperation([self::class, 'batchProcess'], $args);
+          }
+        }
+      }
+    }
+  }
+
+  public function createTaxononyDescriptionsBatch(&$batch, $report_size) {
+    $table_schema = [
+      'table' => 'taxonomy_term_field_data',
+      'id_column' => 'tid',
+      'value_column' => 'description__value',
+    ];
+
+    $terms_ids = $this->fetchEntitiesToProcess($table_schema);
+
+    $args = [
+      $terms_ids,
+      'taxonomy_term',
+      $table_schema,
+      1,
+      count($terms_ids),
+      $report_size,
+    ];
+    $batch->addOperation([self::class, 'batchProcess'], $args);
+  }
+
+  /**
+   * Returns a list of entities for the given table schema that contain relative links.
+   *
+   * @param $table_schema
+   *  Array of table data
+   */
+  public function fetchEntitiesToProcess($table_schema) {
+    return \Drupal::database()->select($table_schema['table'], 't')
+      ->fields('t', [$table_schema['id_column'], 'revision_id'])
+      ->condition($table_schema['value_column'], 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
+      ->distinct()->execute()->fetchAllKeyed(0);
   }
 
   /**
    * Batch process callback.
    */
-  public static function batchProcess(int $chunk_id, array $entity_ids, string $table, string $field_name, int $entity_total, string $entity_type, int $report_size, array &$context): void {
+  public static function batchProcess(array $entity_ids, string $entity_type, array $table_schema, int $chunk_id, int $entity_total, int $report_size, array &$context): void {
     if (!isset($context['sandbox']['progress'])) {
       $context['sandbox']['progress'] = 0;
       $context['sandbox']['max'] = $entity_total;
@@ -277,12 +267,13 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
 
     $context['report']['size'] = $report_size;
-    $context['report']['data'] = [];
+    $context['report']['links'] = [];
+    $context['report']['dead'] = [];
 
     $context['results']['progress'] += count($entity_ids);
 
     $context['message'] = t('Processing @batch_size entities in batch #@batch_id from @table for a total of @count.', [
-      '@table' => $table,
+      '@table' => $table_schema['table'],
       '@batch_id' => number_format($chunk_id),
       '@batch_size' => number_format(count($entity_ids)),
       '@count' => number_format($context['sandbox']['max']),
@@ -299,13 +290,11 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Fetch each field value, load as DOM and then process each relative link.
     foreach ($entity_ids as $entity_id => $revision_id) {
-      $field_value_column = $field_name . "_value";
-
       $value_field_data['id'] = $entity_id;
       $value_field_data['type'] = $entity_type;
-      $value_field_data['content'] = $db->select($table, 't')
-        ->fields('t', [$field_value_column])
-        ->condition('t.entity_id', $entity_id)
+      $value_field_data['content'] = $db->select($table_schema['table'], 't')
+        ->fields('t', [$table_schema['value_column']])
+        ->condition( 't.' . $table_schema['id_column'], $entity_id)
         ->condition('t.revision_id', $revision_id)
         ->execute()->fetchField(0);
 
@@ -314,11 +303,11 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (!empty($value_field_updated)) {
         // Save directly to the field table as we don't want to use the entity
         // API which would create a revision on entity save.
-        \Drupal::database()->update($table)
+        $db->update($table_schema['table'])
           ->fields([
-            $field_value_column => $value_field_updated
+            $table_schema['value_column'] => $value_field_updated
           ])
-          ->condition('entity_id', $entity_id)
+          ->condition($table_schema['id_column'], $entity_id)
           ->condition('revision_id', $revision_id)
           ->execute();
       }
@@ -377,6 +366,8 @@ final class ProcessEntityFieldsForm extends FormBase {
     $value_field_updated = '';
     $field_is_updated = FALSE;
     $value_field_contents = $value_field_data['content'];
+    // @phpstan-ignore-next-line.
+    $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
 
     $dom = new \DOMDocument();
 
@@ -476,11 +467,7 @@ final class ProcessEntityFieldsForm extends FormBase {
         $context['results']['updated'] = $context['results']['updated'] + 1;
 
         if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
-
-          // @phpstan-ignore-next-line.
-          $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
-
-          $context['report']['data'][] = [
+          $context['report']['links'][] = [
             $linking_entity->toUrl()->toString(),
             '/' . $internal_url->getInternalPath(),
             $link_url,
@@ -489,6 +476,10 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
+        $context['report']['dead'][] = [
+          $linking_entity->toUrl()->toString(),
+          $link_url
+        ];
       }
 
     }
@@ -511,10 +502,19 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   Array of context data for a batch or taxonomy process.
    */
   public static function writeReport($context) {
-    if (!empty($context['report']['data'])) {
+    if (!empty($context['report']['links'])) {
       $report_file = fopen(self::REPORT_FILENAME, 'a');
 
-      foreach ($context['report']['data'] as $report_entry) {
+      foreach ($context['report']['links'] as $report_entry) {
+        fputcsv($report_file, $report_entry, ',', '"', '');
+      }
+
+      fclose($report_file);
+    }
+    if (!empty($context['report']['dead'])) {
+      $report_file = fopen(self::DEADLINKS_FILENAME, 'a');
+
+      foreach ($context['report']['dead'] as $report_entry) {
         fputcsv($report_file, $report_entry, ',', '"', '');
       }
 
@@ -544,5 +544,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     return $content_entity_types;
   }
+
+
 
 }
