@@ -119,6 +119,9 @@ function origins_common_preprocess_page(&$variables) {
   // EUCC and Google Consent Mode. Add library to handle EUCC consent
   // preferences and push event(s) to GTM.
   $variables['#attached']['library'][] = 'origins_common/gtag_eucc_consent';
+
+  // EUCC quick fixes.
+  $variables['#attached']['library'][] = 'origins_common/eucc_quick_fixes';
 }
 
 /**
