@@ -6,15 +6,12 @@ namespace Drupal\origins_pat\Form;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Batch\BatchBuilder;
-use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\ContentEntityTypeInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Origins: Path Alias Transformer form.
@@ -38,10 +35,16 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
 
-    if (file_exists(self::REPORT_FILENAME)) {
+    if (\Drupal::request()->query->get('report') && file_exists(self::REPORT_FILENAME)) {
       $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
       $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
       \Drupal::messenger()->addMessage($report_link);
+    }
+
+    if (\Drupal::request()->query->get('deadlinks') && file_exists(self::DEADLINKS_FILENAME)) {
+      $deadlinks_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::DEADLINKS_FILENAME);
+      $deadlinks_url = Link::fromTextAndUrl('Download deadlinks file', Url::fromUri($deadlinks_url))->toString();
+      \Drupal::messenger()->addMessage($deadlinks_url);
     }
 
     $form['introduction'] = [
@@ -119,11 +122,13 @@ final class ProcessEntityFieldsForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $selected_fields = array_filter($form_state->cleanValues()->getValues());
-    $report_size = 0;
 
     if (array_key_exists('enable_report', $selected_fields)) {
       $generate_report = $selected_fields['enable_report'];
       unset($selected_fields['enable_report']);
+    } else {
+      $generate_report = FALSE;
+      $report_size = 0;
     }
 
     if (array_key_exists('report_sample_size', $selected_fields)) {
@@ -154,10 +159,21 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (file_exists(self::REPORT_FILENAME)) {
         unlink(self::REPORT_FILENAME);
       }
+      if (file_exists(self::DEADLINKS_FILENAME)) {
+        unlink(self::DEADLINKS_FILENAME);
+      }
+
+      $url_parameters = [
+        'deadlinks' => TRUE,
+        'report' => $generate_report ?? FALSE,
+      ];
+
+      $redirect_url = Url::fromRoute('origins_pat.process_form', $url_parameters);
 
       batch_set($batch->toArray());
     }
     else {
+      $redirect_url = Url::fromRoute('origins_pat.process_form');
       $this->messenger()->addMessage(t('No entity fields selected for processing.'));
     }
 
@@ -170,7 +186,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       ]));
     }
 
-    $form_state->setRedirectUrl(Url::fromRoute('origins_pat.process_form'));
+    $form_state->setRedirectUrl($redirect_url);
   }
 
   public function createEntityFieldsBatch(&$batch, $process_fields, $report_size) {
