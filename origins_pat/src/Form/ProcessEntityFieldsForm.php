@@ -427,6 +427,17 @@ final class ProcessEntityFieldsForm extends FormBase {
     // Generate a URL or identifier for the entity containing the link.
     $linking_entity_url = ($linking_entity->hasLinkTemplate('canonical')) ? $linking_entity->toUrl()->toString() : 'ID:' . $linking_entity->getType() . ':' . $linking_entity->id();
 
+    if (\Drupal::service('module_handler')->moduleExists('domain')) {
+      if ($linking_entity->hasField('field_domain_source')) {
+        $domain = $linking_entity->get('field_domain_source')->getString();
+      }
+      else {
+        $domain = 'unknown';
+      }
+    } else {
+      $domain = $config = \Drupal::config('system.site')->get('name');
+    }
+
     foreach ($link_elements as $link_element) {
       // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
@@ -504,6 +515,7 @@ final class ProcessEntityFieldsForm extends FormBase {
             $linking_entity_url,
             '/' . $internal_url->getInternalPath(),
             $link_url,
+            $domain,
           ];
         }
       }
@@ -511,7 +523,8 @@ final class ProcessEntityFieldsForm extends FormBase {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
         $context['report']['dead'][] = [
           $linking_entity_url,
-          $link_url
+          $link_url,
+          $domain
         ];
       }
 
