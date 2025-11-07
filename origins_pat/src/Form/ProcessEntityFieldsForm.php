@@ -399,6 +399,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     libxml_use_internal_errors(TRUE);
     // Load the field HTML without the DTD and default root elements but wrap
     // it in a root <html> tag to prevent formatting issues during export.
+    // Include the charset or we will get garbled output for punctuation.
     $dom->loadHTML('<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     libxml_clear_errors();
 
@@ -426,6 +427,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     // Generate a URL or identifier for the entity containing the link.
     $linking_entity_url = ($linking_entity->hasLinkTemplate('canonical')) ? $linking_entity->toUrl()->toString() : 'ID:' . $linking_entity->getType() . ':' . $linking_entity->id();
 
+    // Add the node domain (if Domain based site), otherwise use the site name.
     if (\Drupal::service('module_handler')->moduleExists('domain')) {
       if ($linking_entity->hasField('field_domain_source')) {
         $domain = $linking_entity->get('field_domain_source')->getString();
@@ -433,7 +435,8 @@ final class ProcessEntityFieldsForm extends FormBase {
       else {
         $domain = 'unknown';
       }
-    } else {
+    }
+    else {
       $domain = $config = \Drupal::config('system.site')->get('name');
     }
 
