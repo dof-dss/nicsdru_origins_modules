@@ -392,7 +392,6 @@ final class ProcessEntityFieldsForm extends FormBase {
     $value_field_updated = '';
     $field_is_updated = FALSE;
     $value_field_contents = $value_field_data['content'];
-
     $dom = new \DOMDocument();
 
     // Prevent DOMDocument from throwing runtime errors when it encounters
@@ -400,7 +399,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     libxml_use_internal_errors(TRUE);
     // Load the field HTML without the DTD and default root elements but wrap
     // it in a root <html> tag to prevent formatting issues during export.
-    $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    $dom->loadHTML('<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     libxml_clear_errors();
 
     $xpath = new \DOMXPath($dom);
@@ -533,7 +532,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     if ($field_is_updated) {
       // Strip the root element added to preserve formatting on export.
       $value_field_updated = str_replace([
-        '<html>',
+        '<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>',
         '</html>'
       ], '', $dom->saveHTML());
     }
