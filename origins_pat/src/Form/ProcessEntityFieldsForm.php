@@ -516,20 +516,26 @@ final class ProcessEntityFieldsForm extends FormBase {
           $context['report']['links'][] = [
             $linking_entity_url,
             '/' . $internal_url->getInternalPath(),
+            $url_entity->label(),
             $link_url,
             $domain,
           ];
         }
       }
       else {
+        $moderation_status = 'unknown';
+        if ($linking_entity->hasField('moderation_state')) {
+          $moderation_status = $linking_entity->get('moderation_state')->getString();
+        }
+
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
         $context['report']['dead'][] = [
           $linking_entity_url,
           $link_url,
-          $domain
+          $domain,
+          $moderation_status
         ];
       }
-
     }
 
     if ($field_is_updated) {
