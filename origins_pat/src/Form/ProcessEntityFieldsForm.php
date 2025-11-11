@@ -446,6 +446,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
 
     foreach ($link_elements as $link_element) {
+      $is_redirected = FALSE;
       // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
         continue;
@@ -472,6 +473,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (!empty($redirects)) {
         $redirect = current($redirects);
         $internal_url = $redirect->getRedirectUrl();
+        $is_redirected = TRUE;
       }
       else {
         // Add the leading slash as path aliases require it.
@@ -530,6 +532,7 @@ final class ProcessEntityFieldsForm extends FormBase {
             $url_entity->label(),
             $link_url,
             $link_entity_moderation_status,
+            ($is_redirected) ? 'Yes' : 'No',
             $domain,
           ];
         }
