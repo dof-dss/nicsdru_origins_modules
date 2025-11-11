@@ -440,6 +440,11 @@ final class ProcessEntityFieldsForm extends FormBase {
       $domain = $config = \Drupal::config('system.site')->get('name');
     }
 
+    $moderation_status = 'unknown';
+    if ($linking_entity->hasField('moderation_state')) {
+      $moderation_status = $linking_entity->get('moderation_state')->getString();
+    }
+
     foreach ($link_elements as $link_element) {
       // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
@@ -513,21 +518,23 @@ final class ProcessEntityFieldsForm extends FormBase {
         $context['results']['updated'] = $context['results']['updated'] + 1;
 
         if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
+          $link_entity_moderation_status = 'unknown';
+          if ($url_entity->hasField('moderation_state')) {
+            $link_entity_moderation_status = $url_entity->get('moderation_state')->getString();
+          }
+
           $context['report']['links'][] = [
             $linking_entity_url,
+            $moderation_status,
             '/' . $internal_url->getInternalPath(),
             $url_entity->label(),
             $link_url,
+            $link_entity_moderation_status,
             $domain,
           ];
         }
       }
       else {
-        $moderation_status = 'unknown';
-        if ($linking_entity->hasField('moderation_state')) {
-          $moderation_status = $linking_entity->get('moderation_state')->getString();
-        }
-
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
         $context['report']['dead'][] = [
           $linking_entity_url,
