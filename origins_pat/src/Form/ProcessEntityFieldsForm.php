@@ -528,7 +528,7 @@ final class ProcessEntityFieldsForm extends FormBase {
           $context['report']['links'][] = [
             $linking_entity_url,
             $moderation_status,
-            '/' . $internal_url->getInternalPath(),
+            $url_entity->uuid(),
             $url_entity->label(),
             $link_url,
             $link_entity_moderation_status,
