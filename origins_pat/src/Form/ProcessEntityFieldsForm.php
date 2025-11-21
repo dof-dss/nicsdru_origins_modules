@@ -521,18 +521,26 @@ final class ProcessEntityFieldsForm extends FormBase {
         // Load the entity and update the link DOM node attributes.
         /* @phpstan-ignore variable.undefined */
         $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('href', $internal_url->getInternalPath());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-substitution', 'canonical');
-        $field_is_updated = TRUE;
-        $context['results']['updated'] = $context['results']['updated'] + 1;
-
         $is_self_referencing = $url_entity->id() === $linking_entity->id();
+
+        if ($is_self_referencing && str_contains($link_url, '#')) {
+          // @phpstan-ignore-next-line.
+
+          $link_element->setAttribute('href', substr($link_url, strrpos($link_url, '#')));
+          $field_is_updated = TRUE;
+          $context['results']['updated'] = $context['results']['updated'] + 1;
+        } else {
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('href', $internal_url->getInternalPath());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-substitution', 'canonical');
+          $field_is_updated = TRUE;
+          $context['results']['updated'] = $context['results']['updated'] + 1;
+        }
 
         if (!$is_self_referencing && $context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
           $link_entity_moderation_status = 'unknown';
@@ -601,17 +609,6 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       fclose($report_file);
     }
-
-    if (!empty($context['report']['selfref'])) {
-      $report_file = fopen(self::SELFREF_FILENAME, 'a');
-
-      foreach ($context['report']['selfref'] as $report_entry) {
-        fputcsv($report_file, $report_entry, ',', '"', '');
-      }
-
-      fclose($report_file);
-    }
-
     if (!empty($context['report']['dead'])) {
       $report_file = fopen(self::DEADLINKS_FILENAME, 'a');
 
