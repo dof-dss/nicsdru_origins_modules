@@ -19,6 +19,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 final class ProcessEntityFieldsForm extends FormBase {
 
   const REPORT_FILENAME = 'public://pat_report.csv';
+  const SELFREF_FILENAME = 'public://pat_selfref.csv';
   const DEADLINKS_FILENAME = 'public://pat_dead_links.csv';
 
   /**
@@ -39,6 +40,12 @@ final class ProcessEntityFieldsForm extends FormBase {
       $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
       $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
       \Drupal::messenger()->addMessage($report_link);
+    }
+
+    if (\Drupal::request()->query->get('selfref') && file_exists(self::SELFREF_FILENAME)) {
+      $selfref_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::SELFREF_FILENAME);
+      $selfref_url = Link::fromTextAndUrl('Download self referencing file', Url::fromUri($selfref_url))->toString();
+      \Drupal::messenger()->addMessage($selfref_url);
     }
 
     if (\Drupal::request()->query->get('deadlinks') && file_exists(self::DEADLINKS_FILENAME)) {
@@ -159,12 +166,16 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (file_exists(self::REPORT_FILENAME)) {
         unlink(self::REPORT_FILENAME);
       }
+      if (file_exists(self::SELFREF_FILENAME)) {
+        unlink(self::SELFREF_FILENAME);
+      }
       if (file_exists(self::DEADLINKS_FILENAME)) {
         unlink(self::DEADLINKS_FILENAME);
       }
 
       $url_parameters = [
         'deadlinks' => TRUE,
+        'selfref' => TRUE,
         'report' => $generate_report,
       ];
 
@@ -294,6 +305,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     $context['report']['size'] = $report_size;
     $context['report']['links'] = [];
+    $context['report']['selfref'] = [];
     $context['report']['dead'] = [];
 
     $context['results']['progress'] += count($entity_ids);
@@ -447,6 +459,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     foreach ($link_elements as $link_element) {
       $is_redirected = FALSE;
+      $is_self_referencing = FALSE;
       // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
         continue;
@@ -519,7 +532,9 @@ final class ProcessEntityFieldsForm extends FormBase {
         $field_is_updated = TRUE;
         $context['results']['updated'] = $context['results']['updated'] + 1;
 
-        if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
+        $is_self_referencing = $url_entity->id() === $linking_entity->id();
+
+        if (!$is_self_referencing && $context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
           $link_entity_moderation_status = 'unknown';
           if ($url_entity->hasField('moderation_state')) {
             $link_entity_moderation_status = $url_entity->get('moderation_state')->getString();
@@ -534,6 +549,17 @@ final class ProcessEntityFieldsForm extends FormBase {
             $link_entity_moderation_status,
             ($is_redirected) ? 'Yes' : 'No',
             $domain,
+          ];
+        }
+        elseif ($is_self_referencing) {
+
+          $context['report']['selfref'][] = [
+            $linking_entity_url,
+            $link_element->textContent,
+            $link_element->previousSibling?->textContent,
+            $link_element->nextSibling?->textContent,
+            $domain,
+            $moderation_status
           ];
         }
       }
@@ -575,6 +601,17 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       fclose($report_file);
     }
+
+    if (!empty($context['report']['selfref'])) {
+      $report_file = fopen(self::SELFREF_FILENAME, 'a');
+
+      foreach ($context['report']['selfref'] as $report_entry) {
+        fputcsv($report_file, $report_entry, ',', '"', '');
+      }
+
+      fclose($report_file);
+    }
+
     if (!empty($context['report']['dead'])) {
       $report_file = fopen(self::DEADLINKS_FILENAME, 'a');
 
