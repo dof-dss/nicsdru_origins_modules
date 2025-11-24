@@ -12,5 +12,10 @@
       "composer/installers": true,
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  },
+  "autoload": {
+    "psr-4": {
+      "Drupal\\origins_pat\\": "origins_pat/src/"
+    }
   }
 }

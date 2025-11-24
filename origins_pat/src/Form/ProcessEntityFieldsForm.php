@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\origins_pat\Enum\PatReport;
 
 /**
  * Origins: Path Alias Transformer form.
@@ -36,20 +37,20 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
 
-    if (\Drupal::request()->query->get('report') && file_exists(self::REPORT_FILENAME)) {
-      $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
+    if (\Drupal::request()->query->get('report') && file_exists(PatReport::LINKS->value)) {
+      $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(PatReport::LINKS->value);
       $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
       \Drupal::messenger()->addMessage($report_link);
     }
 
-    if (\Drupal::request()->query->get('selfref') && file_exists(self::SELFREF_FILENAME)) {
-      $selfref_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::SELFREF_FILENAME);
+    if (\Drupal::request()->query->get('selfref') && file_exists(PatReport::SELF_REFERENCES->value)) {
+      $selfref_url = \Drupal::service('file_url_generator')->generateAbsoluteString(PatReport::SELF_REFERENCES->value);
       $selfref_url = Link::fromTextAndUrl('Download self referencing file', Url::fromUri($selfref_url))->toString();
       \Drupal::messenger()->addMessage($selfref_url);
     }
 
-    if (\Drupal::request()->query->get('deadlinks') && file_exists(self::DEADLINKS_FILENAME)) {
-      $deadlinks_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::DEADLINKS_FILENAME);
+    if (\Drupal::request()->query->get('deadlinks') && file_exists(PatReport::DEAD_LINKS->value)) {
+      $deadlinks_url = \Drupal::service('file_url_generator')->generateAbsoluteString(PatReport::DEAD_LINKS->value);
       $deadlinks_url = Link::fromTextAndUrl('Download deadlinks file', Url::fromUri($deadlinks_url))->toString();
       \Drupal::messenger()->addMessage($deadlinks_url);
     }
@@ -163,14 +164,10 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     if ($batch_processes['operations']) {
       // Remove any existing report files.
-      if (file_exists(self::REPORT_FILENAME)) {
-        unlink(self::REPORT_FILENAME);
-      }
-      if (file_exists(self::SELFREF_FILENAME)) {
-        unlink(self::SELFREF_FILENAME);
-      }
-      if (file_exists(self::DEADLINKS_FILENAME)) {
-        unlink(self::DEADLINKS_FILENAME);
+      foreach (PatReport::cases() as $report) {
+        if (file_exists($report->value)) {
+          unlink($report->value);
+        }
       }
 
       $url_parameters = [
@@ -304,9 +301,9 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
 
     $context['report']['size'] = $report_size;
-    $context['report']['links'] = [];
-    $context['report']['selfref'] = [];
-    $context['report']['dead'] = [];
+    $context['report'][PatReport::LINKS->name] = [];
+    $context['report'][PatReport::SELF_REFERENCES->name] = [];
+    $context['report'][PatReport::DEAD_LINKS->name] = [];
 
     $context['results']['progress'] += count($entity_ids);
 
@@ -529,7 +526,7 @@ final class ProcessEntityFieldsForm extends FormBase {
             $field_is_updated = TRUE;
             $context['results']['updated'] = $context['results']['updated'] + 1;
 
-            $context['report']['selfref'][] = [
+            $context['report'][PatReport::SELF_REFERENCES->name][] = [
               $linking_entity_url,
               $link_element->getAttribute('href'),
               '### FIXED ###',
@@ -539,7 +536,7 @@ final class ProcessEntityFieldsForm extends FormBase {
             ];
           }
           else {
-            $context['report']['selfref'][] = [
+            $context['report'][PatReport::SELF_REFERENCES->name][] = [
               $linking_entity_url,
               $link_element->textContent,
               $link_element->previousSibling?->textContent,
@@ -567,7 +564,7 @@ final class ProcessEntityFieldsForm extends FormBase {
               $link_entity_moderation_status = $url_entity->get('moderation_state')->getString();
             }
 
-            $context['report']['links'][] = [
+            $context['report'][PatReport::LINKS->name][] = [
               $linking_entity_url,
               $moderation_status,
               $url_entity->uuid(),
@@ -582,7 +579,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       }
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
-        $context['report']['dead'][] = [
+        $context['report'][PatReport::DEAD_LINKS->name][] = [
           $linking_entity_url,
           $link_url,
           $domain,
@@ -609,34 +606,18 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   Array of context data for a batch or taxonomy process.
    */
   public static function writeReport($context) {
-    if (!empty($context['report']['links'])) {
-      $report_file = fopen(self::REPORT_FILENAME, 'a');
 
-      foreach ($context['report']['links'] as $report_entry) {
-        fputcsv($report_file, $report_entry, ',', '"', '');
+    foreach (PatReport::cases() as $report) {
+      if (!empty($context['report'][$report->name])) {
+        $report_file = fopen($report->value, 'a');
+
+        foreach ($context['report'][$report->name] as $report_entry) {
+          fputcsv($report_file, $report_entry, ',', '"', '');
+        }
+
+        fclose($report_file);
       }
-
-      fclose($report_file);
     }
-    if (!empty($context['report']['dead'])) {
-      $report_file = fopen(self::DEADLINKS_FILENAME, 'a');
-
-      foreach ($context['report']['dead'] as $report_entry) {
-        fputcsv($report_file, $report_entry, ',', '"', '');
-      }
-
-      fclose($report_file);
-    }
-    if (!empty($context['report']['selfref'])) {
-      $report_file = fopen(self::SELFREF_FILENAME, 'a');
-
-      foreach ($context['report']['selfref'] as $report_entry) {
-        fputcsv($report_file, $report_entry, ',', '"', '');
-      }
-
-      fclose($report_file);
-    }
-
   }
 
   /**
