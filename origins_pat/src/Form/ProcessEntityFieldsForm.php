@@ -19,6 +19,7 @@ use Drupal\field\Entity\FieldStorageConfig;
 final class ProcessEntityFieldsForm extends FormBase {
 
   const REPORT_FILENAME = 'public://pat_report.csv';
+  const SELFREF_FILENAME = 'public://pat_selfref.csv';
   const DEADLINKS_FILENAME = 'public://pat_dead_links.csv';
 
   /**
@@ -39,6 +40,12 @@ final class ProcessEntityFieldsForm extends FormBase {
       $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
       $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
       \Drupal::messenger()->addMessage($report_link);
+    }
+
+    if (\Drupal::request()->query->get('selfref') && file_exists(self::SELFREF_FILENAME)) {
+      $selfref_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::SELFREF_FILENAME);
+      $selfref_url = Link::fromTextAndUrl('Download self referencing file', Url::fromUri($selfref_url))->toString();
+      \Drupal::messenger()->addMessage($selfref_url);
     }
 
     if (\Drupal::request()->query->get('deadlinks') && file_exists(self::DEADLINKS_FILENAME)) {
@@ -159,12 +166,16 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (file_exists(self::REPORT_FILENAME)) {
         unlink(self::REPORT_FILENAME);
       }
+      if (file_exists(self::SELFREF_FILENAME)) {
+        unlink(self::SELFREF_FILENAME);
+      }
       if (file_exists(self::DEADLINKS_FILENAME)) {
         unlink(self::DEADLINKS_FILENAME);
       }
 
       $url_parameters = [
         'deadlinks' => TRUE,
+        'selfref' => TRUE,
         'report' => $generate_report,
       ];
 
@@ -294,6 +305,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     $context['report']['size'] = $report_size;
     $context['report']['links'] = [];
+    $context['report']['selfref'] = [];
     $context['report']['dead'] = [];
 
     $context['results']['progress'] += count($entity_ids);
@@ -392,7 +404,6 @@ final class ProcessEntityFieldsForm extends FormBase {
     $value_field_updated = '';
     $field_is_updated = FALSE;
     $value_field_contents = $value_field_data['content'];
-
     $dom = new \DOMDocument();
 
     // Prevent DOMDocument from throwing runtime errors when it encounters
@@ -400,7 +411,8 @@ final class ProcessEntityFieldsForm extends FormBase {
     libxml_use_internal_errors(TRUE);
     // Load the field HTML without the DTD and default root elements but wrap
     // it in a root <html> tag to prevent formatting issues during export.
-    $dom->loadHTML('<html>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    // Include the charset or we will get garbled output for punctuation.
+    $dom->loadHTML('<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>' . $value_field_contents . '</html>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
     libxml_clear_errors();
 
     $xpath = new \DOMXPath($dom);
@@ -427,7 +439,27 @@ final class ProcessEntityFieldsForm extends FormBase {
     // Generate a URL or identifier for the entity containing the link.
     $linking_entity_url = ($linking_entity->hasLinkTemplate('canonical')) ? $linking_entity->toUrl()->toString() : 'ID:' . $linking_entity->getType() . ':' . $linking_entity->id();
 
+    // Add the node domain (if Domain based site), otherwise use the site name.
+    if (\Drupal::service('module_handler')->moduleExists('domain')) {
+      if ($linking_entity->hasField('field_domain_source')) {
+        $domain = $linking_entity->get('field_domain_source')->getString();
+      }
+      else {
+        $domain = 'unknown';
+      }
+    }
+    else {
+      $domain = $config = \Drupal::config('system.site')->get('name');
+    }
+
+    $moderation_status = 'unknown';
+    if ($linking_entity->hasField('moderation_state')) {
+      $moderation_status = $linking_entity->get('moderation_state')->getString();
+    }
+
     foreach ($link_elements as $link_element) {
+      $is_redirected = FALSE;
+      $is_self_referencing = FALSE;
       // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
         continue;
@@ -454,6 +486,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       if (!empty($redirects)) {
         $redirect = current($redirects);
         $internal_url = $redirect->getRedirectUrl();
+        $is_redirected = TRUE;
       }
       else {
         // Add the leading slash as path aliases require it.
@@ -488,39 +521,80 @@ final class ProcessEntityFieldsForm extends FormBase {
         // Load the entity and update the link DOM node attributes.
         /* @phpstan-ignore variable.undefined */
         $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('href', $internal_url->getInternalPath());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
-        // @phpstan-ignore-next-line.
-        $link_element->setAttribute('data-entity-substitution', 'canonical');
-        $field_is_updated = TRUE;
-        $context['results']['updated'] = $context['results']['updated'] + 1;
+        $is_self_referencing = $url_entity->id() === $linking_entity->id();
 
-        if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
-          $context['report']['links'][] = [
-            $linking_entity_url,
-            '/' . $internal_url->getInternalPath(),
-            $link_url,
-          ];
+        if ($is_self_referencing) {
+          if (str_contains($link_url, '#')) {
+            $link_element->setAttribute('href', substr($link_url, strrpos($link_url, '#')));
+            $field_is_updated = TRUE;
+            $context['results']['updated'] = $context['results']['updated'] + 1;
+
+            $context['report']['selfref'][] = [
+              $linking_entity_url,
+              $link_element->getAttribute('href'),
+              '### FIXED ###',
+              '### AUTOMATICALLY UPDATED ANCHOR LINK ###',
+              $domain,
+              $moderation_status
+            ];
+          }
+          else {
+            $context['report']['selfref'][] = [
+              $linking_entity_url,
+              $link_element->textContent,
+              $link_element->previousSibling?->textContent,
+              $link_element->nextSibling?->textContent,
+              $domain,
+              $moderation_status
+            ];
+          }
+        }
+        else {
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('href', $internal_url->getInternalPath());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
+          // @phpstan-ignore-next-line.
+          $link_element->setAttribute('data-entity-substitution', 'canonical');
+          $field_is_updated = TRUE;
+          $context['results']['updated'] = $context['results']['updated'] + 1;
+
+          if ($context['report']['size'] > 0 && (rand(1, 100) <= ($context['report']['size'] * 10))) {
+            $link_entity_moderation_status = 'unknown';
+            if ($url_entity->hasField('moderation_state')) {
+              $link_entity_moderation_status = $url_entity->get('moderation_state')->getString();
+            }
+
+            $context['report']['links'][] = [
+              $linking_entity_url,
+              $moderation_status,
+              $url_entity->uuid(),
+              $url_entity->label(),
+              $link_url,
+              $link_entity_moderation_status,
+              ($is_redirected) ? 'Yes' : 'No',
+              $domain,
+            ];
+          }
         }
       }
       else {
         $context['results']['skipped'] = $context['results']['skipped'] + 1;
         $context['report']['dead'][] = [
           $linking_entity_url,
-          $link_url
+          $link_url,
+          $domain,
+          $moderation_status
         ];
       }
-
     }
 
     if ($field_is_updated) {
       // Strip the root element added to preserve formatting on export.
       $value_field_updated = str_replace([
-        '<html>',
+        '<html><head><meta content="text/html; charset=utf-8" http-equiv="Content-Type"></head>',
         '</html>'
       ], '', $dom->saveHTML());
     }
@@ -553,6 +627,16 @@ final class ProcessEntityFieldsForm extends FormBase {
 
       fclose($report_file);
     }
+    if (!empty($context['report']['selfref'])) {
+      $report_file = fopen(self::SELFREF_FILENAME, 'a');
+
+      foreach ($context['report']['selfref'] as $report_entry) {
+        fputcsv($report_file, $report_entry, ',', '"', '');
+      }
+
+      fclose($report_file);
+    }
+
   }
 
   /**
