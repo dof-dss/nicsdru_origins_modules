@@ -58,6 +58,14 @@ final class ProcessEntityFieldsForm extends FormBase {
       '#markup' => '<p>This form will transform URLs for the selected field storage definitions, for more information visit ' . Link::fromTextAndUrl('the help page.', Url::fromRoute('help.page', ['name' => 'origins_pat']))->toString()
     ];
 
+    $form['website_url'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Website URL'),
+      '#description' => $this->t("Production URL minus the protocol (https://) and www. This will replace absolute with relative URL's."),
+      '#required' => TRUE,
+      '#default_value' => str_replace('www.', '', \Drupal::request()->getHost()),
+    ];
+
     // Build a list of text based field storage entries rather than field
     // instances which would mean multiple entries for the same field table.
     // e.g. Body storage exists as body, details, description etc field.
@@ -132,6 +140,9 @@ final class ProcessEntityFieldsForm extends FormBase {
     $generate_report = FALSE;
     $report_size = 0;
 
+    $website_url = rtrim(str_replace(['http://', 'https://', 'www.'], '', $selected_fields['website_url']), '/');
+    unset($selected_fields['website_url']);
+
     if (array_key_exists('enable_report', $selected_fields)) {
       $generate_report = $selected_fields['enable_report'];
       unset($selected_fields['enable_report']);
@@ -157,7 +168,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Process selected field storage definitions.
     $process_fields = array_values($selected_fields);
-    $this->createEntityFieldsBatch($batch, $process_fields, $report_size);
+    $this->createEntityFieldsBatch($batch, $process_fields, $report_size, $website_url);
 
     $batch_processes = $batch->toArray();
 
@@ -200,8 +211,10 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   List of fields to process.
    * @param int $report_size
    *   The size of report.
+   * @param string $website_url
+   *   Production website URL.
    */
-  public function createEntityFieldsBatch(BatchBuilder &$batch, array $process_fields, int $report_size) {
+  public function createEntityFieldsBatch(BatchBuilder &$batch, array $process_fields, int $report_size, string $website_url): void {
     $fields_data = [];
 
     // Extract the db table names (e.g. base + revision) for each storage definition.
@@ -223,6 +236,8 @@ final class ProcessEntityFieldsForm extends FormBase {
             'id_column' => 'entity_id',
             'value_column' => substr($field, strrpos($field, '.') + 1) . '_value',
           ];
+
+          $this->processAbsoluteLinks($table_schema, $website_url);
 
           $entity_ids = $this->fetchEntitiesToProcess($table_schema);
 
@@ -271,6 +286,23 @@ final class ProcessEntityFieldsForm extends FormBase {
       $report_size,
     ];
     $batch->addOperation([self::class, 'batchProcess'], $args);
+  }
+
+  /**
+   * Transforms and updates absolute URL's to relative for the given schema.
+   *
+   * @param array $table_schema
+   *   Array of table schema data.
+   * @param string $website_url
+   *   URL to search and replace.
+   */
+  public function processAbsoluteLinks(array $table_schema, string $website_url) {
+
+    $expression = "REGEXP_REPLACE(" . $table_schema['value_column'] . " , 'href=\"(http(s)?:\/\/(www.)?" . $website_url . ")', 'href=\"')";
+
+    \Drupal::database()->update($table_schema['table'])
+      ->expression($table_schema['value_column'], $expression)
+      ->execute();
   }
 
   /**
@@ -525,12 +557,14 @@ final class ProcessEntityFieldsForm extends FormBase {
 
         if ($is_self_referencing) {
           if (str_contains($link_url, '#')) {
+            // @phpstan-ignore-next-line.
             $link_element->setAttribute('href', substr($link_url, strrpos($link_url, '#')));
             $field_is_updated = TRUE;
             $context['results']['updated'] = $context['results']['updated'] + 1;
 
             $context['report']['selfref'][] = [
               $linking_entity_url,
+              // @phpstan-ignore-next-line.
               $link_element->getAttribute('href'),
               '### FIXED ###',
               '### AUTOMATICALLY UPDATED ANCHOR LINK ###',
