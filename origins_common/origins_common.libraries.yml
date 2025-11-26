@@ -19,3 +19,12 @@ gtag_eucc_consent:
   dependencies:
     - core/drupal
     - core/drupalSettings
+eucc_quick_fixes:
+  css:
+    theme:
+      css/eucc-zoom-fix.css: {}
+  js:
+    js/eucc-quick-fixes.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
