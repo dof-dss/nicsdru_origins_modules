@@ -59,10 +59,11 @@ final class ProcessEntityFieldsForm extends FormBase {
     ];
 
     $form['website_url'] = [
-      '#type' => 'textfield',
+      '#type' => 'textarea',
       '#title' => $this->t('Website URL'),
-      '#description' => $this->t("Production URL minus the protocol (https://) and www. This will replace absolute with relative URL's."),
+      '#description' => $this->t("List of production website URL's, new line for each."),
       '#required' => TRUE,
+      '#normalize_newlines' => TRUE,
       '#default_value' => str_replace('www.', '', \Drupal::request()->getHost()),
     ];
 
@@ -140,7 +141,13 @@ final class ProcessEntityFieldsForm extends FormBase {
     $generate_report = FALSE;
     $report_size = 0;
 
-    $website_url = rtrim(str_replace(['http://', 'https://', 'www.'], '', $selected_fields['website_url']), '/');
+    $website_urls_raw = str_replace(["\r\n", "\r"], "\n", $selected_fields['website_url']);
+    $website_urls = explode("\n", $website_urls_raw);
+
+    array_walk($website_urls, function (&$url, $key) {
+      $url = rtrim(str_replace(['http://', 'https://', 'www.', '\r', '\n'], '', $url), '/,');
+    });
+
     unset($selected_fields['website_url']);
 
     if (array_key_exists('enable_report', $selected_fields)) {
@@ -168,7 +175,7 @@ final class ProcessEntityFieldsForm extends FormBase {
 
     // Process selected field storage definitions.
     $process_fields = array_values($selected_fields);
-    $this->createEntityFieldsBatch($batch, $process_fields, $report_size, $website_url);
+    $this->createEntityFieldsBatch($batch, $process_fields, $report_size, $website_urls);
 
     $batch_processes = $batch->toArray();
 
@@ -211,10 +218,10 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   List of fields to process.
    * @param int $report_size
    *   The size of report.
-   * @param string $website_url
-   *   Production website URL.
+   * @param array $website_urls
+   *   List of production website URLs.
    */
-  public function createEntityFieldsBatch(BatchBuilder &$batch, array $process_fields, int $report_size, string $website_url): void {
+  public function createEntityFieldsBatch(BatchBuilder &$batch, array $process_fields, int $report_size, array $website_urls): void {
     $fields_data = [];
 
     // Extract the db table names (e.g. base + revision) for each storage definition.
@@ -237,7 +244,7 @@ final class ProcessEntityFieldsForm extends FormBase {
             'value_column' => substr($field, strrpos($field, '.') + 1) . '_value',
           ];
 
-          $this->processAbsoluteLinks($table_schema, $website_url);
+          $this->processAbsoluteLinks($table_schema, $website_urls);
 
           $entity_ids = $this->fetchEntitiesToProcess($table_schema);
 
@@ -293,16 +300,18 @@ final class ProcessEntityFieldsForm extends FormBase {
    *
    * @param array $table_schema
    *   Array of table schema data.
-   * @param string $website_url
-   *   URL to search and replace.
+   * @param array $website_urls
+   *   List of production URLs to search and replace.
    */
-  public function processAbsoluteLinks(array $table_schema, string $website_url) {
+  public function processAbsoluteLinks(array $table_schema, array $website_urls) {
 
-    $expression = "REGEXP_REPLACE(" . $table_schema['value_column'] . " , 'href=\"(http(s)?:\/\/(www.)?" . $website_url . ")', 'href=\"')";
+    foreach ($website_urls as $website_url) {
+      $expression = "REGEXP_REPLACE(" . $table_schema['value_column'] . " , 'href=\"(http(s)?:\/\/(www.)?" . $website_url . ")', 'href=\"')";
 
-    \Drupal::database()->update($table_schema['table'])
-      ->expression($table_schema['value_column'], $expression)
-      ->execute();
+      \Drupal::database()->update($table_schema['table'])
+        ->expression($table_schema['value_column'], $expression)
+        ->execute();
+    }
   }
 
   /**
