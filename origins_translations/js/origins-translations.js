@@ -39,6 +39,7 @@
   }
 
   function enableMenuUi(i, elm) {
+    let $wrapper = $('#origins-translations-container');
     let $button = $('.origins-translations-button', elm);
     let $menu = $('.origins-translations-menu', elm);
 
@@ -62,10 +63,10 @@
         });
 
     // If focus leaves the translation menu, it should close.
-    $(elm).focusout(function () {
-      if ($(this).is(':focus-within') !== true && $button.attr('aria-expanded') === 'true') {
+    $(document).on('click, focus', 'body', function(event) {
+      if (!$wrapper[0].contains(event.target) && $button.attr('aria-expanded') === 'true') {
         // Close it via the button.
-        $button.click();
+        $button.trigger('click');
         // Ensure menu links cannot receive keyboard focus.
         $menu.find('a').attr('tabindex', '-1');
       }
