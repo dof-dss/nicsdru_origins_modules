@@ -3,6 +3,7 @@
 # DOF-DSS Origins Modules
 
 A collection of modules for use across DOF-DSS Drupal sites
+* **origins_book:** Improves cache invalidation for Book navigation and display on node view.
 * **origins_common:** General utilities and functions including tweaks to the adminimal theme.
 * **origins_forms:** Form plugins and utilities.
 * **origins_layouts:** A collection of Layout Builder layouts.
