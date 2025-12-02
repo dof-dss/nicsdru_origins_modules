@@ -15,7 +15,6 @@ use Drupal\node\NodeInterface;
 function origins_book_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
   // Ensures the in-node book navigation render array carries the correct
   // "bid:{bid}" cache tag, so it responds to changes in the book outline.
-
   if (!$entity instanceof NodeInterface) {
     return;
   }
@@ -23,7 +22,7 @@ function origins_book_entity_view_alter(array &$build, EntityInterface $entity, 
     return;
   }
 
-  if (empty($build['book_navigation']) {
+  if (empty($build['book_navigation'])) {
     return;
   }
 
