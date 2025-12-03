@@ -60,9 +60,7 @@ function origins_ckeditor_enhancements_ckeditor5_plugin_info_alter(array &$plugi
   $options =& $heading_plugin_definition['ckeditor5']['config']['heading']['options'];
   $options[] = [
     'model' => 'address',
-    'view' => [
-      'name' => 'address',
-    ],
+    'view' => 'address',
     'title' => t('Address'),
     'class' => 'ck-address',
   ];
