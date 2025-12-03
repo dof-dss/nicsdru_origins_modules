@@ -1,0 +1,7 @@
+name: Origins Book
+type: module
+description: 'Improves cache invalidation for Book navigation.'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - drupal:book

@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Module hooks for improving book cache invalidation.
+ */
+
+use Drupal\book\Form\BookOutlineForm;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_entity_view_alter().
+ */
+function origins_book_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  // Ensures the in-node book navigation render array carries the correct
+  // "bid:{bid}" cache tag, so it responds to changes in the book outline.
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+  if (empty($entity->book['bid'])) {
+    return;
+  }
+
+  if (empty($build['book_navigation'])) {
+    return;
+  }
+
+  $bid_raw = $entity->book['bid'];
+  $bid = $bid_raw === 'new' ? $entity->id() : $bid_raw;
+
+  // Merge in the bid:{bid} cache tag without losing any existing tags.
+  $existing_tags = $build['book_navigation']['#cache']['tags'] ?? [];
+  $build['book_navigation']['#cache']['tags'] = Cache::mergeTags(
+    $existing_tags,
+    ['bid:' . $bid]
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function origins_book_form_alter(array &$form, FormStateInterface $form_state, string $form_id) {
+  // Alter the Book outline form so we can invalidate the node cache whenever
+  // the outline is changed (add/remove/move in the book tree).
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof BookOutlineForm) {
+    return;
+  }
+
+  // Ensure the primary submit button exists before altering it.
+  if (isset($form['actions']['submit'])) {
+    $form['actions']['submit']['#submit'][] = 'origins_book_book_outline_submit_invalidate_node';
+  }
+}
+
+/**
+ * Extra submit handler for the Book outline form.
+ *
+ * After the outline is updated (nodes added/removed/moved in the book),
+ * we invalidate the node's render cache and the relevant book tag so that
+ * the navigation re-renders immediately.
+ */
+function origins_book_book_outline_submit_invalidate_node(array &$form, FormStateInterface $form_state) {
+  $form_object = $form_state->getFormObject();
+  $entity = $form_object->getEntity();
+
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+
+  $tags = [];
+  // Always invalidate the node's own cache so its view (with/without nav)
+  // is recalculated after any outline change.
+  $tags[] = 'node:' . $entity->id();
+
+  // Also invalidate the book outline tag if we know the bid.
+  if (!empty($entity->book['bid'])) {
+    $bid_raw = $entity->book['bid'];
+    $bid = $bid_raw === 'new' ? $entity->id() : $bid_raw;
+    $tags[] = 'bid:' . $bid;
+  }
+
+  Cache::invalidateTags($tags);
+}

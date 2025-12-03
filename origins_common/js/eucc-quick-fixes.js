@@ -22,11 +22,11 @@
       }
 
       // Find focusable elements within the banner.
-      $euccWrapper.find('button, a, input').focusout(function () {
+      $(document).on('click, focus', 'body', function(event) {
         // If the banner is open, but doesn't have keyboard focus...
-        if ($('body').hasClass('eu-cookie-compliance-popup-open') && $euccWrapper.is(':focus-within') !== true) {
+        if ($('body').hasClass('eu-cookie-compliance-popup-open') && !$euccWrapper[0].contains(event.target)) {
           // Click open/close toggle to close it.
-          $euccToggle.click();
+          $euccToggle.trigger('click');
         }
       });
     }
