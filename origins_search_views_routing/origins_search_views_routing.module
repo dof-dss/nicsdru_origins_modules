@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Custom code for search pages.
+ */
+
+use Drupal\views\ViewExecutable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
+  // Only page displays, not admin routes.
+  if ($view->display_handler->getPluginId() !== 'page'
+    || \Drupal::service('router.admin_context')->isAdminRoute()) {
+    return;
+  }
+
+  // Skip AJAX requests (exposed filters, etc.).
+  if (\Drupal::request()->isXmlHttpRequest()) {
+    return;
+  }
+
+  // Retrieve the current path.
+  $current_path = \Drupal::service('path.current')->getPath();
+
+  // Retrieve the base path for this view.
+  $display_path = (string) $view->display_handler->getOption('path');
+
+  // We are only interested if the current path starts with the base path
+  $matches = [];
+  if (preg_match('|^\/' . $display_path . '\/(.*)|', $current_path, $matches)) {
+    if (count($matches) > 1) {
+      $rest_of_path = $matches[1];
+      // If there are no slashes or question marks in the rest of the path
+      // then this must be a missing page and we need to throw a 404.
+      if ((strpos($rest_of_path, '/') === false) && (strpos($rest_of_path, '?') === false)) {
+        throw new NotFoundHttpException();
+      }
+    }
+  }
+}
