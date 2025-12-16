@@ -29,14 +29,14 @@ function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
   // Retrieve the base path for this view.
   $display_path = (string) $view->display_handler->getOption('path');
 
-  // We are only interested if the current path starts with the base path
+  // We are only interested if the current path starts with the base path.
   $matches = [];
   if (preg_match('|^\/' . $display_path . '\/(.*)|', $current_path, $matches)) {
     if (count($matches) > 1) {
       $rest_of_path = $matches[1];
       // If there are no slashes or question marks in the rest of the path
       // then this must be a missing page and we need to throw a 404.
-      if ((strpos($rest_of_path, '/') === false) && (strpos($rest_of_path, '?') === false)) {
+      if ((strpos($rest_of_path, '/') === false) && (strpos($rest_of_path, '?') === FALSE)) {
         throw new NotFoundHttpException();
       }
     }
