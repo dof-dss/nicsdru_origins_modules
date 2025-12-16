@@ -36,7 +36,7 @@ function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
       $rest_of_path = $matches[1];
       // If there are no slashes or question marks in the rest of the path
       // then this must be a missing page and we need to throw a 404.
-      if ((strpos($rest_of_path, '/') === false) && (strpos($rest_of_path, '?') === FALSE)) {
+      if ((strpos($rest_of_path, '/') === FALSE) && (strpos($rest_of_path, '?') === FALSE)) {
         throw new NotFoundHttpException();
       }
     }
