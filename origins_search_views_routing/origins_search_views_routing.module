@@ -33,10 +33,10 @@ function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
   $facet_manager = \Drupal::service('facets.manager');
   $facets = $facet_manager->getEnabledFacets();
   $facet_urls = [];
-  foreach($facets as $facet) {
+  foreach ($facets as $facet) {
     $this_url_alias = $facet->getUrlAlias();
     if (!empty($this_url_alias) && !in_array($this_url_alias, $facet_urls)) {
-      // Build up a list of facet url aliases
+      // Build up a list of facet url aliases.
       $facet_urls[] = $this_url_alias;
     }
   }
@@ -60,7 +60,8 @@ function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
           if (in_array($path_before_slash, $facet_urls)) {
             // Must be a valid faceted search.
             return;
-          } else {
+          }
+          else {
             // Unknown path, throw a 404.
             throw new NotFoundHttpException();
           }
