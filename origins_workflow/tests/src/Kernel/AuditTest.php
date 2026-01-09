@@ -66,16 +66,11 @@ class AuditTest extends EntityKernelTestBase {
   protected function setUp(): void {
     parent::setUp();
 
-    // Schemas needed for creating/loading nodes and field config entities.
     $this->installEntitySchema('user');
     $this->installEntitySchema('node');
     $this->installEntitySchema('field_storage_config');
     $this->installEntitySchema('field_config');
     $this->installSchema('node', ['node_access']);
-
-    // If origins_workflow has config you still want installed (workflow, views, etc).
-    // If you want to avoid unrelated config/schema churn, remove this and instead
-    // just set the auditsettings config directly.
     $this->installConfig(['origins_workflow']);
 
     // Ensure the bundles exist in this minimal Kernel environment.
@@ -101,7 +96,6 @@ class AuditTest extends EntityKernelTestBase {
       ])->save();
     }
 
-    // Attach field to each bundle.
     foreach (['article', 'contact', 'page', 'health_condition'] as $bundle) {
       if (!FieldConfig::loadByName('node', $bundle, 'field_next_audit_due')) {
         FieldConfig::create([
@@ -157,7 +151,6 @@ class AuditTest extends EntityKernelTestBase {
     $reloaded->set('field_next_audit_due', $today);
     $reloaded->save();
 
-    // Run audit.
     $auditer = new AuditController(
       $this->entityTypeManager,
       $this->logger,
@@ -165,9 +158,7 @@ class AuditTest extends EntityKernelTestBase {
     );
     $auditer->confirmAudit($reloaded->id());
 
-    // Assert audit date bumped by 6 months.
     $expected = date('Y-m-d', strtotime('+6 months', \Drupal::time()->getCurrentTime()));
-
     $audited = Node::load($reloaded->id());
     $this->assertSame($expected, $audited->get('field_next_audit_due')->value);
   }
