@@ -113,18 +113,30 @@ class AuditTest extends EntityKernelTestBase {
     $this->account = $this->container->get('current_user');
   }
 
-  public function testArticleNodeCreate(): void {
+  /**
+   * Spin up article node for audit check.
+   */
+  private function testArticleNodeCreate(): void {
     $this->newNodeCreateTest('article');
   }
 
+  /**
+   * Spin up contact node for audit check.
+   */
   public function testContactNodeCreate(): void {
     $this->newNodeCreateTest('contact');
   }
 
+  /**
+   * Spin up page node for audit check.
+   */
   public function testPageNodeCreate(): void {
     $this->newNodeCreateTest('page');
   }
 
+  /**
+   * Spin up health condition node for audit check.
+   */
   public function testHealthConditionNodeCreate(): void {
     $this->newNodeCreateTest('health_condition');
   }
