@@ -116,7 +116,7 @@ class AuditTest extends EntityKernelTestBase {
   /**
    * Spin up article node for audit check.
    */
-  private function testArticleNodeCreate(): void {
+  public function testArticleNodeCreate(): void {
     $this->newNodeCreateTest('article');
   }
 
