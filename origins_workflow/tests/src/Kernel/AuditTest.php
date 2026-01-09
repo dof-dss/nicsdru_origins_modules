@@ -23,23 +23,20 @@ class AuditTest extends EntityKernelTestBase {
    * @var string[]
    */
   protected static $modules = [
-    'system',
-    'user',
-    'field',
-    'text',
-    'filter',
-    'node',
-    'datetime',
-    'workflows',
     'content_moderation',
-
-    // If you still install full origins_workflow config that includes views/metatag:
-    'views',
+    'datetime',
+    'field',
+    'filter',
     'metatag',
     'metatag_views',
-    'token',
-
+    'node',
     'origins_workflow',
+    'text',
+    'token',
+    'system',
+    'user',
+    'views',
+    'workflows',
   ];
 
   /**
