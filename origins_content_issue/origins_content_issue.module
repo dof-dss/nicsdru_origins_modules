@@ -1,0 +1,522 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_content_issue.module.
+ */
+
+declare(strict_types=1);
+
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Mail\MailFormatHelper;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+use Drupal\node\Entity\NodeType;
+use Drupal\node\NodeInterface;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_content_issue_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.origins_content_issue':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t("This module provides a system for editors to report, track, and manage issues related to site content such as grammatical errors, outdated information, broken links or display issues.") . '</p>';
+      $output .= '<h2>' . t('How to use') . '</h2>';
+      $output .= '<ul><li>' . t("After installing the module, open the edit form for a node content type. Navigate to the ‘Content Issue’ tab, check the box labeled ‘Enable content issue creation’, and save the form to apply the changes.") . '</li>';
+      $output .= '<li>' . t("Assign the appropriate Content Issue permissions to each user role.") . '</li>';
+      $output .= '<li>' . t("A block titled 'Issues for user' is available to display Content Issues assigned to the currently logged-in user. It is recommended to place this block in the theme’s ‘Content’ region and restrict its visibility to pages matching the path pattern '/user/*.'") . '</li></ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_preprocess_node().
+ */
+function origins_content_issue_preprocess_node(&$variables) {
+  $route = \Drupal::routeMatch();
+
+  if (!$route->getParameters()->has('node')) {
+    return;
+  }
+
+  if (!\Drupal::currentUser()->hasPermission('create content issue')) {
+    return;
+  }
+
+  $node = $route->getParameters()->get('node');
+  $node_type = NodeType::load($node->getType());
+  $enabled = $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled');
+
+  if ($enabled) {
+
+    $report_icon = \Drupal::config('origins_content_issue.settings')->get('report_icon');
+
+    if ($report_icon === 'custom') {
+      $report_icon_path = \Drupal::config('origins_content_issue.settings')->get('custom_icon_url');
+    }
+    else {
+      $report_icon_path = '/' . \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath();
+      $report_icon_path .= '/assets/' . \Drupal::config('origins_content_issue.settings')->get('report_icon');
+    }
+
+    $report_icon_alt = t('Report issues with this content.');
+
+    $variables['#attached']['drupalSettings']['origins_content_issue']['report_icon'] = $report_icon_path;
+    $variables['#attached']['drupalSettings']['origins_content_issue']['report_text'] = $report_icon_alt;
+
+    $variables['#attached']['library'][] = 'origins_content_issue/report-link';
+    $variables['#attached']['drupalSettings']['origins_content_issue']['entity_id'] = $node->id();
+
+    if ($route->getParameters()->has('node_revision')) {
+      $node_revision = $route->getParameter('node_revision')->getLoadedRevisionId();
+    }
+    else {
+      $node_revision = $node->getRevisionId();
+    }
+
+    $variables['#attached']['drupalSettings']['origins_content_issue']['revision_id'] = $node_revision;
+  }
+
+}
+
+/**
+ * Implements hook_theme().
+ */
+function origins_content_issue_theme(): array {
+  return [
+    'content_issue' => [
+      'render element' => 'elements',
+    ],
+    'content_issue_row' => [
+      'variables' => [
+        'id' => '',
+        'title' => '',
+        'node_type' => '',
+        'node_title' => '',
+        'state' => '',
+        'state_class' => '',
+        'severity' => '',
+        'severity_image' => '',
+        'reporter' => '',
+        'updated' => '',
+        'module_path' => '',
+      ],
+    ],
+    'content_issue_comment' => [
+      'render element' => 'elements',
+      'template' => 'content-issue-comment',
+    ],
+    'content_issue_email' => [
+      'variables' => [
+        'site' => NULL,
+        'bundle' => NULL,
+        'title' => NULL,
+        'description' => NULL,
+        'link' => NULL,
+      ],
+      'template' => 'email/content-issue-email',
+      'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
+    ],
+    'content_issue_state_change_email' => [
+      'variables' => [
+        'site' => NULL,
+        'old_state' => NULL,
+        'new_state' => NULL,
+        'link' => NULL,
+      ],
+      'template' => 'email/content-issue-state-change-email',
+      'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
+    ],
+    'content_issue_comment_email' => [
+      'variables' => [
+        'site' => NULL,
+        'issue_title' => NULL,
+        'comment' => NULL,
+        'link' => NULL,
+      ],
+      'template' => 'email/content-issue-comment-email',
+      'path' => \Drupal::service('module_handler')->getModule('origins_content_issue')->getPath() . '/templates',
+    ],
+
+  ];
+}
+
+/**
+ * Prepares variables for content issue templates.
+ *
+ * Default template: content-issue.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the content issue information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_content_issue(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+
+  $issue = $variables['elements']["#content_issue"];
+
+  $module_path = \Drupal::service('extension.path.resolver')->getPath('module', 'origins_content_issue');
+
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+
+  $content_nid = $variables['elements']["#content_issue"]->get('content_entity_id')->getString();
+  $content_vid = $variables['elements']["#content_issue"]->get('content_entity_revision_id')->getString();
+
+  if (empty($content_vid) || $content_nid === $content_vid) {
+    $node_url = Url::fromRoute('entity.node.canonical', ['node' => $content_nid]);
+  }
+  else {
+    $node_url = Url::fromRoute('entity.node.revision', [
+      'node' => $content_nid,
+      'node_revision' => $content_vid
+    ]);
+  }
+
+  $comments = $issue->getComments();
+
+  if ($comments) {
+    $issue_comment_view_builder = \Drupal::entityTypeManager()->getViewBuilder('content_issue_comment');
+
+    $rendered_comments = [];
+    foreach ($comments as $comment) {
+      $rendered_comments[] = $issue_comment_view_builder->view($comment, 'teaser');
+    }
+
+    $variables['comments'] = $rendered_comments;
+  }
+
+  $variables['content']['concerning'] = [
+    '#type' => 'link',
+    '#title' => t('View content (new window)'),
+    '#url' => $node_url,
+    '#attributes' => ['target' => '_blank'],
+  ];
+
+  if ($issue->access('update')) {
+    $icon['image'] = [
+      '#theme' => 'image',
+      '#uri' => $module_path . '/assets/icon-edit.svg',
+      '#alt' => t('Edit'),
+      '#height' => 24,
+      '#width' => 24,
+    ];
+
+    $icon['text'] = [
+      '#markup' => t('Edit'),
+    ];
+
+    $variables['content']['edit_url'] = [
+      '#type' => 'link',
+      '#title' => \Drupal::service('renderer')->render($icon),
+      '#url' => $issue->toUrl('edit-form'),
+      '#attributes' => [
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'edit'],
+      ],
+    ];
+
+    $variables['content']['comment']['add'] = [
+      '#type' => 'link',
+      '#title' => t('Add Comment'),
+      '#url' => Url::fromRoute('origins_content_issue.comment.add', ['issue_id' => $issue->id()]),
+      '#attributes' => [
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+          'title' => t('Add comment'),
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'edit'],
+      ],
+    ];
+  }
+
+  if ($issue->access('delete')) {
+    $icon = [];
+    $icon['image'] = [
+      '#theme' => 'image',
+      '#uri' => $module_path . '/assets/icon-delete.svg',
+      '#alt' => t('Delete'),
+      '#height' => 24,
+      '#width' => 24,
+    ];
+
+    $icon['text'] = [
+      '#markup' => t('Delete'),
+    ];
+
+    $variables['content']['delete_url'] = [
+      '#type' => 'link',
+      '#title' => \Drupal::service('renderer')->render($icon),
+      '#url' => $issue->toUrl('delete-form'),
+      '#attributes' => [
+        'data-dialog-options' => Json::encode([
+          'width' => 800,
+          'title' => t('Delete comment'),
+        ]),
+        'data-dialog-type' => 'modal',
+        'class' => ['use-ajax', 'link-button', 'delete']
+      ],
+    ];
+  }
+
+  $variables['module_path'] = $module_path;
+}
+
+/**
+ * Prepares variables for content issue comment templates.
+ *
+ * Default template: content-issue-comment.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the content issue comment information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_content_issue_comment(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  $variables['id'] = $variables["elements"]["#content_issue_comment"]->id();
+  $variables['comment'] = $variables['elements']['comment'][0];
+  $variables['author'] = $variables['elements']['uid'][0];
+  $variables['date'] = $variables['elements']['created'][0];
+
+  $variables['edit'] = [
+    '#type' => 'link',
+    '#title' => t('Edit'),
+    '#url' => Url::fromRoute('origins_content_issue.comment.edit', ['comment_id' => $variables['id']]),
+    '#attributes' => [
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'width' => 700,
+        'minHeight' => 500,
+        'title' => t('Edit comment'),
+      ]),
+    ],
+    '#attached' => ['library' => ['core/drupal.ajax']],
+  ];
+
+  $variables['delete'] = [
+    '#type' => 'link',
+    '#title' => t('Delete'),
+    '#url' => Url::fromRoute('origins_content_issue.comment.delete_confirm', ['comment_id' => $variables['id']]),
+    '#attributes' => [
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'width' => 700,
+        'minHeight' => 100,
+        'title' => t('Are you sure you want to delete this comment?'),
+      ]),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function origins_content_issue_user_cancel($edit, UserInterface $account, $method): void {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish content issues.
+      $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+      $content_issue_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        // @phpstan-ignore-next-line
+        $content_issue->set('status', FALSE)->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize content issues.
+      $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+      $content_issue_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
+        // @phpstan-ignore-next-line
+        $content_issue->setOwnerId(0)->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function origins_content_issue_user_predelete(UserInterface $account): void {
+  // Delete content issues that belong to this account.
+  $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
+  $content_issue_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  $storage->delete(
+    $storage->loadMultiple($content_issue_ids)
+  );
+  // Delete old revisions.
+  $content_issue_ids = $storage->getQuery()
+    ->allRevisions()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  foreach (array_keys($content_issue_ids) as $revision_id) {
+    // @phpstan-ignore-next-line
+    $storage->deleteRevision($revision_id);
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_content_issue_form_node_type_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
+  $form_object = $form_state->getFormObject();
+
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $form_object->getEntity();
+  if (empty($node->id())) {
+    return;
+  }
+
+  $node_type = NodeType::load($node->id());
+
+  $form['origins_content_issue'] = [
+    '#type' => 'details',
+    '#title' => t('Content issue'),
+    '#group' => 'additional_settings',
+  ];
+
+  $form['origins_content_issue']['content_issue_enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable content issue creation.'),
+    '#description' => t('Allow users to notify the original content author of any issues they encounter.'),
+    '#default_value' => $node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled'),
+  ];
+
+  $form['#entity_builders'][] = 'origins_content_issue_form_node_type_form_builder';
+}
+
+/**
+ * Entity builder for the origins_content_issue_form_node_type_form_alter().
+ */
+function origins_content_issue_form_node_type_form_builder($entity_type, $type, &$form, $form_state) {
+  $type->setThirdPartySetting('origins_content_issue', 'content_issue_enabled', $form_state->getValue('content_issue_enabled'));
+}
+
+/**
+ * Implements hook_moderation_sidebar_alter().
+ */
+function origins_content_issue_moderation_sidebar_alter(&$build, &$context) {
+  if ($context instanceof NodeInterface) {
+
+    if (\Drupal::currentUser()->hasPermission('view content issue') || in_array('administrator', \Drupal::currentUser()->getRoles())) {
+
+      $node_type = NodeType::load($context->getType());
+      if ($node_type->getThirdPartySetting('origins_content_issue', 'content_issue_enabled')) {
+
+        $issue_manager = \Drupal::service('content_issue.manager');
+
+        $issues = $issue_manager->getIssuesByContentId($context->id(), $context->getRevisionId());
+
+        $build['actions']['secondary']['origins_content_issue'] = [
+          '#title' => t('Content issues (@count)', ['@count' => count($issues)]),
+          '#type' => 'link',
+          '#url' => Url::fromRoute('entity.content_issue.collection', [
+            'entity_id' => $context->id(),
+            'revision_id' => $context->getRevisionId(),
+          ]),
+          '#attributes' => [
+            'class' => [
+              'moderation-sidebar-link',
+              'button',
+              'button--tertiary',
+            ],
+          ],
+        ];
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function origins_content_issue_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'new_content_issue':
+
+      $build = [
+        '#theme' => 'content_issue_email',
+        '#site' => $params['site'],
+        '#bundle' => $params['bundle'],
+        '#title' => $params['title'],
+        '#description' => $params['description'],
+        '#link' => $params['link'],
+      ];
+
+      $renderer = \Drupal::service('renderer');
+      $body = $renderer->renderRoot($build);
+
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Content issue for @subject', ['@subject' => $params['subject']]);
+      $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
+      $message['body'][] = MailFormatHelper::htmlToText($body);
+      break;
+
+    case 'content_issue_state_change':
+
+      $build = [
+        '#theme' => 'content_issue_state_change_email',
+        '#site' => $params['site'],
+        '#old_state' => $params['old_state'],
+        '#new_state' => $params['new_state'],
+        '#link' => $params['link'],
+      ];
+
+      $renderer = \Drupal::service('renderer');
+      $body = $renderer->renderRoot($build);
+
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Content issue @subject updated.', ['@subject' => $params['subject']]);
+      $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
+      $message['body'][] = MailFormatHelper::htmlToText($body);
+      break;
+
+    case 'content_issue_comment':
+
+      $build = [
+        '#theme' => 'content_issue_comment_email',
+        '#site' => $params['site'],
+        '#issue_title' => $params['issue_title'],
+        '#comment' => $params['comment'],
+        '#link' => $params['link'],
+      ];
+
+      $renderer = \Drupal::service('renderer');
+      $body = $renderer->renderRoot($build);
+
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Content issue comment for @subject.', ['@subject' => $params['subject']]);
+      $message['headers']['Content-Type'] = 'text/plain; charset=utf-8';
+      $message['body'][] = MailFormatHelper::htmlToText($body);
+      break;
+  }
+}

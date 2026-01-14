@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * Custom code for search pages.
+ */
+
+use Drupal\views\ViewExecutable;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
+  // Only page displays, not admin routes.
+  if ($view->display_handler->getPluginId() !== 'page'
+    || \Drupal::service('router.admin_context')->isAdminRoute()) {
+    return;
+  }
+
+  // Skip AJAX requests (exposed filters, etc.).
+  if (\Drupal::request()->isXmlHttpRequest()) {
+    return;
+  }
+
+  // Retrieve the current path.
+  $current_path = \Drupal::service('path.current')->getPath();
+
+  // Retrieve the base path for this view.
+  $display_path = (string) $view->display_handler->getOption('path');
+
+  // We are only interested if the current path starts with the base path.
+  $matches = [];
+  if (preg_match('|^\/' . $display_path . '\/(.*)|', $current_path, $matches)) {
+    if (count($matches) > 1) {
+      $rest_of_path = $matches[1];
+      // If there are no slashes or question marks in the rest of the path
+      // then this must be a missing page and we need to throw a 404.
+      if ((strpos($rest_of_path, '/') === FALSE) && (strpos($rest_of_path, '?') === FALSE)) {
+        throw new NotFoundHttpException();
+      }
+      // If there is a slash in the rest of the path then we need
+      // to determine whether this is a valid faceted search.
+      if (strpos($rest_of_path, '/') !== FALSE) {
+        // Retrieve the facets associated with this index/view.
+        $facets = \Drupal::service('facets.manager')->getEnabledFacets();
+        $facet_urls = [];
+        foreach ($facets as $facet) {
+          $this_url_alias = $facet->getUrlAlias();
+          if (!empty($this_url_alias) && !in_array($this_url_alias, $facet_urls)) {
+            // Build up a list of facet url aliases.
+            $facet_urls[] = $this_url_alias;
+          }
+        }
+        $path_before_slash = substr($rest_of_path, 0, strpos($rest_of_path, '/'));
+        // Check to see if the rest of the path begins with a valid facet and a slash.
+        if (!empty($path_before_slash)) {
+          if (in_array($path_before_slash, $facet_urls)) {
+            // Must be a valid faceted search.
+            return;
+          }
+          else {
+            // Unknown path, throw a 404.
+            throw new NotFoundHttpException();
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+entity.content_issue.settings:
+  path: 'admin/structure/content-issue'
+  defaults:
+    _form: '\Drupal\origins_content_issue\Form\ContentIssueSettingsForm'
+    _title: 'Content issue'
+  requirements:
+    _permission: 'administer content issue'
+
+origins_content_issue.issue.add:
+  path: '/origins/content-issue/add/{entity_id}/{revision_id}'
+  defaults:
+    _title: 'Create content issue'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController::addForm'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.issue.display:
+  path: '/origins/content-issue/display/{entity_id}'
+  defaults:
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueController::display'
+  requirements:
+    _permission: 'view content issue'
+
+origins_content_issue.comment.add:
+  path: '/content-issue-comment/add/{issue_id}'
+  defaults:
+    _title: 'Create content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::addForm'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.comment.edit:
+  path: '/content-issue-comment/edit/{comment_id}'
+  defaults:
+    _title: 'Edit content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::editForm'
+  requirements:
+    _permission: 'create content issue'
+  options:
+    _no_cache: 'TRUE'
+
+origins_content_issue.comment.delete_confirm:
+  path: '/content-issue-comment/delete/confirm/{comment_id}'
+  defaults:
+    _title: 'Confirm delete content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::deleteConfirm'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.comment.delete:
+  path: '/content-issue-comment/delete/{comment_id}'
+  defaults:
+    _title: 'Delete content issue comment'
+    _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::delete'
+  requirements:
+    _permission: 'create content issue'
+
+origins_content_issue.comment.close_modal:
+   path: '/content-issue-comment/close-modal'
+   defaults:
+     _title: 'Close Modal'
+     _controller: '\Drupal\origins_content_issue\Controller\ContentIssueCommentController::closeModal'
+   requirements:
+     _permission: 'create content issue'
+
+origins_content_issue.content_issue_comment_edit:
+  path: '/origins-content-issue/content-issue-comment-edit'
+  defaults:
+    _title: 'Content Issue Comment Edit'
+    _form: 'Drupal\origins_content_issue\Form\ContentIssueCommentEditForm'
+  requirements:
+    _permission: 'access content'
+
+origins_content_issue.settings:
+  path: '/admin/config/origins/content-issue/settings'
+  defaults:
+    _title: 'Content Issues settings'
+    _form: 'Drupal\origins_content_issue\Form\SettingsForm'
+  requirements:
+    _permission: 'administer content issue'
+
+origins.admin_config:
+  path: '/admin/config/origins'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'Origins'
+  requirements:
+    _permission: 'access administration pages'

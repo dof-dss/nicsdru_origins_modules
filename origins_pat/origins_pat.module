@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Origins Path Alias Transformer module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function origins_pat_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the origins_common module.
+    case 'help.page.origins_pat':
+      $output = '';
+      $output .= '<h3>' . t("About") . '</h3>';
+      $output .= '<p>This module provides the user with an interface transform path alias URLs to the LinkIt format URLs.';
+      $output .= '<p>It will search for relative links in a given field storage and try to find the canonical path from either the Redirect or Path Alias module. ';
+      $output .= 'If the canonical path can be determined it will replace the href attribute and add the required data attributes for compatability with the LinkIt module.';
+      $output .= '<p>For example, it will transform: </p>';
+      $output .= '<code>&lt;a href=&quot;/news/my-news-alias&quot;&gt;News link&lt;/a&gt;</code>';
+      $output .= '<p>to</p>';
+      $output .= '<code>&lt;a href=&quot;node/3693&quot; data-entity-type=&quot;node&quot; data-entity-uuid=&quot;def4d059-d4f4-461d-bfa6-faa1168dd931&quot; data-entity-substitution=&quot;canonical&quot;&gt;News link&lt;/a&gt;</code>';
+      $output .= '<p>If provides options to search and update: <ul>';
+      $output .= '<li>Text based (\'text_long\', \'text_with_summary\') field storage definitions.</li>';
+      $output .= '<li>Taxonomy term descriptions.</li>';
+      $output .= '</ul></p>';
+      return $output;
+  }
+}

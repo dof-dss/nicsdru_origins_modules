@@ -1,0 +1,16 @@
+.reporter-link {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50px;
+  background-blend-mode: lighten;
+  z-index: 100;
+}
+
+.reporter-link span {
+  visibility: hidden;
+}

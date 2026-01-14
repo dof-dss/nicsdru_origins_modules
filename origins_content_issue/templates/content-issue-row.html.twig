@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * Default theme implementation to present a content issue entity.
+ *
+ * This template is used when viewing a canonical content issue page,
+ *
+ * Available variables:
+ * - content: A list of content items. Use 'content' to print all content, or
+ *   print a subset such as 'content.label'.
+ * - attributes: HTML attributes for the container element.
+ *
+ * @see template_preprocess_content_issue()
+ */
+#}
+<div class="content-issue-row" data-entity-id="{{ id }}">
+  <div>
+    <span class="issue-number"># {{ id }}</span>
+  </div>
+  <div class="content-issue-row-main">
+    <span class="issue-title">{{ title }}</span>
+    <div class="issue-content-meta">
+      <span class="issue-content-meta-type">{{ node_type }}</span> <span class="issue-content-meta-title">{{ node_title }}</span>
+    </div>
+  </div>
+  <div class="content-issue-row-aside">
+    <div class="issue-field severity">
+      {{ severity_image }}
+      <p>{{ severity }}</p>
+    </div>
+    <div class="issue-field updated">
+      <img src="/{{ module_path }}/assets/updated.png" width="20" height="20" alt="Issue last updated" title="Issue last updated" />
+      <p>{{ updated }}</p>
+    </div>
+    <div class="issue-field state">
+      <span class="state-icon {{ state_class }}"></span>
+      <p>{{ state }}</p>
+    </div>
+  </div>
+</div>
