@@ -66,8 +66,8 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $query = $this->getStorage()->getQuery();
     $query->accessCheck(TRUE);
 
-    $entity_id = \Drupal::request()->get('entity_id');
-    $revision_id = \Drupal::request()->get('revision_id');
+    $entity_id = \Drupal::request()->request->get('entity_id');
+    $revision_id = \Drupal::request()->request->get('revision_id');
 
     if (!empty($entity_id)) {
       $query->condition('content_entity_id', $entity_id);
