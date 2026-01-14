@@ -107,9 +107,9 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public function render() {
     $request = \Drupal::request();
 
-    $issue_id = $request->get('content_issue');
+    $issue_id = $request->request->get('content_issue');
     // The ID of the entity for which issues will be displayed.
-    $entity_id = $request->get('entity_id');
+    $entity_id = $request->request->get('entity_id');
     $module_path = $this->moduleHandler->getModule('origins_content_issue')->getPath();
     $current_qs = $request->query->all();
 
