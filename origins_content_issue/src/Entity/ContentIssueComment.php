@@ -98,14 +98,10 @@ final class ContentIssueComment extends ContentEntityBase {
       $current_user = \Drupal::currentUser();
       $content_issue = $this->get('issue_entity')->entity;
       // The node ID and revision the content issue is referencing.
-      // @phpstan-ignore-next-line
       $content_entity_id = $content_issue->get('content_entity_id')->getString();
-      // @phpstan-ignore-next-line
       $content_entity_revision_id = $content_issue->get('content_entity_revision_id')->getString();
 
-      // @phpstan-ignore-next-line
       $reported_by = $content_issue->getOwner();
-      // @phpstan-ignore-next-line
       $assigned_to = $content_issue->get('assigned_to')->entity;
       $email_to = [];
 

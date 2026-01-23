@@ -36,21 +36,30 @@ final class ProcessEntityFieldsForm extends FormBase {
     $entity_fields = [];
     $field_storage_definitions = FieldStorageConfig::loadMultiple();
 
+    // @phpstan-ignore-next-line.
     if (\Drupal::request()->query->get('report') && file_exists(self::REPORT_FILENAME)) {
+      // @phpstan-ignore-next-line.
       $report_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::REPORT_FILENAME);
       $report_link = Link::fromTextAndUrl('Download report file', Url::fromUri($report_url))->toString();
+      // @phpstan-ignore-next-line.
       \Drupal::messenger()->addMessage($report_link);
     }
 
+    // @phpstan-ignore-next-line.
     if (\Drupal::request()->query->get('selfref') && file_exists(self::SELFREF_FILENAME)) {
+      // @phpstan-ignore-next-line.
       $selfref_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::SELFREF_FILENAME);
       $selfref_url = Link::fromTextAndUrl('Download self referencing file', Url::fromUri($selfref_url))->toString();
+      // @phpstan-ignore-next-line.
       \Drupal::messenger()->addMessage($selfref_url);
     }
 
+    // @phpstan-ignore-next-line.
     if (\Drupal::request()->query->get('deadlinks') && file_exists(self::DEADLINKS_FILENAME)) {
+      // @phpstan-ignore-next-line.
       $deadlinks_url = \Drupal::service('file_url_generator')->generateAbsoluteString(self::DEADLINKS_FILENAME);
       $deadlinks_url = Link::fromTextAndUrl('Download deadlinks file', Url::fromUri($deadlinks_url))->toString();
+      // @phpstan-ignore-next-line.
       \Drupal::messenger()->addMessage($deadlinks_url);
     }
 
@@ -64,6 +73,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       '#description' => $this->t("List of production website URL's, new line for each."),
       '#required' => TRUE,
       '#normalize_newlines' => TRUE,
+      // @phpstan-ignore-next-line.
       '#default_value' => str_replace('www.', '', \Drupal::request()->getHost()),
     ];
 
@@ -228,8 +238,8 @@ final class ProcessEntityFieldsForm extends FormBase {
     foreach ($process_fields as $field) {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
-      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
       // @phpstan-ignore-next-line.
+      $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
       $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
       $fields_data[$entity_type][$field] = $tables;
     }
@@ -308,6 +318,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     foreach ($website_urls as $website_url) {
       $expression = "REGEXP_REPLACE(" . $table_schema['value_column'] . " , 'href=\"(http(s)?:\/\/(www.)?" . $website_url . ")', 'href=\"')";
 
+      // @phpstan-ignore-next-line.
       \Drupal::database()->update($table_schema['table'])
         ->expression($table_schema['value_column'], $expression)
         ->execute();
@@ -321,6 +332,7 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   Array of table schema data.
    */
   public function fetchEntitiesToProcess($table_schema) {
+    // @phpstan-ignore-next-line.
     return \Drupal::database()->select($table_schema['table'], 't')
       ->fields('t', [$table_schema['id_column'], 'revision_id'])
       ->condition($table_schema['value_column'], 'href=["\'][^"\']*\/[^"\']*["\']', 'REGEXP')
@@ -475,7 +487,6 @@ final class ProcessEntityFieldsForm extends FormBase {
       return "";
     }
 
-    // @phpstan-ignore-next-line.
     $linking_entity = $entity_type_manager->getStorage($value_field_data['type'])->load($value_field_data['id']);
     // Generate a URL or identifier for the entity containing the link.
     $linking_entity_url = ($linking_entity->hasLinkTemplate('canonical')) ? $linking_entity->toUrl()->toString() : 'ID:' . $linking_entity->getType() . ':' . $linking_entity->id();
@@ -501,12 +512,10 @@ final class ProcessEntityFieldsForm extends FormBase {
     foreach ($link_elements as $link_element) {
       $is_redirected = FALSE;
       $is_self_referencing = FALSE;
-      // @phpstan-ignore-next-line.
       if (!$link_element->hasAttribute('href')) {
         continue;
       }
 
-      // @phpstan-ignore-next-line.
       $link_url = $link_element->getAttribute('href');
       $original_link_url = $link_url;
 
@@ -520,7 +529,6 @@ final class ProcessEntityFieldsForm extends FormBase {
         $link_url = substr($link_url, 1);
       }
 
-      /* @phpstan-ignore variable.undefined */
       $redirects = $redirect_repo->findBySourcePath($link_url);
       $internal_url = '';
 
@@ -535,7 +543,6 @@ final class ProcessEntityFieldsForm extends FormBase {
           $link_url = '/' . $link_url;
         }
 
-        /* @phpstan-ignore variable.undefined */
         $path_alias_url = $path_alias_manager->getPathByAlias($link_url);
 
         if (!empty($path_alias_url)) {
@@ -554,26 +561,22 @@ final class ProcessEntityFieldsForm extends FormBase {
         $url_entity_id = current($route_params);
 
         // Check this URL is for a content entity type.
-        /* @phpstan-ignore variable.undefined */
         if (!array_search($url_entity_type, $content_entity_types)) {
           continue;
         }
 
         // Load the entity and update the link DOM node attributes.
-        /* @phpstan-ignore variable.undefined */
         $url_entity = $entity_type_manager->getStorage($url_entity_type)->load($url_entity_id);
         $is_self_referencing = $url_entity->id() === $linking_entity->id();
 
         if ($is_self_referencing) {
           if (str_contains($link_url, '#')) {
-            // @phpstan-ignore-next-line.
             $link_element->setAttribute('href', substr($link_url, strrpos($link_url, '#')));
             $field_is_updated = TRUE;
             $context['results']['updated'] = $context['results']['updated'] + 1;
 
             $context['report']['selfref'][] = [
               $linking_entity_url,
-              // @phpstan-ignore-next-line.
               $link_element->getAttribute('href'),
               '### FIXED ###',
               '### AUTOMATICALLY UPDATED ANCHOR LINK ###',
@@ -593,13 +596,9 @@ final class ProcessEntityFieldsForm extends FormBase {
           }
         }
         else {
-          // @phpstan-ignore-next-line.
           $link_element->setAttribute('href', $internal_url->getInternalPath());
-          // @phpstan-ignore-next-line.
           $link_element->setAttribute('data-entity-type', $url_entity->getEntityTypeId());
-          // @phpstan-ignore-next-line.
           $link_element->setAttribute('data-entity-uuid', $url_entity->uuid());
-          // @phpstan-ignore-next-line.
           $link_element->setAttribute('data-entity-substitution', 'canonical');
           $field_is_updated = TRUE;
           $context['results']['updated'] = $context['results']['updated'] + 1;

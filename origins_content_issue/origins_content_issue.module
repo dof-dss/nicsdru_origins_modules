@@ -338,7 +338,6 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->accessCheck(FALSE)
         ->execute();
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
-        // @phpstan-ignore-next-line
         $content_issue->set('status', FALSE)->save();
       }
       break;
@@ -351,7 +350,6 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->accessCheck(FALSE)
         ->execute();
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
-        // @phpstan-ignore-next-line
         $content_issue->setOwnerId(0)->save();
       }
       break;
@@ -378,7 +376,6 @@ function origins_content_issue_user_predelete(UserInterface $account): void {
     ->accessCheck(FALSE)
     ->execute();
   foreach (array_keys($content_issue_ids) as $revision_id) {
-    // @phpstan-ignore-next-line
     $storage->deleteRevision($revision_id);
   }
 }

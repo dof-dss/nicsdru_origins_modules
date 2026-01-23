@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Drupal\origins_workflow\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Link;
-use Drupal\Core\Menu\LocalTaskManagerInterface;
 use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -33,11 +32,13 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The factory for configuration objects.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $type_config
+   *   Service object for type config manager.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   Entity type manager service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
-    parent::__construct($config_factory);
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $type_config, EntityTypeManagerInterface $entity_type_manager) {
+    parent::__construct($config_factory, $type_config);
     $this->entityTypeManager = $entity_type_manager;
   }
 
@@ -47,6 +48,7 @@ final class ModerationSettingsForm extends ConfigFormBase implements ContainerIn
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('entity_type.manager'),
     );
   }

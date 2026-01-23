@@ -108,7 +108,7 @@ final class QaApiController extends ControllerBase {
     }
 
     $response = new JsonResponse();
-    $qac = new QaAccountsManager();
+    $qac = new QaAccountsManager($this->loggerFactory);
 
     if ($status === 'enable') {
       $qac->toggleAll('enable');

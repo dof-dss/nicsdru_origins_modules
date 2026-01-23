@@ -10,7 +10,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Returns responses for Origins Translations admin pages.
  */
-class OriginsTranslationsAdminController extends ControllerBase {
+final class OriginsTranslationsAdminController extends ControllerBase {
 
   /**
    * The current route match.

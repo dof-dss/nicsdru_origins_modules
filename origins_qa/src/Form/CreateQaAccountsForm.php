@@ -5,6 +5,7 @@ namespace Drupal\origins_qa\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Render\Element\Form;
 use Drupal\origins_qa\Controller\QaAccountsManager;
 use Drupal\user\Entity\User;
@@ -23,13 +24,23 @@ final class CreateQaAccountsForm extends FormBase {
   protected $entityTypeManager;
 
   /**
+   * The logger factory.
+   *
+   * @var \Drupal\Core\Logger\LoggerChannelFactoryInterface
+   */
+  protected $loggerFactory;
+
+  /**
    * Form constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger_factory
+   *   The logger factory service object.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, LoggerChannelFactoryInterface $logger_factory) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->loggerFactory = $logger_factory;
   }
 
   /**
@@ -37,7 +48,8 @@ final class CreateQaAccountsForm extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('logger.channel.qa')
     );
   }
 
@@ -125,7 +137,7 @@ final class CreateQaAccountsForm extends FormBase {
     $password = $values['password'];
     $roles_only = $values['roles_only'];
 
-    $qac = new QaAccountsManager();
+    $qac = new QaAccountsManager($this->loggerFactory);
 
     if ($roles_only) {
       $roles = array_keys(array_filter($values['roles']));

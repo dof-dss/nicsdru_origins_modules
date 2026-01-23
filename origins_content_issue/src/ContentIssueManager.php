@@ -70,7 +70,6 @@ final class ContentIssueManager {
       'content_entity_id' => $content_entity_id,
       'content_revision_id' => $content_revision_id,
       'severity' => $severity,
-      // @phpstan-ignore-next-line
       'assigned_to' => $node->getOwnerId(),
     ]);
 

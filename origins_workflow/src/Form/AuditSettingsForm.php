@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Implements admin form to allow setting of audit text.
  */
-class AuditSettingsForm extends ConfigFormBase {
+final class AuditSettingsForm extends ConfigFormBase {
 
   /**
    * The entity type manager.

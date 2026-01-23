@@ -66,7 +66,9 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $query = $this->getStorage()->getQuery();
     $query->accessCheck(TRUE);
 
+    // @phpstan-ignore-next-line.
     $entity_id = \Drupal::request()->request->get('entity_id');
+    // @phpstan-ignore-next-line.
     $revision_id = \Drupal::request()->request->get('revision_id');
 
     if (!empty($entity_id)) {
@@ -77,6 +79,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
       $query->condition('content_entity_revision_id', $revision_id);
     }
 
+    // @phpstan-ignore-next-line.
     $qs = \Drupal::request()->query->all();
 
     if (array_key_exists('severity', $qs)) {
@@ -85,6 +88,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
 
     if (array_key_exists('assigned', $qs)) {
       if ($qs['assigned'] > 0) {
+        // @phpstan-ignore-next-line.
         $query->condition('assigned_to', \Drupal::currentUser()->id());
       }
       if ($qs['assigned'] < 0) {
@@ -105,6 +109,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
    * @todo Add a link to add a new item to the #empty text.
    */
   public function render() {
+    // @phpstan-ignore-next-line.
     $request = \Drupal::request();
 
     $issue_id = $request->request->get('content_issue');
@@ -266,6 +271,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     if (!empty($issue_id)) {
       $issue_details = $this->contentIssueManager->renderIssue($issue_id);
       if (empty($issue_details)) {
+        // @phpstan-ignore-next-line.
         \Drupal::messenger()->addWarning($this->t('The requested issue could not be found.'));
       }
       else {

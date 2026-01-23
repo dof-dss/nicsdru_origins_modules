@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Checks whether a content title is unique in a given entity bundle.
  */
-class UniqueTitleValidator {
+final class UniqueTitleValidator {
 
   /**
    * The entity type manager.

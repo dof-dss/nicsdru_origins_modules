@@ -25,12 +25,10 @@ class ContentIssueCommentAccessControlHandler extends EntityAccessControlHandler
           return AccessResult::allowed();
         }
         if ($account->hasPermission('edit own content issue') &&
-          // @phpstan-ignore-next-line
           $account->id() === $entity->getOwnerId()) {
           return AccessResult::allowed();
         }
         if ($account->hasPermission('edit assigned content issue') &&
-          // @phpstan-ignore-next-line
           $account->id() === $entity->get('assigned_to')->target_id) {
           return AccessResult::allowed();
         }
@@ -41,7 +39,6 @@ class ContentIssueCommentAccessControlHandler extends EntityAccessControlHandler
           return AccessResult::allowed();
         }
         if ($account->hasPermission('delete own content issue') &&
-          // @phpstan-ignore-next-line
           $account->id() === $entity->getOwnerId()) {
           return AccessResult::allowed();
         }

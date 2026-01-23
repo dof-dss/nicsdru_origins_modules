@@ -15,7 +15,7 @@ class WorkflowOverride implements ConfigFactoryOverrideInterface {
   public function loadOverrides($names) {
     $overrides = [];
     if (in_array('views.view.workflow_moderation', $names)) {
-
+      // @phpstan-ignore-next-line
       $config = \Drupal::configFactory()->get(ModerationSettingsForm::SETTINGS)->getRawData();
 
       if (!array_key_exists('view_overrides', $config)) {

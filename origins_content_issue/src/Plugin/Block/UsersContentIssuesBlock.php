@@ -63,6 +63,7 @@ final class UsersContentIssuesBlock extends BlockBase implements ContainerFactor
       $user_id = $user->id();
     }
     else {
+      // @phpstan-ignore-next-line.
       $user_id = \Drupal::currentUser()->id();
     }
 

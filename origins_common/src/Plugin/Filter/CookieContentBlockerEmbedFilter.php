@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
-class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFactoryPluginInterface {
+final class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity repository service.
@@ -142,6 +142,7 @@ class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFac
         // Don't add the cookie blocker wrapper if we are on the node edit page,
         // as editors should always see the video preview.
         $add_cookie_content_blocker = TRUE;
+        // @phpstan-ignore-next-line.
         $this_route = \Drupal::routeMatch()->getRouteName();
         if ($this_route == 'media.filter.preview') {
           $add_cookie_content_blocker = FALSE;

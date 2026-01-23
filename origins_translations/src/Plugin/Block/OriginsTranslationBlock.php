@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
  *   category = @Translation("Origins")
  * )
  */
-class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPluginInterface {
+final class OriginsTranslationBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * Config object for Origins Translations.

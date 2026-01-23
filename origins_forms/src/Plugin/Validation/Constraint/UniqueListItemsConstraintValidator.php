@@ -40,7 +40,6 @@ final class UniqueListItemsConstraintValidator extends ConstraintValidator {
         $value = $item->getValue();
 
         if (in_array($value[$key], $item_values_processed)) {
-          // @phpstan-ignore-next-line
           $this->context->buildViolation($constraint->message)
             ->atPath((string) $delta . '.' . $key)
             ->addViolation();

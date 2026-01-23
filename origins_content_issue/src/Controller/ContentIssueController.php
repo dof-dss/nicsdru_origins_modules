@@ -22,6 +22,7 @@ final class ContentIssueController extends ControllerBase {
    */
   public function addForm(int $entity_id, int|null $revision_id = NULL): array {
     $issue = $this->entityTypeManager()->getStorage('content_issue')->create([]);
+    // @phpstan-ignore-next-line.
     $issueManager = \Drupal::service('content_issue.manager');
 
     $node_storage = $this->entityTypeManager->getStorage('node');
@@ -41,6 +42,7 @@ final class ContentIssueController extends ControllerBase {
     $form_state['values']['assigned_to'] = $node->getOwnerId();
     $form_state['values']['label'] = $node->label();
 
+    // @phpstan-ignore-next-line.
     $form = \Drupal::service('entity.form_builder')->getForm($issue, 'add', $form_state);
 
     $form['assigned_to']['#attributes']['class'][] = 'hidden';
@@ -72,11 +74,12 @@ final class ContentIssueController extends ControllerBase {
    *   The Ajax response to update the information panel or warning.
    */
   public function display(int|string $entity_id): AjaxResponse {
-
+    // @phpstan-ignore-next-line.
     if (!\Drupal::request()->isXmlHttpRequest()) {
       return $this->redirect('entity.content_issue.collection');
     }
 
+    // @phpstan-ignore-next-line.
     $issueManager = \Drupal::service('content_issue.manager');
     $build = $issueManager->renderIssue($entity_id);
 
