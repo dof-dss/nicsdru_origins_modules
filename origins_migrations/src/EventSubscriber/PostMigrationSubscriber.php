@@ -77,7 +77,6 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
     $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
 
     foreach ($redirects as $redirect) {
-      // @phpstan-ignore-next-line
       $redirectpath = $redirect->getSource()['path'];
 
       // Load alias against redirects to look for duplicates.
