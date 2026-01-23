@@ -812,7 +812,6 @@ function origins_workflow_entity_operation(EntityInterface $entity) {
     $revision_id = $node_storage->getLatestRevisionId($entity->id());
 
     /** @var \Drupal\node\NodeInterface $revision */
-    // @phpstan-ignore-next-line
     $revision = $node_storage->loadRevision($revision_id);
 
     $revision_moderation_state = $revision->get('moderation_state')->value;

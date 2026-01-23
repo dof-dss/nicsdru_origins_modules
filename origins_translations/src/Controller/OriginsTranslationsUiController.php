@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Returns responses for Origins Translations UI elements.
  */
-class OriginsTranslationsUiController extends ControllerBase {
+final class OriginsTranslationsUiController extends ControllerBase {
 
   /**
    * Origins Translation utilities.

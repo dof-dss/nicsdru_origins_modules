@@ -4,6 +4,7 @@ namespace Drupal\origins_translations\Form;
 
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\State\StateInterface;
@@ -12,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Configure Origins Translations settings for this site.
  */
-class SettingsForm extends ConfigFormBase {
+final class SettingsForm extends ConfigFormBase {
 
   /**
    * The state service.
@@ -26,11 +27,13 @@ class SettingsForm extends ConfigFormBase {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $type_config
+   *    Service object for type config manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    */
-  public function __construct(ConfigFactoryInterface $configFactory, StateInterface $state) {
-    parent::__construct($configFactory);
+  public function __construct(ConfigFactoryInterface $configFactory, TypedConfigManagerInterface $type_config, StateInterface $state) {
+    parent::__construct($configFactory, $type_config);
     $this->state = $state;
   }
 
@@ -40,6 +43,7 @@ class SettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('state')
     );
   }

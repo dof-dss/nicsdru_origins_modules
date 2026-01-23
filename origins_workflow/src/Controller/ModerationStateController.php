@@ -2,7 +2,7 @@
 
 namespace Drupal\origins_workflow\Controller;
 
-use Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -13,12 +13,13 @@ use Drupal\origins_workflow\Event\ModerationStateChangeEvent;
 use Drupal\workflows\StateInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Provides customisations to the core Workflow module.
  */
-class ModerationStateController extends ControllerBase implements ContainerInjectionInterface {
+final class ModerationStateController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
    * The entity type manager.
@@ -26,6 +27,13 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
+
+  /**
+   * Type config manager.
+   *
+   * @var \Drupal\Core\Config\TypedConfigManagerInterface
+   */
+  protected $typeConfig;
 
   /**
    * Service object for all moderation states.
@@ -74,6 +82,8 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Config\TypedConfigManagerInterface $type_config
+   *    Service object for type config manager.
    * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
    *   Moderation information service.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
@@ -82,11 +92,12 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
    *   Request stack object.
    * @param \Psr\Log\LoggerInterface $logger
    *   The logger interface.
-   * @param \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher $event_dispatcher
+   * @param \Symfony\Component\EventDispatcher\EventDispatcher $event_dispatcher
    *   The logger interface.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, ContainerAwareEventDispatcher $event_dispatcher) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, TypedConfigManagerInterface $type_config, ModerationInformationInterface $moderation_information, MessengerInterface $messenger, RequestStack $request, LoggerInterface $logger, EventDispatcher $event_dispatcher) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->typeConfig = $type_config;
     $this->moderationInformation = $moderation_information;
     $this->messenger = $messenger;
     $this->request = $request;
@@ -101,6 +112,7 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity_type.manager'),
+      $container->get('config.typed'),
       $container->get('content_moderation.moderation_information'),
       $container->get('messenger'),
       $container->get('request_stack'),
@@ -131,7 +143,6 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
         // will have given us the latest 'default' revision, which is not
         // what we want if there is a draft of published).
         $vid = $this->nodeStorage->getLatestRevisionId($nid);
-        // @phpstan-ignore-next-line
         $entity = $this->nodeStorage->loadRevision($vid);
 
         // The 'revision_translation_affected' field is poorly documented (and
@@ -200,12 +211,10 @@ class ModerationStateController extends ControllerBase implements ContainerInjec
     $current_state = $entity->get('moderation_state')->getString();
     // Check that we are looking at the latest revision.
     if (!$entity->isLatestRevision()) {
-      // @phpstan-ignore-next-line
       $revision_ids = $this->nodeStorage->revisionIds($entity);
       $last_revision_id = end($revision_ids);
       // Load the revision.
       /** @var \Drupal\node\NodeInterface $last_revision */
-      // @phpstan-ignore-next-line
       $last_revision = $this->nodeStorage->loadRevision($last_revision_id);
       $current_state = $last_revision->get('moderation_state')->getString();
     }

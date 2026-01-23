@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 /**
  * Provides a JSON response containing Operation Shamrock data.
  */
-class ShamrockDataController extends ControllerBase {
+final class ShamrockDataController extends ControllerBase {
 
   /**
    * Drupal renderer.

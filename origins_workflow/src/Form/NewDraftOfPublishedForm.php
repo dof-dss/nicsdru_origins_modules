@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @internal
  */
-class NewDraftOfPublishedForm extends ConfirmFormBase {
+final class NewDraftOfPublishedForm extends ConfirmFormBase {
 
   /**
    * The node revision.

@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE,
  * )
  */
-class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFactoryPluginInterface {
+final class CookieContentBlockerEmbedFilter extends FilterBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity repository service.

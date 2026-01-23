@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @package Drupal\origins_workflow
  */
-class RevisionRevertBreadcrumb implements BreadcrumbBuilderInterface {
+final class RevisionRevertBreadcrumb implements BreadcrumbBuilderInterface {
 
   /**
    * Core EntityTypeManager instance.

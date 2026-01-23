@@ -21,7 +21,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * @internal
  */
-class RevertToModerationStateForm extends ConfirmFormBase {
+final class RevertToModerationStateForm extends ConfirmFormBase {
 
   /**
    * @var int
@@ -198,7 +198,6 @@ class RevertToModerationStateForm extends ConfirmFormBase {
 
     // Load the node revision we are reverting.
     /** @var \Drupal\node\NodeInterface $node */
-    // @phpstan-ignore-next-line
     $node = $this->nodeStorage->loadRevision($node_revision);
 
     // Get the moderation state entity.

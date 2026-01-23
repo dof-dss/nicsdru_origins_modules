@@ -4,6 +4,7 @@ namespace Drupal\origins_shamrock\Form;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -12,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides Operation Shamrock settings form.
  */
-class ShamrockSettingsForm extends ConfigFormBase {
+final class ShamrockSettingsForm extends ConfigFormBase {
   const SETTINGS = 'origins_shamrock.settings';
 
   /**
@@ -25,8 +26,8 @@ class ShamrockSettingsForm extends ConfigFormBase {
   /**
    * Constructs a new BlockListSettings object.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
-    parent::__construct($config_factory);
+  public function __construct(ConfigFactoryInterface $config_factory, TypedConfigManagerInterface $type_config, ModuleHandlerInterface $module_handler) {
+    parent::__construct($config_factory, $type_config);
     $this->moduleHandler = $module_handler;
   }
 
@@ -36,6 +37,7 @@ class ShamrockSettingsForm extends ConfigFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('module_handler')
     );
   }

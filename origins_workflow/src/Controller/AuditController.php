@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Controller to handle auditing of nodes.
  */
-class AuditController extends ControllerBase implements ContainerInjectionInterface {
+final class AuditController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
    * The entity type manager.
