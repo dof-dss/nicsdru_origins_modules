@@ -53,6 +53,7 @@ final class ContentIssueCommentController extends ControllerBase {
     $issue_comment = $this->entityTypeManager()->getStorage('content_issue_comment')->create([]);
 
     $form_state['values']['issue_entity'] = $issue_id;
+    // @phpstan-ignore-next-line.
     $form = \Drupal::service('entity.form_builder')->getForm($issue_comment, 'add', $form_state);
 
     $form['assigned_to']['#attributes']['class'][] = 'hidden';
@@ -68,12 +69,13 @@ final class ContentIssueCommentController extends ControllerBase {
    *   The id of the comment to edit.
    */
   public function editForm(int|string $comment_id): array {
+    // @phpstan-ignore-next-line.
     $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
 
-    // @phpstan-ignore-next-line
     $form_state['values']['issue_entity'] = $comment->get('issue_entity')->getString();
     $form_state['values']['comment_id'] = $comment_id;
 
+    // @phpstan-ignore-next-line.
     $form = \Drupal::service('entity.form_builder')->getForm($comment, 'add', $form_state);
 
     unset($form['actions']['delete']);

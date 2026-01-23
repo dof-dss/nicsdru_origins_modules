@@ -83,7 +83,7 @@ final class ModerationStateController extends ControllerBase implements Containe
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $type_config
-   *    Service object for type config manager.
+   *   Service object for type config manager.
    * @param \Drupal\content_moderation\ModerationInformationInterface $moderation_information
    *   Moderation information service.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger

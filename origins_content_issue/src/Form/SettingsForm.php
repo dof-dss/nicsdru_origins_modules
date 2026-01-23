@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\origins_content_issue\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\TypedConfigManagerInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -30,12 +31,13 @@ final class SettingsForm extends ConfigFormBase implements ContainerInjectionInt
    */
   public function __construct(
     ConfigFactoryInterface $config_factory,
+    TypedConfigManagerInterface $type_config,
     ModuleHandlerInterface $module_handler,
     private readonly RendererInterface $renderer,
     private readonly EntityFieldManagerInterface $entityFieldManager,
     private readonly FileSystemInterface $fileSystem,
   ) {
-    parent::__construct($config_factory);
+    parent::__construct($config_factory, $type_config);
     $this->modulePath = $module_handler->getModule('origins_content_issue')->getPath();
   }
 
@@ -45,6 +47,7 @@ final class SettingsForm extends ConfigFormBase implements ContainerInjectionInt
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
+      $container->get('config.typed'),
       $container->get('module_handler'),
       $container->get('renderer'),
       $container->get('entity_field.manager'),

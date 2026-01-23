@@ -161,7 +161,6 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     // Process new content issues only.
     if (!$update) {
       $author = $this->getOwner();
-      // @phpstan-ignore-next-line
       $assigned_to = $this->get('assigned_to')?->first()?->get('entity')?->getTarget()?->getValue();
       $notify = \Drupal::config('origins_content_issue.settings')->get('notify_on_create') ?? TRUE;
 

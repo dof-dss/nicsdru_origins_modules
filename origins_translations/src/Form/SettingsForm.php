@@ -28,7 +28,7 @@ final class SettingsForm extends ConfigFormBase {
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   The config factory.
    * @param \Drupal\Core\Config\TypedConfigManagerInterface $type_config
-   *    Service object for type config manager.
+   *   Service object for type config manager.
    * @param \Drupal\Core\State\StateInterface $state
    *   The state service.
    */

@@ -142,6 +142,7 @@ final class CookieContentBlockerEmbedFilter extends FilterBase implements Contai
         // Don't add the cookie blocker wrapper if we are on the node edit page,
         // as editors should always see the video preview.
         $add_cookie_content_blocker = TRUE;
+        // @phpstan-ignore-next-line.
         $this_route = \Drupal::routeMatch()->getRouteName();
         if ($this_route == 'media.filter.preview') {
           $add_cookie_content_blocker = FALSE;
