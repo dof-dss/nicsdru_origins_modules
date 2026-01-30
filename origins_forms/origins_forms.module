@@ -8,6 +8,7 @@
 use Drupal\Core\Database\Database;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_help().
@@ -48,10 +49,15 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
     $form['#attached']['library'][] = 'origins_forms/origins_forms.form_descriptions';
   }
 
+  // Ensure we only process revisions warnings on node edit forms.
   if ($config->get('enable_revisions_warning') && str_contains($form_id, 'edit')) {
     /* @var $node \Drupal\node\NodeInterface */
     // @phpstan-ignore-next-line
     $node = $form_state->getFormObject()->getEntity();
+
+    if (!$node instanceof NodeInterface) {
+      return;
+    }
 
     $count = Database::getConnection()
       ->select('node_revision', 'nr')
@@ -65,7 +71,6 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
     }
     elseif ($count > $config->get('revisions_warning_lockdown_limit')) {
       \Drupal::messenger()->addError('This content has accumulated a high number of revisions and is locked from saving. Remove older revisions to re-enable save functionality.');
-      
       $form['actions']['submit']['#disabled'] = TRUE;
       $form['actions']['preview']['#disabled'] = TRUE;
     }

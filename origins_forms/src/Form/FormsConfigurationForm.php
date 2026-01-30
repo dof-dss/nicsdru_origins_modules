@@ -36,7 +36,7 @@ final class FormsConfigurationForm extends ConfigFormBase {
     $form['form_descriptions'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable form descriptions'),
-      '#description' => $this->t('Moves the description on content form fields underneath the title.'),
+      '#description' => $this->t('Moves the description on content form fields to underneath the title.'),
       '#default_value' => $this->config('origins_forms.settings')->get('enable_form_descriptions'),
     ];
 
