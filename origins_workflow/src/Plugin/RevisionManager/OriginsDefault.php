@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\dept_node\Plugin\RevisionManager;
+namespace Drupal\origins_workflow\Plugin\RevisionManager;
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -57,11 +57,18 @@ final class OriginsDefault extends RevisionManagerBase {
     $form['age'] = [
       '#type' => 'number',
       '#title' => $this->t('Minimum age (in months) of revisions to keep'),
-      '#description' => $this->t('Only revisions older than the selected age will be removed.'),
+      '#description' => $this->t("Only 'draft' and 'needs review' revisions x months older than the published revision will be removed."),
       '#min' => 1,
       '#max' => 48,
       '#required' => TRUE,
       '#default_value' => $this->configuration['age'] ?? 6,
+    ];
+
+    $form['all_revisions_nodes'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('List of nodes for which all old revisions should be deleted'),
+      '#description' => $this->t('Space separated list of nodes to delete all revision states including published and archived.'),
+      '#default_value' => $this->configuration['all_revisions_nodes'] ?? '',
     ];
 
     return $form;
@@ -72,6 +79,11 @@ final class OriginsDefault extends RevisionManagerBase {
    */
   public function deleteRevisions(RevisionableInterface $entity): array {
     $published_vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($entity->id());
+    // Replace any commas with spaces and generate array of nids from config setting.
+    $all_revisions_nodes = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes']))) ?? [];
+    $age_comparison = sprintf('-%d months', (int) ($this->configuration['age'] ?? 6));
+    // @phpstan-ignore-next-line
+    $age_comparison_ts = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
 
     // Fetch moderation status of latest revision.
     $query = $this->database->select('content_moderation_state_field_data', 'msfd');
@@ -85,23 +97,22 @@ final class OriginsDefault extends RevisionManagerBase {
       return [];
     }
 
-    $age_comparison = sprintf('-%d months', (int) ($this->configuration['age'] ?? 6));
-    // @phpstan-ignore-next-line
-    $age_comparison_ts = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
-
+    // Fetch all revisions older than the published revision.
     $query = $this->database->select('node_revision', 'nr');
     $query->leftJoin(
       'content_moderation_state_field_revision',
       'msfr',
       'nr.nid = msfr.content_entity_id AND nr.vid = msfr.content_entity_revision_id'
     );
-
     $query->addField('nr', 'vid');
-
     $query->condition('nr.nid', $entity->id());
     $query->condition('nr.vid', $published_vid, '<');
     $query->condition('nr.revision_timestamp', $age_comparison_ts, '<');
-    $query->condition('msfr.moderation_state', ['published', 'archived'], 'NOT IN');
+
+    // Ignore moderation state when current nid is present in all_revisions_nodes list.
+    if (!in_array($entity->id(), $all_revisions_nodes)) {
+      $query->condition('msfr.moderation_state', ['published', 'archived'], 'NOT IN');
+    }
 
     $vids = $query->execute()->fetchCol();
 

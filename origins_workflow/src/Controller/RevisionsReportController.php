@@ -33,8 +33,7 @@ final class RevisionsReportController extends ControllerBase {
   /**
    * Display revisions table.
    */
-  public function __invoke(): array {
-    $min_revisions = 50;
+  public function __invoke($min_revisions = '50'): array {
     $query = $this->database->select('node_revision', 'nr');
 
     $query->addField('nr', 'nid');
@@ -90,7 +89,7 @@ final class RevisionsReportController extends ControllerBase {
         'Title',
         'Revisions',
       ],
-      '#footer' => [['Total:', $total_revisions_count, '', '']],
+      '#footer' => [[count($rows), $total_revisions_count, '', '']],
       '#rows' => $rows,
       '#empty' => $this->t('There are no nodes with more than @count revisions.', ['@count' => $min_revisions]),
     ];
