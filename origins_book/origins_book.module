@@ -52,13 +52,22 @@ function origins_book_form_alter(array &$form, FormStateInterface $form_state, s
     return;
   }
 
-  // Disable chosen module's alternations on weight element as it breaks tests.
-  $form['book']['weight']['#chosen'] = FALSE;
-
   // Ensure the primary submit button exists before altering it.
   if (isset($form['actions']['submit'])) {
     $form['actions']['submit']['#submit'][] = 'origins_book_book_outline_submit_invalidate_node';
   }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_book_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (empty($form['book'])) {
+    return;
+  }
+
+  // Disable chosen module's alternations on weight element as it breaks tests.
+  $form['book']['weight']['#chosen'] = FALSE;
 }
 
 /**
