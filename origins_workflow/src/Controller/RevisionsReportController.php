@@ -31,7 +31,7 @@ final class RevisionsReportController extends ControllerBase {
   }
 
   /**
-   * Builds the response.
+   * Display revisions table.
    */
   public function __invoke(): array {
     $min_revisions = 50;
@@ -68,6 +68,15 @@ final class RevisionsReportController extends ControllerBase {
             ],
           ],
         ],
+        [
+          'data' => [
+            [
+              '#type' => 'link',
+              '#title' => $this->t('View revisions'),
+              '#url' => URL::fromUri('internal:/node/' . $result->nid . '/revisions'),
+            ],
+          ],
+        ],
       ];
     }
 
@@ -77,6 +86,7 @@ final class RevisionsReportController extends ControllerBase {
         'nid',
         'Revisions count',
         'Title',
+        'Revisions',
       ],
       '#rows' => $rows,
       '#empty' => $this->t('There are no nodes with more than @count revisions.', ['@count' => $min_revisions]),
