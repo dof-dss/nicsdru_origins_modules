@@ -60,3 +60,11 @@ origins_workflow.moderation_settings:
     _form: 'Drupal\origins_workflow\Form\ModerationSettingsForm'
   requirements:
     _permission: 'administer site configuration'
+
+origins_workflow.revisions_report:
+  path: '/admin/reports/revisions'
+  defaults:
+    _title: 'Revisions Report'
+    _controller: '\Drupal\origins_workflow\Controller\RevisionsReportController'
+  requirements:
+    _permission: 'access content'
