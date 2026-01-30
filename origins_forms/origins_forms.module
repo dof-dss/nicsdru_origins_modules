@@ -65,6 +65,7 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
     }
     elseif ($count > $config->get('revisions_warning_lockdown_limit')) {
       \Drupal::messenger()->addError('This content has accumulated a high number of revisions and is locked from saving. Remove older revisions to re-enable save functionality.');
+      
       $form['actions']['submit']['#disabled'] = TRUE;
       $form['actions']['preview']['#disabled'] = TRUE;
     }
