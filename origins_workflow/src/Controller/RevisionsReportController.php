@@ -48,6 +48,7 @@ final class RevisionsReportController extends ControllerBase {
 
     $results = $query->execute();
     $rows = [];
+    $total_revisions_count = 0;
 
     $build['intro'] = [
       '#type' => 'html_tag',
@@ -56,6 +57,7 @@ final class RevisionsReportController extends ControllerBase {
     ];
 
     foreach ($results as $result) {
+      $total_revisions_count += $result->Total;
       $rows[] = [
         $result->nid,
         $result->Total,
@@ -88,6 +90,7 @@ final class RevisionsReportController extends ControllerBase {
         'Title',
         'Revisions',
       ],
+      '#footer' => [['Total:', $total_revisions_count, '', '']],
       '#rows' => $rows,
       '#empty' => $this->t('There are no nodes with more than @count revisions.', ['@count' => $min_revisions]),
     ];

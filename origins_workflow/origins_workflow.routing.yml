@@ -62,9 +62,10 @@ origins_workflow.moderation_settings:
     _permission: 'administer site configuration'
 
 origins_workflow.revisions_report:
-  path: '/admin/reports/revisions'
+  path: '/admin/reports/revisions/{min_revisions}'
   defaults:
     _title: 'Revisions Report'
     _controller: '\Drupal\origins_workflow\Controller\RevisionsReportController'
+    min_revisions: '50'
   requirements:
     _permission: 'access content'
