@@ -12,6 +12,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Deletes revisions based on Origins workflow rules.
  *
+ * @see https://digitaldevelopment.atlassian.net/wiki/x/B4BExQ
+ *
  * @RevisionManager(
  *   id = "origins_default",
  *   label = @Translation("Origins"),
@@ -19,6 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *     "Default revision cleanup for DoF sites"
  *   )
  * )
+ *
  */
 final class OriginsDefault extends RevisionManagerBase {
 
@@ -54,10 +57,14 @@ final class OriginsDefault extends RevisionManagerBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
 
+    $form['introduction'] = [
+      '#markup' =>  'Process revisions in accordance with the <a href="https://digitaldevelopment.atlassian.net/wiki/x/B4BExQ"> DoF Revisions requirements</a>.'
+    ];
+
     $form['age'] = [
       '#type' => 'number',
       '#title' => $this->t('Minimum age (in months) of revisions to keep'),
-      '#description' => $this->t("Only 'draft' and 'needs review' revisions x months older than the published revision will be removed."),
+      '#description' => $this->t("Only 'Draft' and 'Needs review' revisions x months older than the current published revision will be removed, 'Published' and 'Archived' revisions will be preserved."),
       '#min' => 1,
       '#max' => 48,
       '#required' => TRUE,
@@ -67,7 +74,7 @@ final class OriginsDefault extends RevisionManagerBase {
     $form['all_revisions_nodes'] = [
       '#type' => 'textarea',
       '#title' => $this->t('List of nodes for which all old revisions should be deleted'),
-      '#description' => $this->t('Space separated list of nodes to delete all revision states including published and archived.'),
+      '#description' => $this->t("Space separated list of nodes to delete all revision states including 'Published' and 'Archived'."),
       '#default_value' => $this->configuration['all_revisions_nodes'] ?? '',
     ];
 
@@ -79,11 +86,11 @@ final class OriginsDefault extends RevisionManagerBase {
    */
   public function deleteRevisions(RevisionableInterface $entity): array {
     $published_vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($entity->id());
-    // Replace any commas with spaces and generate array of nids from config setting.
+    // Replace any commas with spaces to create list of nids to remove all expired revision types.
     $all_revisions_nodes = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes']))) ?? [];
     $age_comparison = sprintf('-%d months', (int) ($this->configuration['age'] ?? 6));
     // @phpstan-ignore-next-line
-    $age_comparison_ts = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
+    $age_comparison_timestamp = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
 
     // Fetch moderation status of latest revision.
     $query = $this->database->select('content_moderation_state_field_data', 'msfd');
@@ -107,7 +114,7 @@ final class OriginsDefault extends RevisionManagerBase {
     $query->addField('nr', 'vid');
     $query->condition('nr.nid', $entity->id());
     $query->condition('nr.vid', $published_vid, '<');
-    $query->condition('nr.revision_timestamp', $age_comparison_ts, '<');
+    $query->condition('nr.revision_timestamp', $age_comparison_timestamp, '<');
 
     // Ignore moderation state when current nid is present in all_revisions_nodes list.
     if (!in_array($entity->id(), $all_revisions_nodes)) {
