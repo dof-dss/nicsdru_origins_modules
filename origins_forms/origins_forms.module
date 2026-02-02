@@ -70,9 +70,14 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
       \Drupal::messenger()->addWarning(t('This content has accumulated a high number of revisions. Consider removing older revisions to improve performance and reduce clutter. After @lockdown revisions you will be blocked from saving changes.', ['@lockdown' => $config->get('revisions_warning_lockdown_limit')]));
     }
     elseif ($count > $config->get('revisions_warning_lockdown_limit')) {
-      \Drupal::messenger()->addError('This content has accumulated a high number of revisions and is locked from saving. Remove older revisions to re-enable save functionality.');
-      $form['actions']['submit']['#disabled'] = TRUE;
-      $form['actions']['preview']['#disabled'] = TRUE;
+      \Drupal::messenger()->addError(t('This content has accumulated a high number of revisions and is locked from saving. @revision-link to re-enable save functionality.', [
+        '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
+      ]));
+
+      if (!in_array('administrator', \Drupal::currentUser()->getRoles())) {
+        $form['actions']['submit']['#disabled'] = TRUE;
+        $form['actions']['preview']['#disabled'] = TRUE;
+      }
     }
   }
 
