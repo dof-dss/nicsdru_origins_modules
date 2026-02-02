@@ -58,7 +58,7 @@ final class OriginsDefault extends RevisionManagerBase {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state): array {
 
     $form['introduction'] = [
-      '#markup' =>  'Process revisions in accordance with the <a href="https://digitaldevelopment.atlassian.net/wiki/x/B4BExQ"> DoF Revisions requirements</a>.'
+      '#markup' => 'Process revisions in accordance with the <a href="https://digitaldevelopment.atlassian.net/wiki/x/B4BExQ"> DoF Revisions requirements</a>.'
     ];
 
     $form['age'] = [
