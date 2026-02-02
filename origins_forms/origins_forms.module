@@ -5,8 +5,10 @@
  * Module file for Origins Forms.
  */
 
-use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_help().
@@ -46,6 +48,39 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
   if ($config->get('enable_form_descriptions')) {
     $form['#attached']['library'][] = 'origins_forms/origins_forms.form_descriptions';
   }
+
+  // Ensure we only process revisions warnings on node edit forms.
+  if ($config->get('enable_revisions_warning') && str_contains($form_id, 'edit')) {
+    /* @var $node \Drupal\node\NodeInterface */
+    // @phpstan-ignore-next-line
+    $node = $form_state->getFormObject()->getEntity();
+
+    if (!$node instanceof NodeInterface) {
+      return;
+    }
+
+    $count = Database::getConnection()
+      ->select('node_revision', 'nr')
+      ->condition('nr.nid', $node->id())
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    if ($count > $config->get('revisions_warning_caution_limit') && $count < $config->get('revisions_warning_lockdown_limit')) {
+      \Drupal::messenger()->addWarning(t('This content has accumulated a high number of revisions. Consider removing older revisions to improve performance and reduce clutter. After @lockdown revisions you will be blocked from saving changes.', ['@lockdown' => $config->get('revisions_warning_lockdown_limit')]));
+    }
+    elseif ($count > $config->get('revisions_warning_lockdown_limit')) {
+      \Drupal::messenger()->addError(t('This content has accumulated a high number of revisions and is locked from saving. @revision-link to re-enable save functionality.', [
+        '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
+      ]));
+
+      if (!in_array('administrator', \Drupal::currentUser()->getRoles())) {
+        $form['actions']['submit']['#disabled'] = TRUE;
+        $form['actions']['preview']['#disabled'] = TRUE;
+      }
+    }
+  }
+
 }
 
 /**
