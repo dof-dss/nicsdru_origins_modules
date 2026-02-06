@@ -182,7 +182,8 @@ final class QaApiController extends ControllerBase {
 
       return $response->setStatusCode(200);
 
-    } else {
+    }
+    else {
       return new JsonResponse('Flood control module not enabled', 501);
     }
   }
