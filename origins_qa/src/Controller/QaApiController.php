@@ -158,4 +158,33 @@ final class QaApiController extends ControllerBase {
     }
   }
 
+  /**
+   * Clear flood control.
+   */
+  public function unFlood() {
+    if (($response = $this->isValidToken()) !== TRUE) {
+      return $response;
+    }
+
+    $response = new JsonResponse();
+
+    if (\Drupal::service('module_handler')->moduleExists('flood_control')) {
+      /** @var \Drupal\flood_control\FloodUnblockManagerInterface $flood_unblock_manager */
+      $flood_unblock_manager = \Drupal::service('flood_control.flood_unblock_manager');
+
+      $events = $flood_unblock_manager->getEvents();
+      foreach ($events as $key => $event) {
+        $fids = $flood_unblock_manager->getEventIds($key);
+        foreach ($fids as $fid) {
+          $flood_unblock_manager->floodUnblockClearEvent($key . ':' . $fid);
+        }
+      }
+
+      return $response->setStatusCode(200);
+
+    } else {
+      return new JsonResponse('Flood control module not enabled', 501);
+    }
+  }
+
 }
