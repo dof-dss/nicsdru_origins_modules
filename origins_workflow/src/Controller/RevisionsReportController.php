@@ -6,6 +6,7 @@ namespace Drupal\origins_workflow\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -66,10 +67,15 @@ final class RevisionsReportController extends ControllerBase {
 
     $results = $query->execute();
 
+    for ($i = 25; $i <= 150; $i += 25) {
+      $filter_links[] = Link::createFromRoute($i, 'origins_workflow.revisions_report', ['min_revisions' => $i])->toString();
+    }
+
     $build['intro'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#value' => $this->t('Nodes with more than @count revisions.', ['@count' => $min_revisions]),
+      '#prefix' => $this->t('Minimum revisions: ') . implode(' ', $filter_links),
     ];
 
     foreach ($results as $result) {
@@ -111,16 +117,19 @@ final class RevisionsReportController extends ControllerBase {
       '#header' => $table_header,
       '#footer' => [
         [
-          count($rows),
+          [
+            'data' => count($rows),
+            'title' => $this->t('Total number of nodes with over @min_revisions revisions', ['@min_revisions' => $min_revisions]),
+          ],
           [
             'data' => $total_revisions_count,
             'colspan' => $footer_colspan,
-            'class' => ['text-right'],
+            'title' => $this->t('Total number of revisions across the @node_count nodes', ['@node_count' => count($rows)]),
           ],
         ]
       ],
       '#rows' => $rows,
-      '#empty' => $this->t('There are no nodes with more than @count revisions.', ['@count' => $min_revisions]),
+      '#empty' => $this->t('There are no nodes with more than @revisions_count.', ['@revisions_count' => $min_revisions]),
     ];
 
     return $build;
