@@ -11,12 +11,10 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\user\Entity\User;
 use Drupal\views\ViewExecutable;
@@ -512,6 +510,8 @@ function origins_workflow_preprocess_table(&$variables) {
     // Get the current node we are showing revisions for.
     $node = \Drupal::routeMatch()->getParameter('node');
 
+    $bulk_select_enabled = Drupal::configFactory()->get('revision_delete_tools.configuration')->get('bulk_delete');
+
     // Add new 'Revision Number' column to the node revisions tab.
     $new_head = [
       'tag' => 'th',
@@ -520,8 +520,8 @@ function origins_workflow_preprocess_table(&$variables) {
       ],
     ];
 
-    // Insert revision number column at the beginning.
-    array_unshift($variables['header'], $new_head);
+    // Insert the 'Revision No.' title into the correct table column.
+    $variables['header'] = array_slice($variables['header'], 0, ($bulk_select_enabled ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
 
     // Tweak revision comparison column headings.
     if (isset($variables['header']['select_column_one'])) {
@@ -620,7 +620,9 @@ function origins_workflow_preprocess_table(&$variables) {
 
       // Insert revision number column at the beginning.
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_revisionId]];
-      array_unshift($row['cells'], $new_col);
+
+      // Insert the revision number into the correct table column.
+      $row['cells'] = array_slice($row['cells'], 0, ($bulk_select_enabled ? 1 : 0)) + ['revision_no' => $new_col] + $row['cells'];
     }
   }
 }
