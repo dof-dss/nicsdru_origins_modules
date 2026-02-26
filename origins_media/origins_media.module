@@ -5,7 +5,6 @@
  * Contains origins_media.module.
  */
 
-use Composer\InstalledVersions;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -259,66 +258,16 @@ function origins_media_views_pre_render(ViewExecutable $view) {
  * Implements hook_preprocess_media().
  */
 function origins_media_preprocess_media(array &$variables) {
-
-  if ($variables['view_mode'] !== 'media_library') {
+  if (($variables['view_mode'] ?? '') !== 'media_library') {
     return;
   }
 
+  /** @var \Drupal\media\MediaInterface $media_entity */
   $media_entity = $variables['media'];
+  $variables['attributes']['class'][] = 'media-' . $media_entity->bundle();
 
-  // Add class to the media entity wrapper to identify the media type.
-  $variables["attributes"]['class'][] = 'media-' . $media_entity->bundle();
-
-  // Replace generic document icons with a mimetype specific icon.
-  if ($media_entity->bundle() === 'document' || $media_entity->bundle() === 'secure_file') {
-    $file_storage = \Drupal::entityTypeManager()->getStorage('file');
-
-    $media_fields = [
-      'field_media_file',
-      'field_media_file_1',
-      'field_media_file_2',
-    ];
-
-    foreach ($media_fields as $media_field) {
-      if ($media_entity->hasField($media_field)) {
-        // Get the underlying file associated with this document entity.
-        $file = $file_storage->load($media_entity->$media_field->target_id);
-
-        if ($file instanceof FileInterface === FALSE) {
-          return;
-        }
-
-        $mimetype = $file->getMimeType();
-
-        // There shouldn't be an image file here, but just in case, screen for it
-        // as if it's genuine it likely has its own thumbnail so we would want to
-        // keep that.
-        if (preg_match('/jpeg|jpg|gif|png/', $mimetype)) {
-          return;
-        }
-
-        $simple_mimetypes = \Drupal::service('origins_media.pretty_mime_types')
-          ->getSimpleMimeTypes();
-        $pretty_mimetypes = \Drupal::service('origins_media.pretty_mime_types')
-          ->getMimeTypes();
-
-        // Replace the original image_style render element with a bespoke HTML
-        // element.
-        $variables['content']['thumbnail'] = [
-          '#type' => 'html_tag',
-          '#tag' => 'div',
-          '#attributes' => [
-            'class' => [
-              'file--media-library-preview',
-              'file--ico',
-              'file--ico__' . $simple_mimetypes[$mimetype],
-            ],
-            'aria-label' => $pretty_mimetypes[$mimetype],
-          ],
-        ];
-      }
-    }
-  }
+  // Ensure our media-library CSS is present on entity forms too (not just Views).
+  $variables['#attached']['library'][] = 'origins_media/media_library_styles';
 }
 
 /**
@@ -397,5 +346,75 @@ function origins_media_preprocess_media_oembed_iframe(&$variables) {
   // media_test_oembed_preprocess_media_oembed_iframe().
   if ($variables['resource']->getProvider()->getName() === 'YouTube') {
     $variables['media'] = str_replace('?feature=oembed', '?rel=0&feature=oembed', (string) $variables['media']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_field().
+ */
+function origins_media_preprocess_field(&$variables) {
+  $element = $variables['element'];
+
+  // Bail out early if we're not looking at the correct view mode.
+  if (($element['#view_mode'] ?? '') !== 'media_library') {
+    return;
+  }
+  if (($element['#field_name'] ?? '') !== 'thumbnail') {
+    return;
+  }
+
+  $media_entity = $element['#object'] ?? NULL;
+  if (!$media_entity instanceof MediaInterface) {
+    return;
+  }
+
+  if (!in_array($media_entity->bundle(), ['document', 'secure_file'], TRUE)) {
+    return;
+  }
+
+  // Find the real file behind the document media.
+  $file = NULL;
+  foreach (['field_media_file', 'field_media_file_1', 'field_media_file_2'] as $field_name) {
+    if ($media_entity->hasField($field_name) && !$media_entity->get($field_name)->isEmpty()) {
+      $file = $media_entity->get($field_name)->entity;
+      break;
+    }
+  }
+
+  if (!$file instanceof FileInterface) {
+    return;
+  }
+
+  $mimetype = $file->getMimeType();
+
+  if (preg_match('/^image\//', $mimetype)) {
+    return;
+  }
+
+  $pretty = \Drupal::service('origins_media.pretty_mime_types')->getMimeTypes();
+  $simple = \Drupal::service('origins_media.pretty_mime_types')->getSimpleMimeTypes();
+
+  $filetype = $simple[$mimetype] ?? 'file';
+  $label = $pretty[$mimetype] ?? $mimetype;
+
+  // Replace only the first item render element.
+  if (!empty($variables['items'][0]['content'])) {
+    $variables['items'][0]['content'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => [
+          'file--media-library-preview',
+          'file--ico',
+          'file--ico__' . $filetype,
+        ],
+        'aria-label' => $label,
+        'role' => 'img',
+      ],
+      '#attached' => [
+        'library' => [
+          'origins_media/media_library_styles',
+        ],
+      ],
+    ];
   }
 }
