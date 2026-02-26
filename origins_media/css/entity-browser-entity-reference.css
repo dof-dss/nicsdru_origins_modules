@@ -1,3 +1,11 @@
 .entities-list .item-container > input.button {
   display: inline-block;
 }
+
+/* Stabilize media library preview layout across wrapper variants. */
+.field--widget-media-library-widget .media-library-item__preview,
+.media-library-widget .media-library-item__preview {
+  display: inline-block;
+  padding: 0;
+  vertical-align: top;
+}
