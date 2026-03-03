@@ -1,0 +1,12 @@
+<?php
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function origins_media_orphans_uninstall() {
+  \Drupal::configFactory()->getEditable('views.view.media_orphans')->delete();
+}
+
+
+
