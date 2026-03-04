@@ -1,0 +1,11 @@
+name: 'Origins Media orphans'
+type: module
+description: 'Displays Media entities not associated with content'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - entity_usage:entity_usage
+  - media_views_filter:media_views_filter
+  - drupal:media
+  - drupal:entity_browser
+  - drupal:views
