@@ -357,7 +357,6 @@ function origins_workflow_hide_moderation_field(&$view) {
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
 function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
-
   // Remove some contrib links by default unless specifically enabled in config.
   $admin_content_links = Drupal::configFactory()->get('origins_workflow.moderation.settings')->get('admin_content_links');
   $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
@@ -384,6 +383,15 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
     }
   }
 
+  if (!empty($data['tabs'][0]) && array_key_exists('entity.node.version_history', $data['tabs'][0])) {
+    $node_storage = \Drupal::entityTypeManager()->getStorage('node');
+    $url = $data["tabs"][0]["entity.node.version_history"]["#link"]["url"];
+
+    $node = $node_storage->load($url->getRouteParameters()['node']);
+    $revision_ids = $node_storage->revisionIds($node);
+
+    $data['tabs'][0]['entity.node.version_history']['#link']['title'] = t('Revisions (%total)', ['%total' => count($revision_ids)]);
+  }
 }
 
 /**
