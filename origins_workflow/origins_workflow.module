@@ -6,6 +6,8 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -171,6 +173,10 @@ function origins_workflow_entity_update(EntityInterface $entity) {
     return;
   }
 
+  if ($entity instanceof NodeInterface && ($entity->getRevisionId() != $entity->original->getRevisionId())) {
+    origins_workflow_invalidate_node_revisions_cache($entity);
+  }
+
   $entity_mod_state = $entity->get('moderation_state')->value ?? '';
 
   /** @var \Drupal\Core\Entity\ContentEntityBase $original_entity */
@@ -199,6 +205,15 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   }
   // Now add processing for moderation sidebar.
   origins_workflow_menu_creation_check($entity);
+}
+
+/**
+ * Implements hook_entity_revision_delete().
+ */
+function origins_workflow_entity_revision_delete(EntityInterface $entity) {
+  if ($entity instanceof NodeInterface) {
+    origins_workflow_invalidate_node_revisions_cache($entity);
+  }
 }
 
 /**
@@ -356,7 +371,7 @@ function origins_workflow_hide_moderation_field(&$view) {
  *
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
-function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
+function origins_workflow_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
   // Remove some contrib links by default unless specifically enabled in config.
   $admin_content_links = Drupal::configFactory()->get('origins_workflow.moderation.settings')->get('admin_content_links');
   $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
@@ -387,10 +402,19 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
     $node_storage = \Drupal::entityTypeManager()->getStorage('node');
     $url = $data["tabs"][0]["entity.node.version_history"]["#link"]["url"];
 
+    if (empty($url)) {
+      return;
+    }
+
     $node = $node_storage->load($url->getRouteParameters()['node']);
     $revision_ids = $node_storage->revisionIds($node);
 
     $data['tabs'][0]['entity.node.version_history']['#link']['title'] = t('Revisions (%total)', ['%total' => count($revision_ids)]);
+    $data['tabs'][0]['entity.node.version_history']['#cache'] = [
+      'tags' => [
+        'node_revision_list:' . $node->id(),
+      ],
+    ];
   }
 }
 
@@ -896,4 +920,14 @@ function origins_workflow_preprocess_views_view_field(&$variables) {
       ];
     }
   }
+}
+
+/**
+ * Clears the revision list cache for a node.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node to clear revision cache list.
+ */
+function origins_workflow_invalidate_node_revisions_cache(NodeInterface $node) {
+  Cache::invalidateTags(['node_revision_list:' . $node->id()]);
 }
