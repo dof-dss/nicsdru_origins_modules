@@ -409,7 +409,7 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name, RefinableC
     $node = $node_storage->load($url->getRouteParameters()['node']);
     $revision_ids = $node_storage->revisionIds($node);
 
-    $data['tabs'][0]['entity.node.version_history']['#link']['title'] = t('Revisions (%total)', ['%total' => count($revision_ids)]);
+    $data['tabs'][0]['entity.node.version_history']['#link']['title'] = t('Revisions (@total)', ['@total' => count($revision_ids)]);
     $data['tabs'][0]['entity.node.version_history']['#cache'] = [
       'tags' => [
         'node_revision_list:' . $node->id(),
@@ -798,6 +798,23 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
   else {
     hide($build['actions']['secondary']['entityqueue.entities:entity.node.entityqueue']);
   }
+
+  // Append the revision count to revisions.
+  if (array_key_exists('version_history', $build['actions']['secondary'])) {
+    $url = $build['actions']['secondary']['version_history']['#url'];
+
+    $node_storage = Drupal::entityTypeManager()->getStorage('node');
+    $node = $node_storage->load($url->getRouteParameters()['node']);
+    $revision_ids = $node_storage->revisionIds($node);
+
+    $build['actions']['secondary']['version_history']['#title'] = t('Revisions (@total)', ['@total' => count($revision_ids)]);
+    $build['actions']['secondary']['version_history']['#cache'] = [
+      'tags' => [
+        'node_revision_list:' . $node->id(),
+      ],
+    ];
+  }
+
 }
 
 /**
