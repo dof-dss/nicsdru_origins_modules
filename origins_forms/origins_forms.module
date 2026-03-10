@@ -120,4 +120,3 @@ function origins_forms_preprocess_fieldset(&$variables) {
     }
   }
 }
-
