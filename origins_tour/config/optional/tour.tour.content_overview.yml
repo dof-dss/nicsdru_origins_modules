@@ -1,0 +1,95 @@
+uuid: be458cae-7a02-4672-9200-4ed4c7ffb771
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - origins_tour
+_core:
+  default_config_hash: A0m3XSIsLtIHdFiE13yWHHl2seTlt-wNulpaj6qJTEQ
+id: content_overview
+label: 'Content overview'
+routes:
+  -
+    route_name: system.admin_content
+tips:
+  add_content:
+    id: add_content
+    plugin: text
+    label: 'Add content'
+    weight: -100
+    position: right-end
+    selector: .button--primary
+    body: 'Click this button to add content to the site.'
+  search_for_content:
+    id: search_for_content
+    plugin: text
+    label: 'Search for content'
+    weight: -99
+    position: right-end
+    selector: .form-element--type-text
+    body: 'Type text in this field to search title content containing the entered text.'
+  body_content:
+    id: body_content
+    plugin: text
+    label: 'Body content'
+    weight: -98
+    position: right-end
+    selector: '#edit-body-value'
+    body: 'Search content body text containing the entered text.'
+  filter_by_content_type:
+    id: filter_by_content_type
+    plugin: text
+    label: 'Filter by content type'
+    weight: -97
+    position: top-start
+    selector: .form-item--type
+    body: 'Filter your search by content type. Click the arrow to display content types available on the site. Click your content type and then click the grey Filter button on the right side of this field.'
+  title_row:
+    id: title_row
+    plugin: text
+    label: Title
+    weight: -96
+    position: right-end
+    selector: .views-field-title
+    body: 'This column shows content titles.'
+  content_type:
+    id: content_type
+    plugin: text
+    label: 'Content type'
+    weight: -95
+    position: right-end
+    selector: .views-field-type
+    body: 'This column shows the content type of the content item.'
+  author:
+    id: author
+    plugin: text
+    label: Author
+    weight: -94
+    position: right-end
+    selector: .views-field-name
+    body: 'This column shows the author of the content item.'
+  status:
+    id: status
+    plugin: text
+    label: Status
+    weight: -93
+    position: right-end
+    selector: .views-field-status
+    body: 'This column shows the status of the content item.'
+  updated:
+    id: updated
+    plugin: text
+    label: Updated
+    weight: -92
+    position: left-start
+    selector: .views-field-changed
+    body: 'This column shows when the content item was last updated.'
+  operations:
+    id: operations
+    plugin: text
+    label: Operations
+    weight: -91
+    position: left-start
+    selector: .views-field-operations
+    body: 'This column shows the operations available for the content item. Clicking the dropdown arrow below will display available operations.'

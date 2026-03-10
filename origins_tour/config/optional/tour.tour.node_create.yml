@@ -1,0 +1,77 @@
+uuid: 7b57b5fb-78be-419c-b8d9-c565cf57b95a
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - ''
+id: node_create
+label: 'Node create'
+routes:
+  -
+    route_name: node.add
+tips:
+  title:
+    id: title
+    plugin: text
+    label: Title
+    weight: -100
+    position: right-start
+    selector: '#edit-title-0-value'
+    body: 'Add a title for your content item.'
+  publication_type:
+    id: publication_type
+    plugin: text
+    label: 'Publication type'
+    weight: -99
+    position: right-start
+    selector: '#edit-field-publication-type'
+    body: 'Click on the dropdown arrow to display available types. Click the type for the publication.'
+  publication_date:
+    id: publication_date
+    plugin: text
+    label: 'Publication date'
+    weight: -98
+    position: right-start
+    selector: '#edit-field-published-date-0-value-date'
+    body: 'Click the numbers to edit the publication date. Use the number keys or your keyboard’s up/down arrows to change digits, alternatively click the calendar icon to select a date using the date picker.'
+  body:
+    id: body
+    plugin: text
+    label: Body
+    weight: -97
+    position: right-start
+    selector: .ck-editor__main
+    body: 'Add body text for your content item.'
+  photo:
+    id: photo
+    plugin: text
+    label: Photo
+    weight: -96
+    position: right-start
+    selector: '#edit-field-photo-open-button'
+    body: 'Click the grey "Add media" button to add a photo to your content item.'
+  attachment:
+    id: attachment
+    plugin: text
+    label: 'Attachment '
+    weight: -95
+    position: right-start
+    selector: '#edit-field-attachment-open-button'
+    body: 'Click the grey "Add media" button to add an attachment to your content item.'
+  save_as:
+    id: save_as
+    plugin: text
+    label: 'Save as'
+    weight: -94
+    position: right-start
+    selector: '#edit-moderation-state-0-state'
+    body: 'Click on the dropdown arrow and select the moderation state for your content item.'
+  save_or_preview:
+    id: save_or_preview
+    plugin: text
+    label: 'Save or preview'
+    weight: -93
+    position: right-start
+    selector: '#edit-preview'
+    body: 'Click the blue "Save" button to save your content item. Alternatively you can preview your content before saving by clicking the grey "Preview" button.'

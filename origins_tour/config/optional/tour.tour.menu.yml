@@ -1,0 +1,77 @@
+uuid: 4c77d216-98b5-4b07-9506-bd91ca1e2c4b
+langcode: en
+status: true
+dependencies:
+  enforced:
+    module:
+      - ''
+id: menu
+label: Menu
+routes:
+  -
+    route_name: entity.menu.edit_form
+tips:
+  add_link:
+    id: add_link
+    plugin: text
+    label: 'Add link'
+    weight: -10
+    position: right-start
+    selector: .button--primary
+    body: 'Click the blue "Add link" button. When your link is saved it will be added to the Menu link list below. '
+  title:
+    id: title
+    plugin: text
+    label: Title
+    weight: -10
+    position: right-start
+    selector: '#edit-label'
+    body: 'Title of the menu you are currently viewing.'
+  summary:
+    id: summary
+    plugin: text
+    label: Summary
+    weight: -10
+    position: right-start
+    selector: '#edit-description'
+    body: 'An administrative summary of the menu you are currently viewing.'
+  menu_links:
+    id: menu_links
+    plugin: text
+    label: 'Menu links'
+    weight: -10
+    position: top-start
+    selector: '#menu-overview > thead:nth-child(1) > tr:nth-child(1) > th:nth-child(1)'
+    body: 'This column shows the title of each menu link. You can click the blue link titles to view each link.'
+  enabled:
+    id: enabled
+    plugin: text
+    label: Enabled
+    weight: -10
+    position: top-start
+    selector: .checkbox
+    body: 'This column shows whether a menu link is enabled. Click a box to toggle it. A blue tick = enabled; an empty box = disabled.'
+  operations:
+    id: operations
+    plugin: text
+    label: Operations
+    weight: -10
+    position: top-start
+    selector: .tabledrag-has-colspan
+    body: 'This column shows available operations. Click edit to edit a link or click the dropdown arrow to view available operations.'
+  reorder_links:
+    id: reorder_links
+    plugin: text
+    label: 'Reorder links'
+    weight: -10
+    position: top-start
+    selector: .tabledrag-handle
+    body: 'Drag (Click & Hold) the arrow icon to reorder links. Move up/down to change position in the menu, or left/right to create sub-links.'
+  save:
+    id: save
+    plugin: text
+    label: Save
+    weight: -10
+    position: right-start
+    selector: '#edit-submit'
+    body: 'When you are happy with your link titles, sort order and enabled status of the links, click the blue "Save" button to save your menu.'

@@ -1,0 +1,5 @@
+name: 'Origins Tour'
+type: module
+description: 'Adds Tour functionality'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
