@@ -1,10 +1,9 @@
-uuid: 4c77d216-98b5-4b07-9506-bd91ca1e2c4b
 langcode: en
 status: true
 dependencies:
   enforced:
     module:
-      - ''
+      - origins_tour
 id: menu
 label: Menu
 routes:

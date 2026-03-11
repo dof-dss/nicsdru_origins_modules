@@ -1,10 +1,9 @@
-uuid: 7b57b5fb-78be-419c-b8d9-c565cf57b95a
 langcode: en
 status: true
 dependencies:
   enforced:
     module:
-      - ''
+      - origins_tour
 id: node_create
 label: 'Node create'
 routes:
