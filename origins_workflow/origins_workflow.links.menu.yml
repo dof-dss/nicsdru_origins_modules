@@ -11,3 +11,9 @@ origins_workflow.moderation_settings:
   route_name: origins_workflow.moderation_settings
   parent: origins.admin_config
   weight: 10
+
+origins_workflow.revisions_report:
+  title: Revisions report
+  description: Display nodes with a high revision count.
+  route_name: origins_workflow.revisions_report
+  parent: system.admin_reports
