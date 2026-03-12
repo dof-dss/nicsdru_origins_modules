@@ -400,8 +400,11 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name, RefinableC
 
   if (!empty($data['tabs'][0]) && array_key_exists('entity.node.version_history', $data['tabs'][0])) {
     $url = $data["tabs"][0]["entity.node.version_history"]["#link"]["url"];
+    $node_id = origins_workflow_append_revisions_count($url, $data['tabs'][0]['entity.node.version_history']['#link']['title']);
 
-    origins_workflow_append_revisions_count($url, $data['tabs'][0]['entity.node.version_history']['#link'], 'title');
+    if (!empty($node_id)) {
+      $cacheability->addCacheTags(['node_revision_list:' . $node_id]);
+    }
   }
 }
 
@@ -790,7 +793,15 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
   if (array_key_exists('version_history', $build['actions']['secondary'])) {
     $url = $build['actions']['secondary']['version_history']['#url'];
 
-    origins_workflow_append_revisions_count($url, $build['actions']['secondary']['version_history'], '#title');
+    $node_id = origins_workflow_append_revisions_count($url, $build['actions']['secondary']['version_history']['#title']);
+
+    if (!empty($node_id)) {
+      $build['actions']['secondary']['version_history']['#cache'] = [
+        'tags' => [
+          'node_revision_list:' . $node_id,
+        ],
+      ];
+    }
   }
 
 }
@@ -928,24 +939,23 @@ function origins_workflow_invalidate_node_revisions_cache(NodeInterface $node) {
 }
 
 /**
+ *  Replaces an element with a 'Revisions (X)' title.
  * @param \Drupal\Core\Url $url
- * @param $element
- * @param string $title_key
+ *   The node URL.
+ * @param mixed $element
+ *   The title element to update.
  *
+ * @return int|string|void|null
+ *   The ID of the node with revisions.
  */
-function origins_workflow_append_revisions_count(Url $url, &$element, string $title_key ) {
+function origins_workflow_append_revisions_count(Url $url, &$element): int|null {
   if (array_key_exists('node', $url->getRouteParameters())) {
     $node_storage = Drupal::entityTypeManager()->getStorage('node');
     $node = $node_storage->load($url->getRouteParameters()['node']);
     $revision_ids = $node_storage->revisionIds($node);
 
-    $element[$title_key] = t('Revisions (@total)', ['@total' => count($revision_ids)]);
-    $element[$title_key]['#cache'] = [
-      'tags' => [
-        'node_revision_list:' . $node->id(),
-      ],
-    ];
+    $element = t('Revisions (@total)', ['@total' => count($revision_ids)]);
+    return $node->id();
   }
+  return NULL;
 }
-
-
