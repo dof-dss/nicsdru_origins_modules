@@ -68,13 +68,13 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
       ->execute()
       ->fetchField();
 
-    if ($count > $caution_limit && $count < $lockdown_limit) {
+    if ($count > $caution_limit && $count <= $lockdown_limit) {
       \Drupal::messenger()->addWarning(t('This content has accumulated a high number of revisions (@revisions). Consider removing older revisions to improve performance and reduce clutter. After @lockdown_limit revisions you will be blocked from saving changes.', [
         '@revisions' => $count,
         '@lockdown_limit' => $lockdown_limit
       ]));
     }
-    elseif ($count > $lockdown_limit) {
+    elseif ($count >= $lockdown_limit) {
       if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
         \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) and will be locked from saving for non-administrator roles.', [
           '@lockdown_limit' => $lockdown_limit
