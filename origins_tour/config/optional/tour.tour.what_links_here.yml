@@ -1,0 +1,34 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - ''
+id: what_links_here
+label: 'What links here'
+routes:
+  -
+    route_name: whatlinkshere.references.node
+tips:
+  tabs:
+    id: tabs
+    plugin: text_formatted
+    label: Tabs
+    weight: -10
+    position: right
+    selector: .tabs--primary
+    body:
+      value: '<p>Use the tabs at the top to access options like <strong>view</strong>, <strong>edit</strong>, <strong>delete</strong>, <strong>revisions</strong>, and<strong> what links here</strong>.</p>'
+      format: basic_html
+  what:
+    id: what
+    plugin: text_formatted
+    label: 'What links here'
+    weight: -10
+    position: top
+    selector: .region-content
+    body:
+      value: '<p>The “What links here” table shows where this content is used across the site. Information includes the <strong>title</strong>, <strong>type</strong>, <strong>field</strong>, and an option to <strong>edit</strong> items.</p>'
+      format: basic_html

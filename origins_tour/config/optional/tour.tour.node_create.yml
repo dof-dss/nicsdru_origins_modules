@@ -1,21 +1,26 @@
 langcode: en
 status: true
 dependencies:
+  module:
+    - tour_extras_wysiwyg
   enforced:
     module:
-      - origins_tour
+      1: ''
+      0: tour_extras_wysiwyg
 id: node_create
 label: 'Node create'
 routes:
   -
     route_name: node.add
+  -
+    route_name: entity.node.edit_form
 tips:
   title:
     id: title
     plugin: text
     label: Title
     weight: -100
-    position: right-start
+    position: right
     selector: '#edit-title-0-value'
     body: 'Add a title for your content item.'
   publication_type:
@@ -23,54 +28,70 @@ tips:
     plugin: text
     label: 'Publication type'
     weight: -99
-    position: right-start
+    position: right
     selector: '#edit-field-publication-type'
-    body: 'Click on the dropdown arrow to display available types. Click the type for the publication.'
+    body: 'Click on the dropdown arrow to display available types. Select a type for the publication.'
   publication_date:
     id: publication_date
     plugin: text
     label: 'Publication date'
     weight: -98
-    position: right-start
+    position: right
     selector: '#edit-field-published-date-0-value-date'
     body: 'Click the numbers to edit the publication date. Use the number keys or your keyboard’s up/down arrows to change digits, alternatively click the calendar icon to select a date using the date picker.'
+  teaser:
+    id: teaser
+    plugin: text_formatted
+    label: Teaser
+    weight: -97
+    position: right
+    selector: '#edit-field-teaser-0-value'
+    body:
+      value: '<p>Type a teaser for your content item.</p>'
+      format: basic_html
+  photo:
+    id: photo
+    plugin: text_formatted
+    label: Photo
+    weight: -96
+    position: right
+    selector: .media-library-open-button
+    body:
+      value: '<p>Click the grey "<strong>Add media</strong>" button to add a photo to your content item.</p>'
+      format: basic_html
   body:
     id: body
     plugin: text
     label: Body
-    weight: -97
-    position: right-start
-    selector: .ck-editor__main
-    body: 'Add body text for your content item.'
-  photo:
-    id: photo
-    plugin: text
-    label: Photo
-    weight: -96
-    position: right-start
-    selector: '#edit-field-photo-open-button'
-    body: 'Click the grey "Add media" button to add a photo to your content item.'
-  attachment:
-    id: attachment
-    plugin: text
-    label: 'Attachment '
     weight: -95
     position: right-start
+    selector: '#edit-body-wrapper'
+    body: 'Enter the main content here. Use the editor tools (icons at the top) to help format and write your content. Hover over any icon to see what it does.'
+  attachment:
+    id: attachment
+    plugin: text_formatted
+    label: Attachment
+    weight: -94
+    position: right
     selector: '#edit-field-attachment-open-button'
-    body: 'Click the grey "Add media" button to add an attachment to your content item.'
+    body:
+      value: '<p>Click the grey "<strong>Add media</strong>" button to add an attachment to your content item.</p>'
+      format: basic_html
   save_as:
     id: save_as
     plugin: text
     label: 'Save as'
-    weight: -94
-    position: right-start
+    weight: -93
+    position: right
     selector: '#edit-moderation-state-0-state'
-    body: 'Click on the dropdown arrow and select the moderation state for your content item.'
+    body: 'Click on the dropdown arrow and select how to save the piece of content.'
   save_or_preview:
     id: save_or_preview
-    plugin: text
+    plugin: text_formatted
     label: 'Save or preview'
-    weight: -93
-    position: right-start
+    weight: -92
+    position: right
     selector: '#edit-preview'
-    body: 'Click the blue "Save" button to save your content item. Alternatively you can preview your content before saving by clicking the grey "Preview" button.'
+    body:
+      value: '<p>Click the blue "<strong>Save</strong>" button to save your content item. Alternatively you can preview the content before saving by clicking the grey "<strong>Preview</strong>" button.</p>'
+      format: basic_html

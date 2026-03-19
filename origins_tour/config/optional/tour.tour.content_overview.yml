@@ -1,9 +1,12 @@
 langcode: en
 status: true
 dependencies:
+  module:
+    - tour_extras_wysiwyg
   enforced:
     module:
-      - origins_tour
+      1: ''
+      0: tour_extras_wysiwyg
 _core:
   default_config_hash: A0m3XSIsLtIHdFiE13yWHHl2seTlt-wNulpaj6qJTEQ
 id: content_overview
@@ -14,81 +17,51 @@ routes:
 tips:
   add_content:
     id: add_content
-    plugin: text
+    plugin: text_formatted
     label: 'Add content'
     weight: -100
-    position: right-end
+    position: right
     selector: .button--primary
-    body: 'Click this button to add content to the site.'
-  search_for_content:
-    id: search_for_content
-    plugin: text
-    label: 'Search for content'
+    body:
+      value: '<p>Click this button to add content to the site.</p>'
+      format: basic_html
+  search:
+    id: search
+    plugin: text_formatted
+    label: Search
     weight: -99
-    position: right-end
-    selector: .form-element--type-text
-    body: 'Type text in this field to search title content containing the entered text.'
-  body_content:
-    id: body_content
-    plugin: text
-    label: 'Body content'
+    position: top
+    selector: .view-filters
+    body:
+      value: '<p>Use the search feature to find site content. Narrow results by applying one or more filters, type in the text boxes or select options from the dropdown lists. When you''re ready, click the grey <strong data-start="192" data-end="204">“Filter”</strong> button.</p>'
+      format: basic_html
+  table_headings:
+    id: table_headings
+    plugin: text_formatted
+    label: 'Table headings'
     weight: -98
-    position: right-end
-    selector: '#edit-body-value'
-    body: 'Search content body text containing the entered text.'
-  filter_by_content_type:
-    id: filter_by_content_type
-    plugin: text
-    label: 'Filter by content type'
-    weight: -97
-    position: top-start
-    selector: .form-item--type
-    body: 'Filter your search by content type. Click the arrow to display content types available on the site. Click your content type and then click the grey Filter button on the right side of this field.'
-  title_row:
-    id: title_row
-    plugin: text
-    label: Title
-    weight: -96
-    position: right-end
-    selector: .views-field-title
-    body: 'This column shows content titles.'
-  content_type:
-    id: content_type
-    plugin: text
-    label: 'Content type'
-    weight: -95
-    position: right-end
-    selector: .views-field-type
-    body: 'This column shows the content type of the content item.'
-  author:
-    id: author
-    plugin: text
-    label: Author
-    weight: -94
-    position: right-end
-    selector: .views-field-name
-    body: 'This column shows the author of the content item.'
-  status:
-    id: status
-    plugin: text
-    label: Status
-    weight: -93
-    position: right-end
-    selector: .views-field-status
-    body: 'This column shows the status of the content item.'
-  updated:
-    id: updated
-    plugin: text
-    label: Updated
-    weight: -92
-    position: left-start
-    selector: .views-field-changed
-    body: 'This column shows when the content item was last updated.'
+    position: top
+    selector: .views-form__bulk-operations-row
+    body:
+      value: '<p>The content overview table lists the site’s content. The top row shows <strong data-start="113" data-end="125">headings</strong> like Title, Type, Author, etc. If a heading has a <strong data-start="176" data-end="191">sort symbol</strong>, click it to order the content by that column.</p>'
+      format: basic_html
   operations:
     id: operations
-    plugin: text
+    plugin: text_formatted
     label: Operations
-    weight: -91
-    position: left-start
+    weight: -97
+    position: top-start
     selector: .views-field-operations
-    body: 'This column shows the operations available for the content item. Clicking the dropdown arrow below will display available operations.'
+    body:
+      value: '<p>This column shows operations available for content items. Use the <strong>Edit</strong> feature or click a dropdown arrow to display available operations for each piece of content.</p>'
+      format: basic_html
+  bulk_individual_select:
+    id: bulk_individual_select
+    plugin: text_formatted
+    label: 'Bulk/individual select'
+    weight: -96
+    position: top-start
+    selector: .select-all
+    body:
+      value: '<p>Click the top box to select all content on the page. To select a single item, tick the box in the same row as that item. To perform an action on the selected item/s click the <strong data-start="152" data-end="164">“Select”</strong> field and click the blue <strong data-start="190" data-end="219">“Apply to selected items”</strong> button in the black box below.</p>'
+      format: basic_html

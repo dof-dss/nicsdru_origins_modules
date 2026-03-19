@@ -1,0 +1,98 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - ''
+id: slideshow
+label: Slideshow
+routes:
+  -
+    route_name: entity.entity_subqueue.canonical
+tips:
+  slideshow_items:
+    id: slideshow_items
+    plugin: text
+    label: 'Slideshow items'
+    weight: -100
+    position: top
+    selector: '#items-values'
+    body: 'Your slideshow items are displayed in this list. If no items are present the slideshow is empty.'
+  search:
+    id: search
+    plugin: text
+    label: Search
+    weight: -99
+    position: top-end
+    selector: '#edit-items-add-more-new-item-target-id'
+    body: 'Click the search box and type the title of your feature. A list of matching items will appear automatically. When you see the correct feature, click to select it.'
+  add_item:
+    id: add_item
+    plugin: text_formatted
+    label: 'Add item'
+    weight: -98
+    position: right
+    selector: '#edit-items-add-more-submit'
+    body:
+      value: '<p>When your feature item has been selected in the search box; click the grey "<strong>Add item</strong>" button to add it to the slideshow.</p>'
+      format: basic_html
+  remove:
+    id: remove
+    plugin: text_formatted
+    label: Remove
+    weight: -97
+    position: top-start
+    selector: .remove-item-submit
+    body:
+      value: '<p>To remove an item from the slideshow click the grey "<strong>Remove</strong>" button.</p>'
+      format: basic_html
+  reorder_items:
+    id: reorder_items
+    plugin: text
+    label: 'Reorder items'
+    weight: -96
+    position: top-start
+    selector: .tabledrag-handle
+    body: "Click and hold the sort arrow to reorder features in the slideshow, then release when you're happy with the order."
+  reverse:
+    id: reverse
+    plugin: text_formatted
+    label: Reverse
+    weight: -95
+    position: top-start
+    selector: '#edit-reverse'
+    body:
+      value: '<p>To reverse the order of the slideshow click the grey "<strong>Reverse</strong>" button.</p>'
+      format: basic_html
+  shuffle:
+    id: shuffle
+    plugin: text_formatted
+    label: Shuffle
+    weight: -94
+    position: top-start
+    selector: '#edit-shuffle'
+    body:
+      value: '<p>To randomly shuffle the order of the slideshow click the grey "<strong>Shuffle</strong>" button.</p>'
+      format: basic_html
+  clear:
+    id: clear
+    plugin: text_formatted
+    label: Clear
+    weight: -93
+    position: top-start
+    selector: '#edit-clear'
+    body:
+      value: '<p>To erase/clear the slideshow click the grey "<strong>Clear</strong>" button.</p>'
+      format: basic_html
+  save:
+    id: save
+    plugin: text_formatted
+    label: Save
+    weight: -10
+    position: top-start
+    selector: '#edit-submit'
+    body:
+      value: '<p>To save your slideshow click the blue "<strong>Save</strong>" button.</p>'
+      format: basic_html

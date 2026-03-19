@@ -1,0 +1,95 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      1: ''
+      0: tour_extras_wysiwyg
+id: media
+label: 'Media overview'
+routes:
+  -
+    route_name: entity.media.collection
+tips:
+  layout:
+    id: layout
+    plugin: text_formatted
+    label: Layout
+    weight: -10
+    position: right
+    selector: .tabs--secondary
+    body:
+      value: '<p>Change how media is displayed. Click the tabs to switch between <strong data-start="64" data-end="73">table</strong> and <strong data-start="78" data-end="86">grid</strong> views.</p>'
+      format: basic_html
+  add_media:
+    id: add_media
+    plugin: text_formatted
+    label: 'Add media'
+    weight: -10
+    position: right
+    selector: .button--action
+    body:
+      value: '<p>Click the blue <strong data-start="15" data-end="30">“Add media”</strong> button to upload media from your computer. You can add <strong data-start="86" data-end="122">audio, documents, files, images</strong> or <strong data-start="126" data-end="143">remote videos</strong>.</p>'
+      format: basic_html
+  search:
+    id: search
+    plugin: text_formatted
+    label: Search
+    weight: -10
+    position: top
+    selector: '#views-exposed-form-media-library-default-page'
+    body:
+      value: '<p>Use the search feature to find media. Narrow results by applying one or more filters, type in the text box or select options from the dropdown lists. When you''re ready, click the grey <strong>"Apply f</strong><strong data-start="192" data-end="204">ilters”</strong> button.</p>'
+      format: basic_html
+  bulk_individual_select:
+    id: bulk_individual_select
+    plugin: text_formatted
+    label: 'Bulk/individual select'
+    weight: -10
+    position: top-start
+    selector: .select-all
+    body:
+      value: '<p>Click the top box to select all media on the page. To select a single item, tick the box in the same row as that item. To perform an action on the selected item/s click the <strong data-start="152" data-end="164">“Select”</strong> field and click the blue <strong data-start="190" data-end="219">“Apply to selected items”</strong> button in the black box below.</p>'
+      format: basic_html
+  reference_from:
+    id: reference_from
+    plugin: text_formatted
+    label: 'Reference from'
+    weight: -10
+    position: top
+    selector: '#view-nothing-table-column'
+    body:
+      value: '<p>Shows how many times a media item is used on the site. Click the blue link to view details, including the content title, content type, where it’s used and a link to edit the media.</p>'
+      format: basic_html
+  edit:
+    id: edit
+    plugin: text_formatted
+    label: Edit
+    weight: -10
+    position: top
+    selector: .views-field-edit-media
+    body:
+      value: '<p>Use the <strong>edit</strong> feature to edit individual media items.</p>'
+      format: basic_html
+  title:
+    id: title
+    plugin: text_formatted
+    label: Title
+    weight: -10
+    position: right
+    selector: '#edit-name-0-value'
+    body:
+      value: '<p>Add a name for the media item.</p>'
+      format: basic_html
+  add_file:
+    id: add_file
+    plugin: text_formatted
+    label: 'Add file'
+    weight: -10
+    position: right
+    selector: '#edit-field-media-audio-file-0-upload'
+    body:
+      value: '<p>Click the grey <strong data-start="15" data-end="28">“Browse…”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
+      format: basic_html

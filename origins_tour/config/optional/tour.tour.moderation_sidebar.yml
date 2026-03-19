@@ -1,0 +1,34 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - ''
+id: moderation_sidebar
+label: 'Moderation sidebar'
+routes:
+  -
+    route_name: entity.node.canonical
+tips:
+  sidebar:
+    id: sidebar
+    plugin: text_formatted
+    label: 'Open sidebar'
+    weight: -10
+    position: left
+    selector: .moderation-sidebar-toolbar-tab
+    body:
+      value: '<p>Access the Tasks sidebar by clicking the "<strong>Tasks</strong>" tab.</p>'
+      format: basic_html
+  tasks_sidebar:
+    id: tasks_sidebar
+    plugin: text_formatted
+    label: 'Tasks sidebar'
+    weight: -10
+    position: left-start
+    selector: '#drupal-off-canvas'
+    body:
+      value: '<p>Use the <strong>Tasks</strong> bar to quickly access tasks available on content. Tasks available include <strong>edit</strong>, <strong>archive</strong>, <strong>delete</strong>, <strong>scheduled transitions</strong> and <strong>what links here</strong>.</p>'
+      format: basic_html
