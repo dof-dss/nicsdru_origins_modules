@@ -206,7 +206,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     $empty_text_assigned = '';
 
     if (array_key_exists('severity', $current_qs)) {
-      $empty_text_severity = match($current_qs['severity']) {
+      $empty_text_severity = match ($current_qs['severity']) {
         '1' => ' high severity ',
         '2' => ' medium severity ',
         '3' => ' low severity ',
@@ -214,7 +214,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
     }
 
     if (array_key_exists('assigned', $current_qs)) {
-      $empty_text_assigned = match($current_qs['assigned']) {
+      $empty_text_assigned = match ($current_qs['assigned']) {
         '-1' => ' assigned to nobody',
         '1' => ' assigned to you',
       };

@@ -5,9 +5,7 @@ namespace Drupal\origins_qa\Form;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Render\Element\Form;
 use Drupal\origins_qa\Controller\QaAccountsManager;
-use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
