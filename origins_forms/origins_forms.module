@@ -54,15 +54,14 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
     /* @var $node \Drupal\node\NodeInterface */
     // @phpstan-ignore-next-line
     $node = $form_state->getFormObject()->getEntity();
-    $caution_limit = $config->get('revisions_warning_caution_limit');
-    $lockdown_limit = $config->get('revisions_warning_lockdown_limit');
-    $revisions_excluded_ids = explode(' ', $config->get('revisions_warning_excluded'));
-
-    dpm($revisions_excluded_ids);
 
     if (!$node instanceof NodeInterface) {
       return;
     }
+
+    $caution_limit = $config->get('revisions_warning_caution_limit');
+    $lockdown_limit = $config->get('revisions_warning_lockdown_limit');
+    $revisions_excluded_ids = explode(' ', $config->get('revisions_warning_excluded'));
 
     $count = Database::getConnection()
       ->select('node_revision', 'nr')
