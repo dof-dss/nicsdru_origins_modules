@@ -83,13 +83,8 @@ final class FormsConfigurationForm extends ConfigFormBase {
     $form['revisions_warning_settings']['revisions_warning_excluded'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Excluded nodes'),
-      '#description' => $this->t("A space- or comma-separated list of node IDs to exclude from save-button disabling after the lockdown limit is exceeded."),
+      '#description' => $this->t("A space or comma-separated list of node IDs to exclude from save-button disabling after the lockdown limit is exceeded."),
       '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_excluded'),
-      '#states' => [
-        'required' => [
-          ':input[name="revisions_warning"]' => ['checked' => TRUE],
-        ],
-      ],
     ];
 
     return parent::buildForm($form, $form_state);
