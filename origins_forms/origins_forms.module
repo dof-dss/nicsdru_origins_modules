@@ -56,6 +56,9 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
     $node = $form_state->getFormObject()->getEntity();
     $caution_limit = $config->get('revisions_warning_caution_limit');
     $lockdown_limit = $config->get('revisions_warning_lockdown_limit');
+    $revisions_excluded_ids = explode(' ', $config->get('revisions_warning_excluded'));
+
+    dpm($revisions_excluded_ids);
 
     if (!$node instanceof NodeInterface) {
       return;
@@ -75,19 +78,27 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
       ]));
     }
     elseif ($count >= $lockdown_limit) {
-      if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
-        \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) and will be locked from saving for non-administrator roles.', [
-          '@lockdown_limit' => $lockdown_limit
+      if (in_array($node->id(), $revisions_excluded_ids)) {
+        \Drupal::messenger()->addWarning(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit). This content can be saved but we recommend deleting unnecessary @revision-link.', [
+          '@lockdown_limit' => $lockdown_limit,
+          '@revision-link' => $node->toLink('revisions', 'version-history')->toString()
         ]));
       }
       else {
-        \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) is locked from saving. @revision-link to re-enable save functionality.', [
-          '@lockdown_limit' => $lockdown_limit,
-          '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
-        ]));
+        if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
+          \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) and will be locked from saving for non-administrator roles.', [
+            '@lockdown_limit' => $lockdown_limit
+          ]));
+        }
+        else {
+          \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) is locked from saving. @revision-link to re-enable save functionality.', [
+            '@lockdown_limit' => $lockdown_limit,
+            '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
+          ]));
 
-        $form['actions']['submit']['#disabled'] = TRUE;
-        $form['actions']['preview']['#disabled'] = TRUE;
+          $form['actions']['submit']['#disabled'] = TRUE;
+          $form['actions']['preview']['#disabled'] = TRUE;
+        }
       }
     }
   }
