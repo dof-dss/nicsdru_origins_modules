@@ -12,7 +12,7 @@ It is possible to debug/run the pipeline locally using the CircleCI Local CLI to
 
 See https://circleci.com/docs/2.0/local-cli/ for installation and further details.
 
-> TL;DR:
+> TLDR:
 
 - Install with: `brew install circleci`
 - Run individual jobs like this: `circleci local execute --job YOUR_JOB_NAME -e GITHUB_TOKEN=YOUR-TOKEN-VALUE -e ANOTHER_VAR=another_value`
