@@ -5,8 +5,7 @@ dependencies:
     - tour_extras_wysiwyg
   enforced:
     module:
-      1: ''
-      0: tour_extras_wysiwyg
+      - ''
 id: add_media
 label: 'Add media'
 routes:
