@@ -80,6 +80,13 @@ final class FormsConfigurationForm extends ConfigFormBase {
       ],
     ];
 
+    $form['revisions_warning_settings']['revisions_warning_excluded'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Excluded nodes'),
+      '#description' => $this->t("A space or comma-separated list of node IDs to exclude from save-button disabling after the lockdown limit is exceeded."),
+      '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_excluded'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -106,11 +113,14 @@ final class FormsConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $revisions_excluded = trim(str_replace(',', ' ', $form_state->getValue('revisions_warning_excluded')));
+
     $this->config('origins_forms.settings')
       ->set('enable_form_descriptions', $form_state->getValue('form_descriptions'))
       ->set('enable_revisions_warning', $form_state->getValue('revisions_warning'))
       ->set('revisions_warning_caution_limit', $form_state->getValue('revisions_warning_caution_limit'))
       ->set('revisions_warning_lockdown_limit', $form_state->getValue('revisions_warning_lockdown_limit'))
+      ->set('revisions_warning_excluded', $revisions_excluded)
       ->save();
     parent::submitForm($form, $form_state);
   }

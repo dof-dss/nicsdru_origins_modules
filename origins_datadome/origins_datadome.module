@@ -5,8 +5,6 @@
  * Primary module hooks for Origins DataDome module.
  */
 
-use Drupal\csp\Csp;
-
 /**
  * Implements hook_page_attachments().
  */
