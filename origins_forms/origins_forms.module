@@ -16,6 +16,7 @@ use Drupal\node\NodeInterface;
 function origins_forms_help($route_name, RouteMatchInterface $route_match) {
   $output = '';
   switch ($route_name) {
+    // Tour module help pages.
     case 'help.page.origins_forms':
       $output = '';
       $output .= '<h3>' . t("Form descriptions") . '</h3>';
