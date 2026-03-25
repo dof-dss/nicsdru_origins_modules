@@ -26,7 +26,9 @@ function origins_forms_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<h5>' . t("Unique list items") . '</h5>';
       $output .= '<p>' . t("Ensures uniqueness by enforcing a validation constraint that prevents duplicate entries in an item list-based field.") . '<br/>';
       $output .= t('To implement see: <a href="https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field">https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field</a>') . '</p>';
+      break;
     default:
+      break;
   }
   return $output;
 }
