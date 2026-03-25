@@ -2,7 +2,6 @@
 
 namespace Drupal\origins_migrations\EventSubscriber;
 
-use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\migrate\Event\MigrateEvents;

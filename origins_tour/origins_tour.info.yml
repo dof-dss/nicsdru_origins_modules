@@ -4,6 +4,6 @@ description: 'Adds Tour functionality'
 package: 'NICS: Origins'
 core_version_requirement: ^10 || ^11
 dependencies:
-  - tour
-  - tour_extras_wysiwyg
-  - tour_extras_url_step
+  - tour:tour
+  - tour_extras:tour_extras_wysiwyg
+  - tour_extras:tour_extras_url_step
