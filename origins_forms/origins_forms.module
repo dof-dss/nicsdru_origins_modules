@@ -26,9 +26,6 @@ function origins_forms_help($route_name, RouteMatchInterface $route_match) {
       $output .= '<p>' . t("Ensures uniqueness by enforcing a validation constraint that prevents duplicate entries in an item list-based field.") . '<br/>';
       $output .= t('To implement see: <a href="https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field">https://www.drupal.org/node/2015723#add_constraint_other_entity_base_field</a>') . '</p>';
       break;
-
-    default:
-      break;
   }
   return $output;
 }
@@ -62,6 +59,10 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
       return;
     }
 
+    $caution_limit = $config->get('revisions_warning_caution_limit');
+    $lockdown_limit = $config->get('revisions_warning_lockdown_limit');
+    $revisions_excluded_ids = explode(' ', $config->get('revisions_warning_excluded'));
+
     $count = Database::getConnection()
       ->select('node_revision', 'nr')
       ->condition('nr.nid', $node->id())
@@ -69,20 +70,34 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
       ->execute()
       ->fetchField();
 
-    if ($count > $config->get('revisions_warning_caution_limit') && $count < $config->get('revisions_warning_lockdown_limit')) {
-      \Drupal::messenger()->addWarning(t('This content has accumulated a high number of revisions. Consider removing older revisions to improve performance and reduce clutter. After @lockdown revisions you will be blocked from saving changes.', ['@lockdown' => $config->get('revisions_warning_lockdown_limit')]));
+    if ($count > $caution_limit && $count <= $lockdown_limit) {
+      \Drupal::messenger()->addWarning(t('This content has accumulated a high number of revisions (@revisions). Consider removing older revisions to improve performance and reduce clutter. After @lockdown_limit revisions you will be blocked from saving changes.', [
+        '@revisions' => $count,
+        '@lockdown_limit' => $lockdown_limit
+      ]));
     }
-    elseif ($count > $config->get('revisions_warning_lockdown_limit')) {
-      if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
-        \Drupal::messenger()->addError(t('This content has exceeded the maximum number of revisions and will be locked from saving for non-administrator roles.'));
+    elseif ($count >= $lockdown_limit) {
+      if (in_array($node->id(), $revisions_excluded_ids)) {
+        \Drupal::messenger()->addWarning(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit). This content can be saved but we recommend deleting unnecessary @revision-link.', [
+          '@lockdown_limit' => $lockdown_limit,
+          '@revision-link' => $node->toLink('revisions', 'version-history')->toString()
+        ]));
       }
       else {
-        \Drupal::messenger()->addError(t('This content has accumulated a high number of revisions and is locked from saving. @revision-link to re-enable save functionality.', [
-          '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
-        ]));
+        if (in_array('administrator', \Drupal::currentUser()->getRoles())) {
+          \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) and will be locked from saving for non-administrator roles.', [
+            '@lockdown_limit' => $lockdown_limit
+          ]));
+        }
+        else {
+          \Drupal::messenger()->addError(t('This content has exceeded the maximum number of permissible revisions (@lockdown_limit) is locked from saving. @revision-link to re-enable save functionality.', [
+            '@lockdown_limit' => $lockdown_limit,
+            '@revision-link' => $node->toLink('Remove older revisions', 'version-history')->toString()
+          ]));
 
-        $form['actions']['submit']['#disabled'] = TRUE;
-        $form['actions']['preview']['#disabled'] = TRUE;
+          $form['actions']['submit']['#disabled'] = TRUE;
+          $form['actions']['preview']['#disabled'] = TRUE;
+        }
       }
     }
   }

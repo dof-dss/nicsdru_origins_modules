@@ -30,7 +30,6 @@ final class FormsConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
-    $max_revisions_warning_caution_limit = $this->config('origins_forms.settings')->get('revisions_warning_caution_limit') ?? 50;
 
     $form['form_descriptions'] = [
       '#type' => 'checkbox',
@@ -59,11 +58,9 @@ final class FormsConfigurationForm extends ConfigFormBase {
 
     $form['revisions_warning_settings']['revisions_warning_caution_limit'] = [
       '#type' => 'number',
-      '#min' => 10,
-      '#max' => $max_revisions_warning_caution_limit,
       '#title' => $this->t('Caution limit'),
       '#description' => $this->t('The number of revisions after which a caution will be displayed to the user.'),
-      '#default_value' => $max_revisions_warning_caution_limit,
+      '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_caution_limit'),
       '#states' => [
         'required' => [
           ':input[name="revisions_warning"]' => ['checked' => TRUE],
@@ -73,8 +70,6 @@ final class FormsConfigurationForm extends ConfigFormBase {
 
     $form['revisions_warning_settings']['revisions_warning_lockdown_limit'] = [
       '#type' => 'number',
-      '#min' => $max_revisions_warning_caution_limit + 1,
-      '#max' => $max_revisions_warning_caution_limit * 5,
       '#title' => $this->t('Lockdown limit'),
       '#description' => $this->t('The number of revisions after which the node save options will be disabled (excluding administrators).'),
       '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_lockdown_limit'),
@@ -83,6 +78,13 @@ final class FormsConfigurationForm extends ConfigFormBase {
           ':input[name="revisions_warning"]' => ['checked' => TRUE],
         ],
       ],
+    ];
+
+    $form['revisions_warning_settings']['revisions_warning_excluded'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Excluded nodes'),
+      '#description' => $this->t("A space or comma-separated list of node IDs to exclude from save-button disabling after the lockdown limit is exceeded."),
+      '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_excluded'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -100,6 +102,10 @@ final class FormsConfigurationForm extends ConfigFormBase {
       if (empty($form_state->getValue('revisions_warning_lockdown_limit'))) {
         $form_state->setErrorByName('revisions_warning_lockdown_limit', $this->t('Lockdown limit is required.'));
       }
+
+      if ($form_state->getValue('revisions_warning_caution_limit') >= $form_state->getValue('revisions_warning_lockdown_limit')) {
+        $form_state->setErrorByName('revisions_warning_caution_limit', $this->t('Caution limit must be lower than the lockdown limit.'));
+      }
     }
   }
 
@@ -107,11 +113,14 @@ final class FormsConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $revisions_excluded = trim(str_replace(',', ' ', $form_state->getValue('revisions_warning_excluded')));
+
     $this->config('origins_forms.settings')
       ->set('enable_form_descriptions', $form_state->getValue('form_descriptions'))
       ->set('enable_revisions_warning', $form_state->getValue('revisions_warning'))
       ->set('revisions_warning_caution_limit', $form_state->getValue('revisions_warning_caution_limit'))
       ->set('revisions_warning_lockdown_limit', $form_state->getValue('revisions_warning_lockdown_limit'))
+      ->set('revisions_warning_excluded', $revisions_excluded)
       ->save();
     parent::submitForm($form, $form_state);
   }
