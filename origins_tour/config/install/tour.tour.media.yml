@@ -5,8 +5,9 @@ dependencies:
     - tour_extras_wysiwyg
   enforced:
     module:
-      1: ''
-      0: tour_extras_wysiwyg
+      - tour
+      - tour_extras_wysiwyg
+      - tour_extras_url_step
 id: media
 label: 'Media overview'
 routes:

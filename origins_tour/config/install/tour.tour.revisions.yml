@@ -5,7 +5,9 @@ dependencies:
     - tour_extras_wysiwyg
   enforced:
     module:
-      - ''
+      - tour
+      - tour_extras_wysiwyg
+      - tour_extras_url_step
 id: revisions
 label: Revisions
 routes:
