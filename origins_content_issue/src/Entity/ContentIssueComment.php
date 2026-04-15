@@ -11,7 +11,6 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Url;
-use Drupal\origins_content_issue\ContentIssueCommentInterface;
 use Drupal\user\EntityOwnerTrait;
 
 /**

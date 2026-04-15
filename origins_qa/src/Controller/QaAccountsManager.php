@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormBuilder;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for Origins QA.
