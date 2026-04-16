@@ -945,7 +945,7 @@ function origins_workflow_invalidate_node_revisions_cache(NodeInterface $node) {
  * @param mixed $element
  *   The title element to update.
  *
- * @return int|string|void|null
+ * @return int|null
  *   The ID of the node with revisions.
  */
 function origins_workflow_append_revisions_count(Url $url, &$element): int|null {
