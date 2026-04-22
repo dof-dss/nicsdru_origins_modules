@@ -1,0 +1,9 @@
+origins_tour.help:
+  path: 'origins/help'
+  defaults:
+    _title: 'Site help'
+    _controller: '\Drupal\origins_tour\Controller\OriginsTourController'
+  requirements:
+    _permission: 'access content'
+  options:
+    _admin_route: true

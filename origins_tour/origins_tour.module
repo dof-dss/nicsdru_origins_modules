@@ -4,3 +4,17 @@
  * @file
  * Primary module hooks for Origins Tour module.
  */
+
+/**
+ * Implements hook_theme().
+ */
+function origins_tour_theme() {
+  return [
+    'help_homepage' => [
+      'template' => 'index',
+      'variables' => [
+        'sitename' => \Drupal::config('system.site')->get('name'),
+      ],
+    ],
+  ];
+}
