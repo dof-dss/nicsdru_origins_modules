@@ -8,7 +8,7 @@ dependencies:
       - tour
       - tour_extras_wysiwyg
       - tour_extras_url_step
-id: files
+id: origins_files
 label: Files
 routes:
   -

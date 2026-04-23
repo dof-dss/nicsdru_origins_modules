@@ -8,7 +8,7 @@ dependencies:
       - tour
       - tour_extras_wysiwyg
       - tour_extras_url_step
-id: what_links_here
+id: origins_what_links_here
 label: 'What links here'
 routes:
   -

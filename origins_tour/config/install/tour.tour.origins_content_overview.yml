@@ -10,7 +10,7 @@ dependencies:
       - tour_extras_url_step
 _core:
   default_config_hash: A0m3XSIsLtIHdFiE13yWHHl2seTlt-wNulpaj6qJTEQ
-id: content_overview
+id: origins_content_overview
 label: 'Content overview'
 routes:
   -

@@ -8,7 +8,7 @@ dependencies:
       - tour
       - tour_extras_wysiwyg
       - tour_extras_url_step
-id: slideshow
+id: origins_slideshow
 label: Slideshow
 routes:
   -

@@ -16,5 +16,11 @@ function origins_tour_theme() {
         'sitename' => \Drupal::config('system.site')->get('name'),
       ],
     ],
+    'tours' => [
+      'template' => 'tours',
+      'variables' => [
+        'tours' => []
+      ],
+    ],
   ];
 }

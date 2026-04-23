@@ -8,7 +8,7 @@ dependencies:
       - tour
       - tour_extras_wysiwyg
       - tour_extras_url_step
-id: moderation_sidebar
+id: origins_moderation_sidebar
 label: 'Moderation sidebar'
 routes:
   -

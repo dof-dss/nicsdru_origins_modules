@@ -8,7 +8,7 @@ dependencies:
       - tour
       - tour_extras_wysiwyg
       - tour_extras_url_step
-id: media
+id: origins_media
 label: 'Media overview'
 routes:
   -
