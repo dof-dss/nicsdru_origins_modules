@@ -24,6 +24,16 @@ tips:
     position: right
     selector: '#edit-title-0-value'
     body: 'Add a title for your content item.'
+  add_feature:
+    id: add_feature
+    plugin: text_formatted
+    label: 'Add feature'
+    weight: -99
+    position: top
+    selector: '#edit-field-featured-content-0-target-id'
+    body:
+      value: '<p>Enter the title of the Feature content item. Matching items will autofill - click the one you want to add.</p><p>Please note: the homepage will only show the first three items defined.</p>'
+      format: basic_html
   publication_type:
     id: publication_type
     plugin: text
