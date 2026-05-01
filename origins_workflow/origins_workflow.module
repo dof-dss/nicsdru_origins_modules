@@ -543,7 +543,7 @@ function origins_workflow_preprocess_table(&$variables) {
 
     if ($can_bulk_select) {
       // Insert the 'Revision No.' title into the correct table column.
-      $variables['header'] = array_slice($variables['header'], 0,  ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
+      $variables['header'] = array_slice($variables['header'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
     }
 
     // Tweak revision comparison column headings.
