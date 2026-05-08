@@ -3,6 +3,10 @@
   "description": "Generic modules for DOF-DSS Drupal sites",
   "type": "drupal-module",
   "license": "MIT",
+  "bin": [
+      "bin/dof-dss-filehash",
+      "bin/dof-dss-mediahasher"
+  ],
   "require": {
     "composer/installers": "^2.0",
     "drupal/core": "^10"
