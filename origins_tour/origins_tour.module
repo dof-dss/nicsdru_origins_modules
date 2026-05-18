@@ -24,3 +24,11 @@ function origins_tour_theme() {
     ],
   ];
 }
+
+/**
+ * Implements hook_page_attachments().
+ */
+
+function origins_tour_page_attachments(array &$attachments) {
+    $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
+}

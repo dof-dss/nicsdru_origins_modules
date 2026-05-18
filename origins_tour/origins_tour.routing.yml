@@ -7,3 +7,16 @@ origins_tour.help:
     _permission: 'access content'
   options:
     _admin_route: true
+origins_tour.modal:
+  path: '/origins-tour-modal'
+  defaults:
+    _controller: '\Drupal\origins_tour\Controller\OriginsTourDialogController::modal'
+  requirements:
+    _permission: 'access content'
+origins_tour.feedback_form:
+  path: '/origins-tour/feedback'
+  defaults:
+    _form: '\Drupal\origins_tour\Form\FeedbackForm'
+    _title: 'Feedback'
+  requirements:
+    _permission: 'access content'

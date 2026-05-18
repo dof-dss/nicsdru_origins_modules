@@ -3,3 +3,7 @@ services:
     class: Drupal\origins_tour\EventSubscriber\OriginsTourRouteSubscriber
     tags:
       - { name: event_subscriber }
+  origins_tour.subscriber:
+    class: Drupal\origins_tour\EventSubscriber\OriginsTourSubscriber
+    tags:
+      - { name: event_subscriber }
