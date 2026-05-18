@@ -531,8 +531,7 @@ function origins_workflow_preprocess_table(&$variables) {
 
     // Get the current node we are showing revisions for.
     $node = \Drupal::routeMatch()->getParameter('node');
-
-    $bulk_select_enabled = Drupal::configFactory()->get('revision_delete_tools.configuration')->get('bulk_delete');
+    $can_bulk_select = \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations') && \Drupal::currentUser()->hasPermission('bulk select revisions');
 
     // Add new 'Revision Number' column to the node revisions tab.
     $new_head = [
@@ -542,8 +541,10 @@ function origins_workflow_preprocess_table(&$variables) {
       ],
     ];
 
-    // Insert the 'Revision No.' title into the correct table column.
-    $variables['header'] = array_slice($variables['header'], 0, ($bulk_select_enabled ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
+    if ($can_bulk_select) {
+      // Insert the 'Revision No.' title into the correct table column.
+      $variables['header'] = array_slice($variables['header'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
+    }
 
     // Tweak revision comparison column headings.
     if (isset($variables['header']['select_column_one'])) {
@@ -644,7 +645,7 @@ function origins_workflow_preprocess_table(&$variables) {
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_revisionId]];
 
       // Insert the revision number into the correct table column.
-      $row['cells'] = array_slice($row['cells'], 0, ($bulk_select_enabled ? 1 : 0)) + ['revision_no' => $new_col] + $row['cells'];
+      $row['cells'] = array_slice($row['cells'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_col] + $row['cells'];
     }
   }
 }
@@ -945,7 +946,7 @@ function origins_workflow_invalidate_node_revisions_cache(NodeInterface $node) {
  * @param mixed $element
  *   The title element to update.
  *
- * @return int|string|void|null
+ * @return int|null
  *   The ID of the node with revisions.
  */
 function origins_workflow_append_revisions_count(Url $url, &$element): int|null {
