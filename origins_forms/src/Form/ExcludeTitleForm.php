@@ -4,6 +4,7 @@ namespace Drupal\origins_forms\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Implements admin form to exclude nodes ID from the unique title check.
@@ -15,7 +16,7 @@ class ExcludeTitleForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'origins_forms.excludesettings',
+      'origins_forms.settings',
     ];
   }
 
@@ -30,7 +31,7 @@ class ExcludeTitleForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('origins_forms.excludesettings');
+    $config = $this->config('origins_forms.settings');
 
     $message_exclude_ids = "If there are any specific node's ID that shouldn't be validated. List them on new lines";
 
@@ -39,6 +40,24 @@ class ExcludeTitleForm extends ConfigFormBase {
       '#title' => $this->t('Excluded Node IDs'),
       '#description' => $this->t($message_exclude_ids),
       '#default_value' => $config->get('exclude_ids_list'),
+    ];
+
+    $node_types = NodeType::loadMultiple();
+
+    $options = [];
+
+    foreach ($node_types as $type => $node_type) {
+      $options[$type] = $node_type->label();
+    }
+
+    $message_exclude_bundles = "Select content types that should be excluded from unique title validation";
+
+    $form['excluded_bundles'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Excluded content types'),
+      '#description' => $this->t($message_exclude_bundles),
+      '#options' => $options,
+      '#default_value' => $config->get('excluded_bundles') ?: [],
     ];
 
     return parent::buildForm($form, $form_state);
@@ -71,7 +90,8 @@ class ExcludeTitleForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $this->config('origins_forms.excludesettings')
+    $this->config('origins_forms.settings')
+      ->set('excluded_bundles', $form_state->getValue('excluded_bundles'))
       ->set('exclude_ids_list', $form_state->getValue('exclude_ids_list'))
       ->save();
   }
