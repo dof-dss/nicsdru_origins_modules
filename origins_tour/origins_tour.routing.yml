@@ -1,5 +1,5 @@
 origins_tour.help:
-  path: 'origins/help'
+  path: '/origins/help'
   defaults:
     _title: 'Site help'
     _controller: '\Drupal\origins_tour\Controller\OriginsTourController'
@@ -18,5 +18,12 @@ origins_tour.feedback_form:
   defaults:
     _form: '\Drupal\origins_tour\Form\FeedbackForm'
     _title: 'Feedback'
+  requirements:
+    _permission: 'access content'
+origins_tour.close_modal:
+  path: '/origins-tour/close-modal'
+  defaults:
+    _controller: '\Drupal\origins_tour\Controller\OriginsTourDialogController::closeModal'
+    _title: ''
   requirements:
     _permission: 'access content'

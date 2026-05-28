@@ -21,7 +21,7 @@ final class OriginsTourController extends ControllerBase {
     foreach ($tours as $tour) {
 
       // We only want to display Origins tours in our help section.
-      if (substr($tour->id(), 0, 8) === 'origins_') {
+      if (str_starts_with($tour->id(), 'origins_')) {
         $tour_links[] = [
           '#type' => 'link',
           '#title' => $tour->label(),
