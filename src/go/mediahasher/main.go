@@ -20,7 +20,16 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const version = "1.0.0"
+type Stats struct {
+	Processed    int
+	Updated      int
+	Skipped      int
+	HashErrors   int
+	FileNotFound int
+	URIErrors    int
+}
+
+const version = "1.0.1"
 
 type Config struct {
 	DSN        string
@@ -50,6 +59,11 @@ var bundleTables = []BundleTable{
 func main() {
 	cfg := parseFlags()
 
+	// Check that dof-dss-filehash binary is available
+	if err := checkFilehashBinary(); err != nil {
+		log.Fatalf("Dependency check failed: %v", err)
+	}
+
 	db, err := sql.Open("mysql", cfg.DSN)
 	if err != nil {
 		log.Fatalf("Failed to open database: %v", err)
@@ -63,6 +77,7 @@ func main() {
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
+	log.Println("✓ Database connection successful")
 
 	if err := ensureChecksumColumn(db, cfg.DryRun); err != nil {
 		log.Fatalf("Failed to ensure duplicates_checksum column: %v", err)
@@ -158,8 +173,24 @@ func parseFlags() Config {
 	if cfg.PrivateDir != "" {
 		log.Printf("Private dir: %s", cfg.PrivateDir)
 	}
+	if cfg.DryRun {
+		log.Println("[DRY RUN MODE] No changes will be written to the database")
+	}
+	if cfg.Verbose {
+		log.Println("[VERBOSE MODE] File details will be logged")
+	}
 
 	return cfg
+}
+
+// Check that dof-dss-filehash binary is available in PATH.
+func checkFilehashBinary() error {
+	path, err := exec.LookPath("dof-dss-filehash")
+	if err != nil {
+		return fmt.Errorf("dof-dss-filehash binary not found in PATH: %w", err)
+	}
+	log.Printf("✓ dof-dss-filehash found at: %s", path)
+	return nil
 }
 
 // Fetch the URI for a given media entity and revision ID.
@@ -225,6 +256,14 @@ func uriToPath(cfg Config, uri string) (string, error) {
 
 // Call the dof-dss-filehash to generate the hash for the given path.
 func hashFile(path string) (string, error) {
+	// Check file existence first
+	if _, err := os.Stat(path); err != nil {
+		if os.IsNotExist(err) {
+			return "", fmt.Errorf("file not found: %q", path)
+		}
+		return "", fmt.Errorf("cannot stat file %q: %w", path, err)
+	}
+
 	cmd := exec.Command("dof-dss-filehash", path)
 	output, err := cmd.Output()
 	if err != nil {
@@ -284,9 +323,14 @@ func processMedia(db *sql.DB, cfg Config) error {
 	if err != nil {
 		return err
 	}
+	if total == 0 {
+		log.Println("No media rows to process (all may already have checksums)")
+		return nil
+	}
 	log.Printf("Processing %d rows (batch size: %d) …", total, cfg.BatchSize)
 
 	var processed, updated, skipped, offset int
+	stats := &Stats{}
 
 	for {
 		selectSQL := "SELECT mid, vid, langcode FROM media_field_data"
@@ -323,6 +367,7 @@ func processMedia(db *sql.DB, cfg Config) error {
 				if cfg.Verbose {
 					log.Printf("  [skip] mid=%d: %v", mid, err)
 				}
+				stats.URIErrors++
 				skipped++
 				continue
 			}
@@ -332,6 +377,7 @@ func processMedia(db *sql.DB, cfg Config) error {
 				if cfg.Verbose {
 					log.Printf("  [skip] mid=%d uri=%q: %v", mid, uri, err)
 				}
+				stats.URIErrors++
 				skipped++
 				continue
 			}
@@ -341,12 +387,19 @@ func processMedia(db *sql.DB, cfg Config) error {
 				if cfg.Verbose {
 					log.Printf("  [skip] mid=%d path=%q: %v", mid, path, err)
 				}
+				stats.URIErrors++
 				skipped++
 				continue
 			}
 
 			checksum, err := hashFile(absPath)
 			if err != nil {
+				errMsg := err.Error()
+				if strings.Contains(errMsg, "file not found") {
+					stats.FileNotFound++
+				} else {
+					stats.HashErrors++
+				}
 				if cfg.Verbose {
 					log.Printf("  [skip] mid=%d path=%q: %v", mid, path, err)
 				}
@@ -396,6 +449,9 @@ func processMedia(db *sql.DB, cfg Config) error {
 		}
 
 		processed += batchCount
+		stats.Processed = processed
+		stats.Updated = updated
+		stats.Skipped = skipped
 		offset += cfg.BatchSize
 		log.Printf("  … %d / %d rows processed (%d skipped so far)", processed, total, skipped)
 
@@ -409,6 +465,19 @@ func processMedia(db *sql.DB, cfg Config) error {
 		action = "would update"
 	}
 	log.Printf("Done — %s %d rows, skipped %d", action, updated, skipped)
+	log.Println("\nProcessing Summary:")
+	log.Printf("  Total rows processed:  %d", stats.Processed)
+	log.Printf("  Rows updated/hashed:   %d", stats.Updated)
+	log.Printf("  Rows skipped:          %d", stats.Skipped)
+	if stats.FileNotFound > 0 {
+		log.Printf("    - Files not found:   %d", stats.FileNotFound)
+	}
+	if stats.HashErrors > 0 {
+		log.Printf("    - Hash errors:       %d", stats.HashErrors)
+	}
+	if stats.URIErrors > 0 {
+		log.Printf("    - URI resolution:    %d", stats.URIErrors)
+	}
 	return nil
 }
 
