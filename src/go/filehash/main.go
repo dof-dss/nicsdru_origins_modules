@@ -19,6 +19,14 @@ import (
 	"strings"
 )
 
+func isSubpath(base, target string) bool {
+	rel, err := filepath.Rel(base, target)
+	if err != nil {
+		return false
+	}
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Fprintln(os.Stderr, "Usage: filehash <filepath>")
@@ -27,24 +35,9 @@ func main() {
 
 	filePath := os.Args[1]
 
-	exePath, err := os.Executable()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Unable to resolve executable path: %v\n", err)
-		os.Exit(2)
-	}
-
-	// Set the baseDir to the executable directory and up 2 levels (because we're in vendor/bin)
-	// and resolve to the absolute path including symlinks to ensure we have the correct site root.
-	baseDir := filepath.Clean(filepath.Join(filepath.Dir(exePath), "..", ".."))
-	baseDir, err = filepath.EvalSymlinks(baseDir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Unable to resolve base directory: %v\n", err)
-		os.Exit(2)
-	}
-
 	absFile, err := filepath.Abs(filePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error:Unable to resolve file path: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: Unable to resolve file path: %v\n", err)
 		os.Exit(2)
 	}
 
@@ -54,11 +47,25 @@ func main() {
 		os.Exit(2)
 	}
 
-	// Check the file path relative to the baseDir to ensure it's within the site root.
-	// If the relative path starts with '..', it's outside the site root.
-	rel, err := filepath.Rel(baseDir, absFile)
-	if err != nil || strings.HasPrefix(rel, "..") {
-		fmt.Fprintln(os.Stderr, "Error: file path is outside site root")
+	// Determine the document root from environment variables
+	var baseDir string
+	if ddevRoot := os.Getenv("DDEV_COMPOSER_ROOT"); ddevRoot != "" {
+		baseDir = filepath.Join(ddevRoot, "web")
+	} else if platformRoot := os.Getenv("PLATFORM_DOCUMENT_ROOT"); platformRoot != "" {
+		baseDir = platformRoot
+	} else {
+		fmt.Fprintln(os.Stderr, "Error: DDEV_COMPOSER_ROOT or PLATFORM_DOCUMENT_ROOT environment variable not set")
+		os.Exit(2)
+	}
+
+	baseDir, err = filepath.EvalSymlinks(baseDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Unable to resolve base directory: %v\n", err)
+		os.Exit(2)
+	}
+
+	if !isSubpath(baseDir, absFile) {
+		fmt.Fprintln(os.Stderr, "Error: file path is outside document root")
 		os.Exit(2)
 	}
 
