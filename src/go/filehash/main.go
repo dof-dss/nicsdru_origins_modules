@@ -19,6 +19,8 @@ import (
 	"strings"
 )
 
+const version = "1.0.0"
+
 func isSubpath(base, target string) bool {
 	rel, err := filepath.Rel(base, target)
 	if err != nil {
@@ -31,6 +33,11 @@ func main() {
 	if len(os.Args) != 2 {
 		fmt.Fprintln(os.Stderr, "Usage: filehash <filepath>")
 		os.Exit(1)
+	}
+
+	if os.Args[1] == "--version" || os.Args[1] == "-version" || os.Args[1] == "-v" {
+		fmt.Println(version)
+		return
 	}
 
 	filePath := os.Args[1]

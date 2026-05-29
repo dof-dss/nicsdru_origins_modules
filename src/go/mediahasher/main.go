@@ -20,6 +20,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const version = "1.0.0"
+
 type Config struct {
 	DSN        string
 	WebRoot    string
@@ -74,6 +76,7 @@ func main() {
 // Parse and validate command-line flags, returning a Config struct or exiting with an error.
 func parseFlags() Config {
 	cfg := Config{}
+	var showVersion bool
 
 	flag.StringVar(&cfg.DSN, "dsn", "",
 		"Required. MySQL DSN.\n Example: db:db@tcp(db:3306)/db")
@@ -91,8 +94,17 @@ func parseFlags() Config {
 		"Re-hash and overwrite rows that already have a checksum.")
 	flag.BoolVar(&cfg.Verbose, "verbose", false,
 		"Log each file path and checksum as it is processed.")
+	flag.BoolVar(&showVersion, "version", false,
+		"Print the version and exit.")
+	flag.BoolVar(&showVersion, "v", false,
+		"Print the version and exit.")
 
 	flag.Parse()
+
+	if showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	var errs []string
 

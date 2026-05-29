@@ -22,3 +22,10 @@ It takes the following arguments:
 | --dry-run     | Process rows without writing updates to the database   |                                            |
 | --force       | Process all rows including those with a checksum value |                                            |
 | --verbose     | Display information about each media file              |                                            |
+
+
+#### Upsun
+
+To get the database credentials on Upsun, ssh into the server and run:
+
+echo $PLATFORM_RELATIONSHIPS | base64 -d | jq
