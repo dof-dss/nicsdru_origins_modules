@@ -4,3 +4,9 @@ origins_forms.forms_configuration:
   parent: origins.admin_config
   route_name: origins_forms.forms_configuration
   weight: 10
+origins_forms.origins_exclude_title_form:
+  title: 'Origins Exclude Form'
+  route_name: origins_forms.origins_exclude_title_form
+  description: 'Configure unique title excluded items'
+  parent: origins_forms.forms_configuration
+  weight: 99

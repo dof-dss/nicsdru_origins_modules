@@ -1,0 +1,7 @@
+name: 'Origins: Cache Control'
+type: module
+description: 'Customises HTTP cache control configuration options.'
+core_version_requirement: ^10
+package: 'NICS: Origins'
+dependencies:
+  - http_cache_control
