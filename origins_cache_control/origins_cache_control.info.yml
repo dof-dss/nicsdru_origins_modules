@@ -4,4 +4,4 @@ description: 'Customises HTTP cache control configuration options.'
 core_version_requirement: ^10
 package: 'NICS: Origins'
 dependencies:
-  - http_cache_control:http_cache_control
+  - http_cache_control
