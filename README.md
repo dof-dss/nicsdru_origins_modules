@@ -29,3 +29,4 @@ Details can be found at: https://packagist.org/packages/dof-dss/nicsdru_origins_
 ## Deprecated
 
 * Origins Form Descriptions - Install Origins Forms and enable via admin settings.
+* Origins Unique Title - Install Origins Forms and configure via admin settings.
