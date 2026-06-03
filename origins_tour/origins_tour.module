@@ -30,5 +30,12 @@ function origins_tour_theme() {
  */
 
 function origins_tour_page_attachments(array &$attachments) {
+
     $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
+
+    $attachments['#attached']['drupalSettings']['originsTour'] = [
+        'siteName' => 'DEBUG_SITE_NAME',
+        'tourName' => 'DEBUG_TOUR_NAME',
+    ];
+
 }
