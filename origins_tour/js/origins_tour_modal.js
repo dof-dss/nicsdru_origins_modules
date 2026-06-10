@@ -12,7 +12,8 @@
           '.shepherd-element.shepherd-enabled.tip-operations, ' +
           '.shepherd-element.shepherd-enabled.tip-compare-selected-revisions, ' +
           '.shepherd-element.shepherd-enabled.tip-save-delete, ' +
-          '.shepherd-element.shepherd-enabled.tip-what-links-here'
+          '.shepherd-element.shepherd-enabled.tip-tasks-sidebar, ' +
+          '.shepherd-element.shepherd-enabled.tip-what'
         );
 
         if (!steps.length) return;
@@ -46,11 +47,11 @@
             'button shepherd-button use-ajax origins-tour-modal-btn';
 
           button.style.marginLeft = '0.8rem';
-          button.style.backgroundColor = '#D4A017';
-          button.style.borderColor = '#D4A017';
-          button.style.color = '#ffffff';
+          button.style.backgroundColor = '#fff';
+          button.style.color = 'var(--button-bg-color--primary)';
           button.style.fontWeight = '600';
           button.style.borderRadius = '6px';
+          button.style.boxShadow = 'none';
 
           button.setAttribute('data-dialog-type', 'modal');
           button.setAttribute('data-dialog-options', '{"width":800}');

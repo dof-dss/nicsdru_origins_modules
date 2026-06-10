@@ -55,7 +55,7 @@ tips:
     position: top-start
     selector: .checkbox
     body: 'This column shows whether a menu link is enabled. Click a box to toggle it. A blue tick = enabled; an empty box = disabled.'
-  operations:
+  menu_operations:
     id: operations
     plugin: text_formatted
     label: Operations

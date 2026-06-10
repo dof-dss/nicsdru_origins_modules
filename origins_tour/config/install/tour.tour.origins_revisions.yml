@@ -49,7 +49,7 @@ tips:
     body:
       value: '<p>This column will be the second revision for comparison. Click a circle to select a revision; the selected one is marked with a blue dot.</p>'
       format: basic_html
-  operations:
+  revision_operations:
     id: operations
     plugin: text_formatted
     label: Operations
