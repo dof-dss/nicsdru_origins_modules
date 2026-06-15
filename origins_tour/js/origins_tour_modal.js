@@ -6,14 +6,14 @@
       function addModalButton() {
 
         const steps = document.querySelectorAll(
-          '.shepherd-element.shepherd-enabled.tip-bulk-individual-select, ' +
-          '.shepherd-element.shepherd-enabled.tip-save-or-preview, ' +
-          '.shepherd-element.shepherd-enabled.tip-save, ' +
-          '.shepherd-element.shepherd-enabled.tip-operations, ' +
-          '.shepherd-element.shepherd-enabled.tip-compare-selected-revisions, ' +
-          '.shepherd-element.shepherd-enabled.tip-save-delete, ' +
-          '.shepherd-element.shepherd-enabled.tip-tasks-sidebar, ' +
-          '.shepherd-element.shepherd-enabled.tip-what'
+            '.shepherd-element.shepherd-enabled.tip-bulk-individual-select, ' +
+            '.shepherd-element.shepherd-enabled.tip-save-or-preview, ' +
+            '.shepherd-element.shepherd-enabled.tip-save, ' +
+            '.shepherd-element.shepherd-enabled.tip-operations, ' +
+            '.shepherd-element.shepherd-enabled.tip-compare-selected-revisions, ' +
+            '.shepherd-element.shepherd-enabled.tip-save-delete, ' +
+            '.shepherd-element.shepherd-enabled.tip-tasks-sidebar, ' +
+            '.shepherd-element.shepherd-enabled.tip-what'
         );
 
         if (!steps.length) return;
@@ -26,12 +26,15 @@
           if (footer.querySelector('.origins-tour-modal-btn')) return;
 
           const siteName = drupalSettings.originsTour?.siteName || '';
-          const tourName = drupalSettings.originsTour?.tourName || '';
+          const tourName =
+              step?.getAttribute('data-shepherd-step-id')
+              || document.title
+              || 'Unknown Tour';
           const currentUrl = window.location.href;
 
           const feedbackUrl = new URL(
-            '/origins-tour/feedback',
-            window.location.origin
+              '/origins-tour/feedback',
+              window.location.origin
           );
 
           feedbackUrl.searchParams.set('site', siteName);
@@ -44,7 +47,7 @@
           button.href = feedbackUrl.toString();
 
           button.className =
-            'button shepherd-button use-ajax origins-tour-modal-btn';
+              'button shepherd-button use-ajax origins-tour-modal-btn';
 
           button.style.marginLeft = '0.8rem';
           button.style.backgroundColor = '#fff';

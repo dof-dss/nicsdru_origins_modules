@@ -9,33 +9,38 @@
  * Implements hook_theme().
  */
 function origins_tour_theme() {
-  return [
-    'help_homepage' => [
-      'template' => 'index',
-      'variables' => [
-        'sitename' => \Drupal::config('system.site')->get('name'),
-      ],
-    ],
-    'tours' => [
-      'template' => 'tours',
-      'variables' => [
-        'tours' => []
-      ],
-    ],
-  ];
+    return [
+        'help_homepage' => [
+            'template' => 'index',
+            'variables' => [
+                'sitename' => \Drupal::config('system.site')->get('name'),
+            ],
+        ],
+        'tours' => [
+            'template' => 'tours',
+            'variables' => [
+                'tours' => [],
+            ],
+        ],
+    ];
 }
 
 /**
  * Implements hook_page_attachments().
  */
-
 function origins_tour_page_attachments(array &$attachments) {
+
+    $site_name = \Drupal::config('system.site')->get('name');
+
+    if (empty($site_name)) {
+        $site_name = \Drupal::request()->getHost();
+    }
 
     $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
 
+    // DO NOT fake tour name here
     $attachments['#attached']['drupalSettings']['originsTour'] = [
-        'siteName' => 'DEBUG_SITE_NAME',
-        'tourName' => 'DEBUG_TOUR_NAME',
+        'siteName' => $site_name,
+        'tourName' => '',
     ];
-
 }

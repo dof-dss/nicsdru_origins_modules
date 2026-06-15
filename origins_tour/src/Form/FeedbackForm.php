@@ -107,28 +107,19 @@ final class FeedbackForm extends FormBase {
      */
     public function submitForm(array &$form, FormStateInterface $form_state): void {
 
-        $site_name = $form_state->getValue('site_name') ?? 'Unknown Site';
-        $tour_name = $form_state->getValue('tour_name') ?? 'Unknown Tour';
-        $page_url = $form_state->getValue('page_url') ?? 'Unknown URL';
-        $user_message = trim((string) $form_state->getValue('message'));
+        $site_name = $form_state->getValue('site_name');
+        $tour_name = $form_state->getValue('tour_name');
+        $page_url = $form_state->getValue('page_url');
+        $message = $form_state->getValue('message');
 
-        // Prepend context to user message.
-        $message = "Site Name: {$site_name}\n"
-            . "Tour Name: {$tour_name}\n"
-            . "Page URL: {$page_url}\n\n"
-            . "----------------------------------------\n\n"
-            . $user_message;
-
-        // Send email.
-        $this->mailManager->mail(
-            'origins_tour',
-            'feedback_email',
-            'tour-feedback@finance-ni.gov.uk',
-            $this->currentUser->getPreferredLangcode(),
+        \Drupal::logger('origins_tour')->notice(
+            'FEEDBACK | Site: @site | Tour: @tour | Page: @page | Message: @message',
             [
-                'subject' => 'Origins Tour Feedback',
-                'message' => $message,
-            ],
+                '@site' => $site_name,
+                '@tour' => $tour_name,
+                '@page' => $page_url,
+                '@message' => $message,
+            ]
         );
     }
 
