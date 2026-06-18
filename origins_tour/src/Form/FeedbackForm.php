@@ -112,6 +112,7 @@ final class FeedbackForm extends FormBase {
         $page_url = $form_state->getValue('page_url');
         $message = $form_state->getValue('message');
 
+        // Log it.
         \Drupal::logger('origins_tour')->notice(
             'FEEDBACK | Site: @site | Tour: @tour | Page: @page | Message: @message',
             [
@@ -121,6 +122,35 @@ final class FeedbackForm extends FormBase {
                 '@message' => $message,
             ]
         );
+
+        // Send email.
+        $mailManager = \Drupal::service('plugin.manager.mail');
+
+        $module = 'origins_tour';
+        $key = 'tour_feedback';
+
+        $to = 'eddwebdev@finance-ni.gov.uk';
+
+        $params = [
+            'site_name' => $site_name,
+            'tour_name' => $tour_name,
+            'page_url' => $page_url,
+            'message' => $message,
+        ];
+
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+
+        $result = $mailManager->mail(
+            $module,
+            $key,
+            $to,
+            $langcode,
+            $params
+        );
+
+        if (!$result['result']) {
+            \Drupal::messenger()->addError(t('Unable to send feedback email.'));
+        }
     }
 
 }

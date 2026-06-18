@@ -13,6 +13,7 @@
             '.shepherd-element.shepherd-enabled.tip-compare-selected-revisions, ' +
             '.shepherd-element.shepherd-enabled.tip-save-delete, ' +
             '.shepherd-element.shepherd-enabled.tip-tasks-sidebar, ' +
+            '.shepherd-element.shepherd-enabled.tip-media-edit, ' +
             '.shepherd-element.shepherd-enabled.tip-what'
         );
 

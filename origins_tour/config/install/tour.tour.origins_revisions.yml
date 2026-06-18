@@ -49,8 +49,8 @@ tips:
     body:
       value: '<p>This column will be the second revision for comparison. Click a circle to select a revision; the selected one is marked with a blue dot.</p>'
       format: basic_html
-  revision_operations:
-    id: operations
+  revisions_operations:
+    id: revisions_operations
     plugin: text_formatted
     label: Operations
     weight: -96

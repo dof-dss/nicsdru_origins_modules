@@ -46,7 +46,7 @@ tips:
       value: '<p>The content overview table lists the site’s content. The top row shows <strong data-start="113" data-end="125">headings</strong> like Title, Type, Author, etc. If a heading has a <strong data-start="176" data-end="191">sort symbol</strong>, click it to order the content by that column.</p>'
       format: basic_html
   content_operations:
-    id: operations
+    id: content_operations
     plugin: text_formatted
     label: Operations
     weight: -97

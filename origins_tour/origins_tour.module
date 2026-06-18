@@ -44,3 +44,22 @@ function origins_tour_page_attachments(array &$attachments) {
         'tourName' => '',
     ];
 }
+
+/**
+ * Implements hook_mail().
+ */
+function origins_tour_mail($key, &$message, $params) {
+    switch ($key) {
+
+        case 'tour_feedback':
+            $message['subject'] = 'Tour Feedback: ' . $params['tour_name'];
+
+            $message['body'][] =
+                "Site: {$params['site_name']}\n" .
+                "Tour: {$params['tour_name']}\n" .
+                "Page: {$params['page_url']}\n\n" .
+                "Feedback:\n{$params['message']}";
+
+            break;
+    }
+}
