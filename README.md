@@ -11,6 +11,12 @@ A collection of modules for use across DOF-DSS Drupal sites
 * **origins_toc:** Provides Table of Contents display options.
 * **origins_workflow:** Generic editorial workflows across DoF sites.
 
+# Executables
+
+bin directory - contains executables compiled for Linux amd64 architectures.
+src directory - contains the executables source code.
+
+
 ## Usage
 
 You can include this package into your project using composer:
@@ -23,3 +29,4 @@ Details can be found at: https://packagist.org/packages/dof-dss/nicsdru_origins_
 ## Deprecated
 
 * Origins Form Descriptions - Install Origins Forms and enable via admin settings.
+* Origins Unique Title - Install Origins Forms and configure via admin settings.

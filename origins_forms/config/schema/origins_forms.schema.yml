@@ -6,3 +6,8 @@ origins_forms.settings:
     form_descriptions:
       type: boolean
       label: 'Enable'
+    excluded_bundles:
+      type: sequence
+      label: 'Excluded bundles'
+      sequence:
+        type: string
