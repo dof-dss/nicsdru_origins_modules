@@ -73,7 +73,7 @@
         });
       }
 
-      // 🔥 THIS is the key line you must keep
+      // This is the key line you must keep
       setInterval(addModalButton, 300);
     }
   };
