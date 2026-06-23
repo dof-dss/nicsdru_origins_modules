@@ -5,6 +5,9 @@ namespace Drupal\origins_tour\EventSubscriber;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Event subscriber.
+ */
 class OriginsTourSubscriber implements EventSubscriberInterface {
 
   public function onRespond(ResponseEvent $event) {
@@ -39,6 +42,9 @@ class OriginsTourSubscriber implements EventSubscriberInterface {
     $response->setContent($content);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public static function getSubscribedEvents() {
     return [
       'kernel.response' => ['onRespond', 0],
