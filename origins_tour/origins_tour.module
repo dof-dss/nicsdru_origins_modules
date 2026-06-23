@@ -19,7 +19,7 @@ function origins_tour_theme() {
     'tours' => [
       'template' => 'tours',
       'variables' => [
-          'tours' => [],
+        'tours' => [],
         ],
     ],
   ];
