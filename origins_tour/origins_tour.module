@@ -30,18 +30,18 @@ function origins_tour_theme() {
  */
 function origins_tour_page_attachments(array &$attachments) {
 
-    $site_name = \Drupal::config('system.site')->get('name');
+  $site_name = \Drupal::config('system.site')->get('name');
 
-    if (empty($site_name)) {
-        $site_name = \Drupal::request()->getHost();
-    }
+  if (empty($site_name)) {
+    $site_name = \Drupal::request()->getHost();
+  }
 
-    $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
+  $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
 
-    // DO NOT fake tour name here
-    $attachments['#attached']['drupalSettings']['originsTour'] = [
-        'siteName' => $site_name,
-        'tourName' => '',
+  // DO NOT fake tour name here.
+  $attachments['#attached']['drupalSettings']['originsTour'] = [
+      'siteName' => $site_name,
+      'tourName' => '',
     ];
 }
 
