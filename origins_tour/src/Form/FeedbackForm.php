@@ -11,7 +11,6 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Url;
 
 /**
  * Provides a feedback form for the Origins Tour help page.
@@ -19,12 +18,15 @@ use Drupal\Core\Url;
 final class FeedbackForm extends FormBase {
 
     public function __construct(
-        private readonly MailManagerInterface $mailManager,
-        private readonly AccountProxyInterface $currentUser,
-    ) {}
+  private readonly MailManagerInterface $mailManager,
+      private readonly AccountProxyInterface $currentUser,
+  ) {}
 
+    /**
+     * Create interface container.
+     */
     public static function create(ContainerInterface $container): self {
-        return new self(
+  return new self(
             $container->get('plugin.manager.mail'),
             $container->get('current_user'),
         );
