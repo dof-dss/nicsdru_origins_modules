@@ -20,7 +20,7 @@ function origins_tour_theme() {
       'template' => 'tours',
       'variables' => [
         'tours' => [],
-        ],
+      ],
     ],
   ];
 }
@@ -40,26 +40,26 @@ function origins_tour_page_attachments(array &$attachments) {
 
   // DO NOT fake tour name here.
   $attachments['#attached']['drupalSettings']['originsTour'] = [
-      'siteName' => $site_name,
-      'tourName' => '',
-    ];
+    'siteName' => $site_name,
+    'tourName' => '',
+  ];
 }
 
 /**
  * Implements hook_mail().
  */
 function origins_tour_mail($key, &$message, $params) {
-    switch ($key) {
+  switch ($key) {
 
-        case 'tour_feedback':
-            $message['subject'] = 'Tour Feedback: ' . $params['tour_name'];
+    case 'tour_feedback':
+      $message['subject'] = 'Tour Feedback: ' . $params['tour_name'];
 
-            $message['body'][] =
+      $message['body'][] =
                 "Site: {$params['site_name']}\n" .
                 "Tour: {$params['tour_name']}\n" .
                 "Page: {$params['page_url']}\n\n" .
                 "Feedback:\n{$params['message']}";
 
-            break;
-    }
+          break;
+  }
 }
