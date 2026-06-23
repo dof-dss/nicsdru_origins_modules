@@ -49,38 +49,38 @@ final class FeedbackForm extends FormBase {
 
     // Hidden contextual values passed in via URL query string.
     $form['site_name'] = [
-          '#type' => 'hidden',
-          '#value' => \Drupal::request()->query->get('site', 'Unknown Site'),
-        ];
+      '#type' => 'hidden',
+      '#value' => \Drupal::request()->query->get('site', 'Unknown Site'),
+    ];
 
     $form['tour_name'] = [
-          '#type' => 'hidden',
-          '#value' => \Drupal::request()->query->get('tour', 'Unknown Tour'),
-        ];
+      '#type' => 'hidden',
+      '#value' => \Drupal::request()->query->get('tour', 'Unknown Tour'),
+    ];
 
     $form['page_url'] = [
-          '#type' => 'hidden',
-          '#value' => \Drupal::request()->query->get('page', 'Unknown URL'),
-        ];
+      '#type' => 'hidden',
+      '#value' => \Drupal::request()->query->get('page', 'Unknown URL'),
+    ];
 
     $form['message'] = [
-          '#type' => 'textarea',
-          '#title' => $this->t('Your feedback'),
-          '#required' => TRUE,
-        ];
+      '#type' => 'textarea',
+      '#title' => $this->t('Your feedback'),
+      '#required' => TRUE,
+    ];
 
     $form['submit'] = [
-          '#type' => 'submit',
-          '#value' => $this->t('Send feedback'),
-          '#ajax' => [
-              'callback' => '::ajaxSubmit',
-              'wrapper' => 'origins-tour-feedback-wrapper',
-              'progress' => [
-                  'type' => 'throbber',
-                  'message' => $this->t('Sending…'),
-                ],
+      '#type' => 'submit',
+      '#value' => $this->t('Send feedback'),
+      '#ajax' => [
+          'callback' => '::ajaxSubmit',
+          'wrapper' => 'origins-tour-feedback-wrapper',
+          'progress' => [
+              'type' => 'throbber',
+              'message' => $this->t('Sending…'),
             ],
-        ];
+        ],
+    ];
 
     return $form;
   }
@@ -96,12 +96,12 @@ final class FeedbackForm extends FormBase {
       $response->addCommand(
                 new ReplaceCommand('#origins-tour-feedback-wrapper', $form)
             );
-  return $response;
+      return $response;
     }
 
     $success = [
-          '#markup' => '<div class="messages messages--status">Thank you for your feedback.</div>',
-        ];
+      '#markup' => '<div class="messages messages--status">Thank you for your feedback.</div>',
+    ];
 
     $response->addCommand(
             new ReplaceCommand('#origins-tour-feedback-wrapper', $success)
@@ -140,11 +140,11 @@ final class FeedbackForm extends FormBase {
     $to = 'eddwebdev@finance-ni.gov.uk';
 
     $params = [
-          'site_name' => $site_name,
-          'tour_name' => $tour_name,
-          'page_url' => $page_url,
-          'message' => $message,
-        ];
+      'site_name' => $site_name,
+      'tour_name' => $tour_name,
+      'page_url' => $page_url,
+      'message' => $message,
+    ];
 
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
 
