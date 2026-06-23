@@ -76,9 +76,9 @@ final class FeedbackForm extends FormBase {
         'callback' => '::ajaxSubmit',
         'wrapper' => 'origins-tour-feedback-wrapper',
         'progress' => [
-            'type' => 'throbber',
-            'message' => $this->t('Sending…'),
-          ],
+          'type' => 'throbber',
+          'message' => $this->t('Sending…'),
+        ],
       ],
     ];
 
