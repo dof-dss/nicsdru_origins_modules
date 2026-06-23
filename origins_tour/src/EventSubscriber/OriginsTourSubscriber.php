@@ -10,6 +10,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class OriginsTourSubscriber implements EventSubscriberInterface {
 
+  /**
+   * Event response.
+   */
   public function onRespond(ResponseEvent $event) {
 
     $request = $event->getRequest();
