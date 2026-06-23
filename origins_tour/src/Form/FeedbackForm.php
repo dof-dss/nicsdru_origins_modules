@@ -17,25 +17,31 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class FeedbackForm extends FormBase {
 
-    public function __construct(
-  private readonly MailManagerInterface $mailManager,
+  public function __construct(
+      private readonly MailManagerInterface $mailManager,
       private readonly AccountProxyInterface $currentUser,
-  ) {}
+    ) {}
 
-    /**
-     * Create interface container.
-     */
-    public static function create(ContainerInterface $container): self {
-  return new self(
+  /**
+   * Create interface container.
+   */
+  public static function create(ContainerInterface $container): self {
+    return new self(
             $container->get('plugin.manager.mail'),
             $container->get('current_user'),
         );
-    }
+  }
 
-    public function getFormId(): string {
+  /**
+   * Fetch form ID.
+   */
+  public function getFormId(): string {
         return 'origins_tour_feedback_form';
     }
 
+    /**
+     * Build form.
+     */
     public function buildForm(array $form, FormStateInterface $form_state): array {
 
         $form['#prefix'] = '<div id="origins-tour-feedback-wrapper">';
