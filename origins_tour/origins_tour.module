@@ -60,6 +60,6 @@ function origins_tour_mail($key, &$message, $params) {
                 "Page: {$params['page_url']}\n\n" .
                 "Feedback:\n{$params['message']}";
 
-          break;
+      break;
   }
 }
