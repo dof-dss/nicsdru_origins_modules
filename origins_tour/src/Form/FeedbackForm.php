@@ -18,9 +18,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 final class FeedbackForm extends FormBase {
 
   public function __construct(
-      private readonly MailManagerInterface $mailManager,
-      private readonly AccountProxyInterface $currentUser,
-    ) {}
+    private readonly MailManagerInterface $mailManager,
+    private readonly AccountProxyInterface $currentUser,
+  ) {}
 
   /**
    * Create interface container.
@@ -36,119 +36,119 @@ final class FeedbackForm extends FormBase {
    * Fetch form ID.
    */
   public function getFormId(): string {
-        return 'origins_tour_feedback_form';
-    }
+    return 'origins_tour_feedback_form';
+  }
 
-    /**
-     * Build form.
-     */
-    public function buildForm(array $form, FormStateInterface $form_state): array {
+  /**
+   * Build form.
+   */
+  public function buildForm(array $form, FormStateInterface $form_state): array {
 
-        $form['#prefix'] = '<div id="origins-tour-feedback-wrapper">';
-        $form['#suffix'] = '</div>';
+    $form['#prefix'] = '<div id="origins-tour-feedback-wrapper">';
+    $form['#suffix'] = '</div>';
 
-        // Hidden contextual values passed in via URL query string.
-        $form['site_name'] = [
-            '#type' => 'hidden',
-            '#value' => \Drupal::request()->query->get('site', 'Unknown Site'),
+    // Hidden contextual values passed in via URL query string.
+    $form['site_name'] = [
+          '#type' => 'hidden',
+          '#value' => \Drupal::request()->query->get('site', 'Unknown Site'),
         ];
 
-        $form['tour_name'] = [
-            '#type' => 'hidden',
-            '#value' => \Drupal::request()->query->get('tour', 'Unknown Tour'),
+    $form['tour_name'] = [
+          '#type' => 'hidden',
+          '#value' => \Drupal::request()->query->get('tour', 'Unknown Tour'),
         ];
 
-        $form['page_url'] = [
-            '#type' => 'hidden',
-            '#value' => \Drupal::request()->query->get('page', 'Unknown URL'),
+    $form['page_url'] = [
+          '#type' => 'hidden',
+          '#value' => \Drupal::request()->query->get('page', 'Unknown URL'),
         ];
 
-        $form['message'] = [
-            '#type' => 'textarea',
-            '#title' => $this->t('Your feedback'),
-            '#required' => TRUE,
+    $form['message'] = [
+          '#type' => 'textarea',
+          '#title' => $this->t('Your feedback'),
+          '#required' => TRUE,
         ];
 
-        $form['submit'] = [
-            '#type' => 'submit',
-            '#value' => $this->t('Send feedback'),
-            '#ajax' => [
-                'callback' => '::ajaxSubmit',
-                'wrapper' => 'origins-tour-feedback-wrapper',
-                'progress' => [
-                    'type' => 'throbber',
-                    'message' => $this->t('Sending…'),
+    $form['submit'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('Send feedback'),
+          '#ajax' => [
+              'callback' => '::ajaxSubmit',
+              'wrapper' => 'origins-tour-feedback-wrapper',
+              'progress' => [
+                  'type' => 'throbber',
+                  'message' => $this->t('Sending…'),
                 ],
             ],
         ];
 
-        return $form;
-    }
+    return $form;
+  }
 
-    /**
-     * AJAX callback for form submission.
-     */
-    public function ajaxSubmit(array $form, FormStateInterface $form_state): AjaxResponse {
+  /**
+   * AJAX callback for form submission.
+   */
+  public function ajaxSubmit(array $form, FormStateInterface $form_state): AjaxResponse {
 
-        $response = new AjaxResponse();
+    $response = new AjaxResponse();
 
-        if ($form_state->hasAnyErrors()) {
-            $response->addCommand(
+    if ($form_state->hasAnyErrors()) {
+      $response->addCommand(
                 new ReplaceCommand('#origins-tour-feedback-wrapper', $form)
             );
-            return $response;
-        }
+  return $response;
+    }
 
-        $success = [
-            '#markup' => '<div class="messages messages--status">Thank you for your feedback.</div>',
+    $success = [
+          '#markup' => '<div class="messages messages--status">Thank you for your feedback.</div>',
         ];
 
-        $response->addCommand(
+    $response->addCommand(
             new ReplaceCommand('#origins-tour-feedback-wrapper', $success)
         );
 
-        return $response;
-    }
+    return $response;
+  }
 
-    /**
-     * Main submission handler (email sending happens here).
-     */
-    public function submitForm(array &$form, FormStateInterface $form_state): void {
+  /**
+   * Main submission handler (email sending happens here).
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state): void {
 
-        $site_name = $form_state->getValue('site_name');
-        $tour_name = $form_state->getValue('tour_name');
-        $page_url = $form_state->getValue('page_url');
-        $message = $form_state->getValue('message');
+    $site_name = $form_state->getValue('site_name');
+    $tour_name = $form_state->getValue('tour_name');
+    $page_url = $form_state->getValue('page_url');
+    $message = $form_state->getValue('message');
 
-        // Log it.
-        \Drupal::logger('origins_tour')->notice(
+    // Log it.
+    \Drupal::logger('origins_tour')->notice(
             'FEEDBACK | Site: @site | Tour: @tour | Page: @page | Message: @message',
             [
-                '@site' => $site_name,
-                '@tour' => $tour_name,
-                '@page' => $page_url,
-                '@message' => $message,
+              '@site' => $site_name,
+              '@tour' => $tour_name,
+              '@page' => $page_url,
+              '@message' => $message,
             ]
         );
 
-        // Send email.
-        $mailManager = \Drupal::service('plugin.manager.mail');
+    // Send email.
+    $mailManager = \Drupal::service('plugin.manager.mail');
 
-        $module = 'origins_tour';
-        $key = 'tour_feedback';
+    $module = 'origins_tour';
+    $key = 'tour_feedback';
 
-        $to = 'eddwebdev@finance-ni.gov.uk';
+    $to = 'eddwebdev@finance-ni.gov.uk';
 
-        $params = [
-            'site_name' => $site_name,
-            'tour_name' => $tour_name,
-            'page_url' => $page_url,
-            'message' => $message,
+    $params = [
+          'site_name' => $site_name,
+          'tour_name' => $tour_name,
+          'page_url' => $page_url,
+          'message' => $message,
         ];
 
-        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+    $langcode = \Drupal::currentUser()->getPreferredLangcode();
 
-        $result = $mailManager->mail(
+    $result = $mailManager->mail(
             $module,
             $key,
             $to,
@@ -156,9 +156,9 @@ final class FeedbackForm extends FormBase {
             $params
         );
 
-        if (!$result['result']) {
-            \Drupal::messenger()->addError(t('Unable to send feedback email.'));
-        }
+    if (!$result['result']) {
+      \Drupal::messenger()->addError(t('Unable to send feedback email.'));
     }
+  }
 
 }
