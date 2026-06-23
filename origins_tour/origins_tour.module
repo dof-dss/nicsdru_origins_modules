@@ -10,19 +10,19 @@
  */
 function origins_tour_theme() {
   return [
-      'help_homepage' => [
-          'template' => 'index',
-          'variables' => [
-              'sitename' => \Drupal::config('system.site')->get('name'),
-            ],
-        ],
-      'tours' => [
-          'template' => 'tours',
-          'variables' => [
-              'tours' => [],
-            ],
-        ],
-    ];
+    'help_homepage' => [
+        'template' => 'index',
+        'variables' => [
+            'sitename' => \Drupal::config('system.site')->get('name'),
+          ],
+      ],
+    'tours' => [
+        'template' => 'tours',
+        'variables' => [
+            'tours' => [],
+          ],
+      ],
+  ];
 }
 
 /**
