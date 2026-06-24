@@ -42,7 +42,7 @@ Must install Tour version 2.0 and not the version that is in core UI.
 Run composer require 'drupal/tour:^2.0'
 
 Tours Extras:
-Install Tour Extras WYSIWYG, Extras URL Step.
+Install Tour Extras WYSIWYG.
 - composer require 'drupal/tour_extras:^1.0'
 
 ## Configuration
