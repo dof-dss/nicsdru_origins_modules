@@ -44,7 +44,7 @@ tips:
     plugin: text
     label: 'Menu links'
     weight: -97
-    position: top-start
+    position: top
     selector: '#menu-overview > thead:nth-child(1) > tr:nth-child(1) > th:nth-child(1)'
     body: 'This column shows the title of each menu link. You can click the blue link titles to view each link.'
   enabled:
@@ -56,7 +56,7 @@ tips:
     selector: .checkbox
     body: 'This column shows whether a menu link is enabled. Click a box to toggle it. A blue tick = enabled; an empty box = disabled.'
   menu_operations:
-    id: operations
+    id: menu_operations
     plugin: text_formatted
     label: Operations
     weight: -95
@@ -78,7 +78,7 @@ tips:
     plugin: text_formatted
     label: Save
     weight: -10
-    position: auto
+    position: right
     selector: '#edit-submit'
     body:
       value: '<p>When you are happy with your link titles, sort order and enabled status of the links, click the blue "<strong>Save</strong>" button to save your menu.</p>'
