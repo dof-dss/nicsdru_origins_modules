@@ -30,8 +30,10 @@ class UniqueTitleValidator {
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_service
+   *   The config factory service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager,  ConfigFactoryInterface $config_service) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, ConfigFactoryInterface $config_service) {
     $this->entityTypeManager = $entity_type_manager;
     $this->configFactory = $config_service;
   }
