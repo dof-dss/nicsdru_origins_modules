@@ -20,6 +20,13 @@ function origins_qa_install() {
 use Drupal\Core\Link;
 
 /**
+ * Install the Ultimate Cron job for blocking QA accounts.
+ */
+function origins_qa_update_10001() {
+  \Drupal::service('config.installer')->installOptionalConfig(NULL, ['module' => 'origins_qa']);
+}
+
+/**
  * Implements hook_requirements().
  */
 function origins_qa_requirements($phase) {
