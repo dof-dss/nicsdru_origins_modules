@@ -23,11 +23,21 @@ tips:
     body:
       value: '<p>Add a <strong>name</strong> for the media item.</p>'
       format: basic_html
+  remote_media_url:
+    id: remote_media_url
+    plugin: text_formatted
+    label: 'Remote Media URL'
+    weight: -99
+    position: top
+    selector: '#edit-field-media-media-remote-wrapper'
+    body:
+      value: '<p>Enter a <strong>Remote Media URL</strong> for this remote document. You can type or paste your link.</p>'
+      format: basic_html
   video_url:
     id: video_url
     plugin: text_formatted
     label: 'Video URL'
-    weight: -99
+    weight: -98
     position: right
     selector: '#edit-field-media-oembed-video-0-value'
     body:
@@ -37,7 +47,7 @@ tips:
     id: add_file
     plugin: text_formatted
     label: 'Add file'
-    weight: -98
+    weight: -97
     position: right-end
     selector: .form-managed-file__main
     body:
@@ -47,7 +57,7 @@ tips:
     id: url_alias
     plugin: text_formatted
     label: 'URL alias'
-    weight: -97
+    weight: -96
     position: top-start
     selector: .form-item--path-0-alias
     body:
@@ -57,7 +67,7 @@ tips:
     id: save
     plugin: text_formatted
     label: Save
-    weight: -96
+    weight: -95
     position: right
     selector: '#edit-submit'
     body:

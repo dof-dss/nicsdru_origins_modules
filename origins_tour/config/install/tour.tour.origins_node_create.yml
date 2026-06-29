@@ -37,7 +37,7 @@ tips:
     id: publication_type
     plugin: text
     label: 'Publication type'
-    weight: -99
+    weight: -98
     position: right
     selector: '#edit-field-publication-type'
     body: 'Click on the dropdown arrow to display available types. Select a type for the publication.'
@@ -45,15 +45,35 @@ tips:
     id: publication_date
     plugin: text
     label: 'Publication date'
-    weight: -98
+    weight: -97
     position: right
     selector: '#edit-field-published-date-0-value-date'
     body: 'Click the numbers to edit the publication date. Use the number keys or your keyboard’s up/down arrows to change digits, alternatively click the calendar icon to select a date using the date picker.'
+  global_topics:
+    id: global_topics
+    plugin: text_formatted
+    label: 'Global topics'
+    weight: -96
+    position: top
+    selector: '#edit-field-global-topics-wrapper'
+    body:
+      value: '<p>Click the "<strong>Choose some options</strong>" field and use the dropdown list to select the global topics for this content.</p>'
+      format: basic_html
+  select_topics:
+    id: select_topics
+    plugin: text_formatted
+    label: 'Select Topics'
+    weight: -95
+    position: right
+    selector: '#site-topics-tree-open-button'
+    body:
+      value: '<p>Click the "<strong>Select Topics</strong>" button and tick the boxes which relate to this content item. You can select a maximum of 3 topics.&nbsp;</p>'
+      format: basic_html
   teaser:
     id: teaser
     plugin: text_formatted
     label: Teaser
-    weight: -97
+    weight: -94
     position: right
     selector: '#edit-field-teaser-0-value'
     body:
@@ -63,7 +83,7 @@ tips:
     id: photo
     plugin: text_formatted
     label: Photo
-    weight: -96
+    weight: -93
     position: right
     selector: .media-library-open-button
     body:
@@ -73,7 +93,7 @@ tips:
     id: body
     plugin: text
     label: Body
-    weight: -95
+    weight: -92
     position: right-start
     selector: '#edit-body-wrapper'
     body: 'Enter the main content here. Use the editor tools (icons at the top) to help format and write your content. Hover over any icon to see what it does.'
@@ -81,17 +101,57 @@ tips:
     id: attachment
     plugin: text_formatted
     label: Attachment
-    weight: -94
+    weight: -91
     position: right
     selector: '#edit-field-attachment-open-button'
     body:
       value: '<p>Click the grey "<strong>Add media</strong>" button to add an attachment to your content item.</p>'
       format: basic_html
+  theme_subtheme:
+    id: theme_subtheme
+    plugin: text_formatted
+    label: Theme/subtheme
+    weight: -90
+    position: right
+    selector: '#edit-field-subtheme'
+    body:
+      value: '<p>Click the <strong>dropdown arrow</strong> and choose the theme/subtheme for this featured content list.</p>'
+      format: basic_html
+  tags:
+    id: tags
+    plugin: text_formatted
+    label: Tags
+    weight: -89
+    position: right
+    selector: .field--name-field-tags
+    body:
+      value: '<p>Click the <strong>dropdown arrow</strong> and choose the tags related to this featured content list.</p>'
+      format: basic_html
+  fcl_type:
+    id: fcl_type
+    plugin: text_formatted
+    label: 'FCL type'
+    weight: -88
+    position: right
+    selector: '#edit-field-fcl-type'
+    body:
+      value: '<p>Click the <strong>dropdown arrow</strong> and chose the Featured content list type.</p>'
+      format: basic_html
+  published:
+    id: published
+    plugin: text_formatted
+    label: Published
+    weight: -87
+    position: top-start
+    selector: '#edit-status-value'
+    body:
+      value: '<p>Tick the box if you want to publish the content.</p>'
+      format: basic_html
   save_as:
     id: save_as
     plugin: text
     label: 'Save as'
-    weight: -93
+    weight: -86
     position: right
     selector: '#edit-moderation-state-0-state'
     body: 'Click on the dropdown arrow and select how to save the piece of content.'
@@ -99,9 +159,19 @@ tips:
     id: save_or_preview
     plugin: text_formatted
     label: 'Save or preview'
-    weight: -92
+    weight: -85
     position: right
     selector: '#edit-preview'
     body:
       value: '<p>Click the blue "<strong>Save</strong>" button to save your content item. Alternatively you can preview the content before saving by clicking the grey "<strong>Preview</strong>" button.</p>'
+      format: basic_html
+  save:
+    id: save
+    plugin: text_formatted
+    label: Save
+    weight: -84
+    position: right
+    selector: '#edit-submit'
+    body:
+      value: '<p>Click the blue "<strong>Save</strong>" button to save your content item.</p>'
       format: basic_html
