@@ -1,6 +1,6 @@
-# Admin Toolbar
+# Origins Tour
 
-The Origins Tour module contains a collection of generic tours applicable to multiple sites.
+This module contains a collection of generic tours applicable to multiple sites.
 These tours intend to guide the user on how to operate and explain basic site features.
 
 ## Tours include

@@ -41,7 +41,7 @@ tips:
     position: top
     selector: '#views-exposed-form-media-library-default-page'
     body:
-      value: '<p>Use the search feature to find media. Narrow results by applying one or more filters, type in the text box or select options from the dropdown lists. When you''re ready, click the grey <strong>"Apply f</strong><strong data-start="192" data-end="204">ilters”</strong> button.</p>'
+      value: '<p>Use the search feature to find media. Narrow results by applying one or more filters, type in the text box or select options from the dropdown lists. When you''re ready, click the grey <strong>"Apply filters"</strong> button.</p>'
       format: basic_html
   media_bulk_individual_select:
     id: media_bulk_individual_select

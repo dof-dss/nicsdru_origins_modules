@@ -15,6 +15,9 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
  */
 final class HelpPagesController extends ControllerBase {
 
+  /**
+   * Controller constructor.
+   **/
   public function __construct(
     private readonly RouteProviderInterface $routeProvider,
   ) {}
@@ -71,7 +74,10 @@ final class HelpPagesController extends ControllerBase {
         '#type' => 'link',
         '#title' => $tour->label(),
         // Have the tour automatically start when the url is clicked.
-        '#url' => Url::fromRoute($route_name, [], ['absolute' => TRUE, 'query' => ['tour' => 1]]),
+        '#url' => Url::fromRoute($route_name, [], [
+          'absolute' => TRUE,
+          'query' => ['tour' => 1]
+          ]),
       ];
     }
 
