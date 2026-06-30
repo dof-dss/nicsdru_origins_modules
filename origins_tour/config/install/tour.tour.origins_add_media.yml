@@ -1,0 +1,75 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_add_media
+label: 'Add media'
+routes:
+  -
+    route_name: entity.media.add_form
+tips:
+  name:
+    id: name
+    plugin: text_formatted
+    label: Name
+    weight: -100
+    position: right
+    selector: '#edit-name-0-value'
+    body:
+      value: '<p>Add a <strong>name</strong> for the media item.</p>'
+      format: basic_html
+  remote_media_url:
+    id: remote_media_url
+    plugin: text_formatted
+    label: 'Remote Media URL'
+    weight: -99
+    position: top
+    selector: '#edit-field-media-media-remote-wrapper'
+    body:
+      value: '<p>Enter a <strong>Remote Media URL</strong> for this remote document. You can type or paste your link.</p>'
+      format: basic_html
+  video_url:
+    id: video_url
+    plugin: text_formatted
+    label: 'Video URL'
+    weight: -98
+    position: right
+    selector: '#edit-field-media-oembed-video-0-value'
+    body:
+      value: '<p>Add a video from YouTube or Vimeo by pasting its <strong>URL</strong>.</p>'
+      format: basic_html
+  add_file:
+    id: add_file
+    plugin: text_formatted
+    label: 'Add file'
+    weight: -97
+    position: right-end
+    selector: .form-managed-file__main
+    body:
+      value: '<p>Click the grey <strong data-start="15" data-end="28">“Browse…”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
+      format: basic_html
+  url_alias:
+    id: url_alias
+    plugin: text_formatted
+    label: 'URL alias'
+    weight: -96
+    position: top-start
+    selector: .form-item--path-0-alias
+    body:
+      value: '<p>Click the <strong>URL Alias</strong> tab, then enter your alias in the text box.</p>'
+      format: basic_html
+  save:
+    id: save
+    plugin: text_formatted
+    label: Save
+    weight: -95
+    position: right
+    selector: '#edit-submit'
+    body:
+      value: '<p>Click the blue "<strong>Save</strong>" button to save the media.</p>'
+      format: basic_html
