@@ -17,6 +17,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class FeedbackForm extends FormBase {
 
+  /**
+   * Form constructor.
+   */
   public function __construct(
     private readonly MailManagerInterface $mailManager,
     private readonly AccountProxyInterface $currentUser,

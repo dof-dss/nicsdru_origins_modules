@@ -11,7 +11,7 @@
 function origins_tour_theme() {
   return [
     'help_homepage' => [
-      'template' => 'index',
+      'template' => 'help-pages',
       'variables' => [
         'sitename' => \Drupal::config('system.site')->get('name'),
       ],
@@ -54,11 +54,7 @@ function origins_tour_mail($key, &$message, $params) {
     case 'tour_feedback':
       $message['subject'] = 'Tour Feedback: ' . $params['tour_name'];
 
-      $message['body'][] =
-                "Site: {$params['site_name']}\n" .
-                "Tour: {$params['tour_name']}\n" .
-                "Page: {$params['page_url']}\n\n" .
-                "Feedback:\n{$params['message']}";
+      $message['body'][] = "Site: {$params['site_name']}\nTour: {$params['tour_name']}\nPage: {$params['page_url']}\n\nFeedback:\n{$params['message']}";
 
       break;
   }

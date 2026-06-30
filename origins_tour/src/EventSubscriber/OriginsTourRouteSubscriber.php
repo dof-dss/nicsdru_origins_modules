@@ -18,7 +18,7 @@ final class OriginsTourRouteSubscriber extends RouteSubscriberBase {
   protected function alterRoutes(RouteCollection $collection): void {
     // Override Core's help section with our own.
     if ($route = $collection->get('help.main')) {
-      $route->setDefault('_controller', '\Drupal\origins_tour\Controller\OriginsTourController');
+      $route->setDefault('_controller', '\Drupal\origins_tour\Controller\HelpPagesController');
     }
   }
 
