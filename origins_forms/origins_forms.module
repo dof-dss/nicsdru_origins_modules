@@ -16,11 +16,11 @@ use Drupal\node\NodeInterface;
 function origins_forms_help($route_name, RouteMatchInterface $route_match) {
   $output = '';
   switch ($route_name) {
+    // Tour module help pages.
     case 'help.page.origins_forms':
       $output = '';
       $output .= '<h3>' . t("Form descriptions") . '</h3>';
       $output .= '<p>' . t("Moves the description on content, media and taxonomy form fields underneath the title.") . '</p>';
-
       $output .= '<h3>' . t("Field validation plugins") . '</h3>';
       $output .= '<h5>' . t("Unique list items") . '</h5>';
       $output .= '<p>' . t("Ensures uniqueness by enforcing a validation constraint that prevents duplicate entries in an item list-based field.") . '<br/>';
