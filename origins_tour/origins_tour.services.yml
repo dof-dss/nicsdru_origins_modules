@@ -1,5 +1,0 @@
-services:
-  origins_tour.route_subscriber:
-    class: Drupal\origins_tour\EventSubscriber\OriginsTourRouteSubscriber
-    tags:
-      - { name: event_subscriber }

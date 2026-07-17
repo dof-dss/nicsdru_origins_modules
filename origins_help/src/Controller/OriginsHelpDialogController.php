@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_tour\Controller;
+namespace Drupal\origins_help\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\CloseModalDialogCommand;
@@ -10,12 +10,12 @@ use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Controller\ControllerBase;
 
 /**
- * Controller for Origins Tour AJAX dialog actions.
+ * Controller for Origins Help AJAX dialog actions.
  */
-final class OriginsTourDialogController extends ControllerBase {
+final class OriginsHelpDialogController extends ControllerBase {
 
   /**
-   * Opens the Origins Tour modal dialog.
+   * Opens the Origins Help modal dialog.
    *
    * @return \Drupal\Core\Ajax\AjaxResponse
    *   An AJAX response that opens the dialog.
@@ -28,7 +28,7 @@ final class OriginsTourDialogController extends ControllerBase {
     $response = new AjaxResponse();
     $response->addCommand(
       new OpenModalDialogCommand(
-        'Origins Tour Modal',
+        'Origins Help Modal',
         $content,
         ['width' => '700'],
       )

@@ -2,13 +2,13 @@
 
 /**
  * @file
- * Primary module hooks for Origins Tour module.
+ * Primary module hooks for Origins Help module.
  */
 
 /**
  * Implements hook_theme().
  */
-function origins_tour_theme() {
+function origins_help_theme() {
   return [
     'help_homepage' => [
       'template' => 'help-pages',
@@ -28,7 +28,7 @@ function origins_tour_theme() {
 /**
  * Implements hook_page_attachments().
  */
-function origins_tour_page_attachments(array &$attachments) {
+function origins_help_page_attachments(array &$attachments) {
 
   $site_name = \Drupal::config('system.site')->get('name');
 
@@ -36,10 +36,10 @@ function origins_tour_page_attachments(array &$attachments) {
     $site_name = \Drupal::request()->getHost();
   }
 
-  $attachments['#attached']['library'][] = 'origins_tour/tour_modal';
+  $attachments['#attached']['library'][] = 'origins_help/help_modal';
 
   // DO NOT fake tour name here.
-  $attachments['#attached']['drupalSettings']['originsTour'] = [
+  $attachments['#attached']['drupalSettings']['originsHelp'] = [
     'siteName' => $site_name,
     'tourName' => '',
   ];
@@ -48,7 +48,7 @@ function origins_tour_page_attachments(array &$attachments) {
 /**
  * Implements hook_mail().
  */
-function origins_tour_mail($key, &$message, $params) {
+function origins_help_mail($key, &$message, $params) {
   switch ($key) {
 
     case 'tour_feedback':

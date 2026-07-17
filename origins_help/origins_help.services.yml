@@ -1,0 +1,5 @@
+services:
+  origins_help.route_subscriber:
+    class: Drupal\origins_help\EventSubscriber\OriginsHelpRouteSubscriber
+    tags:
+      - { name: event_subscriber }

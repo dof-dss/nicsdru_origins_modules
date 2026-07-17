@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_tour\Controller;
+namespace Drupal\origins_help\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteProviderInterface;
