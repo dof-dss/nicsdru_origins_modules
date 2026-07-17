@@ -44,22 +44,17 @@ final class HelpPagesController extends ControllerBase {
       ],
     ];
 
-    $confluence_links = [];
-    foreach ($this->confluenceClient->getChildPages() as $page) {
-      $confluence_links[] = [
-        '#type' => 'link',
-        '#title' => $page['title'],
-        '#url' => Url::fromUri($page['url']),
-        '#attributes' => ['target' => '_blank', 'rel' => 'noopener noreferrer'],
-      ];
-    }
+    $confluence_tree = $this->confluenceClient->getPageTree();
 
-    if (!empty($confluence_links)) {
+    if (!empty($confluence_tree)) {
       $build['confluence_pages'] = [
-        '#theme' => 'item_list',
+        '#theme' => 'origins_help_confluence_pages',
+        '#pages' => $confluence_tree,
         '#title' => $this->t('Documentation'),
-        '#items' => $confluence_links,
-        '#cache' => ['max-age' => 300],
+        '#cache' => [
+          'max-age' => 300,
+          'tags' => ['origins_help:confluence'],
+        ],
       ];
     }
 

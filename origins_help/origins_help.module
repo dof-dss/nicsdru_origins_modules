@@ -22,6 +22,13 @@ function origins_help_theme() {
         'tours' => [],
       ],
     ],
+    'origins_help_confluence_pages' => [
+      'template' => 'origins-help-confluence-pages',
+      'variables' => [
+        'pages' => [],
+        'title' => NULL,
+      ],
+    ],
   ];
 }
 
