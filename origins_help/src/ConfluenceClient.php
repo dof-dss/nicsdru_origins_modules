@@ -29,6 +29,7 @@ final class ConfluenceClient {
    * the project ID are excluded. Pages with no labels are always included.
    *
    * @return array<int, array{title: string, url: string, children: array}>
+   *   A tree of content collections.
    */
   public function getPageTree(): array {
     $base_url = $this->state->get('origins_help.confluence_base_url', '');
@@ -163,6 +164,7 @@ final class ConfluenceClient {
    * as unlabelled (included regardless of project filter).
    *
    * @return string[]
+   *   A list of labels for the given content.
    */
   private function fetchLabels(string $page_id, string $base_url, string $email, string $token): array {
     try {

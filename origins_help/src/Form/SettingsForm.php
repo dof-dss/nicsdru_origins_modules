@@ -46,7 +46,7 @@ final class SettingsForm extends FormBase {
       '#type' => 'url',
       '#title' => $this->t('Confluence base URL'),
       '#description' => $this->t('The root URL of your Atlassian site, e.g. <code>https://yourcompany.atlassian.net</code>.'),
-      '#default_value' => $this->state->get('origins_help.confluence_base_url', ''),
+      '#default_value' => $this->state->get('origins_help.confluence_base_url', 'https://digitaldevelopment.atlassian.net'),
       '#required' => TRUE,
     ];
 
@@ -78,7 +78,7 @@ final class SettingsForm extends FormBase {
     $form['confluence_project_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Project ID'),
-      '#description' => $this->t('Only display pages that have this label in Confluence. Leave blank to display all pages. Labels are case-insensitive (e.g. <code>my-project</code>).'),
+      '#description' => $this->t('Include pages with this label on confluence.Labels are case-insensitive (e.g. <code>my-project</code>).'),
       '#default_value' => $this->state->get('origins_help.confluence_project_id', ''),
     ];
 
