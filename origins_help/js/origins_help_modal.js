@@ -1,6 +1,6 @@
 (function (Drupal, drupalSettings) {
 
-  Drupal.behaviors.originsTourModalButton = {
+  Drupal.behaviors.originsHelpModalButton = {
     attach: function () {
 
       function addModalButton() {
@@ -24,9 +24,9 @@
           const footer = step.querySelector('.shepherd-footer');
           if (!footer) return;
 
-          if (footer.querySelector('.origins-tour-modal-btn')) return;
+          if (footer.querySelector('.origins-help-modal-btn')) return;
 
-          const siteName = drupalSettings.originsTour?.siteName || '';
+          const siteName = drupalSettings.originsHelp?.siteName || '';
           const tourName =
               step?.getAttribute('data-shepherd-step-id')
               || document.title
@@ -34,7 +34,7 @@
           const currentUrl = window.location.href;
 
           const feedbackUrl = new URL(
-              '/origins-tour/feedback',
+              '/origins-help/feedback',
               window.location.origin
           );
 
@@ -48,7 +48,7 @@
           button.href = feedbackUrl.toString();
 
           button.className =
-              'button shepherd-button use-ajax origins-tour-modal-btn';
+              'button shepherd-button use-ajax origins-help-modal-btn';
 
           button.style.marginLeft = '0.8rem';
           button.style.backgroundColor = '#fff';

@@ -1,6 +1,6 @@
-tour_modal:
+help_modal:
   js:
-    js/origins_tour_modal.js: {}
+    js/origins_help_modal.js: {}
   dependencies:
     - core/drupal
     - core/once

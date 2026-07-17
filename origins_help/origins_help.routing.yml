@@ -1,0 +1,38 @@
+origins_help.help:
+  path: '/origins/help'
+  defaults:
+    _title: 'Site help'
+    _controller: '\Drupal\origins_help\Controller\HelpPagesController'
+  requirements:
+    _role: 'authenticated'
+  options:
+    _admin_route: true
+origins_help.modal:
+  path: '/origins-help-modal'
+  defaults:
+    _controller: '\Drupal\origins_help\Controller\OriginsHelpDialogController::modal'
+  requirements:
+    _role: 'authenticated'
+origins_help.feedback_form:
+  path: '/origins-help/feedback'
+  defaults:
+    _form: '\Drupal\origins_help\Form\FeedbackForm'
+    _title: 'Feedback'
+  requirements:
+    _role: 'authenticated'
+origins_help.close_modal:
+  path: '/origins-help/close-modal'
+  defaults:
+    _controller: '\Drupal\origins_help\Controller\OriginsHelpDialogController::closeModal'
+    _title: ''
+  requirements:
+    _role: 'authenticated'
+origins_help.settings:
+  path: '/admin/config/system/origins-help'
+  defaults:
+    _form: '\Drupal\origins_help\Form\SettingsForm'
+    _title: 'Origins Help settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: true

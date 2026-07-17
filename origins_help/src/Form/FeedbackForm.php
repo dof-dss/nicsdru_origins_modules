@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_tour\Form;
+namespace Drupal\origins_help\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -13,7 +13,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a feedback form for the Origins Tour help page.
+ * Provides a feedback form for the Origins Help page.
  */
 final class FeedbackForm extends FormBase {
 
@@ -43,7 +43,7 @@ final class FeedbackForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'origins_tour_feedback_form';
+    return 'origins_help_feedback_form';
   }
 
   /**
@@ -51,7 +51,7 @@ final class FeedbackForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
 
-    $form['#prefix'] = '<div id="origins-tour-feedback-wrapper">';
+    $form['#prefix'] = '<div id="origins-help-feedback-wrapper">';
     $form['#suffix'] = '</div>';
 
     $query = $this->requestStack->getCurrentRequest()->query;
@@ -83,7 +83,7 @@ final class FeedbackForm extends FormBase {
       '#value' => $this->t('Send feedback'),
       '#ajax' => [
         'callback' => '::ajaxSubmit',
-        'wrapper' => 'origins-tour-feedback-wrapper',
+        'wrapper' => 'origins-help-feedback-wrapper',
         'progress' => [
           'type' => 'throbber',
           'message' => $this->t('Sending…'),
@@ -101,12 +101,12 @@ final class FeedbackForm extends FormBase {
     $response = new AjaxResponse();
 
     if ($form_state->hasAnyErrors()) {
-      $response->addCommand(new ReplaceCommand('#origins-tour-feedback-wrapper', $form));
+      $response->addCommand(new ReplaceCommand('#origins-help-feedback-wrapper', $form));
       return $response;
     }
 
     $response->addCommand(new ReplaceCommand(
-      '#origins-tour-feedback-wrapper',
+      '#origins-help-feedback-wrapper',
       ['#markup' => '<div class="messages messages--status">Thank you for your feedback.</div>'],
     ));
 
@@ -122,7 +122,7 @@ final class FeedbackForm extends FormBase {
     $page_url = $form_state->getValue('page_url');
     $message = $form_state->getValue('message');
 
-    $this->loggerFactory->get('origins_tour')->notice(
+    $this->loggerFactory->get('origins_help')->notice(
       'FEEDBACK | Site: @site | Tour: @tour | Page: @page | Message: @message',
       [
         '@site' => $site_name,
@@ -133,7 +133,7 @@ final class FeedbackForm extends FormBase {
     );
 
     $result = $this->mailManager->mail(
-      'origins_tour',
+      'origins_help',
       'tour_feedback',
       'eddwebdev@finance-ni.gov.uk',
       $this->currentUser->getPreferredLangcode(),
