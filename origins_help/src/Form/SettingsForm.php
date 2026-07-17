@@ -75,6 +75,13 @@ final class SettingsForm extends FormBase {
       '#required' => TRUE,
     ];
 
+    $form['confluence_project_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Project ID'),
+      '#description' => $this->t('Only display pages that have this label in Confluence. Leave blank to display all pages. Labels are case-insensitive (e.g. <code>my-project</code>).'),
+      '#default_value' => $this->state->get('origins_help.confluence_project_id', ''),
+    ];
+
     $form['confluence_max_depth'] = [
       '#type' => 'select',
       '#title' => $this->t('Sub-page depth'),
@@ -105,6 +112,7 @@ final class SettingsForm extends FormBase {
     );
     $this->state->set('origins_help.confluence_email', $form_state->getValue('confluence_email'));
     $this->state->set('origins_help.confluence_parent_page_id', $form_state->getValue('confluence_parent_page_id'));
+    $this->state->set('origins_help.confluence_project_id', trim((string) $form_state->getValue('confluence_project_id')));
     $this->state->set('origins_help.confluence_max_depth', (int) $form_state->getValue('confluence_max_depth'));
 
     $token = $form_state->getValue('confluence_api_token');

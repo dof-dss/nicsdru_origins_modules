@@ -23,12 +23,10 @@ final class ConfluenceClient {
   /**
    * Returns direct children (and their descendants) of the configured page.
    *
-   * Makes one API call per level of the tree, up to the configured max depth.
-   * Uses /child/page rather than /descendant/page to avoid having to
-   * reconstruct hierarchy from ancestor chains, which behaves inconsistently
-   * across spaces.
-   *
    * Each node: ['title' => string, 'url' => string, 'children' => [...]]
+   *
+   * When a project ID is configured, pages that have labels but none matching
+   * the project ID are excluded. Pages with no labels are always included.
    *
    * @return array<int, array{title: string, url: string, children: array}>
    */
@@ -38,15 +36,15 @@ final class ConfluenceClient {
     $token = $this->state->get('origins_help.confluence_api_token', '');
     $page_id = $this->state->get('origins_help.confluence_parent_page_id', '');
     $max_depth = (int) $this->state->get('origins_help.confluence_max_depth', 2);
+    $project_id = strtolower(trim((string) $this->state->get('origins_help.confluence_project_id', '')));
 
     if (empty($base_url) || empty($email) || empty($token) || empty($page_id)) {
       return [];
     }
 
-    // Compute the link base once; Confluence Cloud is always {base_url}/wiki.
     $link_base = rtrim($base_url, '/') . '/wiki';
 
-    return $this->fetchLevel($page_id, 0, $max_depth, $base_url, $email, $token, $link_base);
+    return $this->fetchLevel($page_id, 0, $max_depth, $base_url, $email, $token, $link_base, $project_id);
   }
 
   /**
@@ -60,64 +58,126 @@ final class ConfluenceClient {
   }
 
   /**
-   * Fetches one level of children and recurses up to $max_depth.
-   *
-   * @param string $page_id
-   *   The Confluence page ID whose children to fetch.
-   * @param int $depth
-   *   Current recursion depth (0 = direct children of the configured root).
-   * @param int $max_depth
-   *   Stop recursing when $depth reaches this value.
-   * @param string $base_url
-   *   Confluence base URL (no trailing slash).
-   * @param string $email
-   *   Atlassian account email for Basic Auth.
-   * @param string $token
-   *   Atlassian API token for Basic Auth.
-   * @param string $link_base
-   *   Prepended to each page's webui path to form an absolute URL.
-   *
-   * @return array<int, array{title: string, url: string, children: array}>
+   * Fetches all children of a page (following pagination), filters by project
+   * label, then recurses into each included child.
    */
-  private function fetchLevel(string $page_id, int $depth, int $max_depth, string $base_url, string $email, string $token, string $link_base): array {
-    $endpoint = $base_url . "/wiki/rest/api/content/{$page_id}/child/page";
+  private function fetchLevel(string $page_id, int $depth, int $max_depth, string $base_url, string $email, string $token, string $link_base, string $project_id): array {
+    $pages = [];
 
+    foreach ($this->fetchAllChildren($page_id, $base_url, $email, $token) as $page) {
+      $child_id = (string) $page['id'];
+
+      $labels = $this->fetchLabels($child_id, $base_url, $email, $token);
+      if (!empty($labels) && (empty($project_id) || !in_array($project_id, $labels, TRUE))) {
+        continue;
+      }
+
+      $children = [];
+      if ($depth + 1 < $max_depth) {
+        $children = $this->fetchLevel(
+          $child_id,
+          $depth + 1,
+          $max_depth,
+          $base_url,
+          $email,
+          $token,
+          $link_base,
+          $project_id,
+        );
+      }
+
+      $pages[] = [
+        'title' => $page['title'],
+        'url' => $link_base . ($page['_links']['webui'] ?? ''),
+        'children' => $children,
+      ];
+    }
+
+    return $pages;
+  }
+
+  /**
+   * Returns all child pages of a given page, following Confluence pagination.
+   *
+   * The child/page endpoint may return results in multiple pages via
+   * _links.next. This method collects all pages across every batch before
+   * returning, so callers always see the full child list.
+   *
+   * @return array<int, mixed>
+   *   Raw page objects from the Confluence API.
+   */
+  private function fetchAllChildren(string $page_id, string $base_url, string $email, string $token): array {
+    $results = [];
+    $endpoint = $base_url . "/wiki/rest/api/content/{$page_id}/child/page";
+    $query = ['limit' => 250];
+
+    // Guard against runaway pagination.
+    $max_iterations = 20;
+
+    for ($i = 0; $i < $max_iterations; $i++) {
+      try {
+        $options = [
+          'auth' => [$email, $token],
+          'headers' => ['Accept' => 'application/json'],
+        ];
+
+        // Query params are embedded in the URL for every request after the
+        // first; passing them again via 'query' would duplicate them.
+        if (!empty($query)) {
+          $options['query'] = $query;
+          $query = [];
+        }
+
+        $response = $this->httpClient->request('GET', $endpoint, $options);
+        $data = json_decode($response->getBody()->getContents(), TRUE);
+
+        $results = array_merge($results, $data['results'] ?? []);
+
+        if (empty($data['_links']['next'])) {
+          break;
+        }
+
+        // _links.base is the full wiki root (e.g. https://company.atlassian.net/wiki).
+        // _links.next is a path relative to that root.
+        $api_base = rtrim($data['_links']['base'] ?? ($base_url . '/wiki'), '/');
+        $endpoint = $api_base . $data['_links']['next'];
+      }
+      catch (GuzzleException $e) {
+        $this->loggerFactory->get('origins_help')->error(
+          'Confluence API request failed for page @id: @message',
+          ['@id' => $page_id, '@message' => $e->getMessage()]
+        );
+        break;
+      }
+    }
+
+    return $results;
+  }
+
+  /**
+   * Returns the lowercase label names for a Confluence page.
+   *
+   * Uses the dedicated /label endpoint rather than metadata expansion, as
+   * expansion is not consistently returned by the child/page endpoint.
+   * Returns an empty array on failure, which causes the page to be treated
+   * as unlabelled (included regardless of project filter).
+   *
+   * @return string[]
+   */
+  private function fetchLabels(string $page_id, string $base_url, string $email, string $token): array {
     try {
-      $response = $this->httpClient->request('GET', $endpoint, [
+      $response = $this->httpClient->request('GET', $base_url . "/wiki/rest/api/content/{$page_id}/label", [
         'auth' => [$email, $token],
-        'query' => ['limit' => 250],
         'headers' => ['Accept' => 'application/json'],
       ]);
 
       $data = json_decode($response->getBody()->getContents(), TRUE);
-      $pages = [];
 
-      foreach ($data['results'] ?? [] as $page) {
-        $children = [];
-        if ($depth + 1 < $max_depth) {
-          $children = $this->fetchLevel(
-            (string) $page['id'],
-            $depth + 1,
-            $max_depth,
-            $base_url,
-            $email,
-            $token,
-            $link_base,
-          );
-        }
-
-        $pages[] = [
-          'title' => $page['title'],
-          'url' => $link_base . ($page['_links']['webui'] ?? ''),
-          'children' => $children,
-        ];
-      }
-
-      return $pages;
+      return array_map('strtolower', array_column($data['results'] ?? [], 'name'));
     }
     catch (GuzzleException $e) {
-      $this->loggerFactory->get('origins_help')->error(
-        'Confluence API request failed for page @id: @message',
+      $this->loggerFactory->get('origins_help')->warning(
+        'Could not fetch labels for Confluence page @id: @message',
         ['@id' => $page_id, '@message' => $e->getMessage()]
       );
       return [];
