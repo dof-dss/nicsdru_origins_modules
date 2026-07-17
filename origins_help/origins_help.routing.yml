@@ -27,3 +27,12 @@ origins_help.close_modal:
     _title: ''
   requirements:
     _role: 'authenticated'
+origins_help.settings:
+  path: '/admin/config/system/origins-help'
+  defaults:
+    _form: '\Drupal\origins_help\Form\SettingsForm'
+    _title: 'Origins Help settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: true

@@ -7,6 +7,7 @@ namespace Drupal\origins_help\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\Url;
+use Drupal\origins_help\ConfluenceClient;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -20,6 +21,7 @@ final class HelpPagesController extends ControllerBase {
    **/
   public function __construct(
     private readonly RouteProviderInterface $routeProvider,
+    private readonly ConfluenceClient $confluenceClient,
   ) {}
 
   /**
@@ -28,6 +30,7 @@ final class HelpPagesController extends ControllerBase {
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('router.route_provider'),
+      $container->get('origins_help.confluence_client'),
     );
   }
 
@@ -35,9 +38,34 @@ final class HelpPagesController extends ControllerBase {
    * Returns the help page render array.
    */
   public function __invoke(): array {
-    $tour_links = [];
+    $build = [
+      'homepage' => [
+        '#theme' => 'help_homepage',
+      ],
+    ];
 
+    $confluence_links = [];
+    foreach ($this->confluenceClient->getChildPages() as $page) {
+      $confluence_links[] = [
+        '#type' => 'link',
+        '#title' => $page['title'],
+        '#url' => Url::fromUri($page['url']),
+        '#attributes' => ['target' => '_blank', 'rel' => 'noopener noreferrer'],
+      ];
+    }
+
+    if (!empty($confluence_links)) {
+      $build['confluence_pages'] = [
+        '#theme' => 'item_list',
+        '#title' => $this->t('Documentation'),
+        '#items' => $confluence_links,
+        '#cache' => ['max-age' => 300],
+      ];
+    }
+
+    $tour_links = [];
     $tours = $this->entityTypeManager()->getStorage('tour')->loadMultiple();
+
     foreach ($tours as $tour) {
 
       // We only want to display Origins tours in our help section.
@@ -81,15 +109,12 @@ final class HelpPagesController extends ControllerBase {
       ];
     }
 
-    return [
-      'homepage' => [
-        '#theme' => 'help_homepage',
-      ],
-      'tours' => [
-        '#theme' => 'tours',
-        '#tours' => $tour_links,
-      ],
+    $build['tours'] = [
+      '#theme' => 'tours',
+      '#tours' => $tour_links,
     ];
+
+    return $build;
   }
 
 }

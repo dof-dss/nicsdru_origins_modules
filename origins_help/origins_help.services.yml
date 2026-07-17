@@ -3,3 +3,9 @@ services:
     class: Drupal\origins_help\EventSubscriber\OriginsHelpRouteSubscriber
     tags:
       - { name: event_subscriber }
+  origins_help.confluence_client:
+    class: Drupal\origins_help\ConfluenceClient
+    arguments:
+      - '@state'
+      - '@http_client'
+      - '@logger.factory'
