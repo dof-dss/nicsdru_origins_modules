@@ -45,83 +45,115 @@ class InternalLinkProcessor {
    * Processes links in one text field.
    */
   public function processField(ContentEntityInterface $entity, string $field_name): void {
-    $config = $this->configFactory->get('origins_internal_link_checker.linksettings');
-    $exclude_list_bare = $config->get('site_url_list_exclude');
-    $exclude_url_list = !empty($exclude_list_bare)
-      ? preg_split('/\r\n|\r|\n/', $exclude_list_bare)
-      : [];
-
     $field_items = $entity->get($field_name);
     foreach ($field_items->getValue() as $delta => $values) {
       $text = $values['value'] ?? '';
-      $matches = [];
-      if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $text, $matches)) {
-        foreach ($matches[1] as $original_link) {
-          if (!in_array($original_link, $exclude_url_list, TRUE)) {
-            if (preg_match('|http://(.*)|', $original_link) ||
-              preg_match('|https://(.*)|', $original_link)) {
-              $text = $this->convertAbsoluteLink($text, $original_link);
-            }
-          }
-        }
-        $field_items->get($delta)->set('value', $text);
+      $converted_text = $this->convertText($text);
+      if ($converted_text !== $text) {
+        $field_items->get($delta)->set('value', $converted_text);
       }
     }
   }
 
   /**
-   * Converts an internal absolute link to a relative link.
+   * Converts links to known site hosts without changing surrounding markup.
    */
-  public function convertAbsoluteLink(string $body_text, string $original_link): string {
-    $replace_url_list = explode(PHP_EOL, $this->urlsToReplace());
-    $replace_url_list = array_filter($replace_url_list);
+  public function convertText(string $text): string {
+    $excluded_urls = $this->configuredLines('site_url_list_exclude');
 
-    foreach ($replace_url_list as $replace_url) {
-      $replace_url = str_replace(["\n", "\t", "\r"], '', $replace_url);
-      if (!preg_match('|/$|', $replace_url)) {
-        $replace_url .= '/';
-      }
-      if (str_contains($original_link, $replace_url)) {
-        $body_text = preg_replace(
-          '~href\=[\'"]+' . $replace_url . '~',
-          'href="/',
-          $body_text,
-          1,
+    return preg_replace_callback(
+      '~(\bhref\s*=\s*)([\'"])(.*?)\2~is',
+      function (array $matches) use ($excluded_urls): string {
+        $url = $matches[3];
+        if (in_array($url, $excluded_urls, TRUE)) {
+          return $matches[0];
+        }
+
+        $url_parts = parse_url($url);
+        if (!is_array($url_parts) ||
+          !isset($url_parts['scheme'], $url_parts['host']) ||
+          !in_array(strtolower($url_parts['scheme']), ['http', 'https'], TRUE) ||
+          isset($url_parts['user']) || isset($url_parts['pass']) ||
+          !$this->isKnownAuthority($url_parts)) {
+          return $matches[0];
+        }
+
+        $relative_url = $url_parts['path'] ?? '/';
+        $relative_url = $relative_url === '' ? '/' : $relative_url;
+        if (isset($url_parts['query'])) {
+          $relative_url .= '?' . $url_parts['query'];
+        }
+        if (isset($url_parts['fragment'])) {
+          $relative_url .= '#' . $url_parts['fragment'];
+        }
+
+        return $matches[1] . $matches[2] . $relative_url . $matches[2];
+      },
+      $text,
+    );
+  }
+
+  /**
+   * Checks whether parsed URL parts identify the current site or an alias.
+   */
+  private function isKnownAuthority(array $url_parts): bool {
+    $candidate = $this->normaliseAuthority(
+      $url_parts['host'],
+      $url_parts['port'] ?? NULL,
+      $url_parts['scheme'],
+    );
+
+    $authorities = [];
+    $request = $this->requestStack->getCurrentRequest();
+    if ($request) {
+      $authorities[] = $this->normaliseAuthority(
+        $request->getHost(),
+        $request->getPort(),
+        $request->getScheme(),
+      );
+    }
+
+    foreach ($this->configuredLines('site_url_list') as $configured_url) {
+      $parts = parse_url($configured_url);
+      if (is_array($parts) && isset($parts['scheme'], $parts['host'])) {
+        $authorities[] = $this->normaliseAuthority(
+          $parts['host'],
+          $parts['port'] ?? NULL,
+          $parts['scheme'],
         );
       }
     }
 
-    return $body_text;
+    return in_array($candidate, $authorities, TRUE);
   }
 
   /**
-   * Builds all configured variants of the current site's domains.
+   * Normalises a host and port for exact authority comparison.
    */
-  public function urlsToReplace(): string {
-    $host = $this->requestStack->getCurrentRequest()?->getHost() ?? '';
-    $protocols = ['http://', 'http://www.', 'https://', 'https://www.'];
-    $domains = $this->configFactory
+  private function normaliseAuthority(string $host, ?int $port, string $scheme): string {
+    $host = preg_replace('/^www\./i', '', strtolower($host));
+    $scheme = strtolower($scheme);
+    if (($scheme === 'http' && $port === 80) ||
+      ($scheme === 'https' && $port === 443)) {
+      $port = NULL;
+    }
+
+    return $host . ($port === NULL ? '' : ':' . $port);
+  }
+
+  /**
+   * Returns trimmed, non-empty lines from a configuration value.
+   */
+  private function configuredLines(string $key): array {
+    $value = $this->configFactory
       ->get('origins_internal_link_checker.linksettings')
-      ->get('site_url_list');
-    $domains = empty($domains) ? [] : explode(PHP_EOL, $domains);
-    $domains[] = $host;
-
-    foreach ($domains as $key => $domain) {
-      $domain = str_replace('www.', '', $domain);
-      foreach ($protocols as $protocol) {
-        $domain = str_replace($protocol, '', $domain);
-      }
-      $domains[$key] = $domain;
+      ->get($key);
+    if (!is_string($value) || trim($value) === '') {
+      return [];
     }
 
-    $urls_to_replace = '';
-    foreach ($protocols as $protocol) {
-      foreach ($domains as $domain) {
-        $urls_to_replace .= $protocol . $domain . "\r\n";
-      }
-    }
-
-    return $urls_to_replace;
+    $lines = preg_split('/\r\n|\r|\n/', $value);
+    return array_values(array_filter(array_map('trim', $lines), 'strlen'));
   }
 
 }

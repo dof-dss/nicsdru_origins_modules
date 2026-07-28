@@ -74,28 +74,74 @@ class InternalLinkProcessorTest extends UnitTestCase {
   }
 
   /**
-   * Tests conversion for the current host and a configured alias.
+   * Tests parsed URL conversion for current and configured hosts.
    *
-   * @covers ::convertAbsoluteLink
-   * @covers ::urlsToReplace
+   * @covers ::convertText
+   * @dataProvider conversionProvider
    */
-  public function testConvertAbsoluteLink(): void {
+  public function testConvertText(string $text, string $expected): void {
     $processor = $this->createProcessor([
-      'site_url_list' => 'https://old.finance-ni.gov.uk',
-      'site_url_list_exclude' => '',
+      'site_url_list' => "https://old.finance-ni.gov.uk\nhttps://preview.finance-ni.gov.uk:8443",
+      'site_url_list_exclude' => 'https://finance-ni.gov.uk/excluded',
     ]);
 
-    $current = '<a href="https://finance-ni.gov.uk/news">News</a>';
-    $alias = '<a href="http://www.old.finance-ni.gov.uk/publications">Publications</a>';
+    $this->assertSame($expected, $processor->convertText($text));
+  }
 
-    $this->assertSame(
-      '<a href="/news">News</a>',
-      $processor->convertAbsoluteLink($current, 'https://finance-ni.gov.uk/news'),
-    );
-    $this->assertSame(
-      '<a href="/publications">Publications</a>',
-      $processor->convertAbsoluteLink($alias, 'http://www.old.finance-ni.gov.uk/publications'),
-    );
+  /**
+   * Provides internal, external, excluded, and malformed links.
+   */
+  public static function conversionProvider(): array {
+    return [
+      'current host' => [
+        '<a href="https://finance-ni.gov.uk/news">News</a>',
+        '<a href="/news">News</a>',
+      ],
+      'www and scheme are equivalent' => [
+        "<a href = 'http://www.finance-ni.gov.uk/publications'>Publications</a>",
+        "<a href = '/publications'>Publications</a>",
+      ],
+      'configured alias' => [
+        '<a href="https://old.finance-ni.gov.uk/page">Page</a>',
+        '<a href="/page">Page</a>',
+      ],
+      'configured non-default port' => [
+        '<a href="https://preview.finance-ni.gov.uk:8443/page">Page</a>',
+        '<a href="/page">Page</a>',
+      ],
+      'unconfigured non-default port' => [
+        '<a href="https://finance-ni.gov.uk:8443/page">Page</a>',
+        '<a href="https://finance-ni.gov.uk:8443/page">Page</a>',
+      ],
+      'root query and fragment' => [
+        '<a href="https://finance-ni.gov.uk?one=two#main">Root</a>',
+        '<a href="/?one=two#main">Root</a>',
+      ],
+      'excluded exact URL' => [
+        '<a href="https://finance-ni.gov.uk/excluded">External service</a>',
+        '<a href="https://finance-ni.gov.uk/excluded">External service</a>',
+      ],
+      'subdomain is not equivalent' => [
+        '<a href="https://valuationservices.finance-ni.gov.uk/page">Valuation</a>',
+        '<a href="https://valuationservices.finance-ni.gov.uk/page">Valuation</a>',
+      ],
+      'external URL' => [
+        '<a href="https://example.com/page">Example</a>',
+        '<a href="https://example.com/page">Example</a>',
+      ],
+      'userinfo URL' => [
+        '<a href="https://finance-ni.gov.uk@example.com/page">Example</a>',
+        '<a href="https://finance-ni.gov.uk@example.com/page">Example</a>',
+      ],
+      'only href attributes change' => [
+        '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
+        '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
+      ],
+      'similar host cannot consume an earlier link' => [
+        '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="https://old.finance-ni.gov.uk/right">Right</a>',
+        '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="/right">Right</a>',
+      ],
+    ];
   }
 
   /**
