@@ -1,0 +1,4 @@
+services:
+  origins_internal_link_checker.processor:
+    class: Drupal\origins_internal_link_checker\InternalLinkProcessor
+    arguments: ['@config.factory', '@request_stack']
