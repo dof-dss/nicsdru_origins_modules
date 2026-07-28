@@ -9,6 +9,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\origins_internal_link_checker\InternalLinkProcessor;
+use Drupal\origins_internal_link_checker\MigrationExecutionContext;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,6 +21,28 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * @group origins_internal_link_checker
  */
 class InternalLinkProcessorTest extends UnitTestCase {
+
+  /**
+   * Tests that migration events rather than request paths suppress processing.
+   *
+   * @covers ::processEntity
+   */
+  public function testMigrationContextControlsProcessing(): void {
+    $migration_context = new MigrationExecutionContext();
+    $processor = $this->createProcessor([
+      'site_url_list' => '',
+      'site_url_list_exclude' => '',
+    ], $migration_context, 'https://www.finance-ni.gov.uk/');
+
+    $entity = $this->createMock(ContentEntityInterface::class);
+    $entity->expects($this->once())
+      ->method('getFieldDefinitions')
+      ->willReturn([]);
+    $processor->processEntity($entity);
+
+    $migration_context->onPreImport();
+    $processor->processEntity($entity);
+  }
 
   /**
    * Tests that every text item is updated without rebuilding its field.
@@ -147,7 +170,11 @@ class InternalLinkProcessorTest extends UnitTestCase {
   /**
    * Creates a processor with a real request and mocked configuration.
    */
-  private function createProcessor(array $values): InternalLinkProcessor {
+  private function createProcessor(
+    array $values,
+    ?MigrationExecutionContext $migration_context = NULL,
+    string $request_url = 'https://www.finance-ni.gov.uk/admin/content',
+  ): InternalLinkProcessor {
     $config = $this->createMock(ImmutableConfig::class);
     $config->method('get')
       ->willReturnCallback(static fn(string $key) => $values[$key] ?? NULL);
@@ -158,9 +185,13 @@ class InternalLinkProcessorTest extends UnitTestCase {
       ->willReturn($config);
 
     $request_stack = new RequestStack();
-    $request_stack->push(Request::create('https://www.finance-ni.gov.uk/admin/content'));
+    $request_stack->push(Request::create($request_url));
 
-    return new InternalLinkProcessor($config_factory, $request_stack);
+    return new InternalLinkProcessor(
+      $config_factory,
+      $request_stack,
+      $migration_context ?? new MigrationExecutionContext(),
+    );
   }
 
 }

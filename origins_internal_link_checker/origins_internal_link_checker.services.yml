@@ -1,4 +1,9 @@
 services:
   origins_internal_link_checker.processor:
     class: Drupal\origins_internal_link_checker\InternalLinkProcessor
-    arguments: ['@config.factory', '@request_stack']
+    arguments: ['@config.factory', '@request_stack', '@origins_internal_link_checker.migration_context']
+
+  origins_internal_link_checker.migration_context:
+    class: Drupal\origins_internal_link_checker\MigrationExecutionContext
+    tags:
+      - { name: event_subscriber }

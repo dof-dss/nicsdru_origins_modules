@@ -18,15 +18,14 @@ class InternalLinkProcessor {
   public function __construct(
     protected ConfigFactoryInterface $configFactory,
     protected RequestStack $requestStack,
+    protected MigrationExecutionContext $migrationContext,
   ) {}
 
   /**
    * Processes text fields on a content entity.
    */
   public function processEntity(EntityInterface $entity): void {
-    // If this hook has been invoked from a migration, bail out.
-    $page = $this->requestStack->getCurrentRequest()?->getRequestUri() ?? '';
-    if (preg_match('|^/batch|', $page) || $page === '/') {
+    if ($this->migrationContext->isImportActive()) {
       return;
     }
 
