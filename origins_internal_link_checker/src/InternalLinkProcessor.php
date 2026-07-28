@@ -34,15 +34,10 @@ class InternalLinkProcessor {
       return;
     }
 
-    $text_fields = [];
     foreach ($entity->getFieldDefinitions() as $field_name => $field) {
-      if (preg_match('/text/', $field->getType())) {
-        $text_fields[] = $field_name;
+      if (in_array($field->getType(), ['text', 'text_long', 'text_with_summary'], TRUE)) {
+        $this->processField($entity, $field_name);
       }
-    }
-
-    foreach ($text_fields as $field_name) {
-      $this->processField($entity, $field_name);
     }
   }
 
@@ -50,25 +45,27 @@ class InternalLinkProcessor {
    * Processes links in one text field.
    */
   public function processField(ContentEntityInterface $entity, string $field_name): void {
-    $text = $entity->get($field_name)->value ?? '';
-    $format = $entity->get($field_name)->format ?? '';
     $config = $this->configFactory->get('origins_internal_link_checker.linksettings');
     $exclude_list_bare = $config->get('site_url_list_exclude');
     $exclude_url_list = !empty($exclude_list_bare)
       ? preg_split('/\r\n|\r|\n/', $exclude_list_bare)
       : [];
 
-    $matches = [];
-    if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $text, $matches)) {
-      foreach ($matches[1] as $original_link) {
-        if (!in_array($original_link, $exclude_url_list)) {
-          if (preg_match('|http://(.*)|', $original_link) ||
-            preg_match('|https://(.*)|', $original_link)) {
-            $text = $this->convertAbsoluteLink($text, $original_link);
+    $field_items = $entity->get($field_name);
+    foreach ($field_items->getValue() as $delta => $values) {
+      $text = $values['value'] ?? '';
+      $matches = [];
+      if (preg_match_all('|href\=[\'"]+([^ >"\']*)[\'"]+[^>]*>|', $text, $matches)) {
+        foreach ($matches[1] as $original_link) {
+          if (!in_array($original_link, $exclude_url_list, TRUE)) {
+            if (preg_match('|http://(.*)|', $original_link) ||
+              preg_match('|https://(.*)|', $original_link)) {
+              $text = $this->convertAbsoluteLink($text, $original_link);
+            }
           }
         }
+        $field_items->get($delta)->set('value', $text);
       }
-      $entity->set($field_name, ['value' => $text, 'format' => $format]);
     }
   }
 
