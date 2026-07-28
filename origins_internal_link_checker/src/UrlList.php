@@ -29,31 +29,50 @@ class UrlList {
    * query string, or fragment. Excluded URLs may contain all URL components.
    */
   public static function invalidUrls(string $value, bool $allow_path): array {
-    return array_values(array_filter(
-      self::lines($value),
-      static function (string $url) use ($allow_path): bool {
-        if (filter_var($url, FILTER_VALIDATE_URL) === FALSE) {
-          return TRUE;
-        }
+    $invalid_urls = [];
 
-        $parts = parse_url($url);
-        if (!is_array($parts) ||
-          !isset($parts['scheme'], $parts['host']) ||
-          !in_array(strtolower($parts['scheme']), ['http', 'https'], TRUE) ||
-          isset($parts['user']) || isset($parts['pass'])) {
-          return TRUE;
-        }
+    foreach (self::lines($value) as $url) {
+      if (self::isInvalidUrl($url, $allow_path)) {
+        $invalid_urls[] = $url;
+      }
+    }
 
-        $path = $parts['path'] ?? '';
-        if (!$allow_path &&
-          (!in_array($path, ['', '/'], TRUE) ||
-          isset($parts['query']) || isset($parts['fragment']))) {
-          return TRUE;
-        }
+    return $invalid_urls;
+  }
 
-        return FALSE;
-      },
-    ));
+  /**
+   * Determines whether one configured URL is invalid.
+   */
+  private static function isInvalidUrl(string $url, bool $allow_path): bool {
+    if (filter_var($url, FILTER_VALIDATE_URL) === FALSE) {
+      return TRUE;
+    }
+
+    $parts = parse_url($url);
+    if (empty($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+      return TRUE;
+    }
+
+    $scheme = strtolower($parts['scheme']);
+    if (!in_array($scheme, ['http', 'https'], TRUE)) {
+      return TRUE;
+    }
+
+    $contains_credentials = array_key_exists('user', $parts) ||
+      array_key_exists('pass', $parts);
+    if ($contains_credentials) {
+      return TRUE;
+    }
+
+    if ($allow_path) {
+      return FALSE;
+    }
+
+    $contains_path = !empty($parts['path']) && $parts['path'] !== '/';
+    $contains_query = array_key_exists('query', $parts);
+    $contains_fragment = array_key_exists('fragment', $parts);
+
+    return $contains_path || $contains_query || $contains_fragment;
   }
 
 }
