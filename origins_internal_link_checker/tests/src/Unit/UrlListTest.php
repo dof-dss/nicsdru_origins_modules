@@ -20,9 +20,9 @@ class UrlListTest extends UnitTestCase {
    * @covers ::normalise
    */
   public function testNormalise(): void {
-    $value = " https://one.example.gov.uk \r\n\r\nhttps://two.example.gov.uk\t";
+    $value = " https://one.example.com \r\n\r\nhttps://two.example.com\t";
     $this->assertSame(
-      "https://one.example.gov.uk\nhttps://two.example.gov.uk",
+      "https://one.example.com\nhttps://two.example.com",
       UrlList::normalise($value),
     );
   }
@@ -34,18 +34,18 @@ class UrlListTest extends UnitTestCase {
    */
   public function testDomainAliasValidation(): void {
     $value = implode("\n", [
-      'https://valid.example.gov.uk',
-      'http://valid.example.gov.uk:8080/',
-      'ftp://wrong-scheme.example.gov.uk',
-      'https://example.gov.uk/content',
-      'https://example.gov.uk?preview=1',
+      'https://valid.example.com',
+      'http://valid.example.com:8080/',
+      'ftp://wrong-scheme.example.com',
+      'https://example.com/content',
+      'https://example.com?preview=1',
       'not a URL',
     ]);
 
     $this->assertSame([
-      'ftp://wrong-scheme.example.gov.uk',
-      'https://example.gov.uk/content',
-      'https://example.gov.uk?preview=1',
+      'ftp://wrong-scheme.example.com',
+      'https://example.com/content',
+      'https://example.com?preview=1',
       'not a URL',
     ], UrlList::invalidUrls($value, FALSE));
   }
@@ -57,12 +57,12 @@ class UrlListTest extends UnitTestCase {
    */
   public function testExclusionValidation(): void {
     $value = implode("\n", [
-      'https://example.gov.uk/content?preview=1#main',
-      'https://user@example.gov.uk/content',
+      'https://example.com/content?preview=1#main',
+      'https://user@example.com/content',
     ]);
 
     $this->assertSame([
-      'https://user@example.gov.uk/content',
+      'https://user@example.com/content',
     ], UrlList::invalidUrls($value, TRUE));
   }
 

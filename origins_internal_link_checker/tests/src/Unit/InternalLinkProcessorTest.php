@@ -32,7 +32,7 @@ class InternalLinkProcessorTest extends UnitTestCase {
     $processor = $this->createProcessor([
       'site_url_list' => '',
       'site_url_list_exclude' => '',
-    ], $migration_context, 'https://www.finance-ni.gov.uk/');
+    ], $migration_context, 'https://www.example.com/');
 
     $entity = $this->createMock(ContentEntityInterface::class);
     $entity->expects($this->once())
@@ -61,7 +61,7 @@ class InternalLinkProcessorTest extends UnitTestCase {
 
     $first_item = $this->createMock(FieldItemInterface::class);
     $first_values = [
-      'value' => '<a href="https://finance-ni.gov.uk/one">One</a>',
+      'value' => '<a href="https://example.com/one">One</a>',
       'format' => 'full_html',
       'summary' => 'First summary',
     ];
@@ -71,7 +71,7 @@ class InternalLinkProcessorTest extends UnitTestCase {
 
     $second_item = $this->createMock(FieldItemInterface::class);
     $second_values = [
-      'value' => '<a href="https://finance-ni.gov.uk/two">Two</a>',
+      'value' => '<a href="https://example.com/two">Two</a>',
       'format' => 'basic_html',
       'summary' => 'Second summary',
     ];
@@ -104,8 +104,8 @@ class InternalLinkProcessorTest extends UnitTestCase {
    */
   public function testConvertText(string $text, string $expected): void {
     $processor = $this->createProcessor([
-      'site_url_list' => "https://old.finance-ni.gov.uk\nhttps://preview.finance-ni.gov.uk:8443",
-      'site_url_list_exclude' => 'https://finance-ni.gov.uk/excluded',
+      'site_url_list' => "https://legacy.example.com\nhttps://preview.example.com:8443",
+      'site_url_list_exclude' => 'https://example.com/excluded',
     ]);
 
     $this->assertSame($expected, $processor->convertText($text));
@@ -117,56 +117,56 @@ class InternalLinkProcessorTest extends UnitTestCase {
   public static function conversionProvider(): array {
     return [
       'current host' => [
-        '<a href="https://finance-ni.gov.uk/news">News</a>',
+        '<a href="https://example.com/news">News</a>',
         '<a href="/news">News</a>',
       ],
       'www and scheme are equivalent' => [
-        "<a href = 'http://www.finance-ni.gov.uk/publications'>Publications</a>",
+        "<a href = 'http://www.example.com/publications'>Publications</a>",
         "<a href = '/publications'>Publications</a>",
       ],
       'configured alias' => [
-        '<a href="https://old.finance-ni.gov.uk/page">Page</a>',
+        '<a href="https://legacy.example.com/page">Page</a>',
         '<a href="/page">Page</a>',
       ],
       'configured non-default port' => [
-        '<a href="https://preview.finance-ni.gov.uk:8443/page">Page</a>',
+        '<a href="https://preview.example.com:8443/page">Page</a>',
         '<a href="/page">Page</a>',
       ],
       'unconfigured non-default port' => [
-        '<a href="https://finance-ni.gov.uk:8443/page">Page</a>',
-        '<a href="https://finance-ni.gov.uk:8443/page">Page</a>',
+        '<a href="https://example.com:8443/page">Page</a>',
+        '<a href="https://example.com:8443/page">Page</a>',
       ],
       'root query and fragment' => [
-        '<a href="https://finance-ni.gov.uk?one=two#main">Root</a>',
+        '<a href="https://example.com?one=two#main">Root</a>',
         '<a href="/?one=two#main">Root</a>',
       ],
       'excluded exact URL' => [
-        '<a href="https://finance-ni.gov.uk/excluded">External service</a>',
-        '<a href="https://finance-ni.gov.uk/excluded">External service</a>',
+        '<a href="https://example.com/excluded">External service</a>',
+        '<a href="https://example.com/excluded">External service</a>',
       ],
       'subdomain is not equivalent' => [
-        '<a href="https://valuationservices.finance-ni.gov.uk/page">Valuation</a>',
-        '<a href="https://valuationservices.finance-ni.gov.uk/page">Valuation</a>',
+        '<a href="https://service.example.com/page">Service</a>',
+        '<a href="https://service.example.com/page">Service</a>',
       ],
       'external URL' => [
-        '<a href="https://example.com/page">Example</a>',
-        '<a href="https://example.com/page">Example</a>',
+        '<a href="https://example.org/page">Example</a>',
+        '<a href="https://example.org/page">Example</a>',
       ],
       'userinfo URL' => [
-        '<a href="https://finance-ni.gov.uk@example.com/page">Example</a>',
-        '<a href="https://finance-ni.gov.uk@example.com/page">Example</a>',
+        '<a href="https://example.com@example.org/page">Example</a>',
+        '<a href="https://example.com@example.org/page">Example</a>',
       ],
       'only href attributes change' => [
-        '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
-        '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
+        '<span data-url="https://example.com/page">Text</span>',
+        '<span data-url="https://example.com/page">Text</span>',
       ],
       'data-href attribute does not change' => [
-        '<span data-href="https://finance-ni.gov.uk/page">Text</span>',
-        '<span data-href="https://finance-ni.gov.uk/page">Text</span>',
+        '<span data-href="https://example.com/page">Text</span>',
+        '<span data-href="https://example.com/page">Text</span>',
       ],
       'similar host cannot consume an earlier link' => [
-        '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="https://old.finance-ni.gov.uk/right">Right</a>',
-        '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="/right">Right</a>',
+        '<a href="https://legacyXexampleXcom/wrong">Wrong</a><a href="https://legacy.example.com/right">Right</a>',
+        '<a href="https://legacyXexampleXcom/wrong">Wrong</a><a href="/right">Right</a>',
       ],
     ];
   }
@@ -177,7 +177,7 @@ class InternalLinkProcessorTest extends UnitTestCase {
   private function createProcessor(
     array $values,
     ?MigrationExecutionContext $migration_context = NULL,
-    string $request_url = 'https://www.finance-ni.gov.uk/admin/content',
+    string $request_url = 'https://www.example.com/admin/content',
   ): InternalLinkProcessor {
     $config = $this->createMock(ImmutableConfig::class);
     $config->method('get')

@@ -36,7 +36,7 @@ class LinkCheckerForm extends ConfigFormBase {
     $form['site_url_list'] = [
       '#type' => 'textarea',
       '#title' => $this->t('Site domain aliases'),
-      '#description' => $this->t('The current domain is handled automatically. Enter any other domain aliases, such as Edge or UAT domains, one per line. Include http:// or https:// and an optional port, but do not include a path.'),
+      '#description' => $this->t('The current domain is handled automatically. Enter any other domain aliases, such as preview or staging domains, one per line. Include http:// or https:// and an optional port, but do not include a path.'),
       '#default_value' => $config->get('site_url_list'),
     ];
 

@@ -10,7 +10,7 @@ The module changes absolute links to the current site into relative links when
 a content entity is saved. For example:
 
 ```html
-<a href="https://www.example.gov.uk/news">News</a>
+<a href="https://www.example.com/news">News</a>
 ```
 
 becomes:
