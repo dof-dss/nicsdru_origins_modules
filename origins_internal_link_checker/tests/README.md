@@ -121,22 +121,32 @@ Most tests follow the same three stages:
 2. **Act:** call the method being tested.
 3. **Assert:** compare the result or verify an expected interaction.
 
-## Running the tests with DEPT
+## Running the tests in a Drupal project
 
 The Origins modules repository does not contain a complete Drupal installation
-or its own `vendor` directory. Run the suite through a consuming project such
-as DEPT after the current module code has been installed there.
+or its own `vendor` directory. Run the suite through a Drupal project which has
+installed the current version of this module and its development dependencies.
 
-From the DEPT project root, run the whole module suite:
+The examples below assume that the project uses `web` as its Drupal document
+root and installs Origins modules under `web/modules/origins`. Adjust the paths
+if the consuming project uses a different layout.
+
+From the consuming project's root directory, run the whole module suite:
 
 ```shell
-ddev exec vendor/bin/phpunit -c phpunit.xml web/modules/origins/origins_internal_link_checker/tests/src/Unit
+vendor/bin/phpunit -c phpunit.xml web/modules/origins/origins_internal_link_checker/tests/src/Unit
 ```
 
 Run one test class while working on a specific area:
 
 ```shell
-ddev exec vendor/bin/phpunit -c phpunit.xml web/modules/origins/origins_internal_link_checker/tests/src/Unit/UrlListTest.php
+vendor/bin/phpunit -c phpunit.xml web/modules/origins/origins_internal_link_checker/tests/src/Unit/UrlListTest.php
+```
+
+If the project uses DDEV, place `ddev exec` before either command. For example:
+
+```shell
+ddev exec vendor/bin/phpunit -c phpunit.xml web/modules/origins/origins_internal_link_checker/tests/src/Unit
 ```
 
 A successful run ends with `OK`, followed by the number of tests and
@@ -152,12 +162,17 @@ check its reported test count before treating it as evidence.
 Unit tests check behaviour, while these tools check different kinds of issues:
 
 ```shell
-ddev exec vendor/bin/phpcs --standard=Drupal,DrupalPractice web/modules/origins/origins_internal_link_checker
+vendor/bin/phpcs --standard=Drupal,DrupalPractice web/modules/origins/origins_internal_link_checker
 ```
 
 ```shell
-ddev exec vendor/bin/phpstan analyse web/modules/origins/origins_internal_link_checker/src web/modules/origins/origins_internal_link_checker/tests/src/Unit --configuration=.circleci/phpstan.neon --no-progress --memory-limit=1G
+vendor/bin/phpstan analyse web/modules/origins/origins_internal_link_checker/src web/modules/origins/origins_internal_link_checker/tests/src/Unit --no-progress --memory-limit=1G
 ```
+
+These commands use the consuming project's installed tools and configuration.
+Add the project's normal configuration option if it does not discover its
+PHPCS or PHPStan configuration automatically. DDEV users can prefix either
+command with `ddev exec`.
 
 - **PHPCS** checks Drupal coding standards.
 - **PHPStan** checks types and code paths without executing them.
@@ -166,9 +181,9 @@ ddev exec vendor/bin/phpstan analyse web/modules/origins/origins_internal_link_c
 Passing one tool does not replace the others.
 
 When service definitions or routes change, enable the module in a disposable
-local site and run `ddev drush cr`. A successful cache rebuild confirms that
-Drupal can compile the service container, but it still does not replace the
-behavioural unit tests.
+local site and run `vendor/bin/drush cr`. DDEV users can run `ddev drush cr`
+instead. A successful cache rebuild confirms that Drupal can compile the
+service container, but it still does not replace the behavioural unit tests.
 
 ## Adding a test
 
