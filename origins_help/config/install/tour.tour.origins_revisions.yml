@@ -1,0 +1,71 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_revisions
+label: Revisions
+routes:
+  -
+    route_name: entity.node.version_history
+tips:
+  revision_number:
+    id: revision_number
+    plugin: text
+    label: 'Revision number'
+    weight: -100
+    position: top-start
+    selector: '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(1)'
+    body: 'This column shows the revision number.'
+  revision_information:
+    id: revision_information
+    plugin: text
+    label: 'Revision information'
+    weight: -99
+    position: top-start
+    selector: '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(2)'
+    body: 'This column displays information related to each revision.'
+  compare_column_1:
+    id: compare_column_1
+    plugin: text_formatted
+    label: 'Compare column 1'
+    weight: -98
+    position: top-start
+    selector: '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(3)'
+    body:
+      value: '<p>This column is the first revision for comparison. Click a circle to select a revision; the selected one is marked with a blue dot.</p>'
+      format: basic_html
+  compare_column_2:
+    id: compare_column_2
+    plugin: text_formatted
+    label: 'Compare column 2'
+    weight: -97
+    position: top-start
+    selector: '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(4)'
+    body:
+      value: '<p>This column will be the second revision for comparison. Click a circle to select a revision; the selected one is marked with a blue dot.</p>'
+      format: basic_html
+  revisions_operations:
+    id: revisions_operations
+    plugin: text_formatted
+    label: Operations
+    weight: -96
+    position: top-start
+    selector: '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(5)'
+    body:
+      value: '<p>This column shows the actions available for each revision. Click the dropdown arrow to view available options.</p>'
+      format: basic_html
+  compare_selected_revisions:
+    id: compare_selected_revisions
+    plugin: text_formatted
+    label: 'Compare selected revisions'
+    weight: -95
+    position: right-start
+    selector: '#edit-submit'
+    body:
+      value: '<p>When your revisions are selected and you have confirmed the blue dot is present on your revisions, click the blue "<strong>Compare selected revisions</strong>" button.</p>'
+      format: basic_html

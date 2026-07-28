@@ -1,0 +1,6 @@
+origins_help.settings:
+  title: 'Help and tour settings'
+  description: 'Configure Confluence integration for the Origins Help module.'
+  route_name: origins_help.settings
+  parent: origins.admin_config
+  weight: 10

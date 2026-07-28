@@ -1,0 +1,30 @@
+<?php
+
+use Drupal\block\Entity\Block;
+
+/**
+ * Implements hook_install().
+ */
+function origins_help_install() {
+  // Disable the Claro help block which would otherwise
+  // appear above our custom help section.
+  $block = Block::load('claro_help');
+
+  if ($block) {
+    $block->setStatus(FALSE);
+    $block->save();
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function origins_help_uninstall() {
+  // Re-enable the Claro help block.
+  $block = Block::load('claro_help');
+
+  if ($block) {
+    $block->setStatus(TRUE);
+    $block->save();
+  }
+}
