@@ -1,0 +1,85 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_menu
+label: Menu
+routes:
+  -
+    route_name: entity.menu.edit_form
+tips:
+  add_link:
+    id: add_link
+    plugin: text_formatted
+    label: 'Add link'
+    weight: -100
+    position: right
+    selector: .button--primary
+    body:
+      value: '<p>Click the blue "<strong>Add link</strong>" button. When your link is saved it will be added to the Menu link list below.&nbsp;</p>'
+      format: basic_html
+  title:
+    id: title
+    plugin: text
+    label: Title
+    weight: -99
+    position: right-start
+    selector: '#edit-label'
+    body: 'Title of the menu you are currently viewing.'
+  summary:
+    id: summary
+    plugin: text
+    label: Summary
+    weight: -98
+    position: right-start
+    selector: '#edit-description'
+    body: 'An administrative summary of the menu you are currently viewing.'
+  menu_links:
+    id: menu_links
+    plugin: text
+    label: 'Menu links'
+    weight: -97
+    position: top
+    selector: '#menu-overview > thead:nth-child(1) > tr:nth-child(1) > th:nth-child(1)'
+    body: 'This column shows the title of each menu link. You can click the blue link titles to view each link.'
+  enabled:
+    id: enabled
+    plugin: text
+    label: Enabled
+    weight: -96
+    position: top-start
+    selector: .checkbox
+    body: 'This column shows whether a menu link is enabled. Click a box to toggle it. A blue tick = enabled; an empty box = disabled.'
+  menu_operations:
+    id: menu_operations
+    plugin: text_formatted
+    label: Operations
+    weight: -95
+    position: top-start
+    selector: .tabledrag-has-colspan
+    body:
+      value: '<p>This column shows available operations. Click <strong>Edit</strong> to edit a link or click the <strong>dropdown arrow</strong> to view available operations.</p>'
+      format: basic_html
+  reorder_links:
+    id: reorder_links
+    plugin: text
+    label: 'Reorder links'
+    weight: -94
+    position: top-start
+    selector: .tabledrag-handle
+    body: 'Drag (Click & Hold) the arrow icon to reorder links. Move up/down to change position in the menu, or left/right to create sub-links.'
+  save:
+    id: save
+    plugin: text_formatted
+    label: Save
+    weight: -10
+    position: right
+    selector: '#edit-submit'
+    body:
+      value: '<p>When you are happy with your link titles, sort order and enabled status of the links, click the blue "<strong>Save</strong>" button to save your menu.</p>'
+      format: basic_html

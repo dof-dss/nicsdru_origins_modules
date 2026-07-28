@@ -1,0 +1,7 @@
+help_modal:
+  js:
+    js/origins_help_modal.js: {}
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupal.dialog.ajax

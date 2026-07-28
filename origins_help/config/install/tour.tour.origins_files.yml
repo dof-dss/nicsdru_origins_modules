@@ -1,0 +1,55 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_files
+label: Files
+routes:
+  -
+    route_name: view.files.page_1
+tips:
+  search:
+    id: search
+    plugin: text_formatted
+    label: Search
+    weight: -100
+    position: top
+    selector: '#views-exposed-form-files-page-1'
+    body:
+      value: '<p>Search to find files. Narrow results by applying one or more filters, type in the text boxes or select an option from the dropdown list. When you''re ready, click the grey <strong data-start="192" data-end="204">“Filter”</strong> button.</p>'
+      format: basic_html
+  table_headings:
+    id: table_headings
+    plugin: text_formatted
+    label: 'Table headings'
+    weight: -99
+    position: top
+    selector: '.views-table > thead:nth-child(1)'
+    body:
+      value: '<p>The file table lists all files on the site. The top row shows <strong data-start="113" data-end="125">headings</strong> like Name, MIME type, filesize, etc. If a heading has a <strong data-start="176" data-end="191">sort symbol</strong>, click it to order the content by that column.</p>'
+      format: basic_html
+  used_in:
+    id: used_in
+    plugin: text_formatted
+    label: 'Used in'
+    weight: -98
+    position: top
+    selector: '#view-count-table-column'
+    body:
+      value: '<p>Shows how many times a file is used on the site. Click the blue link to view details, including entity title, type etc.</p>'
+      format: basic_html
+  operations:
+    id: operations
+    plugin: text_formatted
+    label: Operations
+    weight: -97
+    position: top
+    selector: .views-field-operations
+    body:
+      value: '<p>This column shows operations available on files. Use the <strong>Delete</strong> function or click a dropdown arrow (if available) to display operations for each file.</p>'
+      format: basic_html
