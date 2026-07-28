@@ -160,6 +160,10 @@ class InternalLinkProcessorTest extends UnitTestCase {
         '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
         '<span data-url="https://finance-ni.gov.uk/page">Text</span>',
       ],
+      'data-href attribute does not change' => [
+        '<span data-href="https://finance-ni.gov.uk/page">Text</span>',
+        '<span data-href="https://finance-ni.gov.uk/page">Text</span>',
+      ],
       'similar host cannot consume an earlier link' => [
         '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="https://old.finance-ni.gov.uk/right">Right</a>',
         '<a href="https://oldXfinance-niXgovXuk/wrong">Wrong</a><a href="/right">Right</a>',

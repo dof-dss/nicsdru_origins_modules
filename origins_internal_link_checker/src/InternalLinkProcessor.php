@@ -61,7 +61,7 @@ class InternalLinkProcessor {
     $excluded_urls = $this->configuredLines('site_url_list_exclude');
 
     return preg_replace_callback(
-      '~(\bhref\s*=\s*)([\'"])(.*?)\2~is',
+      '~((?<![\w:-])href\s*=\s*)([\'"])(.*?)\2~is',
       function (array $matches) use ($excluded_urls): string {
         $url = $matches[3];
         if (in_array($url, $excluded_urls, TRUE)) {
@@ -151,8 +151,7 @@ class InternalLinkProcessor {
       return [];
     }
 
-    $lines = preg_split('/\r\n|\r|\n/', $value);
-    return array_values(array_filter(array_map('trim', $lines), 'strlen'));
+    return UrlList::lines($value);
   }
 
 }
