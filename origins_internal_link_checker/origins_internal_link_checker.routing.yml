@@ -4,6 +4,6 @@ origins_internal_link_checker.link_checker_form:
     _form: '\Drupal\origins_internal_link_checker\Form\LinkCheckerForm'
     _title: 'Origins Link Checker'
   requirements:
-    _role: 'administrator'
+    _permission: 'administer origins internal link checker'
   options:
     _admin_route: TRUE

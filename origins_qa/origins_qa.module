@@ -8,6 +8,36 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
+ * Blocks all QA test accounts on production environments.
+ *
+ * @see config/optional/ultimate_cron.job.origins_qa_block_accounts.yml
+ */
+function origins_qa_block_qa_accounts() {
+  if (getenv('PLATFORM_ENVIRONMENT_TYPE') !== 'production') {
+    return;
+  }
+
+  $accounts = \Drupal::entityTypeManager()
+    ->getStorage('user')
+    ->loadByProperties(['roles' => 'qa']);
+
+  foreach ($accounts as $account) {
+    if ($account->isActive()) {
+      try {
+        $account->block();
+        $account->save();
+      }
+      catch (\Throwable $error) {
+        \Drupal::logger('origins_qa')->error('Error blocking QA account @name: @error', [
+          '@name' => $account->getAccountName(),
+          '@error' => $error->getMessage(),
+        ]);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_help().
  */
 function origins_qa_help($route_name, RouteMatchInterface $route_match) {

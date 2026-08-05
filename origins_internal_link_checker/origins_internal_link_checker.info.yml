@@ -3,3 +3,5 @@ type: module
 description: 'Origins internal link checking and correction'
 core_version_requirement: ^8.8 || ^9 || ^10 || ^11
 package: 'NICS: Origins'
+dependencies:
+  - origins_common

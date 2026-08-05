@@ -1,0 +1,4 @@
+administer origins internal link checker:
+  title: 'Administer Origins internal link checker'
+  description: 'Configure site domain aliases and URLs excluded from conversion.'
+  restrict access: true
