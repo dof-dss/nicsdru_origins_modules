@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_tour\EventSubscriber;
+namespace Drupal\origins_help\EventSubscriber;
 
 use Drupal\Core\Routing\RouteSubscriberBase;
 use Symfony\Component\Routing\RouteCollection;
@@ -10,7 +10,7 @@ use Symfony\Component\Routing\RouteCollection;
 /**
  * Route subscriber.
  */
-final class OriginsTourRouteSubscriber extends RouteSubscriberBase {
+final class OriginsHelpRouteSubscriber extends RouteSubscriberBase {
 
   /**
    * {@inheritdoc}
@@ -20,7 +20,7 @@ final class OriginsTourRouteSubscriber extends RouteSubscriberBase {
     // displays help sections for modules and this page is intended
     // for end-users.
     if ($route = $collection->get('help.main')) {
-      $route->setDefault('_controller', '\Drupal\origins_tour\Controller\HelpPagesController');
+      $route->setDefault('_controller', '\Drupal\origins_help\Controller\HelpPagesController');
     }
   }
 

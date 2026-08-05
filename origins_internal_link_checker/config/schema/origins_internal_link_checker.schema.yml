@@ -1,0 +1,10 @@
+origins_internal_link_checker.linksettings:
+  type: config_object
+  label: 'Origins internal link checker settings'
+  mapping:
+    site_url_list:
+      type: string
+      label: 'Site domain aliases'
+    site_url_list_exclude:
+      type: string
+      label: 'URLs excluded from conversion'

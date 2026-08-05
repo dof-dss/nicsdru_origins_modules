@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Drupal\origins_tour\Controller;
+namespace Drupal\origins_help\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\Url;
+use Drupal\origins_help\ConfluenceClient;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -20,6 +21,7 @@ final class HelpPagesController extends ControllerBase {
    **/
   public function __construct(
     private readonly RouteProviderInterface $routeProvider,
+    private readonly ConfluenceClient $confluenceClient,
   ) {}
 
   /**
@@ -28,6 +30,7 @@ final class HelpPagesController extends ControllerBase {
   public static function create(ContainerInterface $container): static {
     return new static(
       $container->get('router.route_provider'),
+      $container->get('origins_help.confluence_client'),
     );
   }
 
@@ -35,9 +38,29 @@ final class HelpPagesController extends ControllerBase {
    * Returns the help page render array.
    */
   public function __invoke(): array {
-    $tour_links = [];
+    $build = [
+      'homepage' => [
+        '#theme' => 'help_homepage',
+      ],
+    ];
 
+    $confluence_tree = $this->confluenceClient->getPageTree();
+
+    if (!empty($confluence_tree)) {
+      $build['confluence_pages'] = [
+        '#theme' => 'origins_help_confluence_pages',
+        '#pages' => $confluence_tree,
+        '#title' => $this->t('Documentation'),
+        '#cache' => [
+          'max-age' => 300,
+          'tags' => ['origins_help:confluence'],
+        ],
+      ];
+    }
+
+    $tour_links = [];
     $tours = $this->entityTypeManager()->getStorage('tour')->loadMultiple();
+
     foreach ($tours as $tour) {
 
       // We only want to display Origins tours in our help section.
@@ -81,15 +104,12 @@ final class HelpPagesController extends ControllerBase {
       ];
     }
 
-    return [
-      'homepage' => [
-        '#theme' => 'help_homepage',
-      ],
-      'tours' => [
-        '#theme' => 'tours',
-        '#tours' => $tour_links,
-      ],
+    $build['tours'] = [
+      '#theme' => 'tours',
+      '#tours' => $tour_links,
     ];
+
+    return $build;
   }
 
 }
