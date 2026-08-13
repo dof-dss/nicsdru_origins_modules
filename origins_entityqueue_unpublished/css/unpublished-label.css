@@ -1,0 +1,20 @@
+.origins-unpublished-label {
+  display: inline-block;
+  margin: .5rem 0 0 10px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #b20000;
+  border: 1px solid #b20000;
+  border-radius: 3px;
+  background: #ffecec;
+}
+
+.origins-unpublished-warning {
+  order: -1;
+  margin-bottom: 1rem;
+}
+
+tr:has(.origins-unpublished-warning) .tabledrag-cell-content {
+  display: none;
+}

@@ -1,0 +1,137 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_form_entity_subqueue_form_alter().
+ */
+function origins_entityqueue_unpublished_form_entity_subqueue_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  $subqueue = $form_state->getFormObject()->getEntity();
+
+  if (!$subqueue) {
+    return;
+  }
+
+  // Run during initial form build and AJAX rebuilds.
+  $form['#after_build'][] = 'origins_entityqueue_unpublished_after_build';
+
+  // Add labels on initial build.
+  origins_entityqueue_unpublished_add_unpublished_labels($form, $subqueue);
+}
+
+/**
+ * Runs after Entityqueue AJAX rebuilds the form.
+ */
+function origins_entityqueue_unpublished_after_build(array $form, FormStateInterface $form_state) {
+  $subqueue = $form_state->getFormObject()->getEntity();
+
+  if (!$subqueue) {
+    return $form;
+  }
+
+  // Add unpublished labels after AJAX rebuild.
+  origins_entityqueue_unpublished_add_unpublished_labels($form, $subqueue);
+
+  // Add warning after AJAX rebuild.
+  origins_entityqueue_unpublished_add_warning_message($form, $subqueue);
+
+  return $form;
+}
+
+/**
+ * Determines whether the latest revision of a node is unpublished.
+ */
+function origins_entityqueue_unpublished_is_latest_revision_unpublished(NodeInterface $entity) {
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
+
+  $revision_ids = $storage->revisionIds($entity);
+
+  if (empty($revision_ids)) {
+    return FALSE;
+  }
+
+  // The last revision ID is the newest revision.
+  $latest_vid = end($revision_ids);
+  $latest_revision = $storage->loadRevision($latest_vid);
+
+  if (!$latest_revision) {
+    return FALSE;
+  }
+
+  return !$latest_revision->isPublished();
+}
+
+/**
+ * Adds an Unpublished label to queue items.
+ */
+function origins_entityqueue_unpublished_add_unpublished_labels(array &$form, $subqueue) {
+  if (!isset($form['items']['widget'])) {
+    return;
+  }
+
+  $entities = $subqueue->get('items')->referencedEntities();
+
+  foreach ($entities as $delta => $entity) {
+    if ($entity instanceof NodeInterface) {
+
+      // Check the latest revision, not just the default/published revision.
+      if (origins_entityqueue_unpublished_is_latest_revision_unpublished($entity)) {
+        if (isset($form['items']['widget'][$delta])) {
+          $form['items']['widget'][$delta]['unpublished_warning'] = [
+            '#type' => 'markup',
+            '#markup' => '<span class="origins-unpublished-label">Unpublished</span>',
+            '#weight' => -10,
+          ];
+        }
+      }
+    }
+  }
+
+  $form['#attached']['library'][] =
+    'origins_entityqueue_unpublished/unpublished_label';
+}
+
+/**
+ * Adds an unpublished warning message above the Entityqueue table.
+ */
+function origins_entityqueue_unpublished_add_warning_message(array &$form, $subqueue) {
+  if (!isset($form['items']['widget'])) {
+    return;
+  }
+
+  $unpublished = [];
+
+  foreach ($subqueue->get('items')->referencedEntities() as $entity) {
+    if ($entity instanceof NodeInterface) {
+
+      // Check the latest revision.
+      if (origins_entityqueue_unpublished_is_latest_revision_unpublished($entity)) {
+        $unpublished[] = $entity->label();
+      }
+    }
+  }
+
+  if (!empty($unpublished)) {
+    $form['items']['widget']['unpublished_warning_message'] = [
+      '#type' => 'container',
+      '#weight' => -1000,
+      '#attributes' => [
+        'class' => [
+          'messages',
+          'messages--warning',
+          'origins-unpublished-warning',
+        ],
+      ],
+      '#markup' => t(
+        'This slideshow contains unpublished content: @nodes. Unpublished slides will not appear on the website until they are published.',
+        [
+          '@nodes' => implode(', ', $unpublished),
+        ]
+      ),
+    ];
+
+    $form['items']['widget']['unpublished_warning_message']['#attached']['library'][] =
+      'origins_entityqueue_unpublished/unpublished_label';
+  }
+}
