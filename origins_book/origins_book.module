@@ -2,92 +2,418 @@
 
 /**
  * @file
- * Module hooks for improving book cache invalidation.
+ * Book navigation, cache invalidation, and parent-page safeguards.
  */
 
+use Drupal\Component\Utility\NestedArray;
+use Drupal\book\Form\BookAdminEditForm;
 use Drupal\book\Form\BookOutlineForm;
+use Drupal\book\Form\BookRemoveForm;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\flag\FlagInterface;
+use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_entity_access().
+ */
+function origins_book_entity_access(EntityInterface $entity, $operation, AccountInterface $account) {
+  if ($operation !== 'delete' || !$entity instanceof NodeInterface) {
+    return AccessResult::neutral();
+  }
+
+  if (\Drupal::service('origins_book.parent_page_protection')->isProtected($entity, $account)) {
+    return AccessResult::forbidden('Book pages with children must not be deleted.')
+      ->cachePerPermissions()
+      ->addCacheableDependency($entity);
+  }
+
+  return AccessResult::neutral()->cachePerPermissions()->addCacheableDependency($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_presave().
+ */
+function origins_book_node_presave(NodeInterface $node) {
+  if ($node->isNew() || !$node->hasField('moderation_state')) {
+    return;
+  }
+
+  $original_state = NULL;
+  if (!empty($node->original) && $node->original instanceof NodeInterface && $node->original->hasField('moderation_state')) {
+    $original_state = $node->original->get('moderation_state')->getString();
+  }
+
+  $protection = \Drupal::service('origins_book.parent_page_protection');
+  if ($protection->isArchiveBlocked($node, \Drupal::currentUser(), $node->get('moderation_state')->getString(), $original_state)) {
+    throw new EntityStorageException('Book pages with children must not be archived. Move or remove the child pages first.');
+  }
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node forms.
+ */
+function origins_book_form_node_form_alter(array &$form, FormStateInterface $form_state) {
+  $node = origins_book_get_form_node($form_state);
+  if ($node instanceof NodeInterface && \Drupal::service('origins_book.parent_page_protection')->isProtected($node, \Drupal::currentUser())) {
+    unset($form['moderation_state']['widget'][0]['state']['#options']['archived']);
+  }
+
+  $form['#validate'][] = 'origins_book_validate_parent_page_archive';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_book_form_moderation_sidebar_quick_transition_form_alter(array &$form, FormStateInterface $form_state) {
+  $node = $form_state->get('entity');
+  if (!$node instanceof NodeInterface || !\Drupal::hasService('content_moderation.state_transition_validation')) {
+    return;
+  }
+
+  $account = \Drupal::currentUser();
+  $transitions = \Drupal::service('content_moderation.state_transition_validation')
+    ->getValidTransitions($node, $account);
+  $protection = \Drupal::service('origins_book.parent_page_protection');
+
+  foreach ($protection->getBlockedArchiveTransitionIds($node, $account, $transitions) as $transition_id) {
+    unset($form[$transition_id]);
+  }
+
+  // The moderation sidebar adds these fields whenever it initially finds a
+  // transition. Remove them if hiding Archive leaves no transitions to use.
+  if (!array_intersect_key($transitions, $form)) {
+    unset($form['revision_log_toggle'], $form['revision_log']);
+  }
+}
+
+/**
+ * Prevents a node form from archiving a protected book parent page.
+ */
+function origins_book_validate_parent_page_archive(array &$form, FormStateInterface $form_state) {
+  $node = origins_book_get_form_node($form_state);
+  if (!$node instanceof NodeInterface || !$node->hasField('moderation_state')) {
+    return;
+  }
+
+  $new_state = $form_state->getValue('moderation_state');
+  if (is_array($new_state)) {
+    $new_state = $new_state[0]['value'] ?? NULL;
+  }
+  $original_state = $node->get('moderation_state')->getString();
+
+  $protection = \Drupal::service('origins_book.parent_page_protection');
+  if (is_string($new_state) && $protection->isArchiveBlocked($node, \Drupal::currentUser(), $new_state, $original_state)) {
+    $form_state->setErrorByName('moderation_state', t('This book page has child pages and cannot be archived. Move or remove the child pages first.'));
+  }
+}
+
+/**
+ * Gets the node entity from an entity form.
+ */
+function origins_book_get_form_node(FormStateInterface $form_state): ?NodeInterface {
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof EntityFormInterface) {
+    return NULL;
+  }
+
+  $entity = $form_object->getEntity();
+  return $entity instanceof NodeInterface ? $entity : NULL;
+}
+
+/**
+ * Implements hook_entity_operation_alter().
+ */
+function origins_book_entity_operation_alter(array &$operations, EntityInterface $entity) {
+  if (!$entity instanceof NodeInterface || !\Drupal::service('origins_book.parent_page_protection')->isProtected($entity, \Drupal::currentUser())) {
+    return;
+  }
+
+  unset($operations['delete'], $operations['change_to_archived']);
+}
 
 /**
  * Implements hook_entity_view_alter().
  */
 function origins_book_entity_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
-  // Ensures the in-node book navigation render array carries the correct
-  // "bid:{bid}" cache tag, so it responds to changes in the book outline.
   if (!$entity instanceof NodeInterface) {
     return;
   }
-  if (empty($entity->book['bid'])) {
+
+  if (!empty($build['book_navigation']) && is_array($entity->book ?? NULL)) {
+    $existing_tags = $build['book_navigation']['#cache']['tags'] ?? [];
+    $book_tags = \Drupal::service('origins_book.cache_invalidator')->getCacheTags([$entity->book]);
+    $build['book_navigation']['#cache']['tags'] = Cache::mergeTags($existing_tags, $book_tags);
+  }
+
+  if (!\Drupal::service('origins_book.parent_page_protection')->isProtected($entity, \Drupal::currentUser())) {
     return;
   }
 
-  if (empty($build['book_navigation'])) {
+  unset($build['actions']['primary']['archive']);
+  $existing_contexts = $build['#cache']['contexts'] ?? [];
+  $build['#cache']['contexts'] = Cache::mergeContexts($existing_contexts, ['user.permissions']);
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function origins_book_module_implements_alter(array &$implementations, $hook) {
+  // The archive action is added by origins_workflow_entity_view_alter(), so
+  // this module must run afterwards to remove it for protected book parents.
+  if ($hook === 'entity_view_alter' && isset($implementations['origins_book'])) {
+    $group = $implementations['origins_book'];
+    unset($implementations['origins_book']);
+    $implementations['origins_book'] = $group;
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function origins_book_entity_presave(EntityInterface $entity) {
+  if ($entity instanceof NodeType) {
+    $book = $entity->book ?? NULL;
+
+    if (empty($book)) {
+      return;
+    }
+    else {
+      /* @var \Drupal\flag\FlagServiceInterface $flag_service */
+      $flag_service = \Drupal::service('flag');
+      /* @var \Drupal\flag\FlagCountManagerInterface $flag_count_service */
+      $flag_count_service = \Drupal::service('flag.count');
+
+      // Has the node already had the ToC flag set? If so, nothing to do.
+      $flags = $flag_count_service->getEntityFlagCounts($entity);
+      if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] == 1) {
+        return;
+      }
+
+      $toc_flag = $flag_service->getFlagById('disable_toc');
+
+      // Flag the content to disable the toc.
+      if ($toc_flag instanceof FlagInterface) {
+        $flag_service->flag($toc_flag, $entity);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function origins_book_entity_type_alter(array &$entity_types) {
+  // Remove BookOutlineConstraint to permit outline changes to
+  // nodes/books regardless of publish status.
+  /* @var \Drupal\Core\Entity\ContentEntityTypeInterface $node_entity_type */
+  $node_entity_type = &$entity_types['node'];
+  $constraints = $node_entity_type->getConstraints();
+
+  if (array_key_exists('BookOutline', $constraints)) {
+    unset($constraints['BookOutline']);
+    $node_entity_type->setConstraints($constraints);
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function origins_book_entity_insert(EntityInterface $entity) {
+  if (!$entity instanceof NodeInterface) {
     return;
   }
 
-  $bid_raw = $entity->book['bid'];
-  $bid = $bid_raw === 'new' ? $entity->id() : $bid_raw;
+  $book = origins_book_load_persisted_book_link($entity);
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChange(NULL, $book);
+}
 
-  // Merge in the bid:{bid} cache tag without losing any existing tags.
-  $existing_tags = $build['book_navigation']['#cache']['tags'] ?? [];
-  $build['book_navigation']['#cache']['tags'] = Cache::mergeTags(
-    $existing_tags,
-    ['bid:' . $bid]
-  );
+/**
+ * Implements hook_entity_update().
+ */
+function origins_book_entity_update(EntityInterface $entity) {
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+
+  $book = origins_book_load_persisted_book_link($entity);
+  $original = $entity->original ?? NULL;
+  $original_book = $original instanceof NodeInterface && is_array($original->book ?? NULL) ? $original->book : NULL;
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChange($original_book, $book);
+
+  origins_book_update_root_toc_flag($entity, $book);
+}
+
+/**
+ * Updates the table-of-contents flag for a book root.
+ */
+function origins_book_update_root_toc_flag(NodeInterface $entity, ?array $book): void {
+
+  if (empty($book)) {
+    return;
+  }
+
+  if ($book['bid'] === $book['nid']) {
+    /* @var \Drupal\flag\FlagServiceInterface $flag_service */
+    $flag_service = \Drupal::service('flag');
+    /* @var \Drupal\flag\FlagCountManagerInterface $flag_count_service */
+    $flag_count_service = \Drupal::service('flag.count');
+
+    // Has the node already had the ToC flag set? If so, nothing to do.
+    $flags = $flag_count_service->getEntityFlagCounts($entity);
+    if (array_key_exists('disable_toc', $flags) && $flags['disable_toc'] == 1) {
+      return;
+    }
+
+    $toc_flag = $flag_service->getFlagById('disable_toc');
+
+    // Flag the content to disable the toc.
+    if ($toc_flag instanceof FlagInterface) {
+      $flag_service->flag($toc_flag, $entity);
+    }
+  }
+}
+
+/**
+ * Loads a node's persisted book link without node-access filtering.
+ */
+function origins_book_load_persisted_book_link(NodeInterface $node): ?array {
+  $book_link = \Drupal::service('book.manager')->loadBookLink($node->id(), FALSE);
+  return is_array($book_link) ? $book_link : NULL;
+}
+
+/**
+ * Implements hook_entity_predelete().
+ */
+function origins_book_entity_predelete(EntityInterface $entity) {
+  if (!$entity instanceof NodeInterface) {
+    return;
+  }
+
+  $book = is_array($entity->book ?? NULL) ? $entity->book : NULL;
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChange($book, NULL);
 }
 
 /**
  * Implements hook_form_alter().
  */
-function origins_book_form_alter(array &$form, FormStateInterface $form_state, string $form_id) {
-  // Alter the Book outline form so we can invalidate the node cache whenever
-  // the outline is changed (add/remove/move in the book tree).
+function origins_book_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   $form_object = $form_state->getFormObject();
-  if (!$form_object instanceof BookOutlineForm) {
-    return;
-  }
 
-  // Ensure the primary submit button exists before altering it.
-  if (isset($form['actions']['submit'])) {
-    $form['actions']['submit']['#submit'][] = 'origins_book_book_outline_submit_invalidate_node';
+  if ($form_object instanceof BookOutlineForm) {
+    $node = $form_object->getEntity();
+    if ($node instanceof NodeInterface) {
+      origins_book_store_original_book_link($form_state, $node);
+    }
+
+    if (NestedArray::keyExists($form, ['actions', 'submit', '#submit'])) {
+      $form['actions']['submit']['#submit'][] = 'origins_book_book_outline_cache_invalidate';
+    }
+  }
+  elseif ($form_object instanceof BookRemoveForm) {
+    $build_info = $form_state->getBuildInfo();
+    $node = $build_info['args'][0] ?? \Drupal::routeMatch()->getParameter('node');
+    if ($node instanceof NodeInterface) {
+      origins_book_store_original_book_link($form_state, $node);
+    }
+
+    $form['#submit'][] = 'origins_book_book_remove_cache_invalidate';
+  }
+  elseif ($form_object instanceof BookAdminEditForm) {
+    $form['#submit'][] = 'origins_book_book_admin_cache_invalidate';
   }
 }
 
 /**
- * Extra submit handler for the Book outline form.
- *
- * After the outline is updated (nodes added/removed/moved in the book),
- * we invalidate the node's render cache and the relevant book tag so that
- * the navigation re-renders immediately.
+ * Stores the persisted book link before a form changes the outline.
  */
-function origins_book_book_outline_submit_invalidate_node(array &$form, FormStateInterface $form_state) {
+function origins_book_store_original_book_link(FormStateInterface $form_state, NodeInterface $node): void {
+  if ($form_state->has('origins_book_original_book_link')) {
+    return;
+  }
+
+  $form_state->set('origins_book_original_book_link', origins_book_load_persisted_book_link($node));
+}
+
+/**
+ * Invalidates caches after the Book outline form changes a node's membership.
+ */
+function origins_book_book_outline_cache_invalidate(array &$form, FormStateInterface $form_state): void {
   $form_object = $form_state->getFormObject();
   if (!$form_object instanceof EntityFormInterface) {
     return;
   }
 
   $entity = $form_object->getEntity();
-
   if (!$entity instanceof NodeInterface) {
     return;
   }
 
-  $tags = [];
-  // Always invalidate the node's own cache so its view (with/without nav)
-  // is recalculated after any outline change.
-  $tags[] = 'node:' . $entity->id();
+  $before = $form_state->get('origins_book_original_book_link');
+  $after = origins_book_load_persisted_book_link($entity);
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChange(is_array($before) ? $before : NULL, $after);
+}
 
-  // Also invalidate the book outline tag if we know the bid.
-  if (!empty($entity->book['bid'])) {
-    $bid_raw = $entity->book['bid'];
-    $bid = $bid_raw === 'new' ? $entity->id() : $bid_raw;
-    $tags[] = 'bid:' . $bid;
+/**
+ * Invalidates caches after a node is removed from a book outline.
+ */
+function origins_book_book_remove_cache_invalidate(array &$form, FormStateInterface $form_state): void {
+  $before = $form_state->get('origins_book_original_book_link');
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChange(is_array($before) ? $before : NULL, NULL);
+}
+
+/**
+ * Invalidates parent caches after the book administration tree is reordered.
+ */
+function origins_book_book_admin_cache_invalidate(array &$form, FormStateInterface $form_state): void {
+  $changes = [];
+
+  if (!isset($form['table']) || !is_array($form['table'])) {
+    return;
   }
 
-  Cache::invalidateTags($tags);
+  foreach (Element::children($form['table']) as $key) {
+    $before = $form['table'][$key]['#item'] ?? NULL;
+    $values = $form_state->getValue(['table', $key]);
+    if (!is_array($before) || !is_array($values)) {
+      continue;
+    }
+
+    if (($values['pid'] ?? NULL) == ($before['pid'] ?? NULL)
+      && ($values['weight'] ?? NULL) == ($before['weight'] ?? NULL)) {
+      continue;
+    }
+
+    $node_id = $before['nid'] ?? NULL;
+    if (!is_numeric($node_id)) {
+      continue;
+    }
+
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($node_id);
+    $after = $node instanceof NodeInterface ? origins_book_load_persisted_book_link($node) : NULL;
+    $changes[] = [
+      'before' => $before,
+      'after' => $after,
+    ];
+  }
+
+  \Drupal::service('origins_book.cache_invalidator')->invalidateChanges($changes);
+}
+
+/**
+ * Implements hook_preprocess_book_navigation().
+ */
+function origins_book_preprocess_book_navigation(&$variables) {
+  $existing_tags = $variables['#cache']['tags'] ?? [];
+  $book_link = is_array($variables['book_link'] ?? NULL) ? $variables['book_link'] : [];
+  $book_tags = \Drupal::service('origins_book.cache_invalidator')->getCacheTags([$book_link]);
+  $variables['#cache']['tags'] = Cache::mergeTags($existing_tags, $book_tags);
 }
