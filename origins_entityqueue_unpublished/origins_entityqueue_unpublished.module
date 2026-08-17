@@ -50,21 +50,19 @@ function origins_entityqueue_unpublished_after_build(array $form, FormStateInter
 function origins_entityqueue_unpublished_is_latest_revision_unpublished(NodeInterface $entity) {
   $storage = \Drupal::entityTypeManager()->getStorage('node');
 
-  $revision_ids = $storage->revisionIds($entity);
+  $latest_vid = $storage->getLatestRevisionId($entity->id());
 
-  if (empty($revision_ids)) {
+  if (!$latest_vid) {
     return FALSE;
   }
 
-  // The last revision ID is the newest revision.
-  $latest_vid = end($revision_ids);
   $latest_revision = $storage->loadRevision($latest_vid);
 
   if (!$latest_revision) {
     return FALSE;
   }
 
-  return !$latest_revision->isPublished();
+  return $latest_revision->get('moderation_state')->value !== 'published';
 }
 
 /**
