@@ -5,6 +5,8 @@
  * Primary module hooks for Origins Help module.
  */
 
+use Drupal\Core\Entity\EntityInterface;
+
 /**
  * Implements hook_theme().
  */
@@ -64,5 +66,21 @@ function origins_help_mail($key, &$message, $params) {
       $message['body'][] = "Site: {$params['site_name']}\nTour: {$params['tour_name']}\nPage: {$params['page_url']}\n\nFeedback:\n{$params['message']}";
 
       break;
+  }
+}
+
+/**
+ * Implements hook_tour_tips_alter().
+ */
+function origins_help_tour_tips_alter(array &$tour_tips, EntityInterface $entity) {
+  // Revisions Bulk Operations adds an extra column at the start of the table so
+  // we need to bump the child index for each selector referencing that table.
+  if ($entity->id() === 'origins_revisions' && \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations')) {
+    $child_index = 2;
+    foreach ($tour_tips as $tour_tip) {
+      if (str_starts_with($tour_tip->get('selector'), '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1)')) {
+        $tour_tip->set('selector', '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(' . $child_index++ . ')');
+      }
+    }
   }
 }
