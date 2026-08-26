@@ -91,5 +91,5 @@ tips:
     position: right
     selector: '#edit-field-media-audio-file-0-upload'
     body:
-      value: '<p>Click the grey <strong data-start="15" data-end="28">“Browse…”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
+      value: '<p>Click the grey <strong data-start="15" data-end="28">“Browse… / Click file”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
       format: basic_html

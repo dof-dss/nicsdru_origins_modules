@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\block\Entity\Block;
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Implements hook_install().
@@ -13,6 +14,21 @@ function origins_help_install() {
   if ($block) {
     $block->setStatus(FALSE);
     $block->save();
+  }
+}
+
+/**
+ * Import updated tours for existing installs.
+ */
+function origins_help_update_10001() {
+  $module_path = \Drupal::service('extension.list.module')->getPath('origins_help');
+  $source = new FileStorage($module_path . '/config/install');
+  $config_factory = \Drupal::configFactory();
+
+  foreach ($source->listAll() as $config_name) {
+    $config_factory->getEditable($config_name)
+      ->setData($source->read($config_name))
+      ->save(TRUE);
   }
 }
 
