@@ -21,7 +21,7 @@ tips:
     position: right
     selector: '#edit-name-0-value'
     body:
-      value: '<p>Add a <strong>name</strong> for the media item.</p>'
+      value: '<p>Add a <strong>name</strong> for the media item, this will be used across admin displays. Keep it concise and specific for instant clarity.</p>'
       format: basic_html
   remote_media_url:
     id: remote_media_url

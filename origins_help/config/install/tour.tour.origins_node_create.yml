@@ -22,7 +22,7 @@ tips:
     weight: -100
     position: right
     selector: '#edit-title-0-value'
-    body: 'Enter a title that will appear as the page heading, in search results, and across admin displays. Keep it concise and specific for instant clarity.'
+    body: 'Enter a <strong>title</strong> that will appear as the page heading, in search results, and across admin displays. Keep it concise and specific for instant clarity.'
   form:
     id: form
     plugin: text_formatted
