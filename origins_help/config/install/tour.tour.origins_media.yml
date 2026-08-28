@@ -69,7 +69,7 @@ tips:
     label: Edit
     weight: -10
     position: top
-    selector: .views-field-edit-media
+    selector: table:has(tbody td.views-field-edit-media a) thead th.views-field-edit-media
     body:
       value: '<p>Use the <strong>edit</strong> feature to edit individual media items.</p>'
       format: basic_html
