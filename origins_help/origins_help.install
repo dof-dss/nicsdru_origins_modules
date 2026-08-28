@@ -33,6 +33,15 @@ function origins_help_update_10001() {
 }
 
 /**
+ * Removes the origins_moderation_sidebar tour.
+ */
+function origins_help_update_10002() {
+  \Drupal::configFactory()
+    ->getEditable('tour.tour.origins_moderation_sidebar')
+    ->delete();
+}
+
+/**
  * Implements hook_uninstall().
  */
 function origins_help_uninstall() {
