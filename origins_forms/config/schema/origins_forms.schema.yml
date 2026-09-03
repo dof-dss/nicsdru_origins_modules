@@ -5,9 +5,27 @@ origins_forms.settings:
   mapping:
     form_descriptions:
       type: boolean
-      label: 'Enable'
-    excluded_bundles:
+      label: 'Enable form descriptions'
+    enable_revisions_warning:
+      type: boolean
+      label: 'Enable revisions warning'
+    revisions_warning_caution_limit:
+      type: integer
+      label: 'Revisions warning caution limit'
+    revisions_warning_lockdown_limit:
+      type: integer
+      label: 'Revisions warning lockdown limit'
+    revisions_warning_excluded:
+      type: string
+      label: 'Revisions warning excluded node IDs'
+    enable_unique_title:
+      type: boolean
+      label: 'Enable unique title'
+    unique_title_exclude_ids_list:
+      type: string
+      label: 'Unique title excluded node IDs'
+    unique_title_excluded_bundles:
       type: sequence
-      label: 'Excluded bundles'
+      label: 'Unique title excluded bundles'
       sequence:
         type: string
