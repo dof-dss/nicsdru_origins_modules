@@ -81,7 +81,7 @@ tips:
     position: right
     selector: '#edit-name-0-value'
     body:
-      value: '<p>Add a name for the media item.</p>'
+      value: '<p>Provide a name for the media item.</p>'
       format: basic_html
   add_file:
     id: add_file

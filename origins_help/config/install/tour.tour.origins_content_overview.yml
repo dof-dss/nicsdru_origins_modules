@@ -21,7 +21,7 @@ tips:
     position: right
     selector: .button--primary
     body:
-      value: '<p>Click this button to add content to the site.</p>'
+      value: '<p>Click this button to add new content to the site.</p>'
       format: basic_html
   search:
     id: search
