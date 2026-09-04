@@ -183,6 +183,9 @@ function origins_common_preprocess_status_messages(&$variables) {
       if ($message == 'Could not retrieve the oEmbed resource.') {
         $message .= t("This may be due to media being inaccessible or set to private.");
         $variables['message_list']['error'][$index] = $message;
+        // Move the error message to the logs.
+        unset($variables['message_list']['error']);
+        \Drupal::logger('embed')->error($message);
       }
     }
   }

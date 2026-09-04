@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\block\Entity\Block;
+use Drupal\Core\Config\FileStorage;
 
 /**
  * Implements hook_install().
@@ -14,6 +15,24 @@ function origins_help_install() {
     $block->setStatus(FALSE);
     $block->save();
   }
+}
+
+/**
+ * Delete and import updated tours for existing installations.
+ */
+function origins_help_update_10001() {
+  $module_path = \Drupal::service('extension.list.module')->getPath('origins_help');
+  $source = new FileStorage($module_path . '/config/install');
+  $config_factory = \Drupal::configFactory();
+
+  foreach ($source->listAll() as $config_name) {
+    $config_factory->getEditable($config_name)
+      ->setData($source->read($config_name))
+      ->save(TRUE);
+  }
+
+  $config_factory->getEditable('tour.tour.origins_moderation_sidebar')
+    ->delete();
 }
 
 /**

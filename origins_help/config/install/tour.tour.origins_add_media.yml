@@ -21,7 +21,7 @@ tips:
     position: right
     selector: '#edit-name-0-value'
     body:
-      value: '<p>Add a <strong>name</strong> for the media item.</p>'
+      value: '<p>Provide a <strong>name</strong> for the media item, this will be used across admin displays. Keep it concise and specific for instant clarity.</p>'
       format: basic_html
   remote_media_url:
     id: remote_media_url
@@ -31,7 +31,7 @@ tips:
     position: top
     selector: '#edit-field-media-media-remote-wrapper'
     body:
-      value: '<p>Enter a <strong>Remote Media URL</strong> for this remote document. You can type or paste your link.</p>'
+      value: '<p>Provide a <strong>Remote Media URL</strong> for this remote document. You can type or paste your link.</p>'
       format: basic_html
   video_url:
     id: video_url
@@ -62,14 +62,4 @@ tips:
     selector: .form-item--path-0-alias
     body:
       value: '<p>Click the <strong>URL Alias</strong> tab, then enter your alias in the text box.</p>'
-      format: basic_html
-  save:
-    id: save
-    plugin: text_formatted
-    label: Save
-    weight: -95
-    position: right
-    selector: '#edit-submit'
-    body:
-      value: '<p>Click the blue "<strong>Save</strong>" button to save the media.</p>'
       format: basic_html

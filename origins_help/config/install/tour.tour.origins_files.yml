@@ -31,7 +31,7 @@ tips:
     position: top
     selector: '.views-table > thead:nth-child(1)'
     body:
-      value: '<p>The file table lists all files on the site. The top row shows <strong data-start="113" data-end="125">headings</strong> like Name, MIME type, filesize, etc. If a heading has a <strong data-start="176" data-end="191">sort symbol</strong>, click it to order the content by that column.</p>'
+      value: '<p>The table lists all files on the site. The top row shows <strong data-start="113" data-end="125">headings</strong> like Name, MIME type, filesize, etc. If a heading has a <strong data-start="176" data-end="191">sort symbol</strong>, click it to order the content by that column.</p>'
       format: basic_html
   used_in:
     id: used_in
