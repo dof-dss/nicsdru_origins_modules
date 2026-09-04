@@ -18,7 +18,7 @@ function origins_help_install() {
 }
 
 /**
- * Import updated tours for existing installs.
+ * Delete and import updated tours for existing installations.
  */
 function origins_help_update_10001() {
   $module_path = \Drupal::service('extension.list.module')->getPath('origins_help');
@@ -30,14 +30,8 @@ function origins_help_update_10001() {
       ->setData($source->read($config_name))
       ->save(TRUE);
   }
-}
 
-/**
- * Removes the origins_moderation_sidebar tour.
- */
-function origins_help_update_10002() {
-  \Drupal::configFactory()
-    ->getEditable('tour.tour.origins_moderation_sidebar')
+  $config_factory->getEditable('tour.tour.origins_moderation_sidebar')
     ->delete();
 }
 
