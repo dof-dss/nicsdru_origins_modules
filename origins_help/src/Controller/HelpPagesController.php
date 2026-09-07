@@ -44,6 +44,17 @@ final class HelpPagesController extends ControllerBase {
       ],
     ];
 
+    if ($this->currentUser()->hasRole('administrator')) {
+      $build['core_help_link'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Drupal core help pages'),
+        '#url' => Url::fromRoute('help.main'),
+        '#cache' => [
+          'contexts' => ['user.roles'],
+        ],
+      ];
+    }
+
     $confluence_tree = $this->confluenceClient->getPageTree();
 
     if (!empty($confluence_tree)) {
