@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Drupal\origins_help\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\DependencyInjection\ClassResolverInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Drupal\Core\Url;
+use Drupal\help\Controller\HelpController;
 use Drupal\origins_help\ConfluenceClient;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -22,6 +24,7 @@ final class HelpPagesController extends ControllerBase {
   public function __construct(
     private readonly RouteProviderInterface $routeProvider,
     private readonly ConfluenceClient $confluenceClient,
+    private readonly ClassResolverInterface $classResolver,
   ) {}
 
   /**
@@ -31,6 +34,7 @@ final class HelpPagesController extends ControllerBase {
     return new static(
       $container->get('router.route_provider'),
       $container->get('origins_help.confluence_client'),
+      $container->get('class_resolver'),
     );
   }
 
@@ -38,22 +42,36 @@ final class HelpPagesController extends ControllerBase {
    * Returns the help page render array.
    */
   public function __invoke(): array {
+    return $this->buildHomepage();
+  }
+
+  /**
+   * Controller for the overridden Core help.main route.
+   *
+   */
+  public function mainPage(): array {
+    // If the user is an admin, display the core help.
+    if ($this->currentUser()->hasRole('administrator')) {
+      return $this->classResolver
+        ->getInstanceFromDefinition(HelpController::class)
+        ->helpMain();
+    }
+
+    return $this->buildHomepage();
+  }
+
+  /**
+   * Builds the Origins Help page.
+   */
+  private function buildHomepage(): array {
     $build = [
+      '#cache' => [
+        'contexts' => ['user.roles'],
+      ],
       'homepage' => [
         '#theme' => 'help_homepage',
       ],
     ];
-
-    if ($this->currentUser()->hasRole('administrator')) {
-      $build['core_help_link'] = [
-        '#type' => 'link',
-        '#title' => $this->t('Drupal core help pages'),
-        '#url' => Url::fromRoute('help.main'),
-        '#cache' => [
-          'contexts' => ['user.roles'],
-        ],
-      ];
-    }
 
     $confluence_tree = $this->confluenceClient->getPageTree();
 
