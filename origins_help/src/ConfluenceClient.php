@@ -77,11 +77,30 @@ final class ConfluenceClient {
   }
 
   /**
-   * Fetches all children of a page (following pagination), filters by project
-   * labels, then recurses into each included child.
+   * Fetches all children of a page (following pagination), filters by
+   * project labels, then recurses into each included child.
    *
+   * @param string $page_id
+   *   The Confluence page ID to fetch children for.
+   * @param int $depth
+   *   The current recursion depth, starting at 0 for the root page.
+   * @param int $max_depth
+   *   The maximum recursion depth; children at this depth are returned
+   *   without fetching their own children.
+   * @param string $base_url
+   *   The Confluence site base URL.
+   * @param string $email
+   *   The Confluence account email used for authentication.
+   * @param string $token
+   *   The Confluence API token used for authentication.
+   * @param string $link_base
+   *   The base URL to prepend to each page's web UI link.
    * @param string[] $project_ids
-   *   Lowercase project IDs to match against page labels.
+   *   Project IDs to filter by. Pages with labels but none matching any of
+   *   these are excluded; pages with no labels are always included.
+   *
+   * @return array<int, array{title: string, url: string, children: array}>
+   *   A tree of content collections.
    */
   private function fetchLevel(string $page_id, int $depth, int $max_depth, string $base_url, string $email, string $token, string $link_base, array $project_ids): array {
     $pages = [];
