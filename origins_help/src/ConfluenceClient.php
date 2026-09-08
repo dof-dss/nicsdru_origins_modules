@@ -25,8 +25,9 @@ final class ConfluenceClient {
    *
    * Each node: ['title' => string, 'url' => string, 'children' => [...]]
    *
-   * When a project ID is configured, pages that have labels but none matching
-   * the project ID are excluded. Pages with no labels are always included.
+   * When project IDs are configured, pages that have labels but none matching
+   * any of the project IDs are excluded. Pages with no labels are always
+   * included.
    *
    * @return array<int, array{title: string, url: string, children: array}>
    *   A tree of content collections.
@@ -37,7 +38,7 @@ final class ConfluenceClient {
     $token = $this->state->get('origins_help.confluence_api_token', '');
     $page_id = $this->state->get('origins_help.confluence_parent_page_id', '');
     $max_depth = (int) $this->state->get('origins_help.confluence_max_depth', 2);
-    $project_id = strtolower(trim((string) $this->state->get('origins_help.confluence_project_id', '')));
+    $project_ids = self::projectIds((string) $this->state->get('origins_help.confluence_project_id', ''));
 
     if (empty($base_url) || empty($email) || empty($token) || empty($page_id)) {
       return [];
@@ -45,7 +46,24 @@ final class ConfluenceClient {
 
     $link_base = rtrim($base_url, '/') . '/wiki';
 
-    return $this->fetchLevel($page_id, 0, $max_depth, $base_url, $email, $token, $link_base, $project_id);
+    return $this->fetchLevel($page_id, 0, $max_depth, $base_url, $email, $token, $link_base, $project_ids);
+  }
+
+  /**
+   * Returns trimmed, lowercased, non-empty project IDs from a stored value.
+   *
+   * Project IDs are stored one per line, matching the settings form's
+   * textarea widget.
+   *
+   * @return string[]
+   *   A list of project IDs.
+   */
+  public static function projectIds(string $value): array {
+    $lines = preg_split('/\r\n|\r|\n/', $value);
+    return array_values(array_unique(array_filter(array_map(
+      static fn (string $line): string => strtolower(trim($line)),
+      $lines,
+    ), 'strlen')));
   }
 
   /**
@@ -59,17 +77,39 @@ final class ConfluenceClient {
   }
 
   /**
-   * Fetches all children of a page (following pagination), filters by project
-   * label, then recurses into each included child.
+   * Fetches all children of a page (following pagination), filters by
+   * project labels, then recurses into each included child.
+   *
+   * @param string $page_id
+   *   The Confluence page ID to fetch children for.
+   * @param int $depth
+   *   The current recursion depth, starting at 0 for the root page.
+   * @param int $max_depth
+   *   The maximum recursion depth; children at this depth are returned
+   *   without fetching their own children.
+   * @param string $base_url
+   *   The Confluence site base URL.
+   * @param string $email
+   *   The Confluence account email used for authentication.
+   * @param string $token
+   *   The Confluence API token used for authentication.
+   * @param string $link_base
+   *   The base URL to prepend to each page's web UI link.
+   * @param string[] $project_ids
+   *   Project IDs to filter by. Pages with labels but none matching any of
+   *   these are excluded; pages with no labels are always included.
+   *
+   * @return array<int, array{title: string, url: string, children: array}>
+   *   A tree of content collections.
    */
-  private function fetchLevel(string $page_id, int $depth, int $max_depth, string $base_url, string $email, string $token, string $link_base, string $project_id): array {
+  private function fetchLevel(string $page_id, int $depth, int $max_depth, string $base_url, string $email, string $token, string $link_base, array $project_ids): array {
     $pages = [];
 
     foreach ($this->fetchAllChildren($page_id, $base_url, $email, $token) as $page) {
       $child_id = (string) $page['id'];
 
       $labels = $this->fetchLabels($child_id, $base_url, $email, $token);
-      if (!empty($labels) && (empty($project_id) || !in_array($project_id, $labels, TRUE))) {
+      if (!empty($labels) && (empty($project_ids) || !array_intersect($project_ids, $labels))) {
         continue;
       }
 
@@ -83,7 +123,7 @@ final class ConfluenceClient {
           $email,
           $token,
           $link_base,
-          $project_id,
+          $project_ids,
         );
       }
 

@@ -7,7 +7,9 @@ namespace Drupal\origins_help\Form;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\State\StateInterface;
+use Drupal\origins_help\ConfluenceClient;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -41,6 +43,12 @@ final class SettingsForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $token_set = (bool) $this->state->get('origins_help.confluence_api_token');
+
+    $form['introduction'] = [
+      '#markup' => $this->t('<p>Complete the form to display links to Confluence in the @help page of the site.</p>',
+        ['@help' => Link::createFromRoute(t('Help'), 'help.main')->toString()]
+      ),
+    ];
 
     $form['confluence_base_url'] = [
       '#type' => 'url',
@@ -76,9 +84,9 @@ final class SettingsForm extends FormBase {
     ];
 
     $form['confluence_project_id'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Project ID'),
-      '#description' => $this->t('Include pages with this label on confluence.Labels are case-insensitive (e.g. <code>my-project</code>).'),
+      '#type' => 'textarea',
+      '#title' => $this->t('Project ID(s)'),
+      '#description' => $this->t('Include pages with any of these labels on Confluence, one per line. Labels are case-insensitive (e.g. <code>nidirect</code>).'),
       '#default_value' => $this->state->get('origins_help.confluence_project_id', ''),
     ];
 
@@ -112,7 +120,10 @@ final class SettingsForm extends FormBase {
     );
     $this->state->set('origins_help.confluence_email', $form_state->getValue('confluence_email'));
     $this->state->set('origins_help.confluence_parent_page_id', $form_state->getValue('confluence_parent_page_id'));
-    $this->state->set('origins_help.confluence_project_id', trim((string) $form_state->getValue('confluence_project_id')));
+    $this->state->set(
+      'origins_help.confluence_project_id',
+      implode(PHP_EOL, ConfluenceClient::projectIds((string) $form_state->getValue('confluence_project_id')))
+    );
     $this->state->set('origins_help.confluence_max_depth', (int) $form_state->getValue('confluence_max_depth'));
 
     $token = $form_state->getValue('confluence_api_token');
