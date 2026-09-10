@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\origins_qa\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -39,6 +38,20 @@ final class QaApiController extends ControllerBase {
   protected $logger;
 
   /**
+   * The server token.
+   *
+   * @var string
+   */
+  protected readonly string $serverToken;
+
+  /**
+   * The request token.
+   *
+   * @var string
+   */
+  protected readonly string $requestToken;
+
+  /**
    * Constructs a QaEndpointController object.
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
@@ -51,6 +64,8 @@ final class QaApiController extends ControllerBase {
     $this->request = $request;
     $this->logger = $logger->get('origins_qa');
     $this->invalidTokensFilepath = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
+    $this->serverToken = (string) getenv('ORIGINS_QA_API_TOKEN');
+    $this->requestToken = \Drupal::request()->get('token');
   }
 
   /**
@@ -64,21 +79,33 @@ final class QaApiController extends ControllerBase {
   }
 
   /**
-   * Enable QA accounts.
+   * Verify API token.
+   *
+   * @return bool|\Symfony\Component\HttpFoundation\JsonResponse
+   *   True if valid, JSON response on error.
    */
-  public function setQaUsersStatus($status, $token) {
+  private function isValidToken(): bool|JsonResponse {
+
+    if (empty($this->requestToken)) {
+      return new JsonResponse('Request token not set', 400);
+    }
+
+    if (empty($this->serverToken)) {
+      return new JsonResponse('Server token not set', 400);
+    }
+
     // If we're on the production environment reject the request.
     if (getenv('PLATFORM_BRANCH') === 'main') {
       $this->logger->warning("Origins QA module is enabled and should NOT be for production environments.");
-      return new JsonResponse(NULL, 405);
+      return new JsonResponse('Invalid environment', 405);
     }
 
     // Check if the token is in the invalid list.
     if (file_exists($this->invalidTokensFilepath)) {
       $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
 
-      if (in_array($token, $invalid_tokens)) {
-        return new JsonResponse(NULL, 403);
+      if (in_array($this->requestToken, $invalid_tokens)) {
+        return new JsonResponse('Invalid token', 403);
       }
     }
 
@@ -88,10 +115,10 @@ final class QaApiController extends ControllerBase {
       // an unencrypted HTTP connection.
       if (file_exists($this->invalidTokensFilepath)) {
         $invalid_tokens = str_getcsv(file_get_contents($this->invalidTokensFilepath));
-        $invalid_tokens[] = $token;
+        $invalid_tokens[] = $this->requestToken;
       }
       else {
-        $invalid_tokens = [$token];
+        $invalid_tokens = [$this->requestToken];
       }
 
       $file_data = implode(',', $invalid_tokens);
@@ -99,12 +126,23 @@ final class QaApiController extends ControllerBase {
         $this->logger->warning("Unable to write QA API invalid tokens file. Check filesystem permissions.");
       }
 
-      return new JsonResponse(NULL, 400);
+      return new JsonResponse('Token invalid - insecure request', 400);
     }
 
     // Reject if the token is incorrect.
-    if ($token != getenv('ORIGINS_QA_API_TOKEN')) {
-      return new JsonResponse(NULL, 401);
+    if ($this->requestToken != $this->serverToken) {
+      return new JsonResponse('Invalid token', 401);
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * Enable QA accounts.
+   */
+  public function setQaUsersStatus($status) {
+    if (($response = $this->isValidToken()) !== TRUE) {
+      return $response;
     }
 
     $response = new JsonResponse();
@@ -117,6 +155,36 @@ final class QaApiController extends ControllerBase {
     else {
       $qac->toggleAll('disable');
       return $response->setStatusCode(200);
+    }
+  }
+
+  /**
+   * Clear flood control.
+   */
+  public function unFlood() {
+    if (($response = $this->isValidToken()) !== TRUE) {
+      return $response;
+    }
+
+    $response = new JsonResponse();
+
+    if (\Drupal::service('module_handler')->moduleExists('flood_control')) {
+      /** @var \Drupal\flood_control\FloodUnblockManagerInterface $flood_unblock_manager */
+      $flood_unblock_manager = \Drupal::service('flood_control.flood_unblock_manager');
+
+      $events = $flood_unblock_manager->getEvents();
+      foreach ($events as $key => $event) {
+        $fids = $flood_unblock_manager->getEventIds($key);
+        foreach ($fids as $fid) {
+          $flood_unblock_manager->floodUnblockClearEvent($key . ':' . $fid);
+        }
+      }
+
+      return $response->setStatusCode(200);
+
+    }
+    else {
+      return new JsonResponse('Flood control module not enabled', 501);
     }
   }
 

@@ -1,0 +1,12 @@
+{% if tours %}
+<h2>Tours </h2>
+<p>Interactive tours are available for the following features. If a direct link is not provided, navigate to the feature and click the 'Tour' link in the top right corner to begin.</p>
+
+<ul>
+{% for tour in tours %}
+  <li>{{ tour }}</li>
+{% endfor %}
+</ul>
+
+{% endif %}
+

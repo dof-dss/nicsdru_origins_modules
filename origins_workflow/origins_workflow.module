@@ -6,17 +6,17 @@
  */
 
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
 use Drupal\node\Entity\Node;
-use Drupal\node\Entity\NodeType;
 use Drupal\node\NodeInterface;
 use Drupal\user\Entity\User;
 use Drupal\views\ViewExecutable;
@@ -173,6 +173,10 @@ function origins_workflow_entity_update(EntityInterface $entity) {
     return;
   }
 
+  if ($entity instanceof NodeInterface && ($entity->getRevisionId() != $entity->original->getRevisionId())) {
+    origins_workflow_invalidate_node_revisions_cache($entity);
+  }
+
   $entity_mod_state = $entity->get('moderation_state')->value ?? '';
 
   /** @var \Drupal\Core\Entity\ContentEntityBase $original_entity */
@@ -201,6 +205,15 @@ function origins_workflow_entity_update(EntityInterface $entity) {
   }
   // Now add processing for moderation sidebar.
   origins_workflow_menu_creation_check($entity);
+}
+
+/**
+ * Implements hook_entity_revision_delete().
+ */
+function origins_workflow_entity_revision_delete(EntityInterface $entity) {
+  if ($entity instanceof NodeInterface) {
+    origins_workflow_invalidate_node_revisions_cache($entity);
+  }
 }
 
 /**
@@ -358,8 +371,7 @@ function origins_workflow_hide_moderation_field(&$view) {
  *
  * Hides the 'Moderated Content' tab on the admin/content page.
  */
-function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
-
+function origins_workflow_menu_local_tasks_alter(&$data, $route_name, RefinableCacheableDependencyInterface &$cacheability) {
   // Remove some contrib links by default unless specifically enabled in config.
   $admin_content_links = Drupal::configFactory()->get('origins_workflow.moderation.settings')->get('admin_content_links');
   $admin_content_links['moderated_content_disable'] = $admin_content_links['moderated_content_disable'] ?? TRUE;
@@ -386,6 +398,14 @@ function origins_workflow_menu_local_tasks_alter(&$data, $route_name) {
     }
   }
 
+  if (!empty($data['tabs'][0]) && array_key_exists('entity.node.version_history', $data['tabs'][0])) {
+    $url = $data["tabs"][0]["entity.node.version_history"]["#link"]["url"];
+    $node_id = origins_workflow_append_revisions_count($url, $data['tabs'][0]['entity.node.version_history']['#link']['title']);
+
+    if (!empty($node_id)) {
+      $cacheability->addCacheTags(['node_revision_list:' . $node_id]);
+    }
+  }
 }
 
 /**
@@ -511,6 +531,7 @@ function origins_workflow_preprocess_table(&$variables) {
 
     // Get the current node we are showing revisions for.
     $node = \Drupal::routeMatch()->getParameter('node');
+    $can_bulk_select = \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations') && \Drupal::currentUser()->hasPermission('bulk select revisions');
 
     // Add new 'Revision Number' column to the node revisions tab.
     $new_head = [
@@ -520,8 +541,10 @@ function origins_workflow_preprocess_table(&$variables) {
       ],
     ];
 
-    // Insert revision number column at the beginning.
-    array_unshift($variables['header'], $new_head);
+    if ($can_bulk_select) {
+      // Insert the 'Revision No.' title into the correct table column.
+      $variables['header'] = array_slice($variables['header'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
+    }
 
     // Tweak revision comparison column headings.
     if (isset($variables['header']['select_column_one'])) {
@@ -620,7 +643,9 @@ function origins_workflow_preprocess_table(&$variables) {
 
       // Insert revision number column at the beginning.
       $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_revisionId]];
-      array_unshift($row['cells'], $new_col);
+
+      // Insert the revision number into the correct table column.
+      $row['cells'] = array_slice($row['cells'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_col] + $row['cells'];
     }
   }
 }
@@ -764,6 +789,22 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
   else {
     hide($build['actions']['secondary']['entityqueue.entities:entity.node.entityqueue']);
   }
+
+  // Append the revision count to revisions.
+  if (array_key_exists('version_history', $build['actions']['secondary'])) {
+    $url = $build['actions']['secondary']['version_history']['#url'];
+
+    $node_id = origins_workflow_append_revisions_count($url, $build['actions']['secondary']['version_history']['#title']);
+
+    if (!empty($node_id)) {
+      $build['actions']['secondary']['version_history']['#cache'] = [
+        'tags' => [
+          'node_revision_list:' . $node_id,
+        ],
+      ];
+    }
+  }
+
 }
 
 /**
@@ -885,4 +926,36 @@ function origins_workflow_preprocess_views_view_field(&$variables) {
       ];
     }
   }
+}
+
+/**
+ * Clears the revision list cache for a node.
+ *
+ * @param \Drupal\node\NodeInterface $node
+ *   The node to clear revision cache list.
+ */
+function origins_workflow_invalidate_node_revisions_cache(NodeInterface $node) {
+  Cache::invalidateTags(['node_revision_list:' . $node->id()]);
+}
+
+/**
+ *  Replaces an element with a 'Revisions (X)' title.
+ * @param \Drupal\Core\Url $url
+ *   The node URL.
+ * @param mixed $element
+ *   The title element to update.
+ *
+ * @return int|null
+ *   The ID of the node with revisions.
+ */
+function origins_workflow_append_revisions_count(Url $url, &$element): int|null {
+  if (array_key_exists('node', $url->getRouteParameters())) {
+    $node_storage = Drupal::entityTypeManager()->getStorage('node');
+    $node = $node_storage->load($url->getRouteParameters()['node']);
+    $revision_ids = $node_storage->revisionIds($node);
+
+    $element = t('Revisions (@total)', ['@total' => count($revision_ids)]);
+    return $node->id();
+  }
+  return NULL;
 }

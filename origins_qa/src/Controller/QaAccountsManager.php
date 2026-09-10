@@ -13,7 +13,6 @@ use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * Controller for Origins QA.

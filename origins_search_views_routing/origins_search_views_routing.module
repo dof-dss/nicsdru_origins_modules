@@ -34,6 +34,12 @@ function origins_search_views_routing_views_pre_render(ViewExecutable $view) {
   if (preg_match('|^\/' . $display_path . '\/(.*)|', $current_path, $matches)) {
     if (count($matches) > 1) {
       $rest_of_path = $matches[1];
+      // Some paths are using a glossary so we don't want to break these.
+      if (!empty($view->args)) {
+        if (preg_match('/^[a-z]$/i', $rest_of_path) && $rest_of_path === $view->args[0]) {
+          return;
+        }
+      }
       // If there are no slashes or question marks in the rest of the path
       // then this must be a missing page and we need to throw a 404.
       if ((strpos($rest_of_path, '/') === FALSE) && (strpos($rest_of_path, '?') === FALSE)) {

@@ -1,0 +1,4 @@
+override book parent protection:
+  title: 'Override book parent protection'
+  description: 'Archive or delete book pages which have child pages.'
+  restrict access: true

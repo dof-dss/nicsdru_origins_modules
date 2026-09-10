@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Contains origins_cache_control.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function origins_cache_control_form_system_performance_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#after_build'][] = 'origins_cache_control_system_performance_settings_after_build';
+}
+
+/**
+ * Customises the HTTP Cache Control settings added to the performance form.
+ */
+function origins_cache_control_system_performance_settings_after_build(array $form, FormStateInterface $form_state) {
+  // Http_cache_control contrib module 'Surrogate max age' options.
+  // These control how long Fastly will cache a page (by setting the
+  // Surrogate-Control header). We want additional options to cache pages for
+  // longer periods than 1 day.
+  if (!empty($form['surrogate']['surrogate_maxage'])) {
+    $form['surrogate']['surrogate_maxage']['#options'] += [
+      604800 => t("1 week")->render(),
+      2628000 => t("1 month")->render(),
+      7884000 => t("3 months")->render(),
+      15768000 => t("6 months")->render(),
+      31536000 => t("1 year")->render(),
+    ];
+
+    // Make it clear that this has been done.
+    $form['surrogate']['surrogate_maxage']['#suffix'] = t("<i>@suffix</i>",
+      ['@suffix' => "HTTP_cache_control contrib module settings have been customised here to enable surrogate max age of up to 1 year"]);
+  }
+
+  return $form;
+}

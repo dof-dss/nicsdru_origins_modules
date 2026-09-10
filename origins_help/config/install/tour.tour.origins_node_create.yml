@@ -1,0 +1,53 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_node_create
+label: 'Node create'
+routes:
+  -
+    route_name: node.add
+  -
+    route_name: entity.node.edit_form
+tips:
+  title:
+    id: title
+    plugin: text
+    label: Title
+    weight: -100
+    position: right
+    selector: '#edit-title-0-value'
+    body: 'Provide a <strong>title</strong> that will appear as the page heading, in search results, and across admin displays. Keep it concise and specific for instant clarity.'
+  form:
+    id: form
+    plugin: text_formatted
+    label: Content
+    weight: -75
+    position: right
+    selector: .layout-region__content
+    body:
+      value: 'Complete the rest of the form. <p>If you''re unsure how a field works, check the <a href="https://digitaldevelopment.atlassian.net/wiki/x/E4CU0" target="_blank">guide to common field types.</a>.</p>'
+      format: full_html
+  add_feature:
+    id: add_feature
+    plugin: text_formatted
+    label: 'Add feature'
+    weight: -50
+    position: top
+    selector: '#edit-field-featured-content-0-target-id'
+    body:
+      value: "Start typing the title of the content item you want to add. Matching items will appear as you type — click one to select it. <p>Note: The number of items displayed may vary, depending on where it's used.</p>"
+      format: basic_html
+  save_as:
+    id: save_as
+    plugin: text
+    label: 'Save as'
+    weight: -25
+    position: right
+    selector: '#edit-moderation-state-0-state'
+    body: 'Choose the moderation status for this item. Available options and what they do can vary depending on your role — for example, some roles may not be able to publish or archive directly.'

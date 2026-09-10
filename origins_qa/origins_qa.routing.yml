@@ -57,3 +57,13 @@ origins_qa.api.users_disable:
     _access: 'TRUE'
   options:
     no_cache: TRUE
+origins_qa.api.unflood:
+  path: '/origins-qa/api/users/unflood/{token}'
+  defaults:
+    _title: 'Clear the system flood entries'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::unFlood'
+    methods: [GET]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE

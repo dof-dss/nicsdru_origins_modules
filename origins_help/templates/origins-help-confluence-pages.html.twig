@@ -1,0 +1,22 @@
+{% macro render_tree(pages) %}
+  {% import _self as macros %}
+  <ul>
+    {% for page in pages %}
+      <li>
+        <a href="{{ page.url }}" target="_blank" rel="noopener noreferrer">{{ page.title }}</a>
+        {% if page.children %}
+          {{ macros.render_tree(page.children) }}
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}
+
+{% import _self as macros %}
+
+{% if pages %}
+  {% if title %}
+    <h2>{{ title }}</h2>
+  {% endif %}
+  {{ macros.render_tree(pages) }}
+{% endif %}
