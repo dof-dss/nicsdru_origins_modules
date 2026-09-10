@@ -1,6 +1,8 @@
 name: 'Origins: Migrations'
 type: module
 description: 'A utility module to delete illegal redirects when migrating path redirects.'
-core_version_requirement: ^8.8 || ^9 || ^10
+core_version_requirement: ^10 || ^11
 package: 'NICS: Origins'
 dependencies:
+  - drupal:migrate
+  - redirect:redirect
