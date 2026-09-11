@@ -86,7 +86,7 @@ function origins_help_tour_tips_alter(array &$tour_tips, EntityInterface $entity
 }
 
 /**
- * Allow modules to alter the tour build array before rendering.
+ * Implements hook_tour_build_alter().
  *
  * @param array $build
  *   The render array for the tour.
