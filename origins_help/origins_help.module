@@ -84,3 +84,15 @@ function origins_help_tour_tips_alter(array &$tour_tips, EntityInterface $entity
     }
   }
 }
+
+/**
+ * Implements hook_tour_build_alter().
+ *
+ * @param array $build
+ *   The render array for the tour.
+ * @param \Drupal\tour\TourInterface[] $entities
+ *   An array of tour entities that are being rendered.
+ */
+function origins_help_tour_build_alter(array &$build, array $entities) {
+  $build['#attached']['library'][] = 'origins_help/tour_styles';
+}
