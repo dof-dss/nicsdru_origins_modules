@@ -73,7 +73,7 @@
         });
       }
 
-      setInterval(watchForTour, 1300);
+      setInterval(watchForTour, 300);
     }
   };
 
