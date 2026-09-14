@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Drupal\origins_qa\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Site\Settings;
+use Drupal\flood_control\FloodUnblockManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,13 +61,25 @@ final class QaApiController extends ControllerBase {
    *
    * @param \Drupal\Core\Logger\LoggerChannelFactory $logger
    *   The logger channel factory service.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $originsModuleHandler
+   *   The module handler.
+   * @param \Drupal\flood_control\FloodUnblockManagerInterface|null $floodUnblockManager
+   *   The flood unblock manager, when Flood Control is enabled.
    */
-  public function __construct(Request $request, LoggerChannelFactory $logger) {
+  public function __construct(
+    Request $request,
+    LoggerChannelFactory $logger,
+    private readonly ModuleHandlerInterface $originsModuleHandler,
+    private readonly ?FloodUnblockManagerInterface $floodUnblockManager,
+  ) {
     $this->request = $request;
     $this->logger = $logger->get('origins_qa');
     $this->invalidTokensFilepath = Settings::get('file_private_path') . '/origins_qa_invalid_tokens.txt';
     $this->serverToken = (string) getenv('ORIGINS_QA_API_TOKEN');
-    $this->requestToken = \Drupal::request()->get('token');
+    $this->requestToken = (string) ($request->attributes->get('token')
+      ?? $request->query->get('token')
+      ?? $request->request->get('token')
+      ?? '');
   }
 
   /**
@@ -75,6 +89,10 @@ final class QaApiController extends ControllerBase {
     return new static(
       $container->get('request_stack')->getCurrentRequest(),
       $container->get('logger.factory'),
+      $container->get('module_handler'),
+      $container->has('flood_control.flood_unblock_manager')
+        ? $container->get('flood_control.flood_unblock_manager')
+        : NULL,
     );
   }
 
@@ -168,15 +186,12 @@ final class QaApiController extends ControllerBase {
 
     $response = new JsonResponse();
 
-    if (\Drupal::service('module_handler')->moduleExists('flood_control')) {
-      /** @var \Drupal\flood_control\FloodUnblockManagerInterface $flood_unblock_manager */
-      $flood_unblock_manager = \Drupal::service('flood_control.flood_unblock_manager');
-
-      $events = $flood_unblock_manager->getEvents();
+    if ($this->originsModuleHandler->moduleExists('flood_control') && $this->floodUnblockManager) {
+      $events = $this->floodUnblockManager->getEvents();
       foreach ($events as $key => $event) {
-        $fids = $flood_unblock_manager->getEventIds($key);
+        $fids = $this->floodUnblockManager->getEventIds($key);
         foreach ($fids as $fid) {
-          $flood_unblock_manager->floodUnblockClearEvent($key . ':' . $fid);
+          $this->floodUnblockManager->floodUnblockClearEvent($key . ':' . $fid);
         }
       }
 

@@ -6,6 +6,7 @@ namespace Drupal\origins_workflow\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,6 +21,7 @@ final class RevisionsReportController extends ControllerBase {
    */
   public function __construct(
     private readonly Connection $database,
+    private readonly ModuleHandlerInterface $originsModuleHandler,
   ) {}
 
   /**
@@ -28,6 +30,7 @@ final class RevisionsReportController extends ControllerBase {
   public static function create(ContainerInterface $container): self {
     return new self(
       $container->get('database'),
+      $container->get('module_handler'),
     );
   }
 
@@ -40,7 +43,7 @@ final class RevisionsReportController extends ControllerBase {
       'Revisions count',
       'Title',
     ];
-    $has_domains = \Drupal::moduleHandler()->moduleExists('domain') ?? FALSE;
+    $has_domains = $this->originsModuleHandler->moduleExists('domain');
     $rows = [];
     $total_revisions_count = 0;
     $footer_colspan = 3;

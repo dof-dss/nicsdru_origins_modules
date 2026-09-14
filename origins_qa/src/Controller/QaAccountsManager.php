@@ -251,7 +251,10 @@ final class QaAccountsManager extends ControllerBase {
         continue;
       }
       $name = strtolower($prefix) . $name;
-      $user = user_load_by_name($name);
+      $users = $this->entityTypeManager()->getStorage('user')->loadByProperties([
+        'name' => $name,
+      ]);
+      $user = reset($users);
       if (empty($user)) {
         $msg = t('Creating user @name', ['@name' => $name]);
         $this->logger->notice($msg);
@@ -286,7 +289,10 @@ final class QaAccountsManager extends ControllerBase {
     $successes = 0;
     foreach ($roles as $role) {
       $name = strtolower($prefix) . '_' . $role;
-      $user = user_load_by_name($name);
+      $users = $this->entityTypeManager()->getStorage('user')->loadByProperties([
+        'name' => $name,
+      ]);
+      $user = reset($users);
       if (empty($user)) {
 
         $user = User::create([

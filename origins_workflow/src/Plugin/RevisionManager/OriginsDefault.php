@@ -97,7 +97,6 @@ final class OriginsDefault extends RevisionManagerBase {
     $all_revisions_nodes = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes']))) ?? [];
     $all_revisions_nodes_no_age = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes_no_age']))) ?? [];
     $age_comparison = sprintf('-%d months', (int) ($this->configuration['age'] ?? 6));
-    // @phpstan-ignore-next-line
     $age_comparison_timestamp = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
 
     // Fetch moderation status of latest revision.

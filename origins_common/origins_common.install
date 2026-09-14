@@ -5,6 +5,7 @@
  * Module install, uninstall and update functions.
  */
 
+use Drupal\Core\Field\FieldPurger;
 use Drupal\field\Entity\FieldStorageConfig;
 
 /**
@@ -19,7 +20,7 @@ function origins_common_uninstall() {
     $field_storage->delete();
   }
 
-  field_purge_batch(10);
+  \Drupal::service(FieldPurger::class)->purgeBatch(10);
 }
 
 /**

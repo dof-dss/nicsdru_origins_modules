@@ -710,7 +710,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
     if ($entity->isLatestRevision() && $dop_link_exists) {
       // Entity is published, but we have no forward revisions so hide the
       // draft of published option.
-      hide($build['actions']['primary']['quick_draft_form']['draft_of_published']);
+      $build['actions']['primary']['quick_draft_form']['draft_of_published']['#access'] = FALSE;
     }
     else {
       // Retrieve alias for current node.
@@ -787,7 +787,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
     }
   }
   else {
-    hide($build['actions']['secondary']['entityqueue.entities:entity.node.entityqueue']);
+    $build['actions']['secondary']['entityqueue.entities:entity.node.entityqueue']['#access'] = FALSE;
   }
 
   // Append the revision count to revisions.
@@ -952,9 +952,18 @@ function origins_workflow_append_revisions_count(Url $url, &$element): int|null 
   if (array_key_exists('node', $url->getRouteParameters())) {
     $node_storage = Drupal::entityTypeManager()->getStorage('node');
     $node = $node_storage->load($url->getRouteParameters()['node']);
-    $revision_ids = $node_storage->revisionIds($node);
+    if (!$node instanceof NodeInterface) {
+      return NULL;
+    }
 
-    $element = t('Revisions (@total)', ['@total' => count($revision_ids)]);
+    $revision_count = $node_storage->getQuery()
+      ->allRevisions()
+      ->condition('nid', $node->id())
+      ->accessCheck(FALSE)
+      ->count()
+      ->execute();
+
+    $element = t('Revisions (@total)', ['@total' => $revision_count]);
     return $node->id();
   }
   return NULL;

@@ -61,7 +61,10 @@ function origins_workflow_install() {
       return;
     }
     $name = strtolower($prefix) . $name;
-    $user = user_load_by_name($name);
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties([
+      'name' => $name,
+    ]);
+    $user = reset($users);
     if (empty($user)) {
       \Drupal::logger('origins_workflow')->notice(t('Creating user @name', ['@name' => $name]));
       $user = User::create([
@@ -105,7 +108,10 @@ function origins_workflow_uninstall() {
     // Add prefix from environment var.
     $prefix = getenv('NW_TEST_USER_PREFIX');
     $name = strtolower($prefix) . $name;
-    $user = user_load_by_name($name);
+    $users = \Drupal::entityTypeManager()->getStorage('user')->loadByProperties([
+      'name' => $name,
+    ]);
+    $user = reset($users);
 
     if ($user instanceof UserInterface) {
       \Drupal::logger('origins_workflow')->notice(t('Deleting user @name', ['@name' => $name]));

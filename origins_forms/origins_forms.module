@@ -52,7 +52,6 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
   // Ensure we only process revisions warnings on node edit forms.
   if ($config->get('enable_revisions_warning') && str_contains($form_id, 'edit')) {
     /* @var $node \Drupal\node\NodeInterface */
-    // @phpstan-ignore-next-line
     $node = $form_state->getFormObject()->getEntity();
 
     if (!$node instanceof NodeInterface) {
