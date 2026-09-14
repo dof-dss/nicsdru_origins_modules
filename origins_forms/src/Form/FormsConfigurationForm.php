@@ -6,6 +6,7 @@ namespace Drupal\origins_forms\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\Entity\NodeType;
 
 /**
  * Configure Origins: Forms settings for this site.
@@ -87,6 +88,46 @@ final class FormsConfigurationForm extends ConfigFormBase {
       '#default_value' => $this->config('origins_forms.settings')->get('revisions_warning_excluded'),
     ];
 
+    $config = $this->config('origins_forms.settings');
+
+    $form['unique_title'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Unique title'),
+      '#description' => $this->t('Enforce unique titles across content types.'),
+      '#default_value' => $config->get('enable_unique_title'),
+    ];
+
+    $form['unique_title_settings'] = [
+      '#type' => 'details',
+      '#open' => TRUE,
+      '#title' => $this->t('Unique title settings'),
+      '#states' => [
+        'visible' => [
+          ':input[name="unique_title"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
+    $form['unique_title_settings']['unique_title_exclude_ids_list'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Excluded node IDs'),
+      '#description' => $this->t("Node IDs that should be excluded from unique title validation. Enter one ID per line."),
+      '#default_value' => $config->get('unique_title_exclude_ids_list'),
+    ];
+
+    $options = [];
+    foreach (NodeType::loadMultiple() as $type => $node_type) {
+      $options[$type] = $node_type->label();
+    }
+
+    $form['unique_title_settings']['unique_title_excluded_bundles'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Excluded content types'),
+      '#description' => $this->t('Content types that should be excluded from unique title validation.'),
+      '#options' => $options,
+      '#default_value' => $config->get('unique_title_excluded_bundles') ?: [],
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -107,6 +148,16 @@ final class FormsConfigurationForm extends ConfigFormBase {
         $form_state->setErrorByName('revisions_warning_caution_limit', $this->t('Caution limit must be lower than the lockdown limit.'));
       }
     }
+
+    if ($form_state->getValue('unique_title') && $form_state->getValue('unique_title_exclude_ids_list')) {
+      foreach (explode(PHP_EOL, $form_state->getValue('unique_title_exclude_ids_list')) as $id) {
+        $id = trim(str_replace(["\n", "\t", "\r"], '', $id));
+        if (!empty($id) && !is_numeric($id)) {
+          $form_state->setErrorByName('unique_title_exclude_ids_list', $this->t('Node IDs must be numeric.'));
+          break;
+        }
+      }
+    }
   }
 
   /**
@@ -121,7 +172,11 @@ final class FormsConfigurationForm extends ConfigFormBase {
       ->set('revisions_warning_caution_limit', $form_state->getValue('revisions_warning_caution_limit'))
       ->set('revisions_warning_lockdown_limit', $form_state->getValue('revisions_warning_lockdown_limit'))
       ->set('revisions_warning_excluded', $revisions_excluded)
+      ->set('enable_unique_title', $form_state->getValue('unique_title'))
+      ->set('unique_title_exclude_ids_list', $form_state->getValue('unique_title_exclude_ids_list'))
+      ->set('unique_title_excluded_bundles', $form_state->getValue('unique_title_excluded_bundles'))
       ->save();
+
     parent::submitForm($form, $form_state);
   }
 
