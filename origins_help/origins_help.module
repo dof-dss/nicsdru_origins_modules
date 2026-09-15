@@ -46,6 +46,7 @@ function origins_help_page_attachments(array &$attachments) {
   }
 
   $attachments['#attached']['library'][] = 'origins_help/help_modal';
+  $attachments['#attached']['library'][] = 'origins_help/move_tour_button';
 
   // DO NOT fake tour name here.
   $attachments['#attached']['drupalSettings']['originsHelp'] = [

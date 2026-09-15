@@ -5,3 +5,12 @@
 .shepherd-text a {
   color: var(--color-link) !important;
 }
+
+.js-tour-start-toolbar {
+  color: #fff;
+  background-color: #6662e5;
+  margin-left: .8rem;
+  padding: .3rem;
+  border-radius: 4rem;
+  vertical-align: 8px;
+}
