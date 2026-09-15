@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Drupal\origins_content_issue;
 
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
-use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Url;
 use Drupal\node\Entity\Node;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -22,10 +23,10 @@ final class ContentIssueListBuilder extends EntityListBuilder {
    */
   public function __construct(
     EntityTypeInterface $entity_type,
-    EntityStorageInterface $storage,
-    private readonly ContentIssueManager $contentIssueManager,
+    EntityTypeManagerInterface $entity_type_manager,
+    protected ContentIssueManager $contentIssueManager,
   ) {
-    parent::__construct($entity_type, $storage);
+    parent::__construct($entity_type, $entity_type_manager->getStorage($entity_type->id()));
   }
 
   /**
@@ -34,7 +35,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   public static function createInstance(ContainerInterface $container, $entity_type) {
     return new static(
       $entity_type,
-      $container->get('entity_type.manager')->getStorage($entity_type->id()),
+      $container->get('entity_type.manager'),
       $container->get('content_issue.manager')
     );
   }
@@ -349,7 +350,7 @@ final class ContentIssueListBuilder extends EntityListBuilder {
   /**
    * {@inheritdoc}
    */
-  public function getOperations(EntityInterface $entity) {
+  public function getOperations(EntityInterface $entity, ?CacheableMetadata $cacheability = NULL) {
     return [];
   }
 

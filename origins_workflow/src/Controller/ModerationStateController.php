@@ -64,13 +64,6 @@ final class ModerationStateController extends ControllerBase implements Containe
   protected $logger;
 
   /**
-   * Node storage service object.
-   *
-   * @var \Drupal\node\NodeStorageInterface|\Drupal\Core\Entity\RevisionableStorageInterface
-   */
-  protected $nodeStorage;
-
-  /**
    * The Event Dispatcher service.
    *
    * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
@@ -103,7 +96,6 @@ final class ModerationStateController extends ControllerBase implements Containe
     $this->request = $request;
     $this->logger = $logger;
     $this->eventDispatcher = $event_dispatcher;
-    $this->nodeStorage = $this->entityTypeManager->getStorage('node');
   }
 
   /**
@@ -127,7 +119,7 @@ final class ModerationStateController extends ControllerBase implements Containe
   public function changeState($nid, $new_state) {
     // Load the entity.
     /** @var \Drupal\node\NodeInterface $entity */
-    $entity = $this->nodeStorage->load($nid);
+    $entity = $this->entityTypeManager->getStorage('node')->load($nid);
 
     /** @var \Drupal\workflows\StateInterface $new_state_entity */
     $new_state_entity = $this->moderationInformation
@@ -142,8 +134,8 @@ final class ModerationStateController extends ControllerBase implements Containe
         // Get the latest revision (this is necessary as loading the entity
         // will have given us the latest 'default' revision, which is not
         // what we want if there is a draft of published).
-        $vid = $this->nodeStorage->getLatestRevisionId($nid);
-        $entity = $this->nodeStorage->loadRevision($vid);
+        $vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($nid);
+        $entity = $this->entityTypeManager->getStorage('node')->loadRevision($vid);
 
         // The 'revision_translation_affected' field is poorly documented (and
         // understood) in Drupal core. There is much discussion at
@@ -211,11 +203,10 @@ final class ModerationStateController extends ControllerBase implements Containe
     $current_state = $entity->get('moderation_state')->getString();
     // Check that we are looking at the latest revision.
     if (!$entity->isLatestRevision()) {
-      $revision_ids = $this->nodeStorage->revisionIds($entity);
-      $last_revision_id = end($revision_ids);
+      $last_revision_id = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($entity->id());
       // Load the revision.
       /** @var \Drupal\node\NodeInterface $last_revision */
-      $last_revision = $this->nodeStorage->loadRevision($last_revision_id);
+      $last_revision = $this->entityTypeManager->getStorage('node')->loadRevision($last_revision_id);
       $current_state = $last_revision->get('moderation_state')->getString();
     }
     // Check permissions of current user.

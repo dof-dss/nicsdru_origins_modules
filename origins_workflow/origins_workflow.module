@@ -7,6 +7,7 @@
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Cache\RefinableCacheableDependencyInterface;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityInterface;
@@ -810,7 +811,7 @@ function origins_workflow_moderation_sidebar_alter(array &$build, EntityInterfac
 /**
  * Implements hook_entity_operation().
  */
-function origins_workflow_entity_operation(EntityInterface $entity) {
+function origins_workflow_entity_operation(EntityInterface $entity, CacheableMetadata $cacheability) {
   if ($entity instanceof NodeInterface === FALSE) {
     return;
   }

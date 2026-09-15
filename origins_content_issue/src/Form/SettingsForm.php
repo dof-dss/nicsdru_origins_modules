@@ -24,7 +24,7 @@ final class SettingsForm extends ConfigFormBase implements ContainerInjectionInt
   /**
    * The file system path to the module.
    */
-  private string $modulePath;
+  protected string $modulePath;
 
   /**
    * Class constructor.
@@ -33,9 +33,9 @@ final class SettingsForm extends ConfigFormBase implements ContainerInjectionInt
     ConfigFactoryInterface $config_factory,
     TypedConfigManagerInterface $type_config,
     ModuleHandlerInterface $module_handler,
-    private readonly RendererInterface $renderer,
-    private readonly EntityFieldManagerInterface $entityFieldManager,
-    private readonly FileSystemInterface $fileSystem,
+    protected RendererInterface $renderer,
+    protected EntityFieldManagerInterface $entityFieldManager,
+    protected FileSystemInterface $fileSystem,
   ) {
     parent::__construct($config_factory, $type_config);
     $this->modulePath = $module_handler->getModule('origins_content_issue')->getPath();

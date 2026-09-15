@@ -33,8 +33,8 @@ final class UsersContentIssuesBlock extends BlockBase implements ContainerFactor
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    private readonly ContentIssueManager $contentIssueManager,
-    private readonly RouteMatchInterface $currentRouteMatch,
+    protected ContentIssueManager $contentIssueManager,
+    protected RouteMatchInterface $currentRouteMatch,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }

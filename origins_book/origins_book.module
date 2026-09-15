@@ -11,6 +11,7 @@ use Drupal\book\Form\BookOutlineForm;
 use Drupal\book\Form\BookRemoveForm;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -132,7 +133,7 @@ function origins_book_get_form_node(FormStateInterface $form_state): ?NodeInterf
 /**
  * Implements hook_entity_operation_alter().
  */
-function origins_book_entity_operation_alter(array &$operations, EntityInterface $entity) {
+function origins_book_entity_operation_alter(array &$operations, EntityInterface $entity, CacheableMetadata $cacheability) {
   if (!$entity instanceof NodeInterface || !\Drupal::service('origins_book.parent_page_protection')->isProtected($entity, \Drupal::currentUser())) {
     return;
   }

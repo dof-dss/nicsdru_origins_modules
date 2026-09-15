@@ -21,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 final class SettingsForm extends FormBase {
 
   public function __construct(
-    private readonly StateInterface $state,
+    protected StateInterface $state,
   ) {}
 
   /**

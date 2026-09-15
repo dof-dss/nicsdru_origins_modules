@@ -32,8 +32,8 @@ final class OriginsDefault extends RevisionManagerBase {
     array $configuration,
     string $plugin_id,
     mixed $plugin_definition,
-    private readonly EntityTypeManagerInterface $entityTypeManager,
-    private readonly connection $database,
+    protected EntityTypeManagerInterface $entityTypeManager,
+    protected Connection $database,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entityTypeManager);
     $this->setConfiguration($configuration);
