@@ -51,7 +51,7 @@ tips:
     position: right-end
     selector: .form-managed-file__main
     body:
-      value: '<p>Click the grey <strong data-start="15" data-end="28">“Browse…”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
+      value: '<p>Click the <strong data-start="15" data-end="28">“Choose file/Browse”</strong> button to select a file from your computer, then click <strong data-start="84" data-end="94">“Open”</strong> to upload it.</p>'
       format: basic_html
   url_alias:
     id: url_alias
