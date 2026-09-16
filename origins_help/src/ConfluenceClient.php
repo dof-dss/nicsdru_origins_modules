@@ -14,6 +14,9 @@ use GuzzleHttp\Exception\GuzzleException;
  */
 final class ConfluenceClient {
 
+  /**
+   * Constructs a ConfluenceClient object.
+   */
   public function __construct(
     private readonly StateInterface $state,
     private readonly ClientInterface $httpClient,
@@ -77,8 +80,7 @@ final class ConfluenceClient {
   }
 
   /**
-   * Fetches all children of a page (following pagination), filters by
-   * project labels, then recurses into each included child.
+   * Fetches all children of a page, filters them, then recurses into children.
    *
    * @param string $page_id
    *   The Confluence page ID to fetch children for.
