@@ -1,0 +1,7 @@
+.shepherd-content {
+  hyphens: none;
+}
+
+.shepherd-text a {
+  color: var(--color-link) !important;
+}

@@ -18,9 +18,10 @@ final class OriginsHelpRouteSubscriber extends RouteSubscriberBase {
   protected function alterRoutes(RouteCollection $collection): void {
     // Override Core's help section with our own as the core page
     // displays help sections for modules and this page is intended
-    // for end-users.
+    // for end-users. Administrators are routed back to Core's page by
+    // HelpPagesController::mainPage() itself.
     if ($route = $collection->get('help.main')) {
-      $route->setDefault('_controller', '\Drupal\origins_help\Controller\HelpPagesController');
+      $route->setDefault('_controller', '\Drupal\origins_help\Controller\HelpPagesController::mainPage');
     }
   }
 
