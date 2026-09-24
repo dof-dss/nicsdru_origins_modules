@@ -3,9 +3,9 @@ package main
 /*
   Go script to generate a hash based on file content.
 
-  This file will be compiled and used as a binary in the vendor/bin directory of
-  the project and as such will only allow filepaths that originate 2 levels up
-  from the executable (i.e. the site root) to be hashed.
+  This file will be compiled and exposed via the Composer proxy script in the
+  vendor/bin directory of the project. Only filepaths within the document root
+  (the web directory, 2 levels up from vendor/bin) can be hashed.
 
   To compile for Linux run: GOOS=linux GOARCH=amd64 go build -o dof-dss-filehash .
 */
@@ -54,14 +54,19 @@ func main() {
 		os.Exit(2)
 	}
 
-	// Determine the document root from environment variables
+	// Determine the document root. COMPOSER_RUNTIME_BIN_DIR is exported by the
+	// Composer proxy script in vendor/bin, so it is available regardless of the
+	// calling environment (e.g. PHP exec() where platform variables may be
+	// cleared). Fall back to the hosting environment variables otherwise.
 	var baseDir string
-	if ddevRoot := os.Getenv("DDEV_COMPOSER_ROOT"); ddevRoot != "" {
+	if binDir := os.Getenv("COMPOSER_RUNTIME_BIN_DIR"); binDir != "" {
+		baseDir = filepath.Join(binDir, "..", "..", "web")
+	} else if ddevRoot := os.Getenv("DDEV_COMPOSER_ROOT"); ddevRoot != "" {
 		baseDir = filepath.Join(ddevRoot, "web")
 	} else if platformRoot := os.Getenv("PLATFORM_DOCUMENT_ROOT"); platformRoot != "" {
 		baseDir = platformRoot
 	} else {
-		fmt.Fprintln(os.Stderr, "Error: DDEV_COMPOSER_ROOT or PLATFORM_DOCUMENT_ROOT environment variable not set")
+		fmt.Fprintln(os.Stderr, "Error: COMPOSER_RUNTIME_BIN_DIR, DDEV_COMPOSER_ROOT or PLATFORM_DOCUMENT_ROOT environment variable not set")
 		os.Exit(2)
 	}
 
