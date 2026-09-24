@@ -1,0 +1,4 @@
+unpublished_label:
+  css:
+    theme:
+      css/unpublished-label.css: {}

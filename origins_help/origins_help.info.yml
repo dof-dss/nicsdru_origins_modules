@@ -1,0 +1,8 @@
+name: 'Origins Help'
+type: module
+description: 'Adds Help pages and site tours'
+package: 'NICS: Origins'
+core_version_requirement: ^10 || ^11
+dependencies:
+  - tour:tour
+  - tour_extras:tour_extras_wysiwyg

@@ -1,0 +1,28 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - origins_qa
+title: 'Block all QA accounts on production.'
+id: origins_qa_block_accounts
+module: origins_qa
+callback: origins_qa_block_qa_accounts
+scheduler:
+  id: crontab
+  configuration:
+    rules:
+      - '0 6 * * 1'
+launcher:
+  id: serial
+  configuration:
+    timeouts:
+      lock_timeout: 3600
+      max_execution_time: 3600
+    launcher:
+      max_threads: 1
+logger:
+  id: database
+  configuration:
+    method: '3'
+    expire: 1209600
+    retain: 1000

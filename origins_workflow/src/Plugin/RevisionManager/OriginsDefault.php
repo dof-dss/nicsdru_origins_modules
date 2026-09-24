@@ -73,9 +73,16 @@ final class OriginsDefault extends RevisionManagerBase {
 
     $form['all_revisions_nodes'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('List of nodes for which all old revisions should be deleted'),
+      '#title' => $this->t('List of nodes for which all old revisions should be deleted after the minimum age'),
       '#description' => $this->t("Space separated list of nodes to delete all revision states including 'Published' and 'Archived'."),
       '#default_value' => $this->configuration['all_revisions_nodes'] ?? '',
+    ];
+
+    $form['all_revisions_nodes_no_age'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('List of nodes for which all old revisions should be deleted'),
+      '#description' => $this->t("Space separated list of nodes to delete all revision states including 'Published' and 'Archived'."),
+      '#default_value' => $this->configuration['all_revisions_nodes_no_age'] ?? '',
     ];
 
     return $form;
@@ -88,6 +95,7 @@ final class OriginsDefault extends RevisionManagerBase {
     $published_vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($entity->id());
     // Replace any commas with spaces to create list of nids to remove all expired revision types.
     $all_revisions_nodes = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes']))) ?? [];
+    $all_revisions_nodes_no_age = explode(' ', str_replace(',', ' ', trim($this->configuration['all_revisions_nodes_no_age']))) ?? [];
     $age_comparison = sprintf('-%d months', (int) ($this->configuration['age'] ?? 6));
     // @phpstan-ignore-next-line
     $age_comparison_timestamp = strtotime($age_comparison, (int) $entity->getRevisionCreationTime());
@@ -114,10 +122,14 @@ final class OriginsDefault extends RevisionManagerBase {
     $query->addField('nr', 'vid');
     $query->condition('nr.nid', $entity->id());
     $query->condition('nr.vid', $published_vid, '<');
-    $query->condition('nr.revision_timestamp', $age_comparison_timestamp, '<');
 
-    // Ignore moderation state when current nid is present in all_revisions_nodes list.
-    if (!in_array($entity->id(), $all_revisions_nodes)) {
+    // Ignore age comparison when current nid is present in all_revisions_nodes_no_age list.
+    if (!in_array($entity->id(), $all_revisions_nodes_no_age)) {
+      $query->condition('nr.revision_timestamp', $age_comparison_timestamp, '<');
+    }
+
+    // Ignore moderation state when current nid is present in all_revisions_nodes lists.
+    if (!in_array($entity->id(), $all_revisions_nodes) && !in_array($entity->id(), $all_revisions_nodes_no_age)) {
       $query->condition('msfr.moderation_state', ['published', 'archived'], 'NOT IN');
     }
 

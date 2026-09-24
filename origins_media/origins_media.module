@@ -129,10 +129,13 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
     case 'media_image_edit_form':
     case 'media_video_edit_form':
     case 'media_audio_edit_form':
+    case 'media_secure_file_edit_form':
       // Add a process callback to managed file field widgets.
       // Candidate field names for managed file fields.
       $file_fieldnames = [
         'field_media_file',
+        'field_media_file_1',
+        'field_media_file_2',
         'field_media_image',
         'field_media_video_file',
         'field_media_audio_file',
@@ -152,6 +155,7 @@ function origins_media_form_alter(&$form, FormStateInterface $form_state, $form_
     case 'media_image_delete_form':
     case 'media_video_delete_form':
     case 'media_audio_delete_form':
+    case 'media_secure_file_delete_form':
       // When media items are deleted, we want the media_file_delete module to
       // delete the associated file from the file system. Ensure the option
       // "Also delete the associated file?" is checked by default.

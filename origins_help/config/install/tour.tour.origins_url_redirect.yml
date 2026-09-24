@@ -1,0 +1,47 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - tour_extras_wysiwyg
+  enforced:
+    module:
+      - tour
+      - tour_extras_wysiwyg
+id: origins_url_redirect
+label: 'Url redirect'
+routes:
+  -
+    route_name: redirect.add
+  -
+    route_name: entity.redirect.canonical
+tips:
+  path:
+    id: path
+    plugin: text_formatted
+    label: Path
+    weight: -10
+    position: right
+    selector: '#edit-redirect-source-0-path'
+    body:
+      value: '<p>Enter the <strong>URL path</strong> you would like the redirect to have.</p>'
+      format: basic_html
+  link_to:
+    id: link_to
+    plugin: text_formatted
+    label: 'Link to'
+    weight: -10
+    position: top
+    selector: '#edit-redirect-redirect-wrapper'
+    body:
+      value: '<p>Enter the content item you would like the redirect to link to.</p>'
+      format: basic_html
+  save:
+    id: save
+    plugin: text_formatted
+    label: Save/delete
+    weight: -10
+    position: top-start
+    selector: '#edit-submit'
+    body:
+      value: '<p>When you are happy with your redirect settings click the blue "<strong>Save</strong>" button, alternatively you can use the <strong>delete</strong> function which only appears if you are editing an already existing redirect.</p>'
+      format: basic_html

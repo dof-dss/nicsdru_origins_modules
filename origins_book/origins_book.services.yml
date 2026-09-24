@@ -1,0 +1,7 @@
+services:
+  origins_book.parent_page_protection:
+    class: Drupal\origins_book\BookParentPageProtection
+    arguments: ['@book.manager']
+  origins_book.cache_invalidator:
+    class: Drupal\origins_book\BookCacheInvalidator
+    arguments: ['@cache_tags.invalidator']
