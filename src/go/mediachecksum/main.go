@@ -1,10 +1,21 @@
 /*
   Go script to generate SHA256 checksums for media entities of specific bundle types
   (defaults: image, document) and write them to the duplicates_checksum column of
-  media_field_data.
+  media_field_data and media_field_revision.
+
+  The duplicates_checksum field is defined by the media_duplicates module as
+  revisionable, so Drupal's entity API loads it from media_field_revision. Both
+  tables must be written for the value to be visible to Views and entity code.
+  Existing checksums in media_field_data are copied to the current revision
+  before processing (see backfillRevisionChecksums).
+
+  Drupal's entity cache must be cleared after running (drush cr) for loaded
+  media entities to see the new values.
 
   Public and private file paths are read from the Drupal system.file configuration
   stored in the database. Override them with --public-dir / --private-dir if needed.
+  If no public path is configured, Drupal's default of <web root>/sites/default/files
+  is used. The web root is detected from the environment unless --web-root is given.
 
   To compile for Linux run: GOOS=linux GOARCH=amd64 go build -o dof-dss-mediachecksum .
 */
@@ -31,7 +42,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const version = "1.0.0"
+const version = "1.2.0"
 
 type Config struct {
 	DSN        string
@@ -420,6 +431,22 @@ func resolveDrupalPath(webRoot, drupalPath string) (string, error) {
 	return filepath.Join(webRoot, filepath.FromSlash(drupalPath)), nil
 }
 
+// detectWebRoot determines the Drupal web root when --web-root is not given.
+// COMPOSER_RUNTIME_BIN_DIR is exported by the Composer proxy script in vendor/bin,
+// then the hosting environment variables are checked. Returns "" if not found.
+func detectWebRoot() string {
+	if binDir := os.Getenv("COMPOSER_RUNTIME_BIN_DIR"); binDir != "" {
+		return filepath.Clean(filepath.Join(binDir, "..", "..", "web"))
+	}
+	if ddevRoot := os.Getenv("DDEV_COMPOSER_ROOT"); ddevRoot != "" {
+		return filepath.Join(ddevRoot, "web")
+	}
+	if platformRoot := os.Getenv("PLATFORM_DOCUMENT_ROOT"); platformRoot != "" {
+		return platformRoot
+	}
+	return ""
+}
+
 // ---- File hashing -------------------------------------------------------------
 
 // hashFile computes the SHA256 hex digest of the file at path.
@@ -520,6 +547,57 @@ func ensureChecksumColumn(db *sql.DB, dryRun bool) error {
 		return fmt.Errorf("ALTER TABLE: %w", err)
 	}
 	log.Println("Checksum column added")
+	return nil
+}
+
+// ensureRevisionChecksumColumn checks the revision table has the checksum column.
+// This column is created by Drupal when the media_duplicates module is installed
+// and is not added here, as it must match Drupal's field storage definition.
+func ensureRevisionChecksumColumn(db *sql.DB) error {
+	_, err := db.Exec("SELECT duplicates_checksum FROM media_field_revision LIMIT 0")
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "Unknown column") {
+		return fmt.Errorf("media_field_revision.duplicates_checksum does not exist; ensure the media_duplicates module is installed")
+	}
+	return fmt.Errorf("probing media_field_revision.duplicates_checksum column: %w", err)
+}
+
+// backfillRevisionChecksums copies checksums already stored in media_field_data
+// to the matching current revision rows in media_field_revision. Earlier versions
+// of this tool only wrote media_field_data, leaving the revision table NULL.
+func backfillRevisionChecksums(db *sql.DB, cfg Config) error {
+	ph := bundlePlaceholders(cfg.Bundles)
+	where := fmt.Sprintf(`
+		WHERE mfd.bundle IN (%s)
+		AND mfd.duplicates_checksum IS NOT NULL
+		AND (mfr.duplicates_checksum IS NULL OR mfr.duplicates_checksum <> mfd.duplicates_checksum)`, ph)
+	join := `
+		FROM media_field_revision mfr
+		INNER JOIN media_field_data mfd
+			ON mfd.mid = mfr.mid AND mfd.vid = mfr.vid AND mfd.langcode = mfr.langcode`
+	args := bundleArgs(cfg.Bundles)
+
+	if cfg.DryRun {
+		var count int
+		if err := db.QueryRow("SELECT COUNT(*)"+join+where, args...).Scan(&count); err != nil {
+			return fmt.Errorf("count revision backfill: %w", err)
+		}
+		log.Printf("[dry-run] Would copy %d existing checksums to media_field_revision", count)
+		return nil
+	}
+
+	res, err := db.Exec(`
+		UPDATE media_field_revision mfr
+		INNER JOIN media_field_data mfd
+			ON mfd.mid = mfr.mid AND mfd.vid = mfr.vid AND mfd.langcode = mfr.langcode
+		SET mfr.duplicates_checksum = mfd.duplicates_checksum`+where, args...)
+	if err != nil {
+		return fmt.Errorf("revision backfill: %w", err)
+	}
+	affected, _ := res.RowsAffected()
+	log.Printf("Copied %d existing checksums to media_field_revision", affected)
 	return nil
 }
 
@@ -677,24 +755,39 @@ func processMedia(db *sql.DB, cfg Config) error {
 			if err != nil {
 				return fmt.Errorf("begin transaction: %w", err)
 			}
-			stmt, err := tx.Prepare(`
-				UPDATE media_field_data
-				SET    duplicates_checksum = ?
-				WHERE  mid = ? AND vid = ? AND langcode = ?
-			`)
-			if err != nil {
-				tx.Rollback()
-				return fmt.Errorf("prepare update: %w", err)
+			// Write both the data and revision tables, as Drupal loads this
+			// revisionable field from media_field_revision.
+			stmts := make([]*sql.Stmt, 0, 2)
+			for _, table := range []string{"media_field_data", "media_field_revision"} {
+				stmt, err := tx.Prepare(fmt.Sprintf(`
+					UPDATE %s
+					SET    duplicates_checksum = ?
+					WHERE  mid = ? AND vid = ? AND langcode = ?
+				`, table))
+				if err != nil {
+					for _, st := range stmts {
+						st.Close()
+					}
+					tx.Rollback()
+					return fmt.Errorf("prepare %s update: %w", table, err)
+				}
+				stmts = append(stmts, stmt)
 			}
 			for _, p := range batch {
-				if _, err := stmt.Exec(p.checksum, p.mid, p.vid, p.langcode); err != nil {
-					stmt.Close()
-					tx.Rollback()
-					return fmt.Errorf("update mid=%d: %w", p.mid, err)
+				for _, stmt := range stmts {
+					if _, err := stmt.Exec(p.checksum, p.mid, p.vid, p.langcode); err != nil {
+						for _, st := range stmts {
+							st.Close()
+						}
+						tx.Rollback()
+						return fmt.Errorf("update mid=%d: %w", p.mid, err)
+					}
 				}
 				stats.Updated++
 			}
-			stmt.Close()
+			for _, st := range stmts {
+				st.Close()
+			}
 			if err := tx.Commit(); err != nil {
 				return fmt.Errorf("commit transaction: %w", err)
 			}
@@ -821,6 +914,13 @@ func main() {
 	}
 	log.Println("✓ Database connection successful")
 
+	if cfg.WebRoot == "" {
+		cfg.WebRoot = detectWebRoot()
+		if cfg.WebRoot != "" {
+			log.Printf("Web root (detected): %s", cfg.WebRoot)
+		}
+	}
+
 	// Resolve file directories: CLI flags take precedence, then Drupal config.
 	if cfg.PublicDir == "" || cfg.PrivateDir == "" {
 		pubCfg, privCfg, err := readDrupalFilePaths(db)
@@ -846,8 +946,17 @@ func main() {
 		}
 	}
 
+	// Drupal 8.8+ sets the public path in settings.php (file_public_path) rather
+	// than system.file config, so fall back to Drupal's default location.
 	if cfg.PublicDir == "" {
-		log.Println("Warning: public file directory could not be determined; public:// URIs will fail")
+		if cfg.WebRoot == "" {
+			log.Fatalln("Public file directory could not be determined; set --web-root or --public-dir")
+		}
+		cfg.PublicDir = filepath.Join(cfg.WebRoot, "sites", "default", "files")
+		log.Printf("Public dir (Drupal default): %s", cfg.PublicDir)
+	}
+	if info, err := os.Stat(cfg.PublicDir); err != nil || !info.IsDir() {
+		log.Fatalf("Public file directory %q does not exist; set --public-dir to the correct path", cfg.PublicDir)
 	}
 	if cfg.PrivateDir != "" {
 		log.Printf("Private dir: %s", cfg.PrivateDir)
@@ -859,7 +968,19 @@ func main() {
 		log.Fatalf("Failed to ensure duplicates_checksum column: %v", err)
 	}
 
+	if err := ensureRevisionChecksumColumn(db); err != nil {
+		log.Fatalf("Failed to ensure duplicates_checksum revision column: %v", err)
+	}
+
+	if err := backfillRevisionChecksums(db, cfg); err != nil {
+		log.Fatalf("Failed to backfill revision checksums: %v", err)
+	}
+
 	if err := processMedia(db, cfg); err != nil {
 		log.Fatalf("Failed to process media: %v", err)
+	}
+
+	if !cfg.DryRun {
+		log.Println("Clear Drupal's caches (drush cr) so loaded media entities see the new checksums")
 	}
 }
