@@ -3,9 +3,9 @@ package main
 /*
   Go script to generate a hash based on file content.
 
-  This file will be compiled and used as a binary in the vendor/bin directory of
-  the project and as such will only allow filepaths that originate 2 levels up
-  from the executable (i.e. the site root) to be hashed.
+  This file will be compiled and exposed via the Composer proxy script in the
+  vendor/bin directory of the project. Only filepaths within the document root
+  (the web directory, 2 levels up from vendor/bin) can be hashed.
 
   To compile for Linux run: GOOS=linux GOARCH=amd64 go build -o dof-dss-filehash .
 */
@@ -19,32 +19,32 @@ import (
 	"strings"
 )
 
+const version = "1.0.0"
+
+func isSubpath(base, target string) bool {
+	rel, err := filepath.Rel(base, target)
+	if err != nil {
+		return false
+	}
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
 func main() {
 	if len(os.Args) != 2 {
 		fmt.Fprintln(os.Stderr, "Usage: filehash <filepath>")
 		os.Exit(1)
 	}
 
+	if os.Args[1] == "--version" || os.Args[1] == "-version" || os.Args[1] == "-v" {
+		fmt.Println(version)
+		return
+	}
+
 	filePath := os.Args[1]
-
-	exePath, err := os.Executable()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Unable to resolve executable path: %v\n", err)
-		os.Exit(2)
-	}
-
-	// Set the baseDir to the executable directory and up 2 levels (because we're in vendor/bin)
-	// and resolve to the absolute path including symlinks to ensure we have the correct site root.
-	baseDir := filepath.Clean(filepath.Join(filepath.Dir(exePath), "..", ".."))
-	baseDir, err = filepath.EvalSymlinks(baseDir)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: Unable to resolve base directory: %v\n", err)
-		os.Exit(2)
-	}
 
 	absFile, err := filepath.Abs(filePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error:Unable to resolve file path: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: Unable to resolve file path: %v\n", err)
 		os.Exit(2)
 	}
 
@@ -54,11 +54,30 @@ func main() {
 		os.Exit(2)
 	}
 
-	// Check the file path relative to the baseDir to ensure it's within the site root.
-	// If the relative path starts with '..', it's outside the site root.
-	rel, err := filepath.Rel(baseDir, absFile)
-	if err != nil || strings.HasPrefix(rel, "..") {
-		fmt.Fprintln(os.Stderr, "Error: file path is outside site root")
+	// Determine the document root. COMPOSER_RUNTIME_BIN_DIR is exported by the
+	// Composer proxy script in vendor/bin, so it is available regardless of the
+	// calling environment (e.g. PHP exec() where platform variables may be
+	// cleared). Fall back to the hosting environment variables otherwise.
+	var baseDir string
+	if binDir := os.Getenv("COMPOSER_RUNTIME_BIN_DIR"); binDir != "" {
+		baseDir = filepath.Join(binDir, "..", "..", "web")
+	} else if ddevRoot := os.Getenv("DDEV_COMPOSER_ROOT"); ddevRoot != "" {
+		baseDir = filepath.Join(ddevRoot, "web")
+	} else if platformRoot := os.Getenv("PLATFORM_DOCUMENT_ROOT"); platformRoot != "" {
+		baseDir = platformRoot
+	} else {
+		fmt.Fprintln(os.Stderr, "Error: COMPOSER_RUNTIME_BIN_DIR, DDEV_COMPOSER_ROOT or PLATFORM_DOCUMENT_ROOT environment variable not set")
+		os.Exit(2)
+	}
+
+	baseDir, err = filepath.EvalSymlinks(baseDir)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: Unable to resolve base directory: %v\n", err)
+		os.Exit(2)
+	}
+
+	if !isSubpath(baseDir, absFile) {
+		fmt.Fprintln(os.Stderr, "Error: file path is outside document root")
 		os.Exit(2)
 	}
 
