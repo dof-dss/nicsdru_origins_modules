@@ -615,7 +615,7 @@ function origins_workflow_preprocess_table(&$variables) {
         // current or default revision.
         // Add class to the row for the default revision
         // to indicate it's moderation state.
-        $row['attributes']->addClass('revision-' . $node->get('moderation_state')->getValue()[0]['value']);
+//        $row['attributes']->addClass('revision-' . $node->get('moderation_state')->getValue()[0]['value']);
 
         // Create a "Create Draft of Published" link.
         origins_workflow_create_draft_link_for_revision($variables, $node, $idx, $row);
@@ -632,9 +632,10 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
   if (!isset($form['node_revisions_table'])) {
     return;
   }
-  $table = &$form['node_revisions_table'];
-  $node = \Drupal::routeMatch()->getParameter('node');
 
+  $moderation_information = \Drupal::service('content_moderation.moderation_information');
+  $table = &$form['node_revisions_table'];
+  $vids = [];
 
   // Tweak revision comparison column headings.
   if (isset($table["#header"]["select_column_one"])) {
@@ -644,43 +645,50 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
     $table["#header"]["select_column_two"] = t('Compare revision 2');
   }
 
-
   // Fetch the child elements (rows) for the table render array.
   $rows = Element::children($table);
 
-  // Add new 'Revision Number' column to the node revisions tab.
-  $new_head = [
-    'tag' => 'th',
-    'content' => [
-      '#markup' => t('Revision No.'),
-    ],
-  ];
+  // If revisions bulk select is present, offset the revision ID so the checkboxes remain in the first column.
+  $can_bulk_select = \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations') && \Drupal::currentUser()->hasPermission('bulk select revisions');
+  $offset = $can_bulk_select ? 1 : 0;
 
-  // TODO: Check for bulk revisions and adjust the slice offset.
   // Insert the 'Revision No.' title into the correct table column.
-  $table['#header'] = array_slice($table['#header'], 0, 0) + ['revision_no' => $new_head] + $table['#header'];
+  $table['#header'] = array_slice($table['#header'], 0, $offset, TRUE)
+    + ['revision_no' => t('Revision No.')]
+    + array_slice($table['#header'], $offset, NULL, TRUE);
 
+  // Fetch each vid from the Diff radio button. If we have a single revision, fallback to getRevisionId().
+  foreach ($rows as $key) {
+    $vids[$key] = $table[$key]['select_column_one']['#return_value'] ?? \Drupal::routeMatch()->getParameter('node')->getRevisionId();
+  }
+
+  $revisions = \Drupal::entityTypeManager()->getStorage('node')->loadMultipleRevisions(array_values($vids));
 
   foreach ($rows as $key) {
-    // Fetch the vid from the 'compare revision 1' radio button.
-    $vid = $table[$key]['select_column_one']['#return_value'] ?? NULL;
-    // If the first compare radio value isn't present then the row must be the current revision.
-    if ($vid === NULL && $node instanceof NodeInterface) {
-      $vid = $node->getRevisionId();
+    $vid = $vids[$key];
+
+    // Extract the operations cell for this row so its links can be altered.
+    // The current revision has no '#links', just 'Current revision' markup.
+    $operations = &$table[$key]['operations'];
+
+    // Show the revision's moderation state on the operations cell.
+    $revision = $revisions[$vid] ?? NULL;
+    if ($revision && $revision->hasField('moderation_state') && !$revision->get('moderation_state')->isEmpty()) {
+      $state_id = $revision->get('moderation_state')->getValue()[0]['value'];
+      $workflow = $moderation_information->getWorkflowForEntity($revision);
+      $state_label = $workflow ? $workflow->getTypePlugin()->getState($state_id)->label() : $state_id;
+
+      $operations['#wrapper_attributes']['class'][] = 'revision-ribbon';
+      $operations['#wrapper_attributes']['class'][] = 'revision-ribbon--' . $state_id;
+      $operations['#wrapper_attributes']['data-moderation-state'] = $state_label;
     }
 
-    $row = [];
-    $position = 0;
-    foreach ($table[$key] as $name => $cell) {
-      if ($position === 0 && !isset($row['revision_no']) && !str_starts_with((string) $name, '#')) {
-        $row['revision_no'] = ['#markup' => $vid];
-      }
-      $row[$name] = $cell;
-      if (!str_starts_with((string) $name, '#')) {
-        $position++;
-      }
-    }
-    $table[$key] = $row;
+    unset($operations);
+
+    // Insert the revision number.
+    $table[$key] = array_slice($table[$key], 0, $offset, TRUE)
+      + ['revision_no' => ['#markup' => $vid]]
+      + array_slice($table[$key], $offset, NULL, TRUE);
   }
 }
 
