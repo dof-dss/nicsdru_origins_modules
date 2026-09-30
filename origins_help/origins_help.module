@@ -121,11 +121,11 @@ function origins_help_preprocess_page_title(array &$variables) {
     '#attributes' => [
       'type' => 'button',
       'class' => [
-          'toolbar-icon',
-          'toolbar-item',
-          'toolbar-icon-help',
-          'js-tour-start-toolbar',
-          'tour-button',
+        'toolbar-icon',
+        'toolbar-item',
+        'toolbar-icon-help',
+        'js-tour-start-toolbar',
+        'tour-button',
         ],
     ],
   ];
