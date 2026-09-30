@@ -126,7 +126,7 @@ function origins_help_preprocess_page_title(array &$variables) {
         'toolbar-icon-help',
         'js-tour-start-toolbar',
         'tour-button',
-        ],
+      ],
     ],
   ];
 }
