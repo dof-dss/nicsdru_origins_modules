@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\menu_link_content\Entity\MenuLinkContent;
@@ -531,18 +532,9 @@ function origins_workflow_preprocess_table(&$variables) {
 
     // Get the current node we are showing revisions for.
     $node = \Drupal::routeMatch()->getParameter('node');
-    $can_bulk_select = \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations') && \Drupal::currentUser()->hasPermission('bulk select revisions');
 
-    // Add new 'Revision Number' column to the node revisions tab.
-    $new_head = [
-      'tag' => 'th',
-      'content' => [
-        '#markup' => t('Revision No.'),
-      ],
-    ];
-
-    // Insert the 'Revision No.' title into the correct table column.
-    $variables['header'] = array_slice($variables['header'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_head] + $variables['header'];
+    // The 'Revision No.' column is added by
+    // origins_workflow_form_revision_overview_form_alter().
 
     // Tweak revision comparison column headings.
     if (isset($variables['header']['select_column_one'])) {
@@ -567,18 +559,17 @@ function origins_workflow_preprocess_table(&$variables) {
 
       $links = &$row['cells'][$action_column]['content']['#links'];
 
-      // Work out the revision for this row.
-      $this_revisionId = '';
+      // Work out the revision for this row from its 'Revision No.' cell.
+      $this_revisionId = (string) ($row['cells']['revision_no']['content']['#markup'] ?? '');
 
       // If row has revert links...
       if (isset($links) && isset($links['revert'])) {
 
         $revert_link = &$links['revert'];
 
-        // Cheekily extract this row's revision id from the 'revert' button
-        // link.
+        // Fall back to the revision id in the 'revert' button link.
         $this_url = $revert_link['url'];
-        if (isset($this_url)) {
+        if ($this_revisionId === '' && isset($this_url)) {
           $this_revisionId = $this_url->getRouteParameters()['node_revision'];
         }
 
@@ -630,7 +621,6 @@ function origins_workflow_preprocess_table(&$variables) {
       else {
         // There are no 'revert' links in this row, therefore it must be the
         // current or default revision.
-        $this_revisionId = $node->getRevisionId();
         // Add class to the row for the default revision
         // to indicate it's moderation state.
         $row['attributes']->addClass('revision-' . $node->get('moderation_state')->getValue()[0]['value']);
@@ -639,12 +629,54 @@ function origins_workflow_preprocess_table(&$variables) {
         origins_workflow_create_draft_link_for_revision($variables, $node, $idx, $row);
       }
 
-      // Insert revision number column at the beginning.
-      $new_col = ['tag' => 'td', 'content' => ['#markup' => $this_revisionId]];
-
-      // Insert the revision number into the correct table column.
-      $row['cells'] = array_slice($row['cells'], 0, ($can_bulk_select ? 1 : 0)) + ['revision_no' => $new_col] + $row['cells'];
     }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if (!isset($form['node_revisions_table'])) {
+    return;
+  }
+  $table = &$form['node_revisions_table'];
+  $node = \Drupal::routeMatch()->getParameter('node');
+  // Fetch the child elements (rows) for the table render array.
+  $rows = Element::children($table);
+
+  // Add new 'Revision Number' column to the node revisions tab.
+  $new_head = [
+    'tag' => 'th',
+    'content' => [
+      '#markup' => t('Revision No.'),
+    ],
+  ];
+
+  // Insert the 'Revision No.' title into the correct table column.
+  $table['#header'] = array_slice($table['#header'], 0, 0) + ['revision_no' => $new_head] + $table['#header'];
+
+
+  foreach ($rows as $key) {
+    // Fetch the vid from the 'compare revision 1' radio button.
+    $vid = $table[$key]['select_column_one']['#return_value'] ?? NULL;
+    // If the first compare radio value isn't present then the row must be the current revision.
+    if ($vid === NULL && $node instanceof NodeInterface) {
+      $vid = $node->getRevisionId();
+    }
+
+    $row = [];
+    $position = 0;
+    foreach ($table[$key] as $name => $cell) {
+      if ($position === 0 && !isset($row['revision_no']) && !str_starts_with((string) $name, '#')) {
+        $row['revision_no'] = ['#markup' => $vid];
+      }
+      $row[$name] = $cell;
+      if (!str_starts_with((string) $name, '#')) {
+        $position++;
+      }
+    }
+    $table[$key] = $row;
   }
 }
 
