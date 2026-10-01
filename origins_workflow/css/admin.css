@@ -14,6 +14,7 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
 #edit-node-revisions-table th {
   color: #000; /* better contrast with th background */
 }
+
 #edit-node-revisions-table .revision-draft {
   background-color: #ffb3b3; /* pink */
 }
@@ -27,37 +28,6 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
   background-color: #dfdfdf; /* light grey */
 }
 
-#edit-node-revisions-table tr.revision-ribbon td:last-child {
-  position: relative;
-}
-#edit-node-revisions-table tr.revision-ribbon td:last-child::before {
-  content: attr(data-moderation-state);
-  position: absolute;
-  top: 8px;
-  right: 0;
-  padding: 2px 10px 2px 16px;
-  background-color: var(--ribbon-color, #dfdfdf);
-  color: #3a3a3a;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.4;
-  letter-spacing: .04em;
-  text-transform: uppercase;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 4px 50%);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
-}
-#edit-node-revisions-table tr.revision-ribbon--draft {
-  --ribbon-color: #ffb3b3; /* pink */
-}
-#edit-node-revisions-table tr.revision-ribbon--needs_review {
-  --ribbon-color: #ffeeaa; /* yellow */
-}
-#edit-node-revisions-table tr.revision-ribbon--published {
-  --ribbon-color: #b6ffb6; /* light green */
-}
-#edit-node-revisions-table tr.revision-ribbon--archived {
-  --ribbon-color: #dfdfdf; /* light grey */
-}
 #edit-node-revisions-table a:not(.dropbutton a) {
   color: #00558a; /* darken link color for better contrast */
   text-decoration: underline;

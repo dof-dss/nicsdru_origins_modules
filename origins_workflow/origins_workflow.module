@@ -524,7 +524,6 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
     return;
   }
 
-  $moderation_information = \Drupal::service('content_moderation.moderation_information');
   $table = &$form['node_revisions_table'];
   $vids = [];
 
@@ -558,22 +557,15 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
   foreach ($rows as $key) {
     $vid = $vids[$key];
 
-    // Extract the operations cell for this row so its links can be altered.
-    // The current revision has no '#links', just 'Current revision' markup.
-    $operations = &$table[$key]['operations'];
-
-    // Show the revision's moderation state on the operations cell.
+    // Show the moderation state on the current revision.
     $revision = $revisions[$vid] ?? NULL;
-    if ($revision && $revision->hasField('moderation_state') && !$revision->get('moderation_state')->isEmpty()) {
-      $state_id = $revision->get('moderation_state')->getValue()[0]['value'];
-      $workflow = $moderation_information->getWorkflowForEntity($revision);
-      $state_label = $workflow ? $workflow->getTypePlugin()->getState($state_id)->label() : $state_id;
-
-      $table[$key]['#attributes']['class'][] = 'revision-ribbon';
-      $table[$key]['#attributes']['class'][] = 'revision-ribbon--' . $state_id;
-      $operations['#wrapper_attributes']['data-moderation-state'] = $state_label;
+    if ($revision && $revision->isDefaultRevision() && $revision->hasField('moderation_state') && !$revision->get('moderation_state')->isEmpty()) {
+      $table[$key]['#attributes']['class'][] = 'revision-' . $revision->get('moderation_state')->getValue()[0]['value'];
     }
 
+    $operations = &$table[$key]['operations'];
+
+    // Process operations links, 'Current revision' won't have any operation links.
     if (isset($operations['#links'])) {
       $links = &$operations['#links'];
 
