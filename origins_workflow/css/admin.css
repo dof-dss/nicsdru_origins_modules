@@ -26,12 +26,11 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
 #edit-node-revisions-table .revision-archived {
   background-color: #dfdfdf; /* light grey */
 }
-/* Moderation state ribbon on the operations cell. */
-#edit-node-revisions-table .revision-ribbon {
+
+#edit-node-revisions-table tr.revision-ribbon td:last-child {
   position: relative;
-  overflow: hidden;
 }
-#edit-node-revisions-table .revision-ribbon::before {
+#edit-node-revisions-table tr.revision-ribbon td:last-child::before {
   content: attr(data-moderation-state);
   position: absolute;
   top: 8px;
@@ -44,20 +43,19 @@ body.path-admin form.views-exposed-form div.chosen-drop ul.chosen-results li.gro
   line-height: 1.4;
   letter-spacing: .04em;
   text-transform: uppercase;
-  /* Notched left end to give the ribbon its tail. */
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 4px 50%);
   box-shadow: 0 1px 2px rgba(0, 0, 0, .5);
 }
-#edit-node-revisions-table .revision-ribbon--draft {
+#edit-node-revisions-table tr.revision-ribbon--draft {
   --ribbon-color: #ffb3b3; /* pink */
 }
-#edit-node-revisions-table .revision-ribbon--needs_review {
+#edit-node-revisions-table tr.revision-ribbon--needs_review {
   --ribbon-color: #ffeeaa; /* yellow */
 }
-#edit-node-revisions-table .revision-ribbon--published {
+#edit-node-revisions-table tr.revision-ribbon--published {
   --ribbon-color: #b6ffb6; /* light green */
 }
-#edit-node-revisions-table .revision-ribbon--archived {
+#edit-node-revisions-table tr.revision-ribbon--archived {
   --ribbon-color: #dfdfdf; /* light grey */
 }
 #edit-node-revisions-table a:not(.dropbutton a) {
