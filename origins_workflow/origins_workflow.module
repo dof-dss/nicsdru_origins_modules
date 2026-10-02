@@ -517,7 +517,7 @@ function origins_workflow_audit_link($field, $dt, $nid) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() for revision_overview_form.
+ * Implements hook_form_FORM_ID_alter().
  */
 function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (!isset($form['node_revisions_table'])) {
@@ -659,44 +659,6 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
     $table[$key] = array_slice($table[$key], 0, $offset, TRUE)
       + ['revision_no' => ['#markup' => $vid]]
       + array_slice($table[$key], $offset, NULL, TRUE);
-  }
-}
-
-/**
- * Add a 'Create Draft of Published' link.
- */
-function origins_workflow_create_draft_link_for_revision(&$variables, $node, $idx, $row) {
-  // Does this user have permission to create drafts of published ?
-  if (\Drupal::currentUser()->hasPermission('use nics_editorial_workflow transition draft_of_published')) {
-    // Now change the 'Current Revision' markup to a
-    // 'Create Draft of Published' link.
-    if ($idx > 0) {
-      // Just check that there is markup in there and no link (just in case
-      // core has been updated in the meantime, in which case this fix may
-      // not be needed).
-      if (isset($row['cells'][3]['content']['#markup']) && !isset($row['cells'][3]['content']['#links'])) {
-        $markup = $row['cells'][3]['content']['#markup'];
-        // There is markup in there, just double check that
-        // it says 'Current revision'.
-        if ($markup->getUntranslatedString() == 'Current revision') {
-          // Now go ahead and change the 'Current Revision' markup to a
-          // 'Create Draft of Published' link.
-          $variables['rows'][$idx]['cells'][3]['content']['#links'] = [
-            'revert' =>
-              [
-                'title' => t('Create Draft of Published'),
-                'url' => Url::fromRoute('origins_workflow.moderation_state_controller_new_draft_of_published',
-                  ['nid' => $node->id()]),
-              ],
-          ];
-          $variables['rows'][$idx]['cells'][3]['content']['#type'] = "operations";
-          // Remove the markup.
-          unset($variables['rows'][$idx]['cells'][3]['content']['#prefix']);
-          unset($variables['rows'][$idx]['cells'][3]['content']['#markup']);
-          unset($variables['rows'][$idx]['cells'][3]['content']['#suffix']);
-        }
-      }
-    }
   }
 }
 
