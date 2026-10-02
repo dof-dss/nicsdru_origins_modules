@@ -517,7 +517,7 @@ function origins_workflow_audit_link($field, $dt, $nid) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_FORM_ID_alter() for revision_overview_form.
  */
 function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   if (!isset($form['node_revisions_table'])) {
@@ -559,7 +559,9 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
 
     // Show the moderation state on the current revision.
     $revision = $revisions[$vid] ?? NULL;
+    // @phpstan-ignore-next-line
     if ($revision && $revision->isDefaultRevision() && $revision->hasField('moderation_state') && !$revision->get('moderation_state')->isEmpty()) {
+      // @phpstan-ignore-next-line
       $table[$key]['#attributes']['class'][] = 'revision-' . $revision->get('moderation_state')->getValue()[0]['value'];
     }
 
@@ -623,8 +625,12 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
           ['query' => ['destination' => \Drupal::request()->getPathInfo()]]
         );
 
+        // Find the position of the 'revert' link.
+        $position = array_search($revert_index, array_keys($links), TRUE) + 1;
         // Insert "Revert as draft" link after the revert link.
-        array_splice($links, $revert_index + 1, 0, [$revert_as_draft_link]);
+        $links = array_slice($links, 0, $position, TRUE)
+          + ['revert_as_draft' => $revert_as_draft_link]
+          + array_slice($links, $position, NULL, TRUE);
       }
 
       unset($links);
