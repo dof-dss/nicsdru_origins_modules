@@ -51,7 +51,7 @@ final class HelpPagesController extends ControllerBase {
    */
   public function mainPage(): array {
     // If the user is an admin, display the core help.
-    if ($this->currentUser()->hasRole('administrator')) {
+    if (in_array('administrator', $this->currentUser()->getRoles(), TRUE)) {
       return $this->classResolver
         ->getInstanceFromDefinition(HelpController::class)
         ->helpMain();

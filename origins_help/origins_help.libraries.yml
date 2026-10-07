@@ -5,3 +5,7 @@ help_modal:
     - core/drupal
     - core/once
     - core/drupal.dialog.ajax
+tour_styles:
+  css:
+    theme:
+      css/origins_help.tours.css: { }

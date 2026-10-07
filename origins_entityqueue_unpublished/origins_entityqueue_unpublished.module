@@ -5,16 +5,22 @@
  * Contains origins_entityqueue_unpublished.module.
  */
 
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\entityqueue\EntitySubqueueInterface;
 use Drupal\node\NodeInterface;
 
 /**
  * Implements hook_form_entity_subqueue_form_alter().
  */
 function origins_entityqueue_unpublished_form_entity_subqueue_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
-  $subqueue = $form_state->getFormObject()->getEntity();
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof EntityFormInterface) {
+    return;
+  }
 
-  if (!$subqueue) {
+  $subqueue = $form_object->getEntity();
+  if (!$subqueue instanceof EntitySubqueueInterface) {
     return;
   }
 
@@ -29,9 +35,13 @@ function origins_entityqueue_unpublished_form_entity_subqueue_form_alter(array &
  * Runs after Entityqueue AJAX rebuilds the form.
  */
 function origins_entityqueue_unpublished_after_build(array $form, FormStateInterface $form_state) {
-  $subqueue = $form_state->getFormObject()->getEntity();
+  $form_object = $form_state->getFormObject();
+  if (!$form_object instanceof EntityFormInterface) {
+    return $form;
+  }
 
-  if (!$subqueue) {
+  $subqueue = $form_object->getEntity();
+  if (!$subqueue instanceof EntitySubqueueInterface) {
     return $form;
   }
 
@@ -58,7 +68,7 @@ function origins_entityqueue_unpublished_is_latest_revision_unpublished(NodeInte
 
   $latest_revision = $storage->loadRevision($latest_vid);
 
-  if (!$latest_revision) {
+  if (!$latest_revision instanceof NodeInterface) {
     return FALSE;
   }
 
@@ -68,7 +78,7 @@ function origins_entityqueue_unpublished_is_latest_revision_unpublished(NodeInte
 /**
  * Adds an Unpublished label to queue items.
  */
-function origins_entityqueue_unpublished_add_unpublished_labels(array &$form, $subqueue) {
+function origins_entityqueue_unpublished_add_unpublished_labels(array &$form, EntitySubqueueInterface $subqueue) {
   if (!isset($form['items']['widget'])) {
     return;
   }
@@ -98,7 +108,7 @@ function origins_entityqueue_unpublished_add_unpublished_labels(array &$form, $s
 /**
  * Adds an unpublished warning message above the Entityqueue table.
  */
-function origins_entityqueue_unpublished_add_warning_message(array &$form, $subqueue) {
+function origins_entityqueue_unpublished_add_warning_message(array &$form, EntitySubqueueInterface $subqueue) {
   if (!isset($form['items']['widget'])) {
     return;
   }

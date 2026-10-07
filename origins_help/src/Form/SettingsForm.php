@@ -20,6 +20,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 final class SettingsForm extends FormBase {
 
+  /**
+   * Constructs a SettingsForm object.
+   */
   public function __construct(
     protected StateInterface $state,
   ) {}

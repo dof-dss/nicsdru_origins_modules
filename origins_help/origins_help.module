@@ -76,11 +76,25 @@ function origins_help_tour_tips_alter(array &$tour_tips, EntityInterface $entity
   // Revisions Bulk Operations adds an extra column at the start of the table so
   // we need to bump the child index for each selector referencing that table.
   if ($entity->id() === 'origins_revisions' && \Drupal::moduleHandler()->moduleExists('revisions_bulk_operations')) {
-    $child_index = 2;
-    foreach ($tour_tips as $tour_tip) {
-      if (str_starts_with($tour_tip->get('selector'), '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1)')) {
-        $tour_tip->set('selector', '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(' . $child_index++ . ')');
+    if (\Drupal::currentUser()->hasPermission('bulk select revisions')) {
+      $child_index = 2;
+      foreach ($tour_tips as $tour_tip) {
+        if (str_starts_with($tour_tip->get('selector'), '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1)')) {
+          $tour_tip->set('selector', '#edit-node-revisions-table > thead:nth-child(2) > tr:nth-child(1) > th:nth-child(' . $child_index++ . ')');
+        }
       }
     }
   }
+}
+
+/**
+ * Implements hook_tour_build_alter().
+ *
+ * @param array $build
+ *   The render array for the tour.
+ * @param \Drupal\tour\TourInterface[] $entities
+ *   An array of tour entities that are being rendered.
+ */
+function origins_help_tour_build_alter(array &$build, array $entities) {
+  $build['#attached']['library'][] = 'origins_help/tour_styles';
 }
