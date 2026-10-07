@@ -560,9 +560,7 @@ function origins_workflow_form_revision_overview_form_alter(&$form, FormStateInt
 
     // Show the moderation state on the current revision.
     $revision = $revisions[$vid] ?? NULL;
-    // @phpstan-ignore-next-line
     if ($revision && $revision->isDefaultRevision() && $revision->hasField('moderation_state') && !$revision->get('moderation_state')->isEmpty()) {
-      // @phpstan-ignore-next-line
       $table[$key]['#attributes']['class'][] = 'revision-' . $revision->get('moderation_state')->getValue()[0]['value'];
     }
 
