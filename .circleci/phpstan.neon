@@ -1,6 +1,7 @@
-# phpstan.neon
-
+# Match the site repositories: level 0 with Drupal and deprecation rules.
 parameters:
+  level: 0
+  reportUnmatchedIgnoredErrors: true
   fileExtensions:
     - module
     - theme
@@ -8,8 +9,7 @@ parameters:
     - install
     - profile
     - engine
-  paths:
-    - src
+  # CI supplies the package path when invoking PHPStan.
   disallowedFunctionCalls:
     - function: var_dump
       message: 'This is likely not intended to be used outside of local development, please remove it.'
@@ -23,13 +23,3 @@ parameters:
       message: 'This is likely not intended to be used outside of local development, please remove it.'
     - function: exit
       message: 'This is likely not intended to be used outside of local development, please remove it.'
-  customRulesetUsed: true
-  reportUnmatchedIgnoredErrors: false
-  # Ignore phpstan-drupal extension's rules.
-  ignoreErrors:
-    - '#\Drupal calls should be avoided in classes, use dependency injection instead#'
-    - '#Plugin definitions cannot be altered.#'
-    - '#Missing cache backend declaration for performance.#'
-    - '#Plugin manager has cache backend specified but does not declare cache tags.#'
-    - '#Call to an undefined method .*::assertTrue#'
-    - '#Call to an undefined method .*::assertEquals#'

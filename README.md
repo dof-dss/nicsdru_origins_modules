@@ -30,3 +30,22 @@ Details can be found at: https://packagist.org/packages/dof-dss/nicsdru_origins_
 
 * Origins Form Descriptions - Install Origins Forms and enable via admin settings.
 * Origins Unique Title - Install Origins Forms and configure via admin settings.
+
+## Static analysis
+
+CI runs PHPStan at level 0, matching the site repositories, with Drupal,
+deprecation and disallowed-function rules enabled. Unused suppressions fail the
+check; remove obsolete ignores instead of disabling unmatched-ignore reporting.
+The PHPStan job also checks for debugging functions, so a separate
+disallowed-functions job is not needed.
+
+To run the same configuration from a Drupal project with this package installed
+and its PHPStan extensions available:
+
+```sh
+vendor/bin/phpstan analyse --memory-limit=1G \
+  -c web/modules/origins/.circleci/phpstan.neon web/modules/origins
+```
+
+The path is passed explicitly because the shared CI job relocates the configuration
+file. Coding style is checked separately using Drupal and DrupalPractice PHPCS.
