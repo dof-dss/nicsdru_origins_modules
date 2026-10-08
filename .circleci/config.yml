@@ -41,5 +41,5 @@ jobs:
               "drupal_core_version": "11.4",
               "custom_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
               "deprecated_code_dirs": "${PROJECT_ROOT}/web/modules/origins",
-              "supporting_repo_dependent_packages": "phpstan/phpstan-deprecation-rules phpstan/phpstan mglaman/phpstan-drupal drupal/revision_manager:^1.0@beta drupal/csp:^2.2 drupal/entity_embed:^1.7 drupal/flag:^5.0 drupal/geolocation:^4.0@beta drupal/facets:^3.0@beta drush/drush"
+              "supporting_repo_dependent_packages": "drupal/book:^2.0 drupal/entityqueue:^1.13 drupal/flood_control:^3.0 drupal/revision_manager:^1.0@beta drupal/csp:^2.2 drupal/entity_embed:^1.7 drupal/flag:^5.0 drupal/geolocation:^4.0@beta drupal/facets:^3.0@beta drush/drush"
             }
