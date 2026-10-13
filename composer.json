@@ -5,7 +5,7 @@
   "license": "MIT",
   "bin": [
       "bin/dof-dss-filehash",
-      "bin/dof-dss-mediahasher"
+      "bin/dof-dss-mediachecksum"
   ],
   "require": {
     "composer/installers": "^2.0",
