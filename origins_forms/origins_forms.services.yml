@@ -1,4 +1,4 @@
 services:
   origins_forms.title_validator:
     class: Drupal\origins_forms\UniqueTitleValidator
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@config.factory']
