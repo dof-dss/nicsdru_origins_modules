@@ -216,14 +216,17 @@ final class QaApiController extends ControllerBase {
 
     $entity_storage = $entity_type_manager->getStorage($entity);
 
-    // Determine the correct db schema id for the bundle.
-    $bundle_key = $entity === 'node' ? 'type' : 'bundle';
-
-    $ids = $entity_storage->getQuery()
+    $query = $entity_storage->getQuery()
       ->accessCheck(FALSE)
-      ->condition($bundle_key, $bundle)
-      ->condition('uid', array_values($qa_uids), 'IN')
-      ->execute();
+      ->condition('uid', array_values($qa_uids), 'IN');
+
+    if ($bundle != 'all') {
+      // Determine the correct db schema id for the bundle.
+      $bundle_key = $entity === 'node' ? 'type' : 'bundle';
+      $query->condition($bundle_key, $bundle);
+    }
+
+    $ids = $query->execute();
 
     $deleted = 0;
 
@@ -234,6 +237,7 @@ final class QaApiController extends ControllerBase {
     }
 
     return new JsonResponse(['deleted' => $deleted], 200);
+
   }
 
 }
