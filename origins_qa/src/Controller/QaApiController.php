@@ -16,6 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 final class QaApiController extends ControllerBase {
 
+  const array PERMITTED_ENTITIES = [
+    'node',
+    'media'
+  ];
+
   /**
    * The filepath to the invalid token list.
    *
@@ -186,6 +191,49 @@ final class QaApiController extends ControllerBase {
     else {
       return new JsonResponse('Flood control module not enabled', 501);
     }
+  }
+
+  /**
+   * Delete content created by QA users.
+   */
+  public function contentDelete($entity, $bundle) {
+    if (($response = $this->isValidToken()) !== TRUE) {
+      return $response;
+    }
+
+    if (!in_array($entity, self::PERMITTED_ENTITIES)) {
+      return new JsonResponse('Requested entity type (' . $entity . ') is not on the permitted list.', 400);
+    }
+
+    $entity_type_manager = \Drupal::entityTypeManager();
+
+    // Fetch all the QA role user ID's.
+    $qa_uids = $entity_type_manager->getStorage('user')
+      ->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('roles', 'qa')
+      ->execute();
+
+    $entity_storage = $entity_type_manager->getStorage($entity);
+
+    // Determine the correct db schema id for the bundle.
+    $bundle_key = $entity === 'node' ? 'type' : 'bundle';
+
+    $ids = $entity_storage->getQuery()
+      ->accessCheck(FALSE)
+      ->condition($bundle_key, $bundle)
+      ->condition('uid', array_values($qa_uids), 'IN')
+      ->execute();
+
+    $deleted = 0;
+
+    foreach (array_chunk($ids, 50) as $chunk) {
+      $entities = $entity_storage->loadMultiple($chunk);
+      $entity_storage->delete($entities);
+      $deleted += count($entities);
+    }
+
+    return new JsonResponse(['deleted' => $deleted], 200);
   }
 
 }
