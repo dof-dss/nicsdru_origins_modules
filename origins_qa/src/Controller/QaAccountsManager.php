@@ -230,7 +230,7 @@ class QaAccountsManager extends ControllerBase {
         }
         $user = User::create([
           'name' => $name,
-          'mail' => $name . '@localhost.com',
+          'mail' => 'eddtest+' . $name . '@finance-ni.gov.uk',
           'status' => 1,
           'pass' => $password,
           'roles' => [$role, 'authenticated', 'qa'],
@@ -261,7 +261,7 @@ class QaAccountsManager extends ControllerBase {
 
         $user = User::create([
           'name' => $name,
-          'mail' => $name . '@localhost.com',
+          'mail' => 'eddtest+' . $name . '@finance-ni.gov.uk',
           'status' => 1,
           'pass' => $password,
           'roles' => [$role, 'qa'],
