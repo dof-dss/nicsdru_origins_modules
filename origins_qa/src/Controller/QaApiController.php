@@ -100,8 +100,8 @@ final class QaApiController extends ControllerBase {
     }
 
     // If we're on the production environment reject the request.
-    if (getenv('PLATFORM_BRANCH') === 'main') {
-      $this->logger->warning("Origins QA module is enabled and should NOT be for production environments.");
+    if (getenv('PLATFORM_ENVIRONMENT_TYPE') === 'production') {
+      $this->logger->warning("Origins QA module is enabled and should NOT be uninstalled on production environments.");
       return new JsonResponse('Invalid environment', 405);
     }
 
@@ -213,6 +213,10 @@ final class QaApiController extends ControllerBase {
       ->accessCheck(FALSE)
       ->condition('roles', 'qa')
       ->execute();
+
+    if (empty($qa_uids)) {
+      return new JsonResponse('No QA accounts found on the site.', 422);
+    }
 
     $entity_storage = $entity_type_manager->getStorage($entity);
 
