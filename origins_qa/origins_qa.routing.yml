@@ -67,3 +67,13 @@ origins_qa.api.unflood:
     _access: 'TRUE'
   options:
     no_cache: TRUE
+origins_qa.api.content_delete:
+  path: '/origins-qa/api/content/{entity}/{bundle}/{token}'
+  defaults:
+    _title: 'Delete content created by QA role accounts'
+    _controller: '\Drupal\origins_qa\Controller\QaApiController::contentDelete'
+    methods: [GET]
+  requirements:
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
