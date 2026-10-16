@@ -27,6 +27,40 @@ function origins_qa_update_10001() {
 }
 
 /**
+ * Set the email address of QA accounts to eddtest+<account name>@finance-ni.gov.uk.
+ */
+function origins_qa_update_10002() {
+  $accounts = \Drupal::entityTypeManager()
+    ->getStorage('user')
+    ->loadByProperties(['roles' => 'qa']);
+
+  $email_validator = \Drupal::service('email.validator');
+  $updated = 0;
+
+  foreach ($accounts as $account) {
+    /** @var \Drupal\user\UserInterface $account */
+    // Whitespace is not valid in the local part of an email address.
+    $name = preg_replace('/\s+/', '.', $account->getAccountName());
+    $email = 'eddtest+' . $name . '@finance-ni.gov.uk';
+
+    if (!$email_validator->isValid($email)) {
+      \Drupal::logger('origins_qa')->warning('Unable to set a valid email for QA account @name (@uid).', [
+        '@name' => $account->getAccountName(),
+        '@uid' => $account->id(),
+      ]);
+      continue;
+    }
+
+    if ($account->getEmail() !== $email) {
+      $account->setEmail($email)->save();
+      $updated++;
+    }
+  }
+
+  return t('Updated the email address of @count QA accounts.', ['@count' => $updated]);
+}
+
+/**
  * Implements hook_requirements().
  */
 function origins_qa_requirements($phase) {
