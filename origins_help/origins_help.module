@@ -46,6 +46,7 @@ function origins_help_page_attachments(array &$attachments) {
   }
 
   $attachments['#attached']['library'][] = 'origins_help/help_modal';
+  $attachments['#attached']['library'][] = 'origins_help/tour_styles';
 
   // DO NOT fake tour name here.
   $attachments['#attached']['drupalSettings']['originsHelp'] = [
@@ -97,4 +98,35 @@ function origins_help_tour_tips_alter(array &$tour_tips, EntityInterface $entity
  */
 function origins_help_tour_build_alter(array &$build, array $entities) {
   $build['#attached']['library'][] = 'origins_help/tour_styles';
+}
+
+/**
+ * Implements hook_preprocess_page_title().
+ */
+function origins_help_preprocess_page_title(array &$variables) {
+  /** @var \Drupal\tour\TourHelper $tour_helper */
+  $tour_helper = \Drupal::service('tour.helper');
+
+  // Only add the button when the current route has a matching Tour.
+  $tours = $tour_helper->loadTourEntities();
+
+  if (empty($tours)) {
+    return;
+  }
+
+  $variables['title_suffix']['origins_help_tour'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'button',
+    '#value' => t('Tour'),
+    '#attributes' => [
+      'type' => 'button',
+      'class' => [
+        'toolbar-icon',
+        'toolbar-item',
+        'toolbar-icon-help',
+        'js-tour-start-toolbar',
+        'tour-button',
+      ],
+    ],
+  ];
 }
