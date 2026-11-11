@@ -5,8 +5,8 @@
  * Contains origins_ckeditor_enhancements.module.
  */
 
-use Drupal\Core\Form\FormStateInterface;
 use Drupal\ckeditor5\Plugin\CKEditor5PluginDefinition;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_element_info_alter().
@@ -21,6 +21,7 @@ function origins_ckeditor_enhancements_element_info_alter(array &$types) {
  * Removes the filter-help 'About text formats' text.
  */
 function origins_ckeditor_enhancements_remove_format_help_process_text_format_element(&$element, FormStateInterface $form_state, &$complete_form) {
+  dsm($element);
   // Only remove the filter help if the user doesn't have permission
   // to use the 'Full HTML' text format.
   if (!\Drupal::currentUser()->hasPermission('use text format full_html')) {
@@ -28,26 +29,6 @@ function origins_ckeditor_enhancements_remove_format_help_process_text_format_el
     $element['format']['help']['#access'] = FALSE;
   }
   return $element;
-}
-
-/**
- * Implements hook_editor_js_settings_alter().
- */
-function origins_ckeditor_enhancements_editor_js_settings_alter(array &$settings) {
-  // Add ADDRESS to format menu in text formats using CKEditor.
-  foreach (array_keys($settings['editor']['formats']) as $text_format_id) {
-    if ($settings['editor']['formats'][$text_format_id]['editor'] === 'ckeditor') {
-      if (isset($settings['editor']['formats'][$text_format_id]['editorSettings']['format_tags'])) {
-        $settings['editor']['formats'][$text_format_id]['editorSettings']['format_tags'] .= ';address';
-      }
-
-      // Turn off paste from word prompt.
-      $word_cleanup_prompt = &$settings['editor']['formats'][$text_format_id]['editorSettings']['pasteFromWordPromptCleanup'];
-      if (!empty($word_cleanup_prompt)) {
-        $word_cleanup_prompt = FALSE;
-      }
-    }
-  }
 }
 
 /**
