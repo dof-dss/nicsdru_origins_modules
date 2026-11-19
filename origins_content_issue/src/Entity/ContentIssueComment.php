@@ -95,12 +95,14 @@ final class ContentIssueComment extends ContentEntityBase {
     if ($notify) {
       $site_name = \Drupal::config('system.site')->get('name');
       $current_user = \Drupal::currentUser();
+      /** @var \Drupal\origins_content_issue\ContentIssueInterface $content_issue */
       $content_issue = $this->get('issue_entity')->entity;
       // The node ID and revision the content issue is referencing.
       $content_entity_id = $content_issue->get('content_entity_id')->getString();
       $content_entity_revision_id = $content_issue->get('content_entity_revision_id')->getString();
 
       $reported_by = $content_issue->getOwner();
+      /** @var \Drupal\user\UserInterface $assigned_to */
       $assigned_to = $content_issue->get('assigned_to')->entity;
       $email_to = [];
 

@@ -69,8 +69,12 @@ final class ContentIssueCommentController extends ControllerBase {
    *   The id of the comment to edit.
    */
   public function editForm(int|string $comment_id): array {
-    // @phpstan-ignore-next-line.
+    /** @var \Drupal\origins_content_issue\Entity\ContentIssueComment|null $comment */
     $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
+
+    if ($comment === NULL) {
+      throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException();
+    }
 
     $form_state['values']['issue_entity'] = $comment->get('issue_entity')->getString();
     $form_state['values']['comment_id'] = $comment_id;

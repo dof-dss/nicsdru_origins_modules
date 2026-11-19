@@ -11,6 +11,9 @@ class ContentIssueAccessControlHandler extends EntityAccessControlHandler {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\origins_content_issue\ContentIssueInterface $entity
+   *   The content issue entity.
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {

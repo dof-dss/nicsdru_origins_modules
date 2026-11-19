@@ -161,7 +161,8 @@ final class ContentIssue extends RevisionableContentEntityBase implements Conten
     // Process new content issues only.
     if (!$update) {
       $author = $this->getOwner();
-      $assigned_to = $this->get('assigned_to')?->first()?->get('entity')?->getTarget()?->getValue();
+      /** @var \Drupal\user\UserInterface $assigned_to */
+      $assigned_to = $this->get('assigned_to')->entity;
       $notify = \Drupal::config('origins_content_issue.settings')->get('notify_on_create') ?? TRUE;
 
       // Email assigned user if they are not the reporter and notifications are enabled.

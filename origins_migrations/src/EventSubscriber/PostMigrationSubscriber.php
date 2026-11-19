@@ -72,6 +72,7 @@ class PostMigrationSubscriber implements EventSubscriberInterface {
   protected function processRedirects() {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
+    /** @var \Drupal\redirect\Entity\Redirect[] $redirects */
     $redirects = $redirect_storage->loadMultiple();
     $path_alias_storage = $this->entityTypeManager->getStorage('path_alias');
 

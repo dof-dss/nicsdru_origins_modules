@@ -18,6 +18,9 @@ final class UniqueListItemsConstraintValidator extends ConstraintValidator {
    * {@inheritdoc}
    */
   public function validate(mixed $items, Constraint $constraint): void {
+    if (!$constraint instanceof UniqueListItemsConstraint) {
+      throw new \Symfony\Component\Validator\Exception\UnexpectedTypeException($constraint, UniqueListItemsConstraint::class);
+    }
 
     if (!$items instanceof FieldItemListInterface) {
       throw new \InvalidArgumentException(

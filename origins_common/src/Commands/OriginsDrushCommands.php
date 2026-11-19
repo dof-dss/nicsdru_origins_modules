@@ -35,6 +35,7 @@ class OriginsDrushCommands extends DrushCommands {
   public function deleteRedirects() {
     // Retrieve all redirects.
     $redirect_storage = $this->entityTypeManager->getStorage('redirect');
+    /** @var \Drupal\redirect\Entity\Redirect[] $redirects */
     $redirects = $redirect_storage->loadMultiple();
     foreach ($redirects as $redirect) {
       $redirectpath = $redirect->getSource()['path'];
