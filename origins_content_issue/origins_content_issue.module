@@ -337,6 +337,7 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->condition('status', 1)
         ->accessCheck(FALSE)
         ->execute();
+      /** @var \Drupal\origins_content_issue\ContentIssueInterface $content_issue */
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
         $content_issue->set('status', FALSE)->save();
       }
@@ -349,6 +350,7 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
         ->condition('uid', $account->id())
         ->accessCheck(FALSE)
         ->execute();
+      /** @var \Drupal\origins_content_issue\ContentIssueInterface $content_issue */
       foreach ($storage->loadMultiple($content_issue_ids) as $content_issue) {
         $content_issue->setOwnerId(0)->save();
       }
@@ -361,6 +363,7 @@ function origins_content_issue_user_cancel($edit, UserInterface $account, $metho
  */
 function origins_content_issue_user_predelete(UserInterface $account): void {
   // Delete content issues that belong to this account.
+  /** @var \Drupal\Core\Entity\RevisionableStorageInterface $storage */
   $storage = \Drupal::entityTypeManager()->getStorage('content_issue');
   $content_issue_ids = $storage->getQuery()
     ->condition('uid', $account->id())

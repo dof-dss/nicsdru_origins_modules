@@ -90,6 +90,9 @@ final class OriginsDefault extends RevisionManagerBase {
 
   /**
    * {@inheritdoc}
+   *
+   * @param \Drupal\Core\Entity\RevisionableInterface&\Drupal\Core\Entity\RevisionLogInterface $entity
+   *   The revision with its creation time.
    */
   public function deleteRevisions(RevisionableInterface $entity): array {
     $published_vid = $this->entityTypeManager->getStorage('node')->getLatestRevisionId($entity->id());

@@ -238,6 +238,7 @@ final class ProcessEntityFieldsForm extends FormBase {
     foreach ($process_fields as $field) {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
+      /** @var \Drupal\Core\Entity\Sql\SqlEntityStorageInterface $storage */
       // @phpstan-ignore-next-line.
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
       $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
@@ -453,7 +454,10 @@ final class ProcessEntityFieldsForm extends FormBase {
    *   Batch API context array.
    */
   public static function processFieldValue($services, $value_field_data, &$context) {
-    extract($services);
+    $entity_type_manager = $services['entity_type_manager'];
+    $redirect_repo = $services['redirect_repo'];
+    $path_alias_manager = $services['path_alias_manager'];
+    $content_entity_types = $services['content_entity_types'];
     $value_field_updated = '';
     $field_is_updated = FALSE;
     $value_field_contents = $value_field_data['content'];
@@ -510,6 +514,9 @@ final class ProcessEntityFieldsForm extends FormBase {
     }
 
     foreach ($link_elements as $link_element) {
+      if (!$link_element instanceof \DOMElement) {
+        continue;
+      }
       $is_redirected = FALSE;
       $is_self_referencing = FALSE;
       if (!$link_element->hasAttribute('href')) {

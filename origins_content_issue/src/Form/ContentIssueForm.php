@@ -66,7 +66,8 @@ final class ContentIssueForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
-    $entity = $form_state->getFormObject()->getEntity();
+    /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
+    $entity = $this->getEntity();
     $is_new = $entity->isNew();
     // @phpstan-ignore-next-line
     $current_user = \Drupal::currentUser()->id();
@@ -133,7 +134,8 @@ final class ContentIssueForm extends ContentEntityForm {
    * Submit callback for creating or updating a content issue.
    */
   public function ajaxSubmit($form, FormStateInterface $form_state) {
-    $entity = $form_state->getformObject()->getEntity();
+    /** @var \Drupal\origins_content_issue\ContentIssueInterface $entity */
+    $entity = $this->getEntity();
 
     $response = new AjaxResponse();
 

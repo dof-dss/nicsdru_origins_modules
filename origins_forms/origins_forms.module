@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\EntityFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\node\NodeInterface;
@@ -51,8 +52,11 @@ function origins_forms_form_node_form_alter(&$form, FormStateInterface $form_sta
 
   // Ensure we only process revisions warnings on node edit forms.
   if ($config->get('enable_revisions_warning') && str_contains($form_id, 'edit')) {
-    /* @var $node \Drupal\node\NodeInterface */
-    $node = $form_state->getFormObject()->getEntity();
+    $form_object = $form_state->getFormObject();
+    if (!$form_object instanceof EntityFormInterface) {
+      return;
+    }
+    $node = $form_object->getEntity();
 
     if (!$node instanceof NodeInterface) {
       return;

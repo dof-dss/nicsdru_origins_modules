@@ -66,7 +66,7 @@ final class ModerationStateController extends ControllerBase implements Containe
   /**
    * The Event Dispatcher service.
    *
-   * @var \Drupal\Component\EventDispatcher\ContainerAwareEventDispatcher
+   * @var \Symfony\Component\EventDispatcher\EventDispatcher
    */
   protected $eventDispatcher;
 

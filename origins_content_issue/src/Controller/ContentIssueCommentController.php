@@ -10,6 +10,7 @@ use Drupal\Core\Ajax\RemoveCommand;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Returns responses for Origins content issue routes.
@@ -69,8 +70,12 @@ final class ContentIssueCommentController extends ControllerBase {
    *   The id of the comment to edit.
    */
   public function editForm(int|string $comment_id): array {
-    // @phpstan-ignore-next-line.
-    $comment = \Drupal::entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
+    /** @var \Drupal\origins_content_issue\Entity\ContentIssueComment|null $comment */
+    $comment = $this->entityTypeManager()->getStorage('content_issue_comment')->load($comment_id);
+
+    if ($comment === NULL) {
+      throw new NotFoundHttpException();
+    }
 
     $form_state['values']['issue_entity'] = $comment->get('issue_entity')->getString();
     $form_state['values']['comment_id'] = $comment_id;

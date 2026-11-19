@@ -103,7 +103,7 @@ final class ContentIssueCommentForm extends ContentEntityForm {
    * Submit callback for creating a content issue comment.
    */
   public function ajaxSubmitAdd(array $form, FormStateInterface $form_state) {
-    $entity = $form_state->getformObject()->getEntity();
+    $entity = $this->getEntity();
 
     $response = new AjaxResponse();
     $comment_build = $this->contentIssueManager->renderComment($entity->id());
@@ -118,7 +118,7 @@ final class ContentIssueCommentForm extends ContentEntityForm {
    * Submit callback for updating a content issue comment.
    */
   public function ajaxSubmitEdit(array $form, FormStateInterface $form_state) {
-    $entity = $form_state->getformObject()->getEntity();
+    $entity = $this->getEntity();
 
     $response = new AjaxResponse();
     $comment_build = $this->contentIssueManager->renderComment($entity->id());
