@@ -239,6 +239,7 @@ final class ProcessEntityFieldsForm extends FormBase {
       $entity_type = substr($field, 0, strrpos($field, '.'));
       $field_id = substr($field, strrpos($field, '.') + 1);
       /** @var \Drupal\Core\Entity\Sql\SqlEntityStorageInterface $storage */
+      // @phpstan-ignore-next-line.
       $storage = \Drupal::entityTypeManager()->getStorage($entity_type);
       $tables = $storage->getTableMapping()->getAllFieldTableNames($field_id);
       $fields_data[$entity_type][$field] = $tables;

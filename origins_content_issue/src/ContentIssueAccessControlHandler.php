@@ -14,6 +14,10 @@ class ContentIssueAccessControlHandler extends EntityAccessControlHandler {
    *
    * @param \Drupal\origins_content_issue\ContentIssueInterface $entity
    *   The content issue entity.
+   * @param string $operation
+   *   The operation to check.
+   * @param \Drupal\Core\Session\AccountInterface $account
+   *   The account requesting access.
    */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     switch ($operation) {

@@ -8,6 +8,7 @@ use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Field\FieldItemListInterface;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 /**
  * Validates the Unique List Items constraint.
@@ -19,7 +20,7 @@ final class UniqueListItemsConstraintValidator extends ConstraintValidator {
    */
   public function validate(mixed $items, Constraint $constraint): void {
     if (!$constraint instanceof UniqueListItemsConstraint) {
-      throw new \Symfony\Component\Validator\Exception\UnexpectedTypeException($constraint, UniqueListItemsConstraint::class);
+      throw new UnexpectedTypeException($constraint, UniqueListItemsConstraint::class);
     }
 
     if (!$items instanceof FieldItemListInterface) {
