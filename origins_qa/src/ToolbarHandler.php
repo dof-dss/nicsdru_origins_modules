@@ -25,10 +25,13 @@ class ToolbarHandler implements ContainerInjectionInterface {
    *   The current user.
    * @param \Drupal\Core\StringTranslation\TranslationInterface $string_translation
    *   The string translation service.
+   * @param \Drupal\origins_qa\CacheToggle $cacheToggle
+   *   The cache toggle service.
    */
   public function __construct(
     protected AccountProxyInterface $account,
     TranslationInterface $string_translation,
+    protected CacheToggle $cacheToggle,
   ) {
     $this->stringTranslation = $string_translation;
   }
@@ -40,6 +43,7 @@ class ToolbarHandler implements ContainerInjectionInterface {
     return new static(
       $container->get('current_user'),
       $container->get('string_translation'),
+      $container->get('origins_qa.cache_toggle'),
     );
   }
 
@@ -55,6 +59,7 @@ class ToolbarHandler implements ContainerInjectionInterface {
     $items['origins_qa'] = [
       '#cache' => [
         'contexts' => ['user.permissions'],
+        'tags' => [CacheToggle::CACHE_TAG],
       ],
     ];
 
@@ -77,12 +82,20 @@ class ToolbarHandler implements ContainerInjectionInterface {
       ],
     ];
 
+    $caching_disabled = $this->cacheToggle->isDisabled();
+    if ($this->cacheToggle->isAvailable()) {
+      $links['toggle_caching'] = [
+        'title' => $caching_disabled ? $this->t('Enable caching') : $this->t('Disable caching'),
+        'url' => Url::fromRoute('origins_qa.caching.toggle', ['status' => $caching_disabled ? 'enable' : 'disable']),
+      ];
+    }
+
     $items['origins_qa'] += [
       '#type' => 'toolbar_item',
       '#weight' => 1001,
       'tab' => [
         '#type' => 'link',
-        '#title' => $this->t('QA'),
+        '#title' => $caching_disabled ? $this->t('QA (caching off)') : $this->t('QA'),
         '#url' => Url::fromRoute('origins_qa.manager.list'),
         '#attributes' => [
           'title' => $this->t('Quality Assurance menu'),

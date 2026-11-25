@@ -1,0 +1,18 @@
+services:
+  logger.channel.origins_qa:
+    parent: logger.channel_base
+    arguments: ['origins_qa']
+  origins_qa.cache_toggle:
+    class: Drupal\origins_qa\CacheToggle
+    arguments: ['@state', '@cache_tags.invalidator', '@logger.channel.origins_qa', '@?fastly.api']
+  origins_qa.page_cache_request_policy.caching_disabled:
+    class: Drupal\origins_qa\PageCache\DenyWhenCachingDisabled
+    arguments: ['@origins_qa.cache_toggle']
+    tags:
+      - { name: page_cache_request_policy }
+      - { name: dynamic_page_cache_request_policy }
+  origins_qa.no_cache_headers_subscriber:
+    class: Drupal\origins_qa\EventSubscriber\NoCacheHeadersSubscriber
+    arguments: ['@origins_qa.cache_toggle']
+    tags:
+      - { name: event_subscriber }

@@ -67,3 +67,15 @@ origins_qa.api.unflood:
     _access: 'TRUE'
   options:
     no_cache: TRUE
+origins_qa.caching.toggle:
+  path: '/admin/origins/qa/caching/{status}'
+  defaults:
+    _title: 'Toggle site caching'
+    _controller: '\Drupal\origins_qa\Controller\CacheToggleController::toggle'
+  requirements:
+    _permission: 'toggle qa caching'
+    _csrf_token: 'TRUE'
+    status: 'enable|disable'
+  options:
+    _admin_route: TRUE
+    no_cache: TRUE
