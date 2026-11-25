@@ -1,4 +1,11 @@
+view qa toolbar:
+  description: 'View and access options int he QA admin toolbar.'
+  title: 'View QA toolbar'
+  restrict access: TRUE
 manage qa accounts:
   description: 'View the QA account list and bulk manage QA accounts.'
   title: 'Manage QA accounts'
   restrict access: TRUE
+view qa toolbar:
+  description: 'View the Quality Assurance menu in the admin toolbar.'
+  title: 'View QA toolbar'
