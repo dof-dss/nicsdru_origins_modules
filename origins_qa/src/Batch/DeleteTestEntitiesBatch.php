@@ -10,7 +10,16 @@ namespace Drupal\origins_qa\Batch;
 final class DeleteTestEntitiesBatch {
 
   /**
+   * Maximum number of failed entity labels shown in the completion message.
+   */
+  protected const FAILURE_MESSAGE_LIMIT = 10;
+
+  /**
    * Deletes a chunk of entities.
+   *
+   * Entities are deleted individually so that one entity that cannot be
+   * deleted, e.g. a topic which still has active child content, is logged and
+   * skipped rather than halting the batch.
    *
    * @param string $entity_type_id
    *   The entity type ID, e.g. 'node' or 'media'.
@@ -21,14 +30,26 @@ final class DeleteTestEntitiesBatch {
    */
   public static function process(string $entity_type_id, array $ids, array|\ArrayAccess &$context): void {
     $storage = \Drupal::entityTypeManager()->getStorage($entity_type_id);
-    $entities = $storage->loadMultiple($ids);
+    $logger = \Drupal::logger('origins_qa');
+    $deleted = 0;
 
-    if ($entities !== []) {
-      $storage->delete($entities);
+    foreach ($storage->loadMultiple($ids) as $entity) {
+      try {
+        $storage->delete([$entity]);
+        $deleted++;
+      }
+      catch (\Exception $e) {
+        $label = $entity->label() . ' (' . $entity->bundle() . ', ' . $entity->id() . ')';
+        $context['results']['failed'][] = $label;
+        $logger->warning('Unable to delete automated test content @label: @message', [
+          '@label' => $label,
+          '@message' => \strip_tags($e->getMessage()),
+        ]);
+      }
     }
 
     $context['results']['entity_type_id'] = $entity_type_id;
-    $context['results']['deleted'] = ($context['results']['deleted'] ?? 0) + \count($entities);
+    $context['results']['deleted'] = ($context['results']['deleted'] ?? 0) + $deleted;
     $context['message'] = \t('Deleted @count…', [
       '@count' => self::countLabel($entity_type_id, (int) $context['results']['deleted']),
     ]);
@@ -52,6 +73,23 @@ final class DeleteTestEntitiesBatch {
 
     if ($success) {
       $messenger->addStatus(\t('Deleted @count of automated test content.', ['@count' => $count]));
+    }
+
+    $failed = (array) ($results['failed'] ?? []);
+    if ($failed !== []) {
+      $items = \array_slice($failed, 0, self::FAILURE_MESSAGE_LIMIT);
+      $remaining = \count($failed) - \count($items);
+      if ($remaining > 0) {
+        $items[] = \t('…and @count more', ['@count' => $remaining]);
+      }
+      $build = [
+        '#theme' => 'item_list',
+        '#title' => \t('@count could not be deleted. See the recent log messages for details.', [
+          '@count' => self::countLabel($entity_type_id, \count($failed)),
+        ]),
+        '#items' => $items,
+      ];
+      $messenger->addWarning(\Drupal::service('renderer')->renderInIsolation($build));
     }
     else {
       $messenger->addError(\t('An error occurred after deleting @count of automated test content. Check the logs and try again.', ['@count' => $count]));

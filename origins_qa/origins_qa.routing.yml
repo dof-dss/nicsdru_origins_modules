@@ -97,3 +97,12 @@ origins_qa.delete_test_media:
     _permission: 'view qa toolbar'
   options:
     _admin_route: TRUE
+origins_qa.settings:
+  path: '/admin/config/origins/qa'
+  defaults:
+    _title: 'QA settings'
+    _form: '\Drupal\origins_qa\Form\QaSettingsForm'
+  requirements:
+    _permission: 'view qa toolbar'
+  options:
+    _admin_route: TRUE

@@ -7,6 +7,7 @@ namespace Drupal\origins_qa\Form;
 use Drupal\Core\Batch\BatchBuilder;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\Query\QueryInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
@@ -212,14 +213,22 @@ abstract class DeleteTestEntitiesFormBase extends ConfirmFormBase {
    */
   protected function findTestEntities(): array {
     $entity_type = $this->getEntityType();
-    $ids = $this->entityTypeManager->getStorage($entity_type->id())->getQuery()
+    $query = $this->entityTypeManager->getStorage($entity_type->id())->getQuery()
       ->accessCheck(FALSE)
       ->condition($entity_type->getKey('label'), $this->getLabelPrefix(), 'STARTS_WITH')
-      ->sort($entity_type->getKey('id'))
-      ->execute();
+      ->sort($entity_type->getKey('id'));
+    $this->alterTestEntityQuery($query);
 
-    return \array_map('intval', \array_values($ids));
+    return \array_map('intval', \array_values($query->execute()));
   }
+
+  /**
+   * Allows subclasses to add conditions to the test entity query.
+   *
+   * @param \Drupal\Core\Entity\Query\QueryInterface $query
+   *   The entity query used to find test entities.
+   */
+  protected function alterTestEntityQuery(QueryInterface $query): void {}
 
   /**
    * Gets the definition of the entity type being deleted.

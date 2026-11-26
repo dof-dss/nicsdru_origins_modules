@@ -1,0 +1,5 @@
+origins_qa.settings:
+  title: 'QA settings'
+  description: 'Configure Origins Quality Assurance tools.'
+  route_name: origins_qa.settings
+  parent: origins.admin_config

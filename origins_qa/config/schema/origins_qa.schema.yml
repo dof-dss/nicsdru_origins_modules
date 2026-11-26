@@ -1,0 +1,16 @@
+origins_qa.settings:
+  type: config_object
+  label: 'Origins QA settings'
+  mapping:
+    node_delete_bundle_order:
+      type: sequence
+      label: 'Order in which node bundles are deleted by "Delete automated test nodes"'
+      sequence:
+        type: string
+        label: 'Node bundle machine name'
+    node_delete_ignored_bundles:
+      type: sequence
+      label: 'Node bundles excluded from "Delete automated test nodes"'
+      sequence:
+        type: string
+        label: 'Node bundle machine name'
