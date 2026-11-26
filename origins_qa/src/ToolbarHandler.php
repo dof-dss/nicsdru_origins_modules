@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Toolbar integration handler for the QA tools menu.
  */
-class ToolbarHandler implements ContainerInjectionInterface {
+final class ToolbarHandler implements ContainerInjectionInterface {
 
   use StringTranslationTrait;
 
@@ -87,6 +87,17 @@ class ToolbarHandler implements ContainerInjectionInterface {
       $links['toggle_caching'] = [
         'title' => $caching_disabled ? $this->t('Enable caching') : $this->t('Disable caching'),
         'url' => Url::fromRoute('origins_qa.caching.toggle', ['status' => $caching_disabled ? 'enable' : 'disable']),
+      ];
+    }
+
+    if ($this->cacheToggle->isAvailable()) {
+      $links['delete_test_nodes'] = [
+        'title' => $this->t('Delete automated test nodes'),
+        'url' => Url::fromRoute('origins_qa.delete_test_nodes'),
+      ];
+      $links['delete_test_media'] = [
+        'title' => $this->t('Delete automated test media'),
+        'url' => Url::fromRoute('origins_qa.delete_test_media'),
       ];
     }
 
