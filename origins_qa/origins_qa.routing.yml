@@ -4,14 +4,14 @@ origins_qa.manager.list:
     _title: 'Quality Assurance accounts'
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::list'
   requirements:
-    _permission: 'manage qa accounts'
+    _permission: 'manage qa accounts+view qa toolbar'
 origins_qa.manager.toggleAll:
   path: '/admin/origins/qa/toggle-all/{action}'
   defaults:
     _title: 'Enable / disable all QA accounts'
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::toggleAll'
   requirements:
-    _permission: 'manage qa accounts'
+    _permission: 'manage qa accounts+view qa toolbar'
   options:
     parameters:
       action:
@@ -22,7 +22,7 @@ origins_qa.manager.password_form_modal:
     _title: 'Modal Form'
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayPasswordForm'
   requirements:
-    _permission: 'manage qa accounts'
+    _permission: 'manage qa accounts+view qa toolbar'
   options:
     _admin_route: TRUE
 origins_qa.manager.qa_account_create_form_modal:
@@ -31,7 +31,7 @@ origins_qa.manager.qa_account_create_form_modal:
     _title: 'Modal Form'
     _controller: '\Drupal\origins_qa\Controller\QaAccountsManager::displayAccountCreationForm'
   requirements:
-    _permission: 'manage qa accounts'
+    _permission: 'manage qa accounts+view qa toolbar'
   options:
     _admin_route: TRUE
 
@@ -67,3 +67,42 @@ origins_qa.api.unflood:
     _access: 'TRUE'
   options:
     no_cache: TRUE
+origins_qa.caching.toggle:
+  path: '/admin/origins/qa/caching/{status}'
+  defaults:
+    _title: 'Toggle site caching'
+    _controller: '\Drupal\origins_qa\Controller\CacheToggleController::toggle'
+  requirements:
+    _permission: 'view qa toolbar'
+    _csrf_token: 'TRUE'
+    status: 'enable|disable'
+  options:
+    _admin_route: TRUE
+    no_cache: TRUE
+origins_qa.delete_test_nodes:
+  path: '/admin/origins/qa/delete-test-nodes'
+  defaults:
+    _title: 'Delete automated test nodes'
+    _form: '\Drupal\origins_qa\Form\DeleteTestNodesForm'
+  requirements:
+    _permission: 'view qa toolbar'
+  options:
+    _admin_route: TRUE
+origins_qa.delete_test_media:
+  path: '/admin/origins/qa/delete-test-media'
+  defaults:
+    _title: 'Delete automated test media'
+    _form: '\Drupal\origins_qa\Form\DeleteTestMediaForm'
+  requirements:
+    _permission: 'view qa toolbar'
+  options:
+    _admin_route: TRUE
+origins_qa.settings:
+  path: '/admin/config/origins/qa'
+  defaults:
+    _title: 'QA settings'
+    _form: '\Drupal\origins_qa\Form\QaSettingsForm'
+  requirements:
+    _permission: 'view qa toolbar'
+  options:
+    _admin_route: TRUE

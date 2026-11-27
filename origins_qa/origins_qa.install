@@ -27,6 +27,19 @@ function origins_qa_update_10001() {
 }
 
 /**
+ * Create the Origins QA settings configuration.
+ */
+function origins_qa_update_10002() {
+  $config = \Drupal::configFactory()->getEditable('origins_qa.settings');
+  if ($config->isNew()) {
+    $config
+      ->set('node_delete_bundle_order', [])
+      ->set('node_delete_ignored_bundles', [])
+      ->save();
+  }
+}
+
+/**
  * Implements hook_requirements().
  */
 function origins_qa_requirements($phase) {

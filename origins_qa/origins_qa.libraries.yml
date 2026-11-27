@@ -5,3 +5,8 @@ origins_qa:
     - core/jquery
     - core/drupal.dialog.ajax
     - core/jquery.form
+
+origins_qa.toolbar:
+  css:
+    component:
+      css/origins_qa.toolbar.css: {}

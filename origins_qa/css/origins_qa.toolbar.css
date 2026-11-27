@@ -1,0 +1,12 @@
+.toolbar .toolbar-bar .toolbar-icon-origins-qa::before {
+  background-image: url(../images/qa.svg);
+}
+
+.toolbar-bar .toolbar-icon-origins-qa:active::before,
+.toolbar-bar .toolbar-icon-origins-qa.is-active::before {
+  background-image: url(../images/qa_active.svg);
+}
+
+.toolbar .toolbar-tray-horizontal .toolbar-menu {
+  float: left; /* LTR */
+}
